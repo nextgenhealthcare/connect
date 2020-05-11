@@ -58,6 +58,14 @@ public class MirthSSLUtil {
             "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
             "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" };
 
+    public static final String[] PREFERRED_HTTPS_CIPHER_SUITES = new String[] {
+            "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256","TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+            "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384","TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+    };
+
+
+
+
     private static Logger logger = Logger.getLogger(MirthSSLUtil.class);
 
     public static String[] getSupportedHttpsProtocols() {

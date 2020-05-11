@@ -140,7 +140,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      */
     public Client(String address) throws URISyntaxException {
         // Default timeout is infinite.
-        this(address, 0, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES, null);
+        this(address, 0, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.PREFERRED_HTTPS_CIPHER_SUITES, null);
     }
 
     public Client(String address, String[] httpsProtocols, String[] httpsCipherSuites) throws URISyntaxException {

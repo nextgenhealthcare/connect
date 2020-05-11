@@ -22,7 +22,7 @@ import com.mirth.connect.util.MirthSSLUtil;
 
 public class DICOMConfigurationUtil {
 
-    public static void configureDcmRcv(MirthDcmRcv dcmrcv, DICOMReceiver connector, DICOMReceiverProperties connectorProperties, String[] protocols) throws Exception {
+    public static void configureDcmRcv(MirthDcmRcv dcmrcv, DICOMReceiver connector, DICOMReceiverProperties connectorProperties, String[] protocols, String[] bcpCipherSuites, String[] nonDowngradingBcpCipherSuites) throws Exception {
         if (!StringUtils.equals(connectorProperties.getTls(), "notls")) {
             if (connectorProperties.getTls().equals("without")) {
                 dcmrcv.setTlsWithoutEncyrption();
@@ -30,6 +30,10 @@ public class DICOMConfigurationUtil {
                 dcmrcv.setTls3DES_EDE_CBC();
             } else if (connectorProperties.getTls().equals("aes")) {
                 dcmrcv.setTlsAES_128_CBC();
+            } else if (connectorProperties.getTls().equals("bcp")) {
+                dcmrcv.setBcp195(bcpCipherSuites);
+            } else if (connectorProperties.getTls().equals("non_bcp")) {
+                dcmrcv.setNonDowngradingBcp195(nonDowngradingBcpCipherSuites);
             }
 
             String trustStore = connector.getReplacer().replaceValues(connectorProperties.getTrustStore(), connector.getChannelId(), connector.getChannel().getName());
@@ -79,7 +83,7 @@ public class DICOMConfigurationUtil {
         }
     }
 
-    public static void configureDcmSnd(MirthDcmSnd dcmsnd, DICOMDispatcher connector, DICOMDispatcherProperties connectorProperties, String[] protocols) throws Exception {
+    public static void configureDcmSnd(MirthDcmSnd dcmsnd, DICOMDispatcher connector, DICOMDispatcherProperties connectorProperties, String[] protocols, String[] bcpCipherSuites, String[] nonDowngradingBcpCipherSuites) throws Exception {
         if (connectorProperties.getTls() != null && !connectorProperties.getTls().equals("notls")) {
             if (connectorProperties.getTls().equals("without"))
                 dcmsnd.setTlsWithoutEncyrption();
@@ -87,6 +91,10 @@ public class DICOMConfigurationUtil {
                 dcmsnd.setTls3DES_EDE_CBC();
             if (connectorProperties.getTls().equals("aes"))
                 dcmsnd.setTlsAES_128_CBC();
+            if (connectorProperties.getTls().equals("bcp"))
+                dcmsnd.setBcp195(bcpCipherSuites);
+            if (connectorProperties.getTls().equals("non_bcp"))
+                dcmsnd.setNonDowngradingBcp195(nonDowngradingBcpCipherSuites);
             if (connectorProperties.getTrustStore() != null && !connectorProperties.getTrustStore().equals(""))
                 dcmsnd.setTrustStoreURL(connectorProperties.getTrustStore());
             if (connectorProperties.getTrustStorePW() != null && !connectorProperties.getTrustStorePW().equals(""))

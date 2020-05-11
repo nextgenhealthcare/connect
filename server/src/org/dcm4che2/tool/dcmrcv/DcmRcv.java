@@ -61,6 +61,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.DicomElement;
 import org.dcm4che2.data.DicomObject;
@@ -91,6 +92,8 @@ import org.slf4j.LoggerFactory;
  */
 public class DcmRcv {
 
+    private static final String WideFieldOphthalmicPhotographyStereographicProjectionImageStorage = "1.2.840.10008.5.1.4.1.1.77.1.5.5";
+
     private static final int NO_SUCH_OBJECT_INSTANCE = 0x0112;
 
     static Logger LOG = LoggerFactory.getLogger(DcmRcv.class);
@@ -98,6 +101,9 @@ public class DcmRcv {
     private static final int KB = 1024;
 
     private static final String USAGE = "dcmrcv [Options] [<aet>[@<ip>]:]<port>";
+
+    private static PropertiesConfiguration mirthConfig = new PropertiesConfiguration();
+
 
     private static final String DESCRIPTION = "DICOM Server listening on specified <port> for incoming association "
             + "requests. If no local IP address of the network interface is specified "
@@ -111,6 +117,8 @@ public class DcmRcv {
             + "=> Starts server listening on port 11112, accepting association "
             + "requests with DCMRCV as called AE title. Received objects "
             + "are stored to /tmp.";
+
+    private static String[] TLS12 = { "TLSv1.2" };
 
     private static String[] TLS1 = { "TLSv1" };
 
@@ -208,7 +216,9 @@ public class DcmRcv {
             UID.CardiacElectrophysiologyWaveformStorage,
             UID.BasicVoiceAudioWaveformStorage, UID.HangingProtocolStorage,
             UID.SiemensCSANonImageStorage,
-            UID.Dcm4cheAttributesModificationNotificationSOPClass };
+            UID.Dcm4cheAttributesModificationNotificationSOPClass,
+            WideFieldOphthalmicPhotographyStereographicProjectionImageStorage};
+
 
     private final String name;
 
@@ -271,8 +281,8 @@ public class DcmRcv {
 
     private String stgcmtRetrieveAETs;
 
-    private final DimseRSPHandler nEventReportRspHandler = 
-        new DimseRSPHandler();
+    private final DimseRSPHandler nEventReportRspHandler =
+            new DimseRSPHandler();
 
     public DcmRcv() {
         this("DCMRCV");
@@ -332,6 +342,14 @@ public class DcmRcv {
 
     public final void setTlsAES_128_CBC() {
         nc.setTlsAES_128_CBC();
+    }
+
+    public final void setBcp195(String[] cipherSuites) {
+        nc.setTlsCipherSuite(cipherSuites);
+    }
+
+    public final void setNonDowngradingBcp195(String[] cipherSuites) {
+        nc.setTlsCipherSuite(cipherSuites);
     }
 
     public final void setTlsNeedClientAuth(boolean needClientAuth) {
@@ -507,6 +525,8 @@ public class DcmRcv {
         opts.addOption(OptionBuilder.create("tls"));
 
         OptionGroup tlsProtocol = new OptionGroup();
+        tlsProtocol.addOption(new Option("tls12",
+                "disable the use of tsl1, SSLv3 and SSLv2 for TLS connections"));
         tlsProtocol.addOption(new Option("tls1",
                 "disable the use of SSLv3 and SSLv2 for TLS connections"));
         tlsProtocol.addOption(new Option("ssl3",
@@ -520,7 +540,7 @@ public class DcmRcv {
         opts.addOptionGroup(tlsProtocol);
 
         opts.addOption("noclientauth", false,
-                "disable client authentification for TLS");        
+                "disable client authentification for TLS");
 
         OptionBuilder.withArgName("file|url");
         OptionBuilder.hasArg();
@@ -563,9 +583,9 @@ public class DcmRcv {
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "file path or URL of properties for mapping Calling AETs to "
-                + "sub-directories of the storage directory specified by "
-                + "-dest, to separate the storage location dependend on "
-                + "Calling AETs.");
+                        + "sub-directories of the storage directory specified by "
+                        + "-dest, to separate the storage location dependend on "
+                        + "Calling AETs.");
         opts.addOption(OptionBuilder.create("calling2dir"));
 
 
@@ -573,25 +593,25 @@ public class DcmRcv {
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "file path or URL of properties for mapping Called AETs to "
-                + "sub-directories of the storage directory specified by "
-                + "-dest, to separate the storage location dependend on "
-                + "Called AETs.");
+                        + "sub-directories of the storage directory specified by "
+                        + "-dest, to separate the storage location dependend on "
+                        + "Called AETs.");
         opts.addOption(OptionBuilder.create("called2dir"));
 
         OptionBuilder.withArgName("sub-dir");
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "storage sub-directory used for Calling AETs for which no "
-                + " mapping is defined by properties specified by "
-                + "-calling2dir, 'OTHER' by default.");
+                        + " mapping is defined by properties specified by "
+                        + "-calling2dir, 'OTHER' by default.");
         opts.addOption(OptionBuilder.create("callingdefdir"));
 
         OptionBuilder.withArgName("sub-dir");
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "storage sub-directory used for Called AETs for which no "
-                + " mapping is defined by properties specified by "
-                + "-called2dir, 'OTHER' by default.");
+                        + " mapping is defined by properties specified by "
+                        + "-called2dir, 'OTHER' by default.");
         opts.addOption(OptionBuilder.create("calleddefdir"));
 
         OptionBuilder.withArgName("dir");
@@ -621,32 +641,32 @@ public class DcmRcv {
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "Retrieve AE Title included in Storage Commitment " +
-                "N-EVENT-REPORT in items of the Referenced SOP Sequence.");
+                        "N-EVENT-REPORT in items of the Referenced SOP Sequence.");
         scRetrieveAET.addOption(OptionBuilder.create("scretraets"));
         OptionBuilder.withArgName("aet");
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "Retrieve AE Title included in Storage Commitment " +
-                "N-EVENT-REPORT outside of the Referenced SOP Sequence.");
+                        "N-EVENT-REPORT outside of the Referenced SOP Sequence.");
         scRetrieveAET.addOption(OptionBuilder.create("scretraet"));
         opts.addOptionGroup(scRetrieveAET);
 
         opts.addOption("screusefrom", false,
                 "attempt to issue the Storage Commitment N-EVENT-REPORT on " +
-                "the same Association on which the N-ACTION operation was " +
-                "performed; use different Association for N-EVENT-REPORT by " +
-                "default.");
+                        "the same Association on which the N-ACTION operation was " +
+                        "performed; use different Association for N-EVENT-REPORT by " +
+                        "default.");
 
         opts.addOption("screuseto", false,
                 "attempt to issue the Storage Commitment N-EVENT-REPORT on " +
-                "previous initiated Association to the Storage Commitment SCU; " +
-                "initiate new Association for N-EVENT-REPORT by default.");
+                        "previous initiated Association to the Storage Commitment SCU; " +
+                        "initiate new Association for N-EVENT-REPORT by default.");
 
         OptionBuilder.withArgName("port");
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "port of Storage Commitment SCU to connect to issue " +
-                "N-EVENT-REPORT on different Association; 104 by default.");
+                        "N-EVENT-REPORT on different Association; 104 by default.");
         opts.addOption(OptionBuilder.create("scport"));
 
         OptionBuilder.withArgName("ms");
@@ -660,14 +680,14 @@ public class DcmRcv {
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "number of retries to issue N-EVENT-REPORT-RQ to Storage " +
-                "Commitment SCU, 0 by default");
+                        "Commitment SCU, 0 by default");
         opts.addOption(OptionBuilder.create("scretry"));
 
         OptionBuilder.withArgName("ms");
         OptionBuilder.hasArg();
         OptionBuilder.withDescription(
                 "interval im ms between retries to issue N-EVENT-REPORT-RQ to" +
-                "Storage Commitment SCU, 60s by default");
+                        "Storage Commitment SCU, 60s by default");
         opts.addOption(OptionBuilder.create("scretryperiod"));
 
         OptionBuilder.withArgName("maxops");
@@ -678,7 +698,7 @@ public class DcmRcv {
         opts.addOption(OptionBuilder.create("async"));
 
         opts.addOption("pdv1", false, "send only one PDV in one P-Data-TF PDU, "
-                                + "pack command and data PDV in one P-DATA-TF PDU by default.");
+                + "pack command and data PDV in one P-DATA-TF PDU by default.");
         opts.addOption("tcpdelay", false,
                 "set TCP_NODELAY socket option to false, true by default");
 
@@ -793,7 +813,7 @@ public class DcmRcv {
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         CommandLine cl = parse(args);
-        DcmRcv dcmrcv = new DcmRcv(cl.hasOption("device") 
+        DcmRcv dcmrcv = new DcmRcv(cl.hasOption("device")
                 ? cl.getOptionValue("device") : "DCMRCV");
         final List<String> argList = cl.getArgList();
         String port = argList.get(0);
@@ -824,7 +844,7 @@ public class DcmRcv {
         if (cl.hasOption("journalfilepath"))
             dcmrcv.setJournalFilePathFormat(
                     cl.getOptionValue("journalfilepath"));
-        
+
         if (cl.hasOption("defts"))
             dcmrcv.setTransferSyntax(ONLY_DEF_TS);
         else if (cl.hasOption("native"))
@@ -861,20 +881,20 @@ public class DcmRcv {
         if (cl.hasOption("reaper"))
             dcmrcv.setAssociationReaperPeriod(parseInt(cl
                             .getOptionValue("reaper"),
-                            "illegal argument of option -reaper", 1,
-                            Integer.MAX_VALUE));
+                    "illegal argument of option -reaper", 1,
+                    Integer.MAX_VALUE));
         if (cl.hasOption("rspTO"))
             dcmrcv.setDimseRspTimeout(parseInt(cl.getOptionValue("rspTO"),
                     "illegal argument of option -rspTO",
                     1, Integer.MAX_VALUE));
         if (cl.hasOption("acceptTO"))
             dcmrcv.setAcceptTimeout(parseInt(cl.getOptionValue("acceptTO"),
-                    "illegal argument of option -acceptTO", 
+                    "illegal argument of option -acceptTO",
                     1, Integer.MAX_VALUE));
         if (cl.hasOption("idleTO"))
             dcmrcv.setIdleTimeout(parseInt(cl.getOptionValue("idleTO"),
-                            "illegal argument of option -idleTO", 1,
-                            Integer.MAX_VALUE));
+                    "illegal argument of option -idleTO", 1,
+                    Integer.MAX_VALUE));
         if (cl.hasOption("requestTO"))
             dcmrcv.setRequestTimeout(parseInt(cl.getOptionValue("requestTO"),
                     "illegal argument of option -requestTO", 1,
@@ -885,14 +905,14 @@ public class DcmRcv {
                     Integer.MAX_VALUE));
         if (cl.hasOption("soclosedelay"))
             dcmrcv.setSocketCloseDelay(parseInt(cl
-                    .getOptionValue("soclosedelay"),
+                            .getOptionValue("soclosedelay"),
                     "illegal argument of option -soclosedelay", 1, 10000));
         if (cl.hasOption("rspdelay"))
             dcmrcv.setDimseRspDelay(parseInt(cl.getOptionValue("rspdelay"),
                     "illegal argument of option -rspdelay", 0, 10000));
         if (cl.hasOption("rcvpdulen"))
             dcmrcv.setMaxPDULengthReceive(parseInt(cl
-                    .getOptionValue("rcvpdulen"),
+                            .getOptionValue("rcvpdulen"),
                     "illegal argument of option -rcvpdulen", 1, 10000)
                     * KB);
         if (cl.hasOption("sndpdulen"))
@@ -929,7 +949,9 @@ public class DcmRcv {
             } else {
                 exit("Invalid parameter for option -tls: " + cipher);
             }
-            if (cl.hasOption("tls1")) {
+            if (cl.hasOption("tls12")) {
+                dcmrcv.setTlsProtocol(TLS12);
+            } else if (cl.hasOption("tls1")) {
                 dcmrcv.setTlsProtocol(TLS1);
             } else if (cl.hasOption("ssl3")) {
                 dcmrcv.setTlsProtocol(SSL3);
@@ -1092,7 +1114,7 @@ public class DcmRcv {
 
     private static String toKeyStoreType(String fname) {
         return fname.endsWith(".p12") || fname.endsWith(".P12")
-                 ? "PKCS12" : "JKS";
+                ? "PKCS12" : "JKS";
     }
 
     public void start() throws IOException {
@@ -1148,7 +1170,7 @@ public class DcmRcv {
     }
 
     void onCStoreRQ(Association as, int pcid, DicomObject rq,
-            PDVInputStream dataStream, String tsuid, DicomObject rsp)
+                    PDVInputStream dataStream, String tsuid, DicomObject rsp)
             throws IOException {
         String cuid = rq.getString(Tag.AffectedSOPClassUID);
         String iuid = rq.getString(Tag.AffectedSOPInstanceUID);
@@ -1177,7 +1199,7 @@ public class DcmRcv {
             throw new DicomServiceException(rq, Status.ProcessingFailure,
                     e.getMessage());
         }
-        
+
         // Rename the file after it has been written. See DCM-279
         if (devnull == null && file != null) {
             File rename = new File(file.getParent(), iuid);
@@ -1269,21 +1291,21 @@ public class DcmRcv {
     }
 
     void sendStgCmtResult(NetworkApplicationEntity stgcmtAE,
-            DicomObject result) throws Exception {
+                          DicomObject result) throws Exception {
         synchronized(ae) {
-            ae.setReuseAssocationFromAETitle(stgcmtReuseFrom 
+            ae.setReuseAssocationFromAETitle(stgcmtReuseFrom
                     ? new String[] { stgcmtAE.getAETitle() }
                     : new String[] {});
-            ae.setReuseAssocationToAETitle(stgcmtReuseTo 
+            ae.setReuseAssocationToAETitle(stgcmtReuseTo
                     ? new String[] { stgcmtAE.getAETitle() }
                     : new String[] {});
-           Association as = ae.connect(stgcmtAE, executor);
-           as.nevent(UID.StorageCommitmentPushModelSOPClass,
+            Association as = ae.connect(stgcmtAE, executor);
+            as.nevent(UID.StorageCommitmentPushModelSOPClass,
                     UID.StorageCommitmentPushModelSOPInstance,
                     eventTypeIdOf(result), result, UID.ImplicitVRLittleEndian,
                     nEventReportRspHandler);
-           if (!stgcmtReuseFrom && !stgcmtReuseTo)
-               as.release(true);
+            if (!stgcmtReuseFrom && !stgcmtReuseTo)
+                as.release(true);
         }
     }
 

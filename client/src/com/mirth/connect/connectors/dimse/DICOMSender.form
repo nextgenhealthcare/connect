@@ -115,6 +115,10 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="tlsAESRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
+                	       <Component id="tlsBCPRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                	       <Component id="tlsNonBCPRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                               <Component id="tlsWithoutRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="tlsNoRadio" min="-2" max="-2" attributes="0"/>
@@ -363,6 +367,8 @@
                           <Component id="tlsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="tls3DESRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="tlsAESRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="tlsBCPRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="tlsNonBCPRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="tlsWithoutRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="tlsNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -1009,6 +1015,52 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tlsAESRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tlsBCPRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="tlsButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="BCP"/>
+        <Property name="toolTipText" type="java.lang.String" value="Enable TLS connection without, 3DES or AES encryption."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tlsBcpRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tlsNonBCPRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="tlsButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="NON_BCP"/>
+        <Property name="toolTipText" type="java.lang.String" value="Enable TLS connection without, 3DES or AES encryption."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tlsNonBcpRadioActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="trustStoreLabel">

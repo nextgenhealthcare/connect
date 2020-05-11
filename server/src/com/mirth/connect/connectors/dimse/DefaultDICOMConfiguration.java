@@ -26,14 +26,20 @@ public class DefaultDICOMConfiguration implements DICOMConfiguration {
 
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private String[] protocols;
+    private String[] bcpCipherSuites;
+    private String[] nonDowngradingBcpCipherSuites;
 
     @Override
     public void configureConnectorDeploy(Connector connector) throws Exception {
         if (connector instanceof DICOMReceiver) {
             protocols = MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsServerProtocols());
+
         } else {
             protocols = MirthSSLUtil.getEnabledHttpsProtocols(configurationController.getHttpsClientProtocols());
         }
+        bcpCipherSuites = configurationController.getBcpCipherSuites();
+        nonDowngradingBcpCipherSuites = configurationController.getNonDowngradingBcpCipherSuites();
+
     }
 
     @Override
@@ -43,12 +49,12 @@ public class DefaultDICOMConfiguration implements DICOMConfiguration {
 
     @Override
     public void configureDcmRcv(MirthDcmRcv dcmrcv, DICOMReceiver connector, DICOMReceiverProperties connectorProperties) throws Exception {
-        DICOMConfigurationUtil.configureDcmRcv(dcmrcv, connector, connectorProperties, protocols);
+        DICOMConfigurationUtil.configureDcmRcv(dcmrcv, connector, connectorProperties, protocols, bcpCipherSuites, nonDowngradingBcpCipherSuites);
     }
 
     @Override
     public void configureDcmSnd(MirthDcmSnd dcmsnd, DICOMDispatcher connector, DICOMDispatcherProperties connectorProperties) throws Exception {
-        DICOMConfigurationUtil.configureDcmSnd(dcmsnd, connector, connectorProperties, protocols);
+        DICOMConfigurationUtil.configureDcmSnd(dcmsnd, connector, connectorProperties, protocols, bcpCipherSuites, nonDowngradingBcpCipherSuites);
     }
 
     @Override
