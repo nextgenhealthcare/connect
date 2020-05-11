@@ -103,6 +103,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private String[] httpsClientProtocols;
     private String[] httpsServerProtocols;
     private String[] httpsCipherSuites;
+    private String[] bcpCipherSuites;
+    private String[] nonDowngradingBcpCipherSuites;
     private boolean startupDeploy;
     private volatile Map<String, String> configurationMap = Collections.unmodifiableMap(new HashMap<String, String>());
     private volatile Map<String, String> commentMap = Collections.unmodifiableMap(new HashMap<String, String>());
@@ -127,6 +129,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String HTTPS_CLIENT_PROTOCOLS = "https.client.protocols";
     private static final String HTTPS_SERVER_PROTOCOLS = "https.server.protocols";
     private static final String HTTPS_CIPHER_SUITES = "https.ciphersuites";
+    private static final String HTTPS_CIPHER_SUITES_BCP = "https.ciphersuites.BCP_195_TLS";
+    private static final String HTTPS_CIPHER_SUITES_NON_BCP = "https.ciphersuites.Non_downgrading_BCP_195_TLS";
     private static final String TLS_PROFILE_DEFAULT = "tls.profile.default";
     private static final String STARTUP_DEPLOY = "server.startupdeploy";
     private static final String API_BYPASSWORD = "server.api.bypassword";
@@ -255,6 +259,28 @@ public class DefaultConfigurationController extends ConfigurationController {
                 httpsCipherSuites = httpsCipherSuitesList.toArray(new String[httpsCipherSuitesList.size()]);
             } else {
                 httpsCipherSuites = MirthSSLUtil.PREFERRED_HTTPS_CIPHER_SUITES;
+            }
+
+            httpsCipherSuitesArray = mirthConfig.getStringArray(HTTPS_CIPHER_SUITES_BCP);
+
+            if (ArrayUtils.isNotEmpty(httpsCipherSuitesArray)) {
+                // Support both comma separated and multiline values
+                List<String> httpsCipherSuitesList = new ArrayList<String>();
+                for (String cipherSuite : httpsCipherSuitesArray) {
+                    httpsCipherSuitesList.addAll(Arrays.asList(StringUtils.split(cipherSuite, ',')));
+                }
+                bcpCipherSuites = httpsCipherSuitesList.toArray(new String[httpsCipherSuitesList.size()]);
+            }
+
+            httpsCipherSuitesArray = mirthConfig.getStringArray(HTTPS_CIPHER_SUITES_NON_BCP);
+
+            if (ArrayUtils.isNotEmpty(httpsCipherSuitesArray)) {
+                // Support both comma separated and multiline values
+                List<String> httpsCipherSuitesList = new ArrayList<String>();
+                for (String cipherSuite : httpsCipherSuitesArray) {
+                    httpsCipherSuitesList.addAll(Arrays.asList(StringUtils.split(cipherSuite, ',')));
+                }
+                nonDowngradingBcpCipherSuites = httpsCipherSuitesList.toArray(new String[httpsCipherSuitesList.size()]);
             }
 
             String deploy = String.valueOf(mirthConfig.getProperty(STARTUP_DEPLOY));
@@ -584,6 +610,16 @@ public class DefaultConfigurationController extends ConfigurationController {
     @Override
     public String[] getHttpsCipherSuites() {
         return ArrayUtils.clone(httpsCipherSuites);
+    }
+
+    @Override
+    public String[] getBcpCipherSuites() {
+        return ArrayUtils.clone(bcpCipherSuites);
+    }
+
+    @Override
+    public String[] getNonDowngradingBcpCipherSuites() {
+        return ArrayUtils.clone(nonDowngradingBcpCipherSuites);
     }
 
     @Override

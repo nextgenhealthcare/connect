@@ -67,6 +67,10 @@ public class DICOMListener extends ConnectorSettingsPanel {
             properties.setTls("3des");
         } else if (tlsWithoutRadio.isSelected()) {
             properties.setTls("without");
+        } else if (tlsBCPRadio.isSelected()) {
+            properties.setTls("bcp");
+        } else if (tlsNonBCPRadio.isSelected()) {
+            properties.setTls("non_bcp");
         } else {
             properties.setTls("notls");
         }
@@ -152,6 +156,12 @@ public class DICOMListener extends ConnectorSettingsPanel {
         } else if (props.getTls().equals("without")) {
             tlsWithoutRadio.setSelected(true);
             tlsWithoutRadioActionPerformed(null);
+        } else if (props.getTls().equals("bcp")) {
+            tlsBCPRadio.setSelected(true);
+            tlsBcpRadioActionPerformed(null);
+        } else if (props.getTls().equals("non_bcp")) {
+            tlsNonBCPRadio.setSelected(true);
+            tlsNonBcpRadioActionPerformed(null);
         } else {
             tlsNoRadio.setSelected(true);
             tlsNoRadioActionPerformed(null);
@@ -182,6 +192,8 @@ public class DICOMListener extends ConnectorSettingsPanel {
         tls3DESRadio.setEnabled(true);
         tlsAESRadio.setEnabled(true);
         tlsWithoutRadio.setEnabled(true);
+        tlsBCPRadio.setEnabled(true);
+        tlsNonBCPRadio.setEnabled(true);
         tlsNoRadio.setEnabled(true);
         if (tls3DESRadio.isSelected()) {
             tls3DESRadioActionPerformed(null);
@@ -189,6 +201,10 @@ public class DICOMListener extends ConnectorSettingsPanel {
             tlsAESRadioActionPerformed(null);
         } else if (tlsWithoutRadio.isSelected()) {
             tlsWithoutRadioActionPerformed(null);
+        } else if (tlsBCPRadio.isSelected()) {
+            tlsBcpRadioActionPerformed(null);
+        } else if (tlsNonBCPRadio.isSelected()) {
+            tlsNonBcpRadioActionPerformed(null);
         } else {
             tlsNoRadioActionPerformed(null);
         }
@@ -200,6 +216,8 @@ public class DICOMListener extends ConnectorSettingsPanel {
         tls3DESRadio.setEnabled(false);
         tlsAESRadio.setEnabled(false);
         tlsWithoutRadio.setEnabled(false);
+        tlsBCPRadio.setEnabled(false);
+        tlsNonBCPRadio.setEnabled(false);
         tlsNoRadio.setEnabled(false);
         tlsNoRadioActionPerformed(null);
     }
@@ -267,6 +285,8 @@ public class DICOMListener extends ConnectorSettingsPanel {
         tls3DESRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         tlsAESRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         tlsWithoutRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        tlsBCPRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        tlsNonBCPRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         tlsNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         clientAuthenticationLabel = new javax.swing.JLabel();
         clientAuthenticationYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -484,6 +504,30 @@ public class DICOMListener extends ConnectorSettingsPanel {
             }
         });
 
+        tlsBCPRadio.setBackground(new java.awt.Color(255, 255, 255));
+        tlsBCPRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        tlsButtonGroup.add(tlsBCPRadio);
+        tlsBCPRadio.setText("BCP 195");
+        tlsBCPRadio.setToolTipText("BCP 195 profile.");
+        tlsBCPRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        tlsBCPRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tlsBcpRadioActionPerformed(evt);
+            }
+        });
+
+        tlsNonBCPRadio.setBackground(new java.awt.Color(255, 255, 255));
+        tlsNonBCPRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        tlsButtonGroup.add(tlsNonBCPRadio);
+        tlsNonBCPRadio.setText("BCP 195 Non Downgrading");
+        tlsNonBCPRadio.setToolTipText("BCP 195 Non Downgrading profile.");
+        tlsNonBCPRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        tlsNonBCPRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tlsNonBcpRadioActionPerformed(evt);
+            }
+        });
+
         tlsWithoutRadio.setBackground(new java.awt.Color(255, 255, 255));
         tlsWithoutRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup6.add(tlsWithoutRadio);
@@ -634,6 +678,10 @@ public class DICOMListener extends ConnectorSettingsPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(tlsAESRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(tlsNonBCPRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(tlsBCPRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(tlsWithoutRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(tlsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -762,7 +810,9 @@ public class DICOMListener extends ConnectorSettingsPanel {
                     .addComponent(tlsLabel)
                     .addComponent(tls3DESRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(tlsAESRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(tlsWithoutRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(tlsNonBCPRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(tlsBCPRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(tlsWithoutRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(tlsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -887,6 +937,50 @@ public class DICOMListener extends ConnectorSettingsPanel {
         keyPasswordLabel.setEnabled(true);
         keyPasswordField.setEnabled(true);
     }//GEN-LAST:event_tls3DESRadioActionPerformed
+
+    private void tlsBcpRadioActionPerformed(java.awt.event.ActionEvent evt) {
+        if (!tlsComponentsEnabled) {
+            return;
+        }
+        clientAuthenticationLabel.setEnabled(true);
+        clientAuthenticationYesRadio.setEnabled(true);
+        clientAuthenticationNoRadio.setEnabled(true);
+        acceptSSLv2Label.setEnabled(true);
+        acceptSSLv2YesRadio.setEnabled(true);
+        acceptSSLv2NoRadio.setEnabled(true);
+        keyStoreLabel.setEnabled(true);
+        keyStoreField.setEnabled(true);
+        keyStorePasswordLabel.setEnabled(true);
+        keyStorePasswordField.setEnabled(true);
+        trustStoreLabel.setEnabled(true);
+        trustStoreField.setEnabled(true);
+        trustStorePasswordLabel.setEnabled(true);
+        trustStorePasswordField.setEnabled(true);
+        keyPasswordLabel.setEnabled(true);
+        keyPasswordField.setEnabled(true);
+    }
+
+    private void tlsNonBcpRadioActionPerformed(java.awt.event.ActionEvent evt) {
+        if (!tlsComponentsEnabled) {
+            return;
+        }
+        clientAuthenticationLabel.setEnabled(true);
+        clientAuthenticationYesRadio.setEnabled(true);
+        clientAuthenticationNoRadio.setEnabled(true);
+        acceptSSLv2Label.setEnabled(true);
+        acceptSSLv2YesRadio.setEnabled(true);
+        acceptSSLv2NoRadio.setEnabled(true);
+        keyStoreLabel.setEnabled(true);
+        keyStoreField.setEnabled(true);
+        keyStorePasswordLabel.setEnabled(true);
+        keyStorePasswordField.setEnabled(true);
+        trustStoreLabel.setEnabled(true);
+        trustStoreField.setEnabled(true);
+        trustStorePasswordLabel.setEnabled(true);
+        trustStorePasswordField.setEnabled(true);
+        keyPasswordLabel.setEnabled(true);
+        keyPasswordField.setEnabled(true);
+    }
 
     private void nativeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nativeNoActionPerformed
         if (bigendianNo.isSelected()) {
@@ -1015,6 +1109,8 @@ public class DICOMListener extends ConnectorSettingsPanel {
     private com.mirth.connect.client.ui.components.MirthRadioButton tcpdelayYes;
     private com.mirth.connect.client.ui.components.MirthRadioButton tls3DESRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton tlsAESRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton tlsBCPRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton tlsNonBCPRadio;
     private javax.swing.JLabel tlsLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton tlsNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton tlsWithoutRadio;

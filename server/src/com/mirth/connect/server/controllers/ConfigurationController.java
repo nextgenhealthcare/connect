@@ -244,6 +244,10 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract String[] getHttpsCipherSuites();
 
+    public abstract String[] getBcpCipherSuites();
+
+    public abstract String[] getNonDowngradingBcpCipherSuites();
+
     public abstract boolean isStartupDeploy();
 
     public abstract int getStatsUpdateInterval();

@@ -129,11 +129,6 @@ public class DcmSnd extends StorageCommitmentService {
                     + "results, send DICOM object image.dcm to Application Entity STORESCP, "
                     + "listening on local port 11112, and request Storage Commitment in same association.";
 
-    private static final String[] PREFERRED_HTTPS_CIPHER_SUITES = new String[] {
-            "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256","TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-            "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384","TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
-    };
-
 
     private static String[] TLS12 = { "TLSv1.2" };
 
@@ -317,9 +312,21 @@ public class DcmSnd extends StorageCommitmentService {
     }
 
     public final void setTlsAES_128_CBC() {
-        conn.setTlsCipherSuite(PREFERRED_HTTPS_CIPHER_SUITES);
-        remoteConn.setTlsCipherSuite(PREFERRED_HTTPS_CIPHER_SUITES);
-        remoteStgcmtConn.setTlsCipherSuite(PREFERRED_HTTPS_CIPHER_SUITES);
+        conn.setTlsAES_128_CBC();
+        remoteConn.setTlsAES_128_CBC();
+        remoteStgcmtConn.setTlsAES_128_CBC();
+    }
+
+    public final void setBcp195(String[] cipherSuites) {
+        conn.setTlsCipherSuite(cipherSuites);
+        remoteConn.setTlsCipherSuite(cipherSuites);
+        remoteStgcmtConn.setTlsCipherSuite(cipherSuites);
+    }
+
+    public final void setNonDowngradingBcp195(String[] cipherSuites) {
+        conn.setTlsCipherSuite(cipherSuites);
+        remoteConn.setTlsCipherSuite(cipherSuites);
+        remoteStgcmtConn.setTlsCipherSuite(cipherSuites);
     }
 
     public final void setTlsNeedClientAuth(boolean needClientAuth) {

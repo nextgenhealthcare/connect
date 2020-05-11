@@ -61,6 +61,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.DicomElement;
 import org.dcm4che2.data.DicomObject;
@@ -101,6 +102,9 @@ public class DcmRcv {
 
     private static final String USAGE = "dcmrcv [Options] [<aet>[@<ip>]:]<port>";
 
+    private static PropertiesConfiguration mirthConfig = new PropertiesConfiguration();
+
+
     private static final String DESCRIPTION = "DICOM Server listening on specified <port> for incoming association "
             + "requests. If no local IP address of the network interface is specified "
             + "connections on any/all local addresses are accepted. If <aet> is "
@@ -113,11 +117,6 @@ public class DcmRcv {
             + "=> Starts server listening on port 11112, accepting association "
             + "requests with DCMRCV as called AE title. Received objects "
             + "are stored to /tmp.";
-
-    private static final String[] PREFERRED_HTTPS_CIPHER_SUITES = new String[] {
-            "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256","TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-            "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384","TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
-    };
 
     private static String[] TLS12 = { "TLSv1.2" };
 
@@ -342,7 +341,15 @@ public class DcmRcv {
     }
 
     public final void setTlsAES_128_CBC() {
-        nc.setTlsCipherSuite(PREFERRED_HTTPS_CIPHER_SUITES);
+        nc.setTlsAES_128_CBC();
+    }
+
+    public final void setBcp195(String[] cipherSuites) {
+        nc.setTlsCipherSuite(cipherSuites);
+    }
+
+    public final void setNonDowngradingBcp195(String[] cipherSuites) {
+        nc.setTlsCipherSuite(cipherSuites);
     }
 
     public final void setTlsNeedClientAuth(boolean needClientAuth) {
