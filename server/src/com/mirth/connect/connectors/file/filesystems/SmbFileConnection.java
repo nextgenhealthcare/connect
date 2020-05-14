@@ -20,6 +20,8 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import jcifs.CIFSContext;
+import jcifs.CIFSException;
+import jcifs.RuntimeCIFSException;
 import jcifs.config.PropertyConfiguration;
 import jcifs.context.BaseContext;
 import jcifs.smb.NtlmPasswordAuthenticator;
@@ -110,6 +112,7 @@ public class SmbFileConnection implements FileSystemConnection {
     private NtlmPasswordAuthenticator auth = null;
     private SmbFile share = null;
     private int timeout;
+    private boolean valid;
 
     public SmbFileConnection(String share, FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
         String domainAndUser = fileSystemOptions.getUsername();
@@ -144,6 +147,7 @@ public class SmbFileConnection implements FileSystemConnection {
         this.share = new SmbFile("smb://" + share, baseContext);
         this.share.setConnectTimeout(timeout);
         this.timeout = timeout;
+        this.valid = true;
     }
     
     protected SmbFile getShare() {
@@ -388,7 +392,7 @@ public class SmbFileConnection implements FileSystemConnection {
 
     @Override
     public boolean isConnected() {
-        return true;
+        return valid;
     }
 
     @Override
@@ -401,10 +405,17 @@ public class SmbFileConnection implements FileSystemConnection {
     public void passivate() {}
 
     @Override
-    public void destroy() {}
+    public void destroy () {
+        valid = false;
+        try {
+            share.getContext().close();
+        } catch (CIFSException e) {
+            throw new RuntimeCIFSException (e);
+        }
+    }
 
     @Override
     public boolean isValid() {
-        return true;
+        return valid;
     }
 }
