@@ -75,7 +75,7 @@ public class DatabaseUtil {
                         if (!ignoreErrors) {
                             throw se;
                         } else {
-                            logger.error("Error was encountered and ignored while executing statement: " + statementString, se);
+                            logger.error("Error was encountered and ignored while executing statement.", se);
                             conn.rollback();
                         }
                     }
@@ -118,7 +118,7 @@ public class DatabaseUtil {
                         if (!ignoreErrors) {
                             throw se;
                         } else {
-                            logger.error("Error was encountered and ignored while executing statement: " + statementString, se);
+                            logger.error("Error was encountered and ignored while executing statement.", se);
                             conn.rollback();
                         }
                     }
