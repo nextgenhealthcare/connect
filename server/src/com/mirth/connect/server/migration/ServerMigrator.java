@@ -247,28 +247,102 @@ public class ServerMigrator extends Migrator {
      * @throws MigrationException
      */
     private void initDatabase(Connection connection) throws MigrationException {
-        // If missing this table we can assume that they don't have the schema installed
-        if (!DatabaseUtil.tableExists(connection, "CONFIGURATION")) {
-            executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-database.sql");
+        // First make a check in case multiple servers are initializing at the same time
+        boolean insertedStartupLock = checkStartupLockTable(connection);
 
-            /*
-             * We must update the password date for the initial user. Previously we let the database
-             * set this via CURRENT_TIMESTAMP, however this could create problems if the database is
-             * running on a separate machine in a different timezone. (MIRTH-2902)
-             */
-            PreparedStatement statement = null;
+        try {
+            // If missing this table we can assume that they don't have the schema installed
+            if (!DatabaseUtil.tableExists(connection, "CONFIGURATION")) {
+                executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-database.sql");
 
-            try {
-                statement = getConnection().prepareStatement("UPDATE PERSON_PASSWORD SET PASSWORD_DATE = ?");
-                statement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
-                statement.executeUpdate();
-            } catch (SQLException e) {
-                throw new MigrationException(e);
-            } finally {
-                DbUtils.closeQuietly(statement);
+                /*
+                 * We must update the password date for the initial user. Previously we let the
+                 * database set this via CURRENT_TIMESTAMP, however this could create problems if
+                 * the database is running on a separate machine in a different timezone.
+                 * (MIRTH-2902)
+                 */
+                PreparedStatement statement = null;
+
+                try {
+                    statement = getConnection().prepareStatement("UPDATE PERSON_PASSWORD SET PASSWORD_DATE = ?");
+                    statement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+                    statement.executeUpdate();
+                } catch (SQLException e) {
+                    throw new MigrationException(e);
+                } finally {
+                    DbUtils.closeQuietly(statement);
+                }
+
+                updateVersion(Version.getLatest());
             }
+        } finally {
+            if (insertedStartupLock) {
+                clearStartupLockTable(connection);
+            }
+        }
+    }
 
-            updateVersion(Version.getLatest());
+    /**
+     * In case multiple servers startup and initialize the database at the same time, this inserts a
+     * row into a custom table and sleeps otherwise.
+     * 
+     * @throws MigrationException
+     * @return True if a row was inserted into the startup lock table.
+     */
+    private boolean checkStartupLockTable(Connection connection) throws MigrationException {
+        int startupLockSleep = getStartupLockSleep();
+        if (startupLockSleep > 0) {
+            try {
+                try {
+                    executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-create-startup-lock-table.sql");
+                } catch (Exception e) {
+                    logger.debug("Unable to create startup lock table.", e);
+                }
+
+                PreparedStatement stmt = null;
+                try {
+                    stmt = connection.prepareStatement("INSERT INTO STARTUP_LOCK (ID) VALUES (1)");
+                    int result = stmt.executeUpdate();
+                    if (result != 1) {
+                        throw new SQLException("Got insert result: " + result);
+                    }
+                    return true;
+                } catch (SQLException e) {
+                    logger.debug("Unable to insert into startup lock table.", e);
+                    logger.warn("Detected startup lock, sleeping " + startupLockSleep + "ms...");
+                    Thread.sleep(startupLockSleep);
+                } finally {
+                    DbUtils.closeQuietly(stmt);
+                }
+            } catch (Throwable t) {
+                logger.error("Error checking startup lock table.", t);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Deletes the inserted from from the startup lock table.
+     * 
+     * @throws MigrationException
+     */
+    private void clearStartupLockTable(Connection connection) throws MigrationException {
+        if (getStartupLockSleep() > 0) {
+            try {
+                PreparedStatement stmt = null;
+
+                try {
+                    stmt = connection.prepareStatement("DELETE FROM STARTUP_LOCK WHERE ID = 1");
+                    stmt.executeUpdate();
+                } catch (SQLException e) {
+                    logger.debug("Unable to delete row from startup lock table.", e);
+                } finally {
+                    DbUtils.closeQuietly(stmt);
+                }
+            } catch (Throwable t) {
+                logger.error("Error clearing startup lock table.", t);
+            }
         }
     }
 

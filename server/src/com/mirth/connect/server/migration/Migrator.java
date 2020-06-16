@@ -32,6 +32,7 @@ public abstract class Migrator {
     private Connection connection;
     private String databaseType;
     private String defaultScriptPath;
+    private int startupLockSleep;
 
     public abstract void migrate() throws MigrationException;
 
@@ -69,6 +70,14 @@ public abstract class Migrator {
 
     public void setDefaultScriptPath(String defaultScriptPath) {
         this.defaultScriptPath = defaultScriptPath;
+    }
+
+    public int getStartupLockSleep() {
+        return startupLockSleep;
+    }
+
+    public void setStartupLockSleep(int startupLockSleep) {
+        this.startupLockSleep = startupLockSleep;
     }
 
     public List<String> getUninstallStatements() throws MigrationException {

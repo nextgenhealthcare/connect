@@ -112,6 +112,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static String apiBypassword;
     private static int statsUpdateInterval;
     private static Integer rhinoLanguageVersion;
+    private static int startupLockSleep;
     private volatile boolean configMapLoaded = false;
 
     private static KeyEncryptor encryptor = null;
@@ -130,6 +131,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String API_BYPASSWORD = "server.api.bypassword";
     private static final String STATS_UPDATE_INTERVAL = "donkey.statsupdateinterval";
     private static final String RHINO_LANGUAGE_VERSION = "rhino.languageversion";
+    private static final String SERVER_STARTUP_LOCK_SLEEP = "server.startuplocksleep";
 
     private static final String DEFAULT_STOREPASS = "81uWxplDtB";
 
@@ -316,6 +318,8 @@ public class DefaultConfigurationController extends ConfigurationController {
                 rhinoLanguageVersion = getRhinoLanguageVersion(rhinoLanguageVersionStr);
                 JavaScriptSharedUtil.setRhinoLanguageVersion(rhinoLanguageVersion);
             }
+
+            startupLockSleep = NumberUtils.toInt(mirthConfig.getString(SERVER_STARTUP_LOCK_SLEEP), 0);
         } catch (Exception e) {
             logger.error("Failed to initialize configuration controller", e);
         } finally {
@@ -599,6 +603,11 @@ public class DefaultConfigurationController extends ConfigurationController {
     @Override
     public Integer getRhinoLanguageVersion() {
         return rhinoLanguageVersion;
+    }
+
+    @Override
+    public int getStartupLockSleep() {
+        return startupLockSleep;
     }
 
     @Override

@@ -92,6 +92,7 @@ public class DefaultMigrationController extends MigrationController {
             // ServerMigrator will set its own starting version
             serverMigrator.setConnection(connection);
             serverMigrator.setDatabaseType(configurationController.getDatabaseType());
+            serverMigrator.setStartupLockSleep(configurationController.getStartupLockSleep());
             serverMigrator.migrate();
         } finally {
             if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {

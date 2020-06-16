@@ -250,6 +250,8 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract Integer getRhinoLanguageVersion();
 
+    public abstract int getStartupLockSleep();
+
     /**
      * Returns the server configuration, which contains:
      * <ul>
