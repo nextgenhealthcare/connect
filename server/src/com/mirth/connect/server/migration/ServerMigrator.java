@@ -311,7 +311,7 @@ public class ServerMigrator extends Migrator {
     }
 
     /**
-     * Deletes the inserted from from the startup lock table.
+     * Deletes the inserted row from the startup lock table.
      */
     public void clearStartupLockTable(Connection connection) {
         try {
