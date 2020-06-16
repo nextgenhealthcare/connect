@@ -155,23 +155,36 @@ public class DefaultMigrationController extends MigrationController {
 
     @Override
     public boolean checkStartupLockTable() {
+        boolean insertedStartupLock = false;
+
         int startupLockSleep = configurationController.getStartupLockSleep();
         if (startupLockSleep > 0) {
-            SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
-
             try {
-                Connection connection = SqlConfig.getInstance().getSqlSessionManager().getConnection();
-                serverMigrator.setConnection(connection);
-                serverMigrator.setDatabaseType(configurationController.getDatabaseType());
-                return serverMigrator.checkStartupLockTable(connection, startupLockSleep);
-            } finally {
-                if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
-                    SqlConfig.getInstance().getSqlSessionManager().close();
+                SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
+
+                try {
+                    Connection connection = SqlConfig.getInstance().getSqlSessionManager().getConnection();
+                    serverMigrator.setConnection(connection);
+                    serverMigrator.setDatabaseType(configurationController.getDatabaseType());
+
+                    insertedStartupLock = serverMigrator.checkStartupLockTable(connection);
+                } finally {
+                    if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
+                        SqlConfig.getInstance().getSqlSessionManager().close();
+                    }
                 }
+
+                // Sleep if lock row was not able to be inserted
+                if (!insertedStartupLock) {
+                    logger.warn("Detected startup lock, sleeping " + startupLockSleep + "ms...");
+                    Thread.sleep(startupLockSleep);
+                }
+            } catch (Throwable t) {
+                logger.error("Error checking startup lock table.", t);
             }
         }
 
-        return false;
+        return insertedStartupLock;
     }
 
     @Override

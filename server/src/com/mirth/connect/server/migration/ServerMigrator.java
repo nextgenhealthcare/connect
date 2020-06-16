@@ -274,37 +274,33 @@ public class ServerMigrator extends Migrator {
 
     /**
      * In case multiple servers startup and initialize the database at the same time, this inserts a
-     * row into a custom table and sleeps otherwise.
+     * row into a custom table as a simple lock mechanism.
      * 
      * @return True if a row was inserted into the startup lock table.
      */
-    public boolean checkStartupLockTable(Connection connection, int startupLockSleep) {
-        if (startupLockSleep > 0) {
+    public boolean checkStartupLockTable(Connection connection) {
+        try {
             try {
-                try {
-                    executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-create-startup-lock-table.sql");
-                } catch (Exception e) {
-                    logger.debug("Unable to create startup lock table.", e);
-                }
-
-                PreparedStatement stmt = null;
-                try {
-                    stmt = connection.prepareStatement("INSERT INTO STARTUP_LOCK (ID) VALUES (1)");
-                    int result = stmt.executeUpdate();
-                    if (result != 1) {
-                        throw new SQLException("Got insert result: " + result);
-                    }
-                    return true;
-                } catch (SQLException e) {
-                    logger.debug("Unable to insert into startup lock table.", e);
-                    logger.warn("Detected startup lock, sleeping " + startupLockSleep + "ms...");
-                    Thread.sleep(startupLockSleep);
-                } finally {
-                    DbUtils.closeQuietly(stmt);
-                }
-            } catch (Throwable t) {
-                logger.error("Error checking startup lock table.", t);
+                executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-create-startup-lock-table.sql");
+            } catch (Exception e) {
+                logger.debug("Unable to create startup lock table.", e);
             }
+
+            PreparedStatement stmt = null;
+            try {
+                stmt = connection.prepareStatement("INSERT INTO STARTUP_LOCK (ID) VALUES (1)");
+                int result = stmt.executeUpdate();
+                if (result != 1) {
+                    throw new SQLException("Got insert result: " + result);
+                }
+                return true;
+            } catch (SQLException e) {
+                logger.debug("Unable to insert into startup lock table.", e);
+            } finally {
+                DbUtils.closeQuietly(stmt);
+            }
+        } catch (Throwable t) {
+            logger.error("Error checking startup lock table.", t);
         }
 
         return false;

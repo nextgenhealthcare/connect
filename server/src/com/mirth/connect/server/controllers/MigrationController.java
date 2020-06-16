@@ -38,11 +38,15 @@ public abstract class MigrationController extends Controller {
 
     /**
      * In case multiple servers startup and initialize the database at the same time, this inserts a
-     * row into a custom table and sleeps otherwise.
+     * row into a custom table as a simple lock mechanism. If the row wasn't able to be inserted,
+     * this method will sleep the configured amount of time (server.startuplocksleep).
      * 
      * @return True if a row was inserted into the startup lock table.
      */
     public abstract boolean checkStartupLockTable();
 
+    /**
+     * Deletes the inserted row from the startup lock table.
+     */
     public abstract void clearStartupLockTable();
 }
