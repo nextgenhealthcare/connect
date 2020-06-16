@@ -241,7 +241,7 @@ public class Mirth extends Thread {
         }
 
         // First make a check in case multiple servers are initializing at the same time
-        boolean insertedStartupLock = migrationController.checkStartupLockTable();
+        migrationController.checkStartupLockTable();
 
         try {
             extensionController.removePropertiesForUninstalledExtensions();
@@ -266,9 +266,7 @@ public class Mirth extends Thread {
             migrationController.migrateSerializedData();
             userController.resetUserStatus();
         } finally {
-            if (insertedStartupLock) {
-                migrationController.clearStartupLockTable();
-            }
+            migrationController.clearStartupLockTable();
         }
 
         // disable the velocity logging

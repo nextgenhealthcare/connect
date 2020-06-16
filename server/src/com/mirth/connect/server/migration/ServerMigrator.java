@@ -278,7 +278,7 @@ public class ServerMigrator extends Migrator {
      * 
      * @return True if a row was inserted into the startup lock table.
      */
-    public boolean checkStartupLockTable(Connection connection) {
+    public boolean checkStartupLockTable() {
         try {
             try {
                 executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-create-startup-lock-table.sql");
@@ -286,6 +286,7 @@ public class ServerMigrator extends Migrator {
                 logger.debug("Unable to create startup lock table.", e);
             }
 
+            Connection connection = getConnection();
             PreparedStatement stmt = null;
             try {
                 stmt = connection.prepareStatement("INSERT INTO STARTUP_LOCK (ID) VALUES (1)");
@@ -309,8 +310,9 @@ public class ServerMigrator extends Migrator {
     /**
      * Deletes the inserted row from the startup lock table.
      */
-    public void clearStartupLockTable(Connection connection) {
+    public void clearStartupLockTable() {
         try {
+            Connection connection = getConnection();
             PreparedStatement stmt = null;
 
             try {

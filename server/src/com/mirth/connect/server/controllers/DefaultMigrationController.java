@@ -154,12 +154,11 @@ public class DefaultMigrationController extends MigrationController {
     }
 
     @Override
-    public boolean checkStartupLockTable() {
-        boolean insertedStartupLock = false;
-
+    public void checkStartupLockTable() {
         int startupLockSleep = configurationController.getStartupLockSleep();
         if (startupLockSleep > 0) {
             try {
+                boolean insertedStartupLock = false;
                 SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
 
                 try {
@@ -167,7 +166,7 @@ public class DefaultMigrationController extends MigrationController {
                     serverMigrator.setConnection(connection);
                     serverMigrator.setDatabaseType(configurationController.getDatabaseType());
 
-                    insertedStartupLock = serverMigrator.checkStartupLockTable(connection);
+                    insertedStartupLock = serverMigrator.checkStartupLockTable();
                 } finally {
                     if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
                         SqlConfig.getInstance().getSqlSessionManager().close();
@@ -183,8 +182,6 @@ public class DefaultMigrationController extends MigrationController {
                 logger.error("Error checking startup lock table.", t);
             }
         }
-
-        return insertedStartupLock;
     }
 
     @Override
@@ -197,7 +194,7 @@ public class DefaultMigrationController extends MigrationController {
                 Connection connection = SqlConfig.getInstance().getSqlSessionManager().getConnection();
                 serverMigrator.setConnection(connection);
                 serverMigrator.setDatabaseType(configurationController.getDatabaseType());
-                serverMigrator.clearStartupLockTable(connection);
+                serverMigrator.clearStartupLockTable();
             } finally {
                 if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
                     SqlConfig.getInstance().getSqlSessionManager().close();
