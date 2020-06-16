@@ -56,30 +56,39 @@ public class ServerMigrator extends Migrator {
             throw new MigrationException(e);
         }
 
-        initDatabase(connection);
-        Version startingVersion = getCurrentVersion();
+        // First make a check in case multiple servers are initializing at the same time
+        boolean insertedStartupLock = checkStartupLockTable(connection);
 
-        if (startingVersion == null) {
-            startingVersion = Version.values()[0];
-        }
-        setStartingVersion(startingVersion);
+        try {
+            initDatabase(connection);
+            Version startingVersion = getCurrentVersion();
 
-        Version version = startingVersion.getNextVersion();
-
-        while (version != null) {
-            Migrator migrator = getMigrator(version);
-
-            if (migrator != null) {
-                logger.info("Migrating server to version " + version);
-                migrator.setStartingVersion(startingVersion);
-                migrator.setConnection(connection);
-                migrator.setDatabaseType(getDatabaseType());
-                migrator.setDefaultScriptPath(getDefaultScriptPath());
-                migrator.migrate();
+            if (startingVersion == null) {
+                startingVersion = Version.values()[0];
             }
+            setStartingVersion(startingVersion);
 
-            updateVersion(version);
-            version = version.getNextVersion();
+            Version version = startingVersion.getNextVersion();
+
+            while (version != null) {
+                Migrator migrator = getMigrator(version);
+
+                if (migrator != null) {
+                    logger.info("Migrating server to version " + version);
+                    migrator.setStartingVersion(startingVersion);
+                    migrator.setConnection(connection);
+                    migrator.setDatabaseType(getDatabaseType());
+                    migrator.setDefaultScriptPath(getDefaultScriptPath());
+                    migrator.migrate();
+                }
+
+                updateVersion(version);
+                version = version.getNextVersion();
+            }
+        } finally {
+            if (insertedStartupLock) {
+                clearStartupLockTable(connection);
+            }
         }
     }
 
@@ -247,38 +256,28 @@ public class ServerMigrator extends Migrator {
      * @throws MigrationException
      */
     private void initDatabase(Connection connection) throws MigrationException {
-        // First make a check in case multiple servers are initializing at the same time
-        boolean insertedStartupLock = checkStartupLockTable(connection);
+        // If missing this table we can assume that they don't have the schema installed
+        if (!DatabaseUtil.tableExists(connection, "CONFIGURATION")) {
+            executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-database.sql");
 
-        try {
-            // If missing this table we can assume that they don't have the schema installed
-            if (!DatabaseUtil.tableExists(connection, "CONFIGURATION")) {
-                executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-database.sql");
+            /*
+             * We must update the password date for the initial user. Previously we let the database
+             * set this via CURRENT_TIMESTAMP, however this could create problems if the database is
+             * running on a separate machine in a different timezone. (MIRTH-2902)
+             */
+            PreparedStatement statement = null;
 
-                /*
-                 * We must update the password date for the initial user. Previously we let the
-                 * database set this via CURRENT_TIMESTAMP, however this could create problems if
-                 * the database is running on a separate machine in a different timezone.
-                 * (MIRTH-2902)
-                 */
-                PreparedStatement statement = null;
-
-                try {
-                    statement = getConnection().prepareStatement("UPDATE PERSON_PASSWORD SET PASSWORD_DATE = ?");
-                    statement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
-                    statement.executeUpdate();
-                } catch (SQLException e) {
-                    throw new MigrationException(e);
-                } finally {
-                    DbUtils.closeQuietly(statement);
-                }
-
-                updateVersion(Version.getLatest());
+            try {
+                statement = getConnection().prepareStatement("UPDATE PERSON_PASSWORD SET PASSWORD_DATE = ?");
+                statement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new MigrationException(e);
+            } finally {
+                DbUtils.closeQuietly(statement);
             }
-        } finally {
-            if (insertedStartupLock) {
-                clearStartupLockTable(connection);
-            }
+
+            updateVersion(Version.getLatest());
         }
     }
 
