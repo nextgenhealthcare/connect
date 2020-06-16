@@ -35,4 +35,14 @@ public abstract class MigrationController extends Controller {
     public abstract void migrateExtensions();
 
     public abstract void migrateConfiguration(PropertiesConfiguration configuration) throws MigrationException;
+
+    /**
+     * In case multiple servers startup and initialize the database at the same time, this inserts a
+     * row into a custom table and sleeps otherwise.
+     * 
+     * @return True if a row was inserted into the startup lock table.
+     */
+    public abstract boolean checkStartupLockTable();
+
+    public abstract void clearStartupLockTable();
 }

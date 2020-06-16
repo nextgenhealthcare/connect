@@ -56,39 +56,30 @@ public class ServerMigrator extends Migrator {
             throw new MigrationException(e);
         }
 
-        // First make a check in case multiple servers are initializing at the same time
-        boolean insertedStartupLock = checkStartupLockTable(connection);
+        initDatabase(connection);
+        Version startingVersion = getCurrentVersion();
 
-        try {
-            initDatabase(connection);
-            Version startingVersion = getCurrentVersion();
+        if (startingVersion == null) {
+            startingVersion = Version.values()[0];
+        }
+        setStartingVersion(startingVersion);
 
-            if (startingVersion == null) {
-                startingVersion = Version.values()[0];
+        Version version = startingVersion.getNextVersion();
+
+        while (version != null) {
+            Migrator migrator = getMigrator(version);
+
+            if (migrator != null) {
+                logger.info("Migrating server to version " + version);
+                migrator.setStartingVersion(startingVersion);
+                migrator.setConnection(connection);
+                migrator.setDatabaseType(getDatabaseType());
+                migrator.setDefaultScriptPath(getDefaultScriptPath());
+                migrator.migrate();
             }
-            setStartingVersion(startingVersion);
 
-            Version version = startingVersion.getNextVersion();
-
-            while (version != null) {
-                Migrator migrator = getMigrator(version);
-
-                if (migrator != null) {
-                    logger.info("Migrating server to version " + version);
-                    migrator.setStartingVersion(startingVersion);
-                    migrator.setConnection(connection);
-                    migrator.setDatabaseType(getDatabaseType());
-                    migrator.setDefaultScriptPath(getDefaultScriptPath());
-                    migrator.migrate();
-                }
-
-                updateVersion(version);
-                version = version.getNextVersion();
-            }
-        } finally {
-            if (insertedStartupLock) {
-                clearStartupLockTable(connection);
-            }
+            updateVersion(version);
+            version = version.getNextVersion();
         }
     }
 
@@ -285,11 +276,9 @@ public class ServerMigrator extends Migrator {
      * In case multiple servers startup and initialize the database at the same time, this inserts a
      * row into a custom table and sleeps otherwise.
      * 
-     * @throws MigrationException
      * @return True if a row was inserted into the startup lock table.
      */
-    private boolean checkStartupLockTable(Connection connection) throws MigrationException {
-        int startupLockSleep = getStartupLockSleep();
+    public boolean checkStartupLockTable(Connection connection, int startupLockSleep) {
         if (startupLockSleep > 0) {
             try {
                 try {
@@ -323,25 +312,21 @@ public class ServerMigrator extends Migrator {
 
     /**
      * Deletes the inserted from from the startup lock table.
-     * 
-     * @throws MigrationException
      */
-    private void clearStartupLockTable(Connection connection) throws MigrationException {
-        if (getStartupLockSleep() > 0) {
-            try {
-                PreparedStatement stmt = null;
+    public void clearStartupLockTable(Connection connection) {
+        try {
+            PreparedStatement stmt = null;
 
-                try {
-                    stmt = connection.prepareStatement("DELETE FROM STARTUP_LOCK WHERE ID = 1");
-                    stmt.executeUpdate();
-                } catch (SQLException e) {
-                    logger.debug("Unable to delete row from startup lock table.", e);
-                } finally {
-                    DbUtils.closeQuietly(stmt);
-                }
-            } catch (Throwable t) {
-                logger.error("Error clearing startup lock table.", t);
+            try {
+                stmt = connection.prepareStatement("DELETE FROM STARTUP_LOCK WHERE ID = 1");
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                logger.debug("Unable to delete row from startup lock table.", e);
+            } finally {
+                DbUtils.closeQuietly(stmt);
             }
+        } catch (Throwable t) {
+            logger.error("Error clearing startup lock table.", t);
         }
     }
 

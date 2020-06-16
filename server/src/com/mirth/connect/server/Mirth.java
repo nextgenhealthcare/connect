@@ -240,27 +240,36 @@ public class Mirth extends Thread {
             }
         }
 
-        extensionController.removePropertiesForUninstalledExtensions();
+        // First make a check in case multiple servers are initializing at the same time
+        boolean insertedStartupLock = migrationController.checkStartupLockTable();
 
         try {
-            migrationController.migrate();
-        } catch (MigrationException e) {
-            logger.error("Failed to migrate database schema", e);
-            stopDatabase();
-            running = false;
-            return;
+            extensionController.removePropertiesForUninstalledExtensions();
+
+            try {
+                migrationController.migrate();
+            } catch (MigrationException e) {
+                logger.error("Failed to migrate database schema", e);
+                stopDatabase();
+                running = false;
+                return;
+            }
+
+            // MIRTH-3535 disable Quartz update check
+            System.setProperty("org.terracotta.quartz.skipUpdateCheck", "true");
+
+            configurationController.migrateKeystore();
+            extensionController.setDefaultExtensionStatus();
+            extensionController.uninstallExtensions();
+            migrationController.migrateExtensions();
+            extensionController.initPlugins();
+            migrationController.migrateSerializedData();
+            userController.resetUserStatus();
+        } finally {
+            if (insertedStartupLock) {
+                migrationController.clearStartupLockTable();
+            }
         }
-
-        // MIRTH-3535 disable Quartz update check
-        System.setProperty("org.terracotta.quartz.skipUpdateCheck", "true");
-
-        configurationController.migrateKeystore();
-        extensionController.setDefaultExtensionStatus();
-        extensionController.uninstallExtensions();
-        migrationController.migrateExtensions();
-        extensionController.initPlugins();
-        migrationController.migrateSerializedData();
-        userController.resetUserStatus();
 
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");

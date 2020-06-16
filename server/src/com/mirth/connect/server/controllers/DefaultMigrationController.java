@@ -92,7 +92,6 @@ public class DefaultMigrationController extends MigrationController {
             // ServerMigrator will set its own starting version
             serverMigrator.setConnection(connection);
             serverMigrator.setDatabaseType(configurationController.getDatabaseType());
-            serverMigrator.setStartupLockSleep(configurationController.getStartupLockSleep());
             serverMigrator.migrate();
         } finally {
             if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
@@ -150,6 +149,46 @@ public class DefaultMigrationController extends MigrationController {
         } finally {
             if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
                 SqlConfig.getInstance().getSqlSessionManager().close();
+            }
+        }
+    }
+
+    @Override
+    public boolean checkStartupLockTable() {
+        int startupLockSleep = configurationController.getStartupLockSleep();
+        if (startupLockSleep > 0) {
+            SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
+
+            try {
+                Connection connection = SqlConfig.getInstance().getSqlSessionManager().getConnection();
+                serverMigrator.setConnection(connection);
+                serverMigrator.setDatabaseType(configurationController.getDatabaseType());
+                return serverMigrator.checkStartupLockTable(connection, startupLockSleep);
+            } finally {
+                if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
+                    SqlConfig.getInstance().getSqlSessionManager().close();
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void clearStartupLockTable() {
+        int startupLockSleep = configurationController.getStartupLockSleep();
+        if (startupLockSleep > 0) {
+            SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
+
+            try {
+                Connection connection = SqlConfig.getInstance().getSqlSessionManager().getConnection();
+                serverMigrator.setConnection(connection);
+                serverMigrator.setDatabaseType(configurationController.getDatabaseType());
+                serverMigrator.clearStartupLockTable(connection);
+            } finally {
+                if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
+                    SqlConfig.getInstance().getSqlSessionManager().close();
+                }
             }
         }
     }
