@@ -1004,6 +1004,7 @@
 			<include name="com/mirth/connect/plugins/*.class" />
 			<include name="com/mirth/connect/connectors/*.class" />
 			<include name="org/**" />
+			<include name="net/sourceforge/jtds/ssl/**" />
 
 			<include name="mirth-client.jnlp" />
 

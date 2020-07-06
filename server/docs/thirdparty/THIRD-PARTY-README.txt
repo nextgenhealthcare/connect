@@ -257,7 +257,14 @@ Or in the Mirth Connect source code distribution, it can be found at:
 
 Mirth Connect includes the jTDS JDBC driver version 1.3.1. This library and it's
 use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). The library source
-code is available at http://jtds.sourceforge.net/.
+code is available at http://jtds.sourceforge.net/. The following file has
+been changed:
+
+	net/sourceforge/jtds/ssl/TdsTlsOutputStream.java
+	
+	Changes: Fixes made to allow SSL/TLS connections. More information here:
+	https://sourceforge.net/p/jtds/bugs/725/
+	https://sourceforge.net/p/jtds/patches/129/#08be
 
 
 --------------------------------------------------------------------------------
