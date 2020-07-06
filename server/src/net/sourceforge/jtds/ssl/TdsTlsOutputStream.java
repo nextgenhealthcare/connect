@@ -45,7 +45,7 @@ class TdsTlsOutputStream extends FilterOutputStream {
     /**
      * Used for holding back CKE, CCS and FIN records.
      */
-    final private List bufferedRecords = new ArrayList();
+    final private List<byte[]> bufferedRecords = new ArrayList<>();
     private int totalSize;
 
     /**
@@ -63,9 +63,9 @@ class TdsTlsOutputStream extends FilterOutputStream {
      * @param record the TLS record to buffer
      * @param len    the length of the TLS record to buffer
      */
-    private void deferRecord(byte record[], int len) {
+    private void deferRecord(byte record[], int off, int len) {
         byte tmp[] = new byte[len];
-        System.arraycopy(record, 0, tmp, 0, len);
+        System.arraycopy(record, off, tmp, 0, len);
         bufferedRecords.add(tmp);
         totalSize += len;
     }
@@ -76,28 +76,27 @@ class TdsTlsOutputStream extends FilterOutputStream {
     private void flushBufferedRecords() throws IOException {
         byte tmp[] = new byte[totalSize];
         int off = 0;
-        for (int i = 0; i < bufferedRecords.size(); i++) {
-            byte x[] = (byte[])bufferedRecords.get(i);
+        for (byte[] x : bufferedRecords) {
             System.arraycopy(x, 0, tmp, off, x.length);
             off += x.length;
         }
-        putTdsPacket(tmp, off);
+        putTdsPacket(tmp, 0, off);
         bufferedRecords.clear();
         totalSize = 0;
     }
 
     public void write(byte[] b, int off, int len) throws IOException {
-
-        if (len < Ssl.TLS_HEADER_SIZE || off > 0) {
+        if (len < Ssl.TLS_HEADER_SIZE) {
             // Too short for a TLS packet just write it
             out.write(b, off, len);
             return;
         }
+
         //
         // Extract relevant TLS header fields
         //
-        int contentType = b[0] & 0xFF;
-        int length  = ((b[3] & 0xFF) << 8) | (b[4] & 0xFF);
+        int contentType = b[off] & 0xFF;
+        int length  = ((b[off + 3] & 0xFF) << 8) | (b[off + 4] & 0xFF);
         //
         // Check to see if probably a SSL client hello
         //
@@ -105,7 +104,7 @@ class TdsTlsOutputStream extends FilterOutputStream {
             contentType > Ssl.TYPE_APPLICATIONDATA ||
             length != len - Ssl.TLS_HEADER_SIZE) {
             // Assume SSLV2 Client Hello
-            putTdsPacket(b, len);
+            putTdsPacket(b, off, len);
             return;
         }
         //
@@ -120,7 +119,7 @@ class TdsTlsOutputStream extends FilterOutputStream {
 
             case Ssl.TYPE_CHANGECIPHERSPEC:
                 // Cipher spec change has to be buffered
-                deferRecord(b, len);
+                deferRecord(b, off, len);
                 break;
 
             case Ssl.TYPE_ALERT:
@@ -131,19 +130,19 @@ class TdsTlsOutputStream extends FilterOutputStream {
                 // TLS Handshake records
                 if (len >= (Ssl.TLS_HEADER_SIZE + Ssl.HS_HEADER_SIZE)) {
                     // Long enough for a handshake subheader
-                    int hsType = b[5];
-                    int hsLen  = (b[6] & 0xFF) << 16 |
-                                 (b[7] & 0xFF) << 8  |
-                                 (b[8] & 0xFF);
+                    int hsType = b[off+ 5];
+                    int hsLen  = (b[off + 6] & 0xFF) << 16 |
+                                 (b[off + 7] & 0xFF) << 8  |
+                                 (b[off + 8] & 0xFF);
 
                     if (hsLen == len - (Ssl.TLS_HEADER_SIZE + Ssl.HS_HEADER_SIZE) &&
                         // Client hello has to go in its own TDS packet
                         hsType == Ssl.TYPE_CLIENTHELLO) {
-                        putTdsPacket(b, len);
+                        putTdsPacket(b, off, len);
                         break;
                     }
                     // All others have to be deferred and sent as a block
-                    deferRecord(b, len);
+                    deferRecord(b, off, len);
                     //
                     // Now see if we have a finish record which will flush the
                     // buffered records.
@@ -168,24 +167,14 @@ class TdsTlsOutputStream extends FilterOutputStream {
      * @param b   the TLS record
      * @param len the length of the TLS record
      */
-    void putTdsPacket(byte[] b, int len) throws IOException {
+    void putTdsPacket(byte[] b, int off, int len) throws IOException {
         byte tdsHdr[] = new byte[TdsCore.PKT_HDR_LEN];
         tdsHdr[0] = TdsCore.PRELOGIN_PKT;
         tdsHdr[1] = 0x01;
         tdsHdr[2] = (byte)((len + TdsCore.PKT_HDR_LEN) >> 8);
         tdsHdr[3] = (byte)(len + TdsCore.PKT_HDR_LEN);
         out.write(tdsHdr, 0, tdsHdr.length);
-        out.write(b, 0, len);
+        out.write(b, off, len);
     }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.io.OutputStream#flush()
-     */
-    public void flush() throws IOException {
-        super.flush();
-    }
-
 }
 
