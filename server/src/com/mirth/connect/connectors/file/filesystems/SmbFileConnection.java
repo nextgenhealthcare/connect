@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 import jcifs.CIFSContext;
@@ -112,7 +113,7 @@ public class SmbFileConnection implements FileSystemConnection {
     private NtlmPasswordAuthenticator auth = null;
     private SmbFile share = null;
     private int timeout;
-    private boolean valid;
+    private final AtomicBoolean valid = new AtomicBoolean();
 
     public SmbFileConnection(String share, FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
         String domainAndUser = fileSystemOptions.getUsername();
@@ -147,7 +148,7 @@ public class SmbFileConnection implements FileSystemConnection {
         this.share = new SmbFile("smb://" + share, baseContext);
         this.share.setConnectTimeout(timeout);
         this.timeout = timeout;
-        this.valid = true;
+        this.valid.set(true);
     }
     
     protected SmbFile getShare() {
@@ -392,7 +393,7 @@ public class SmbFileConnection implements FileSystemConnection {
 
     @Override
     public boolean isConnected() {
-        return valid;
+        return valid.get();
     }
 
     @Override
@@ -406,16 +407,17 @@ public class SmbFileConnection implements FileSystemConnection {
 
     @Override
     public void destroy () {
-        valid = false;
-        try {
-            share.getContext().close();
-        } catch (CIFSException e) {
-            throw new RuntimeCIFSException (e);
+        if(valid.compareAndSet(true, false)) {
+            try {
+                share.getContext().close();
+            } catch (CIFSException e) {
+                throw new RuntimeCIFSException(e);
+            }
         }
     }
 
     @Override
     public boolean isValid() {
-        return valid;
+        return valid.get();
     }
 }
