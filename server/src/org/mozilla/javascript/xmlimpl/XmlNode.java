@@ -21,12 +21,14 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.UserDataHandler;
 
 class XmlNode implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private static final String XML_NAMESPACES_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
-
+    
     private static final String USER_DATA_XMLNODE_KEY = XmlNode.class.getName();
-
+    
     private static final boolean DOM_LEVEL_3 = true;
-
+    
     private static XmlNode getUserData(Node node) {
         if (DOM_LEVEL_3) {
             return (XmlNode)node.getUserData(USER_DATA_XMLNODE_KEY);
@@ -94,8 +96,6 @@ class XmlNode implements Serializable {
     private static XmlNode copy(XmlNode other) {
         return createImpl( other.dom.cloneNode(true) );
     }
-
-    private static final long serialVersionUID = 1L;
 
     private UserDataHandler events = new XmlNodeUserDataHandler();
 
@@ -342,9 +342,8 @@ class XmlNode implements Serializable {
 
         Namespace[] getNamespaces() {
             ArrayList<Namespace> rv = new ArrayList<Namespace>();
-            for (String prefix: map.keySet()) {
-                String uri = map.get(prefix);
-                Namespace n = Namespace.create(prefix, uri);
+            for (Map.Entry<String, String> e : map.entrySet()) {
+                Namespace n = Namespace.create(e.getKey(), e.getValue());
                 if (!n.isEmpty()) {
                     rv.add(n);
                 }
@@ -608,7 +607,7 @@ class XmlNode implements Serializable {
         static Namespace create(String uri) {
             Namespace rv = new Namespace();
             rv.uri = uri;
-            
+
             // Avoid null prefix for "" namespace
             if (uri == null || uri.length() == 0) {
                 rv.prefix = "";
@@ -721,7 +720,7 @@ class XmlNode implements Serializable {
             if (!equals(this.localName, other.localName)) return false;
             return true;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if(!(obj instanceof QName)) {
@@ -729,7 +728,7 @@ class XmlNode implements Serializable {
             }
             return equals((QName)obj);
         }
-        
+
         @Override
         public int hashCode() {
             return localName == null ? 0 : localName.hashCode();
