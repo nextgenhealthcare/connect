@@ -6,7 +6,6 @@
 
 package org.mozilla.javascript;
 
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -426,7 +425,7 @@ public final class NativeDate extends IdScriptableObject
 
     private static int YearFromTime(double t)
     {
-       if (Double.isInfinite(t) || Double.isNaN(t)) {
+        if (Double.isInfinite(t) || Double.isNaN(t)) {
             return 0;
         }
 
@@ -1768,5 +1767,3 @@ public final class NativeDate extends IdScriptableObject
 
     private double date;
 }
-
-

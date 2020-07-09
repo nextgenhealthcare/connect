@@ -72,7 +72,7 @@ public class NativeJavaObject
     public boolean has(int index, Scriptable start) {
         return false;
     }
-    
+
     @Override
     public boolean has(Symbol key, Scriptable start) {
         return false;
@@ -90,7 +90,7 @@ public class NativeJavaObject
         //  no parent scope
         return members.get(this, name, javaObject, false);
     }
-    
+
     @Override
     public Object get(Symbol key, Scriptable start) {
         // Native Java objects have no Symbol members
@@ -112,7 +112,7 @@ public class NativeJavaObject
         else
             prototype.put(name, prototype, value);
     }
-    
+
     @Override
     public void put(Symbol symbol, Scriptable start, Object value) {
         // We could be asked to modify the value of a property in the
@@ -140,7 +140,7 @@ public class NativeJavaObject
     @Override
     public void delete(String name) {
     }
-    
+
     @Override
     public void delete(Symbol key) {
     }
@@ -216,7 +216,7 @@ public class NativeJavaObject
         if (hint == null) {
             if (javaObject instanceof Boolean) {
                 hint = ScriptRuntime.BooleanClass;
-            } 
+            }
             if (javaObject instanceof Number) {
                 hint = ScriptRuntime.NumberClass;
             }
@@ -567,7 +567,7 @@ public class NativeJavaObject
             }
             else if (type == ScriptRuntime.ObjectClass) {
                 Context context = Context.getCurrentContext();
-                if((context != null) &&
+                if ((context != null) &&
                     context.hasFeature(Context.FEATURE_INTEGER_WITHOUT_DECIMAL_PLACE)) {
                     //to process numbers like 2.0 as 2 without decimal place
                     long roundedValue = Math.round(toDouble(value));

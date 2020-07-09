@@ -32,9 +32,9 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
 
 class XmlProcessor implements Serializable {
-    
+
     private static final long serialVersionUID = 6903514433204808713L;
-    
+
     private boolean ignoreComments;
     private boolean ignoreProcessingInstructions;
     private boolean ignoreWhitespace;
@@ -57,7 +57,7 @@ class XmlProcessor implements Serializable {
         if(ctx == null || ctx.hasFeature(Context.FEATURE_ENABLE_XML_SECURE_PARSING)) {
             configureSecureDBF(this.dom);
             configureSecureTF(this.xform);
-        }        
+        }
         int poolSize = Runtime.getRuntime().availableProcessors() * 2;
         this.documentBuilderPool = new LinkedBlockingDeque<DocumentBuilder>(poolSize);
     }
@@ -122,8 +122,8 @@ class XmlProcessor implements Serializable {
         } catch (IllegalArgumentException e) {
             // Ignore this, because it will not work on all implementations
         }
-    }    
-    
+    }
+
     private static class RhinoSAXErrorHandler implements ErrorHandler, Serializable {
 
         private static final long serialVersionUID = 6918417235413084055L;
@@ -157,7 +157,7 @@ class XmlProcessor implements Serializable {
         if(ctx == null || ctx.hasFeature(Context.FEATURE_ENABLE_XML_SECURE_PARSING)) {
             configureSecureDBF(this.dom);
             configureSecureTF(this.xform);
-        }        
+        }
         int poolSize = Runtime.getRuntime().availableProcessors() * 2;
         this.documentBuilderPool = new LinkedBlockingDeque<DocumentBuilder>(poolSize);
     }
@@ -230,7 +230,7 @@ class XmlProcessor implements Serializable {
     private javax.xml.parsers.DocumentBuilderFactory getDomFactory() {
         return dom;
     }
-    
+
  // Get from pool, or create one without locking, if needed.
     private DocumentBuilder getDocumentBuilderFromPool()
             throws ParserConfigurationException {
