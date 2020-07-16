@@ -210,5 +210,7 @@
 	<classpathentry kind="lib" path="lib/commons/httpcore-4.4.11.jar"/>
 	<classpathentry kind="lib" path="lib/commons/httpmime-4.5.8.jar"/>
 	<classpathentry kind="lib" path="lib/poi-3.7.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/mongo/mongo-java-driver-3.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/mongo/spring-data-mongodb-1.10.4.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

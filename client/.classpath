@@ -4,96 +4,6 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Server">
-		<accessrules>
-			<accessrule kind="accessible" pattern="com/mirth/connect/client/core/**"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/model/**"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/util/**"/>
-			<accessrule kind="accessible" pattern="org/mozilla/**"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/dimse/DICOMDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/dimse/DICOMReceiverProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/DocumentConnectorServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/DocumentDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/PageSize"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/doc/Unit"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/SchemeProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FTPSchemeProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/SftpSchemeProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/S3SchemeProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileReceiverProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileScheme"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileAction"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/file/FileConnectorServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpReceiverProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpStaticResource"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpStaticResource$ResourceType"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/http/HttpConnectorServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseReceiverProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/Table"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/Column"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jdbc/DatabaseConnectorServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/js/JavaScriptReceiverProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/js/JavaScriptDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/smtp/SmtpDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/smtp/SmtpConnectorServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/smtp/Attachment"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/tcp/TcpReceiverProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/tcp/TcpDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/tcp/TcpConnectorServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/vm/VmReceiverProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/vm/VmDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/Binding"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceReceiverProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/DefinitionServiceMap"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/DefinitionServiceMap$DefinitionPortMap"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/DefinitionServiceMap$PortInformation"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/ws/WebServiceConnectorServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jms/JmsConnectorProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jms/JmsReceiverProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jms/JmsDispatcherProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/jms/JmsConnectorServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/dashboardstatus/DashboardConnectorStatusServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/datapruner/DataPrunerServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/datatypes/**"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/destinationsetfilter/DestinationSetFilterStep"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/destinationsetfilter/DestinationSetFilterStep$Behavior"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/destinationsetfilter/DestinationSetFilterStep$Condition"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/directoryresource/DirectoryResourceProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/directoryresource/DirectoryResourceServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/globalmapviewer/GlobalMapServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/HttpAuthConnectorPluginProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/HttpAuthConnectorPluginProperties$AuthType"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/NoneHttpAuthProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/basic/BasicHttpAuthProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/custom/CustomHttpAuthProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties$Algorithm"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties$QOPMode"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/javascript/JavaScriptHttpAuthProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/oauth2/OAuth2HttpAuthProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/httpauth/oauth2/OAuth2HttpAuthProperties$TokenLocation"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/javascriptrule/JavaScriptRule"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/javascriptstep/JavaScriptStep"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/mapper/MapperStep"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/mapper/MapperStep$Scope"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/messagebuilder/MessageBuilderStep"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/mllpmode/MLLPModeProperties"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/rulebuilder/RuleBuilderRule"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/rulebuilder/RuleBuilderRule$Condition"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/scriptfilerule/ExternalScriptRule"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/scriptfilestep/ExternalScriptStep"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/serverlog/ServerLogItem"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/serverlog/ServerLogServletInterface"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/xsltstep/XsltStep"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/plugins/dashboardstatus/ConnectionLogItem"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/udp/**"/>
-			<accessrule kind="nonaccessible" pattern="*/**"/>
-		</accessrules>
-	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/Donkey">
 		<accessrules>
 			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/model/**"/>
@@ -186,5 +96,6 @@
 	<classpathentry kind="lib" path="lib/httpclient-4.5.8.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.4.11.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.5.8.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Server"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

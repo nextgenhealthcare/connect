@@ -12,6 +12,7 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.mirth.connect.server.Mirth"/>
+<stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="Server"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Server"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx512m&#13;&#10;-Djava.awt.headless=true&#13;&#10;-Dapple.awt.UIElement=true"/>
 </launchConfiguration>

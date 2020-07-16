@@ -27,6 +27,7 @@
 		<property name="connectors.tcp" value="${extensions}/tcp" />
 		<property name="connectors.file" value="${extensions}/file" />
 		<property name="connectors.js" value="${extensions}/js" />
+		<property name="connectors.mongo" value="${extensions}/mongo" />
 		<property name="connectors.udp" value="${extensions}/udp" />
 		<property name="connectors.ws" value="${extensions}/ws" />
 		<property name="connectors.vm" value="${extensions}/vm" />
@@ -318,6 +319,26 @@
 				<exclude name="com/mirth/connect/connectors/js/JavaScriptDispatcherProperties.class" />
 			</fileset>
 		</jar>
+		
+		<!-- connectors.mongo -->
+		<mkdir dir="${connectors.mongo}" />
+		<copy todir="${connectors.mongo}">
+			<fileset dir="${src}/com/mirth/connect/connectors/mongo">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${connectors.mongo}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/mongo" />
+		</copy>
+		<jar destfile="${connectors.mongo}/mongo-shared.jar" basedir="${classes}">
+			<include name="com/mirth/connect/connectors/mongo/MongoDispatcherProperties.class" />			
+		</jar>
+		<jar destfile="${connectors.mongo}/mongo-server.jar">
+			<fileset dir="${classes}">
+				<include name="com/mirth/connect/connectors/mongo/**" />
+				<!--exclude name="com/mirth/connect/connectors/mongo/MongoDispatcherProperties.class" /-->
+			</fileset>
+		</jar>		
 		
 		<!-- connectors.udp -->
 		<mkdir dir="${connectors.udp}" />
