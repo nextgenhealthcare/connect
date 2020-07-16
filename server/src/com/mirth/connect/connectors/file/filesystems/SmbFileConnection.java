@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import jcifs.CIFSContext;
+import jcifs.CIFSException;
 import jcifs.config.PropertyConfiguration;
 import jcifs.context.BaseContext;
 import jcifs.smb.NtlmPasswordAuthenticator;
@@ -148,6 +149,10 @@ public class SmbFileConnection implements FileSystemConnection {
     
     protected SmbFile getShare() {
         return share;
+    }
+    
+    protected void setShare(SmbFile share) {
+        this.share = share;
     }
 
     protected String getPath(String dir, String name) {
@@ -401,7 +406,13 @@ public class SmbFileConnection implements FileSystemConnection {
     public void passivate() {}
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+        try {
+            share.getContext().close();
+        } catch (CIFSException e) {
+            logger.error("Error attempting to close SMB file context.", e);
+        }
+    }
 
     @Override
     public boolean isValid() {
