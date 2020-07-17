@@ -385,6 +385,7 @@ public class MirthWebServer extends Server {
         contextFactory.setKeyStore(keyStore);
         contextFactory.setCertAlias("mirthconnect");
         contextFactory.setKeyManagerPassword(mirthProperties.getString("keystore.keypass"));
+        contextFactory.setEndpointIdentificationAlgorithm(null);
 
         HttpConfiguration config = new HttpConfiguration();
         config.setSecureScheme("https");
