@@ -30,6 +30,7 @@ import javax.swing.table.DefaultTableModel;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -273,6 +274,24 @@ public class SmtpSender extends ConnectorSettingsPanel {
             errors.append("\"From\" is required\n");
         }
 
+        if (props.isUseHeadersVariable() && StringUtils.isBlank(props.getHeadersVariable())) {
+            valid = false;
+            if (highlight) {
+                headersVariableField.setBackground(UIConstants.INVALID_COLOR);
+            }
+
+            errors.append("Headers map variable required when Use Map mode is selected\n");
+        }
+
+        if (props.isUseAttachmentsVariable() && StringUtils.isBlank(props.getAttachmentsVariable())) {
+            valid = false;
+            if (highlight) {
+                attachmentsVariableField.setBackground(UIConstants.INVALID_COLOR);
+            }
+
+            errors.append("Attachments list variable required when Use List mode is selected\n");
+        }
+
         this.errors = errors.toString();
 
         return valid;
@@ -286,6 +305,8 @@ public class SmtpSender extends ConnectorSettingsPanel {
         sendTimeoutField.setBackground(null);
         toField.setBackground(null);
         fromField.setBackground(null);
+        headersVariableField.setBackground(null);
+        attachmentsVariableField.setBackground(null);
     }
 
     @Override

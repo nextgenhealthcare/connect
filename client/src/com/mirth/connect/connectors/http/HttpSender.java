@@ -630,6 +630,20 @@ public class HttpSender extends ConnectorSettingsPanel {
             }
         }
 
+        if (props.isUseParametersVariable() && StringUtils.isBlank(props.getParametersVariable())) {
+            valid = false;
+            if (highlight) {
+                queryParamsVariableField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+
+        if (props.isUseHeadersVariable() && StringUtils.isBlank(props.getHeadersVariable())) {
+            valid = false;
+            if (highlight) {
+                headersVariableField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+
         if (props.getMethod().equalsIgnoreCase("post") || props.getMethod().equalsIgnoreCase("put") || props.getMethod().equalsIgnoreCase("patch")) {
             if (props.getContentType().length() == 0) {
                 valid = false;
@@ -638,10 +652,8 @@ public class HttpSender extends ConnectorSettingsPanel {
                 }
             }
 
-            if (isUsingFormUrlEncoded(props.getContentType())) {
-                if (MapUtils.isEmpty(props.getParametersMap())) {
-                    valid = false;
-                }
+            if (isUsingFormUrlEncoded(props.getContentType()) && !props.isUseParametersVariable() && MapUtils.isEmpty(props.getParametersMap())) {
+                valid = false;
             }
         }
 
@@ -655,6 +667,8 @@ public class HttpSender extends ConnectorSettingsPanel {
         proxyAddressField.setBackground(null);
         proxyPortField.setBackground(null);
         sendTimeoutField.setBackground(null);
+        queryParamsVariableField.setBackground(null);
+        headersVariableField.setBackground(null);
         contentTypeField.setBackground(null);
         contentTextArea.setBackground(null);
     }
