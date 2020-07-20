@@ -110,7 +110,6 @@ public class SftpConnection implements FileSystemConnection {
     public SftpConnection(String host, int port, FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
 
         JSch jsch = new JSch();
-        client = new ChannelSftp();
         configuration = new Properties();
 
         try {
