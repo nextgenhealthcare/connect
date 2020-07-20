@@ -245,6 +245,7 @@ public class HttpListener extends ConnectorSettingsPanel {
                 receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
+
         if (!props.getSourceConnectorProperties().getResponseVariable().equalsIgnoreCase("None")) {
             if (props.getResponseContentType().length() == 0) {
                 valid = false;
@@ -252,7 +253,13 @@ public class HttpListener extends ConnectorSettingsPanel {
                     responseContentTypeField.setBackground(UIConstants.INVALID_COLOR);
                 }
             }
+        }
 
+        if (props.isUseHeadersVariable() && StringUtils.isBlank(props.getResponseHeadersVariable())) {
+            valid = false;
+            if (highlight) {
+                responseHeadersVariableField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
 
         return valid;
@@ -262,6 +269,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     public void resetInvalidProperties() {
         receiveTimeoutField.setBackground(null);
         responseContentTypeField.setBackground(null);
+        responseHeadersVariableField.setBackground(null);
     }
 
     @Override
