@@ -2,7 +2,7 @@
 	<name>DICOM Data Type</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.9.0</mirthVersion>
+	<mirthVersion>3.10.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This plugin provides support for the DICOM data type</description>
 	<serverClasses>
