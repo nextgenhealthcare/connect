@@ -61,6 +61,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FilenameUtils;
 import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.DicomElement;
 import org.dcm4che2.data.DicomObject;
@@ -1153,7 +1154,7 @@ public class DcmRcv {
         String cuid = rq.getString(Tag.AffectedSOPClassUID);
         String iuid = rq.getString(Tag.AffectedSOPInstanceUID);
         File file = devnull != null ? devnull
-                : new File(mkDir(as), iuid + ".part");
+                : new File(mkDir(as), FilenameUtils.normalize(iuid + ".part"));
         LOG.info("M-WRITE {}", file);
         try {
             DicomOutputStream dos = new DicomOutputStream(
@@ -1180,7 +1181,7 @@ public class DcmRcv {
         
         // Rename the file after it has been written. See DCM-279
         if (devnull == null && file != null) {
-            File rename = new File(file.getParent(), iuid);
+            File rename = new File(file.getParent(), FilenameUtils.normalize(iuid));
             LOG.info("M-RENAME {} to {}", file, rename);
             file.renameTo(rename);
             if (cache.getJournalRootDir() != null) {
@@ -1248,7 +1249,7 @@ public class DcmRcv {
             if (stgcmtRetrieveAETs != null)
                 resultItem.putString(Tag.RetrieveAETitle, VR.AE,
                         stgcmtRetrieveAETs);
-            File f = new File(dir, uid);
+            File f = new File(dir, FilenameUtils.normalize(uid));
             if (f.isFile()) {
                 resultsq.addDicomObject(resultItem);
             } else {
