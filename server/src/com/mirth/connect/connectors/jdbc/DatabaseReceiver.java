@@ -188,13 +188,14 @@ public class DatabaseReceiver extends PollConnector {
         ResultSetMetaData metaData = resultSet.getMetaData();
         int colCount = metaData.getColumnCount();
 
-        List<String> foundLowerCaseAliases = new ArrayList<String>(colCount);
+
+        Map<String, Object> caseInsensitiveMap = new CaseInsensitiveMap(resultList.size());
         for (int i = 1; i <= colCount; i++) {
-            String lowerCaseAlias = metaData.getColumnLabel(i).toString().toLowerCase();
-            if (foundLowerCaseAliases.contains(lowerCaseAlias)) {
+            if(caseInsensitiveMap.containsKey(metaData.getColumnLabel(i))){
                 throw new SQLException("Multiple columns have the alias '" + foundLowerCaseAliases + "'. To prevent this error from occurring, specify unique aliases for each column. Aliases are derived by taking the column name and converting it to lower case");
+            } else {
+                caseInsensitiveMap.put(metaData.getColumnLabel(i), null);
             }
-            foundLowerCaseAliases.add(lowerCaseAlias);
         }
     }
 
