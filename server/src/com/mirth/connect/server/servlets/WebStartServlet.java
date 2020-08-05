@@ -18,6 +18,7 @@ import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -69,14 +70,19 @@ public class WebStartServlet extends HttpServlet {
         try {
             response.setContentType("application/x-java-jnlp-file");
             response.setHeader("Pragma", "no-cache");
+            response.setHeader("X-Content-Type-Options:", "nosniff");
             PrintWriter out = response.getWriter();
             Document jnlpDocument = null;
-
-            if (request.getServletPath().equals("/webstart.jnlp") || request.getServletPath().equals("/webstart")) {
+            
+            if ((request.getRequestURI().equals("/webstart.jnlp") || request.getRequestURI().equals("/webstart")) && isWebstartRequestValid(request)) {
                 jnlpDocument = getAdministratorJnlp(request);
-            } else if (request.getServletPath().equals("/webstart/extensions")) {
-                String extensionPath = StringUtils.removeEnd(StringUtils.removeStart(request.getPathInfo(), "/"), ".jnlp");
-                jnlpDocument = getExtensionJnlp(extensionPath);
+                response.setHeader("Content-Disposition", "attachment; filename = \"webstart.jnlp\"");
+            } else if (request.getServletPath().equals("/webstart/extensions") && isWebstartExtensionsRequestValid(request)) {
+                String extensionPath = getExtensionPath(request);
+                jnlpDocument = getExtensionJnlp(getExtensionPath(request));
+                response.setHeader("Content-Disposition", "attachment; filename = \"" + extensionPath +  ".jnlp\"");
+            } else {
+            	response.setContentType("");
             }
 
             DocumentSerializer docSerializer = new DocumentSerializer(true);
@@ -88,8 +94,38 @@ public class WebStartServlet extends HttpServlet {
             throw new ServletException(t);
         }
     }
+    
+    private boolean isWebstartRequestValid(HttpServletRequest request) {
+    	// Only allow "maxHeapSize" and "time" parameters and only with appropriate values
+        for (Enumeration<String> parameterNameIter = request.getParameterNames(); parameterNameIter.hasMoreElements();) {
+        	String parameterName = parameterNameIter.nextElement();
+        	if ((!"maxHeapSize".equals(parameterName) && !"time".equals(parameterName))) {
+        		return false;
+        	}
+        	
+        	if ("maxHeapSize".equals(parameterName) && !request.getParameter(parameterName).matches("\\d+[kKmMgGtT]")) {
+        		return false;
+        	}
+        	
+        	if ("time".equals(parameterName) && !request.getParameter(parameterName).matches("\\d+")) {
+        		return false;
+        	}
+        }
+        
+        return true;
+    }
+    
+    private boolean isWebstartExtensionsRequestValid(HttpServletRequest request) {
+    	// Don't allow any parameters and don't allow modified URIs
+    	return request.getParameterMap().isEmpty() 
+    			&& (request.getServletPath() + "/" + getExtensionPath(request)).equals(StringUtils.removeEnd(request.getRequestURI(), ".jnlp"));
+    }
+    
+    private String getExtensionPath(HttpServletRequest request) {
+    	return StringUtils.removeEnd(StringUtils.removeStart(request.getPathInfo(), "/"), ".jnlp");
+    }
 
-    private Document getAdministratorJnlp(HttpServletRequest request) throws Exception {
+    protected Document getAdministratorJnlp(HttpServletRequest request) throws Exception {
         InputStream clientJnlpIs = null;
         Document document;
         try {
@@ -290,7 +326,7 @@ public class WebStartServlet extends HttpServlet {
         return false;
     }
 
-    private Document getExtensionJnlp(String extensionPath) throws Exception {
+    protected Document getExtensionJnlp(String extensionPath) throws Exception {
         List<MetaData> allExtensions = new ArrayList<MetaData>();
         allExtensions.addAll(ControllerFactory.getFactory().createExtensionController().getConnectorMetaData().values());
         allExtensions.addAll(ControllerFactory.getFactory().createExtensionController().getPluginMetaData().values());
