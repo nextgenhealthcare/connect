@@ -103,7 +103,7 @@ public class WebStartServlet extends HttpServlet {
         		return false;
         	}
         	
-        	if ("maxHeapSize".equals(parameterName) && !request.getParameter(parameterName).matches("\\d+[mMgG]")) {
+        	if ("maxHeapSize".equals(parameterName) && !request.getParameter(parameterName).matches("\\d+[kKmMgGtT]")) {
         		return false;
         	}
         	
