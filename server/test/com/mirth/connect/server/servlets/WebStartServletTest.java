@@ -64,7 +64,6 @@ public class WebStartServletTest {
 		when(request.getParameterNames()).thenReturn(Collections.emptyEnumeration());
 
 		response = new TestHttpServletResponse();
-		;
 
 		webStartServlet.doGet(request, response);
 

@@ -85,10 +85,8 @@ public class WebStartServlet extends HttpServlet {
             	response.setContentType("");
             }
 
-            if (jnlpDocument != null) {
-	            DocumentSerializer docSerializer = new DocumentSerializer(true);
-	            docSerializer.toXML(jnlpDocument, out);
-            }
+            DocumentSerializer docSerializer = new DocumentSerializer(true);
+            docSerializer.toXML(jnlpDocument, out);
         } catch (RuntimeIOException rio) {
             logger.debug(rio);
         } catch (Throwable t) {
