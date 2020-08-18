@@ -49,7 +49,7 @@ public class DonkeyEngineControllerTests {
         channelIds.add(TestUtils.CHANNEL_ID);
 
         // Deploy Channel
-        donkeyEngineController.deployChannels(channelIds, context, null);
+        donkeyEngineController.deployChannels(channelIds, context, null, false);
 
         // Send message to channel and assert received
 

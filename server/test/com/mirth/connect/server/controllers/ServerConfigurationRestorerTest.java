@@ -852,17 +852,17 @@ public class ServerConfigurationRestorerTest {
         MultiException multiException = new MultiException();
 
         restorer.deployAllChannels(deploy, multiException);
-        verify(restorer.getEngineController(), times(0)).deployChannels(any(), any(), any());
+        verify(restorer.getEngineController(), times(0)).deployChannels(any(), any(), any(), anyBoolean());
 
         deploy = true;
         Set<String> channelIds = new HashSet<String>();
         channelIds.add("1");
         when(restorer.getChannelController().getChannelIds()).thenReturn(channelIds);
         restorer.deployAllChannels(deploy, multiException);
-        verify(restorer.getEngineController(), times(1)).deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
+        verify(restorer.getEngineController(), times(1)).deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, false);
 
         EngineController engineController = restorer.getEngineController();
-        doThrow(ControllerException.class).when(engineController).deployChannels(any(), any(), any());
+        doThrow(ControllerException.class).when(engineController).deployChannels(any(), any(), any(), anyBoolean());
         restorer.deployAllChannels(deploy, multiException);
         assertEquals(1, multiException.size());
     }

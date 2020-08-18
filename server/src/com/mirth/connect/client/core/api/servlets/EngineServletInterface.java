@@ -51,7 +51,8 @@ public interface EngineServletInterface extends BaseServletInterface {
     @MirthOperation(name = "deployChannels", display = "Deploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void deployChannel(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel to deploy.", required = true) @PathParam("channelId") String channelId,
-            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors,
+            @Param("debug") @Parameter(description = "If true, the channel will be deployed in debug mode.") @QueryParam("debug") boolean debug) throws ClientException;
     // @formatter:on
 
     @POST
@@ -66,7 +67,8 @@ public interface EngineServletInterface extends BaseServletInterface {
                     @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
                             @ExampleObject(name = "channel_set", ref = "../apiexamples/guid_set_json") }) })
             Set<String> channelIds,
-            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
+            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors,
+            @Param("debug") @Parameter(description = "If true, the channel will be deployed in debug mode.") @QueryParam("debug") boolean debug) throws ClientException;
     // @formatter:on
 
     @POST

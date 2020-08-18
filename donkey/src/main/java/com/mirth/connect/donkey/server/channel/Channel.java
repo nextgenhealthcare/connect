@@ -450,7 +450,15 @@ public class Channel implements Runnable {
     }
 
     public synchronized void deploy() throws DeployException {
-        if (!isConfigurationValid()) {
+        deploy(false);
+    }
+    
+    public synchronized void debugDeploy() throws DeployException {
+    	deploy(true);
+    }
+    
+    public synchronized void deploy(boolean debug) throws DeployException {
+    	if (!isConfigurationValid()) {
             throw new DeployException("Failed to deploy channel. The channel configuration is incomplete.");
         }
 
@@ -499,9 +507,16 @@ public class Channel implements Runnable {
             sourceQueue.updateSize();
 
             deployedMetaDataIds.add(0);
-            sourceConnector.onDeploy();
+            
+            if (debug) {
+            	sourceConnector.onDebugDeploy();
+            } else {
+            	sourceConnector.onDeploy();
+            }
+            
             if (sourceConnector.getBatchAdaptorFactory() != null) {
-                sourceConnector.getBatchAdaptorFactory().onDeploy();
+            	//TODO Does this need to be run in debug mode?
+            	sourceConnector.getBatchAdaptorFactory().onDeploy();
             }
 
             for (DestinationChainProvider chainProvider : destinationChainProviders) {
@@ -524,7 +539,12 @@ public class Channel implements Runnable {
                     destinationConnector.getQueue().updateSize();
 
                     deployedMetaDataIds.add(metaDataId);
-                    destinationConnector.onDeploy();
+                    
+                    if (debug) {
+                    	destinationConnector.onDebugDeploy();
+                    } else {
+                    	destinationConnector.onDeploy();
+                    }
                 }
             }
 

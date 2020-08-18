@@ -83,7 +83,7 @@ public class TestPreProcessor {
         if (!engineController.isDeployed(CHANNEL_ID)) {
             Set<String> channelIds = new LinkedHashSet<String>();
             channelIds.add(CHANNEL_ID);
-            engineController.deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
+            engineController.deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, false);
             Thread.sleep(200);
 
             if (!engineController.isDeployed(CHANNEL_ID)) {
