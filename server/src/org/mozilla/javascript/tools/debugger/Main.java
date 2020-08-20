@@ -26,12 +26,12 @@ public class Main {
     /**
      * The debugger.
      */
-    protected Dim dim;
+    private Dim dim;
 
     /**
      * The debugger frame.
      */
-    protected SwingGui debugGui;
+    private SwingGui debugGui;
 
     /**
      * Creates a new Main.
@@ -357,7 +357,7 @@ public class Main {
      * Class to consolidate all internal implementations of interfaces
      * to avoid class generation bloat.
      */
-    protected static class IProxy implements Runnable, ScopeProvider {
+    private static class IProxy implements Runnable, ScopeProvider {
 
         // Constants for 'type'.
         public static final int EXIT_ACTION = 1;
