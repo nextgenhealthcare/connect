@@ -40,7 +40,7 @@ public interface EngineController {
 
     public void startupDeploy(boolean deployChannels) throws StartException, StopException, InterruptedException;
 
-    public void deployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler);
+    public void deployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler, boolean debug);
 
     public void undeployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler);
 

@@ -23,8 +23,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.mozilla.javascript.ContextFactory;
 
+import com.google.common.base.Objects;
 import com.mirth.connect.model.LibraryProperties;
 import com.mirth.connect.plugins.LibraryPlugin;
 import com.mirth.connect.server.ExtensionLoader;
@@ -38,6 +40,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
     private Map<String, List<URL>> libraryCache = new ConcurrentHashMap<String, List<URL>>();
     private volatile Set<String> globalScriptResourceIds = new LinkedHashSet<String>();
     private Map<Set<String>, MirthContextFactory> contextFactoryMap = new ConcurrentHashMap<Set<String>, MirthContextFactory>();
+    private Map<Set<String>, MirthContextFactory> debugContextFactoryMap = new ConcurrentHashMap<Set<String>, MirthContextFactory>();
 
     private static ContextFactoryController instance = null;
 
@@ -180,6 +183,47 @@ public class DefaultContextFactoryController extends ContextFactoryController {
         } else {
             return getGlobalContextFactory();
         }
+    }
+
+    @Override
+    public MirthContextFactory getDebugContextFactory(Set<String> libraryResourceIds, String channelId) throws Exception {
+    	Set<String> key = getDebugContextFactoryMapKey(libraryResourceIds, channelId);
+    	
+    	MirthContextFactory contextFactory = debugContextFactoryMap.get(key);
+    	
+    	if (contextFactory == null) {
+    		synchronized (debugContextFactoryMap) {
+    			contextFactory = debugContextFactoryMap.get(key);
+    			
+    			if (contextFactory == null) {
+    				libraryResourceIds = new LinkedHashSet<String>(libraryResourceIds);
+    	            redactResourceIds(libraryResourceIds);
+    	            List<URL> libraries = getLibraries(libraryResourceIds, false, false);
+    				contextFactory = new MirthContextFactory(libraries.toArray(new URL[libraries.size()]), new HashSet<String>());
+    				debugContextFactoryMap.put(key, contextFactory);
+    			}
+    		}
+    	}
+
+    	return contextFactory;
+    }
+    
+    @Override
+    public void removeDebugContextFactory(Set<String> libraryResourceIds, String channelId) {
+    	Set<String> key = getDebugContextFactoryMapKey(libraryResourceIds, channelId);
+    	debugContextFactoryMap.remove(key);
+    }
+    
+    private Set<String> getDebugContextFactoryMapKey(Set<String> libraryResourceIds, String channelId) {
+    	java.util.Objects.requireNonNull(channelId);
+    	if (libraryResourceIds == null) {
+    		libraryResourceIds = new HashSet<>();
+    	}
+    	
+    	Set<String> key = new HashSet<>(libraryResourceIds);
+    	key.add(channelId);
+    	
+    	return key;
     }
 
     @Override

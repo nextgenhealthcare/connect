@@ -27,6 +27,10 @@ public abstract class ContextFactoryController extends Controller {
     public abstract MirthContextFactory getGlobalScriptContextFactory() throws Exception;
 
     public abstract MirthContextFactory getContextFactory(Set<String> libraryResourceIds) throws Exception;
+    
+    public abstract MirthContextFactory getDebugContextFactory(Set<String> libraryResourceIds, String channelId) throws Exception;
+    
+    public abstract void removeDebugContextFactory(Set<String> libraryResourceIds, String channelId);
 
     public abstract void reloadResource(String resourceId) throws Exception;
 

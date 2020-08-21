@@ -235,14 +235,14 @@ public class DonkeyEngineController implements EngineController {
     @Override
     public void startupDeploy(boolean deployChannels) {
         if (deployChannels) {
-            deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
+            deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, false);
         } else {
             logger.info("Property \"server.startupdeploy\" is disabled. Skipping initial deployment of channels...");
         }
     }
 
     @Override
-    public void deployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler) {
+    public void deployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler, boolean debug) {
         List<ChannelTask> unorderedUndeployTasks = new ArrayList<ChannelTask>();
         List<ChannelTask> unorderedDeployTasks = new ArrayList<ChannelTask>();
         List<List<ChannelTask>> orderedUndeployTasks = new ArrayList<List<ChannelTask>>();
@@ -271,7 +271,7 @@ public class DonkeyEngineController implements EngineController {
                 hasUndeployTasks = true;
             }
 
-            unorderedDeployTasks.add(createDeployTask(channelId, null, null, context));
+            unorderedDeployTasks.add(createDeployTask(channelId, null, null, context, debug));
             hasDeployTasks = true;
         }
 
@@ -287,7 +287,7 @@ public class DonkeyEngineController implements EngineController {
                         hasUndeployTasks = true;
                     }
 
-                    deployTasks.add(createDeployTask(channelId, null, null, context));
+                    deployTasks.add(createDeployTask(channelId, null, null, context, debug));                    
                     hasDeployTasks = true;
                 }
 
@@ -462,7 +462,7 @@ public class DonkeyEngineController implements EngineController {
     public void redeployAllChannels(ServerEventContext context, ChannelTaskHandler handler) {
         undeployChannels(getDeployedIds(), context, handler);
         clearGlobalMap();
-        deployChannels(channelController.getChannelIds(), context, handler);
+        deployChannels(channelController.getChannelIds(), context, handler, false);
     }
 
     @Override
@@ -1753,8 +1753,8 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    protected DeployTask createDeployTask(String channelId, DeployedState initialState, Set<Integer> connectorsToStart, ServerEventContext context) {
-        return new DeployTask(channelId, initialState, connectorsToStart, context);
+    protected DeployTask createDeployTask(String channelId, DeployedState initialState, Set<Integer> connectorsToStart, ServerEventContext context, boolean debug) {
+        return new DeployTask(channelId, initialState, connectorsToStart, context, debug);
     }
 
     protected class DeployTask extends ChannelTask {
@@ -1762,12 +1762,14 @@ public class DonkeyEngineController implements EngineController {
         private DeployedState initialState;
         private Set<Integer> connectorsToStart;
         private ServerEventContext context;
+        private boolean debug;
 
-        public DeployTask(String channelId, DeployedState initialState, Set<Integer> connectorsToStart, ServerEventContext context) {
+        public DeployTask(String channelId, DeployedState initialState, Set<Integer> connectorsToStart, ServerEventContext context, boolean debug) {
             super(channelId);
             this.initialState = initialState;
             this.connectorsToStart = connectorsToStart;
             this.context = context;
+            this.debug = debug;
         }
 
         @Override
@@ -1838,7 +1840,11 @@ public class DonkeyEngineController implements EngineController {
                 donkey.getDeployedChannels().put(channelId, channel);
 
                 try {
-                    channel.deploy();
+                	if (debug) {
+                		channel.debugDeploy();
+                	} else {
+                		channel.deploy();
+                	}
                 } catch (DeployException e) {
                     donkey.getDeployedChannels().remove(channelId);
                     throw e;

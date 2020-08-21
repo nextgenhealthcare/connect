@@ -294,7 +294,7 @@ public class ChannelUtil {
             @Override
             public Void call() throws Exception {
                 ErrorTaskHandler handler = new ErrorTaskHandler();
-                engineController.deployChannels(Collections.singleton(convertId(channelIdOrName)), null, handler);
+                engineController.deployChannels(Collections.singleton(convertId(channelIdOrName)), null, handler, false);
                 if (handler.isErrored()) {
                     throw handler.getError();
                 }

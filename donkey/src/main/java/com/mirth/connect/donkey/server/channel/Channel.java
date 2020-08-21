@@ -450,7 +450,15 @@ public class Channel implements Runnable {
     }
 
     public synchronized void deploy() throws DeployException {
-        if (!isConfigurationValid()) {
+        deploy(false);
+    }
+    
+    public synchronized void debugDeploy() throws DeployException {
+    	deploy(true);
+    }
+    
+    public synchronized void deploy(boolean debug) throws DeployException {
+    	if (!isConfigurationValid()) {
             throw new DeployException("Failed to deploy channel. The channel configuration is incomplete.");
         }
 
@@ -499,9 +507,15 @@ public class Channel implements Runnable {
             sourceQueue.updateSize();
 
             deployedMetaDataIds.add(0);
-            sourceConnector.onDeploy();
+            
+            if (debug) {
+            	sourceConnector.onDebugDeploy();
+            } else {
+            	sourceConnector.onDeploy();
+            }
+            
             if (sourceConnector.getBatchAdaptorFactory() != null) {
-                sourceConnector.getBatchAdaptorFactory().onDeploy();
+            	sourceConnector.getBatchAdaptorFactory().onDeploy();
             }
 
             for (DestinationChainProvider chainProvider : destinationChainProviders) {
@@ -524,7 +538,12 @@ public class Channel implements Runnable {
                     destinationConnector.getQueue().updateSize();
 
                     deployedMetaDataIds.add(metaDataId);
-                    destinationConnector.onDeploy();
+                    
+                    if (debug) {
+                    	destinationConnector.onDebugDeploy();
+                    } else {
+                    	destinationConnector.onDeploy();
+                    }
                 }
             }
 
@@ -973,6 +992,33 @@ public class Channel implements Runnable {
     private void stop(List<Integer> metaDataIds) throws Throwable {
         stopSourceQueue = true;
         Throwable firstCause = null;
+        
+        // Stop debugging on all connectors
+        ThreadUtils.checkInterruptedStatus();
+        try {
+        	sourceConnector.stopDebugging();
+        } catch (Throwable t) {
+        	logger.error("Error stopping debugging on Source connector for channel " + name + " (" + channelId + ").", t);
+            if (firstCause == null) {
+                firstCause = t;
+            }
+        }
+        
+        for (Integer metaDataId : metaDataIds) {
+            try {
+                if (metaDataId > 0) {
+                    getDestinationConnector(metaDataId).stopDebugging();
+                }
+            } catch (Throwable t) {
+                logger.error("Error stopping debugging on destination connector \"" + getDestinationConnector(metaDataId).getDestinationName() + "\" for channel " + name + " (" + channelId + ").", t);
+                if (firstCause == null) {
+                    firstCause = t;
+                }
+            }
+
+            ThreadUtils.checkInterruptedStatus();
+        }
+        
 
         ThreadUtils.checkInterruptedStatus();
         try {

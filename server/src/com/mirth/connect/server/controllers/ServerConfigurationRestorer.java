@@ -501,7 +501,7 @@ public class ServerConfigurationRestorer {
         try {
             // Deploy all channels
             if (deploy) {
-                engineController.deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null);
+                engineController.deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, false);
             }
         } catch (Throwable t) {
             multiException.add(new ControllerException("Error deploying channels after restoring server configuration.", t));

@@ -62,21 +62,21 @@ public class EngineServlet extends MirthServlet implements EngineServletInterfac
 
     @Override
     @CheckAuthorizedChannelId
-    public void deployChannel(String channelId, boolean returnErrors) {
+    public void deployChannel(String channelId, boolean returnErrors, boolean debug) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
-        engineController.deployChannels(Collections.singleton(channelId), context, handler);
+        engineController.deployChannels(Collections.singleton(channelId), context, handler, debug);
         if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
     }
 
     @Override
-    public void deployChannels(Set<String> channelIds, boolean returnErrors) {
+    public void deployChannels(Set<String> channelIds, boolean returnErrors, boolean debug) {
         if (CollectionUtils.isEmpty(channelIds)) {
             channelIds = channelController.getChannelIds();
         }
         ErrorTaskHandler handler = new ErrorTaskHandler();
-        engineController.deployChannels(redactChannelIds(channelIds), context, handler);
+        engineController.deployChannels(redactChannelIds(channelIds), context, handler, debug);
         if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
