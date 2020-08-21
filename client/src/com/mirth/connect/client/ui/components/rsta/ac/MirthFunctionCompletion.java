@@ -14,7 +14,7 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fife.rsta.ac.js.IconFactory;
 import org.fife.ui.autocomplete.Completion;

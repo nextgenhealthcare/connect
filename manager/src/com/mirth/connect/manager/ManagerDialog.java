@@ -37,7 +37,7 @@ import javax.swing.event.ListSelectionEvent;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
@@ -574,18 +574,18 @@ public class ManagerDialog extends JDialog {
     }
 
     public boolean saveProperties() {
-        if (managerController.getServerProperties().getReloadingStrategy().reloadingRequired()) {
+        if (managerController.getServerPropertiesBuilder().getReloadingController().isInReloadingState()) {
             if (!managerController.alertOptionDialog(this, "Server properties have changed on disk since the manager was opened. Are you sure you wish to overwrite them?")) {
                 return false;
             }
-            managerController.getServerProperties().reload();
+            managerController.reloadServerProperties();
         }
 
-        if (managerController.getLog4jProperties().getReloadingStrategy().reloadingRequired()) {
+        if (managerController.getLog4jPropertiesBuilder().getReloadingController().isInReloadingState()) {
             if (!managerController.alertOptionDialog(this, "Log4j properties have changed on disk since the manager was opened. Are you sure you wish to overwrite them?")) {
                 return false;
             }
-            managerController.getLog4jProperties().reload();
+            managerController.reloadLog4jProperties();
         }
 
         managerController.getServerProperties().setProperty(ManagerConstants.SERVER_HTTP_PORT, httpPortField.getText());
@@ -597,9 +597,9 @@ public class ManagerDialog extends JDialog {
         managerController.getServerProperties().setProperty(ManagerConstants.DATABASE_PASSWORD, new String(databasePasswordField.getPassword()));
 
         try {
-            managerController.getServerProperties().save();
+            managerController.saveServerProperties();
         } catch (ConfigurationException e) {
-            managerController.alertErrorDialog(this, "Error saving " + managerController.getServerProperties().getFile().getPath() + ":\n" + e.getMessage());
+            managerController.alertErrorDialog(this, "Error saving " + managerController.getServerPropertiesBuilder().getFileHandler().getFile().getPath() + ":\n" + e.getMessage());
         }
 
         String[] logLevel = managerController.getLog4jProperties().getStringArray(ManagerConstants.LOG4J_MIRTH_LOG_LEVEL);
@@ -618,9 +618,9 @@ public class ManagerDialog extends JDialog {
         }
 
         try {
-            managerController.getLog4jProperties().save();
+            managerController.saveLog4jProperties();
         } catch (ConfigurationException e) {
-            managerController.alertErrorDialog(this, "Error saving " + managerController.getLog4jProperties().getFile().getPath() + ":\n" + e.getMessage());
+            managerController.alertErrorDialog(this, "Error saving " + managerController.getLog4jPropertiesBuilder().getFileHandler().getFile().getPath() + ":\n" + e.getMessage());
         }
 
         managerController.setServiceXmx(serverMemoryField.getText());

@@ -22,7 +22,7 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;

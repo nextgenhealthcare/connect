@@ -26,8 +26,8 @@ import java.util.regex.PatternSyntaxException;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.map.CaseInsensitiveMap;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;

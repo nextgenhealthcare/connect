@@ -12,7 +12,7 @@ package com.mirth.connect.server.migration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 
 import com.mirth.connect.model.util.MigrationException;
 

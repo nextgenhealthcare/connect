@@ -25,18 +25,19 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Appender;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.MDC;
-import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
 
 import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConnectionPools;
 import com.mirth.connect.model.LibraryProperties;
@@ -73,8 +74,8 @@ public class Mirth extends Thread {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private boolean running = false;
-    private PropertiesConfiguration mirthProperties = new PropertiesConfiguration();
-    private PropertiesConfiguration versionProperties = new PropertiesConfiguration();
+    private PropertiesConfiguration mirthProperties = PropertiesConfigurationUtil.create();
+    private PropertiesConfiguration versionProperties = PropertiesConfigurationUtil.create();
     private MirthWebServer webServer;
     private CommandQueue commandQueue = CommandQueue.getInstance();
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
@@ -178,8 +179,7 @@ public class Mirth extends Thread {
 
         try {
             mirthPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "mirth.properties");
-            mirthProperties.setDelimiterParsingDisabled(true);
-            mirthProperties.load(mirthPropertiesStream);
+            mirthProperties = PropertiesConfigurationUtil.create(mirthPropertiesStream);
         } catch (Exception e) {
             logger.error("could not load mirth.properties", e);
         } finally {
@@ -190,8 +190,7 @@ public class Mirth extends Thread {
 
         try {
             versionPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
-            versionProperties.setDelimiterParsingDisabled(true);
-            versionProperties.load(versionPropertiesStream);
+            versionProperties = PropertiesConfigurationUtil.create(versionPropertiesStream);
         } catch (Exception e) {
             logger.error("could not load version.properties", e);
         } finally {
@@ -263,7 +262,10 @@ public class Mirth extends Thread {
         userController.resetUserStatus();
 
         // disable the velocity logging
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
+        Logger velocityLogger = Logger.getLogger(RuntimeConstants.DEFAULT_RUNTIME_LOG_NAME);
+        if (velocityLogger != null && velocityLogger.getLevel() == null) {
+            velocityLogger.setLevel(Level.OFF);
+        }
 
         eventController.dispatchEvent(new ServerEvent(configurationController.getServerId(), "Server startup"));
 

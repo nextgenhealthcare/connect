@@ -14,14 +14,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.configuration.ConfigurationConverter;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.configuration2.ConfigurationConverter;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.donkey.model.DatabaseConstants;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -291,7 +292,7 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
 
     @Override
     public Properties getProperties() {
-        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        PropertiesConfiguration configuration = PropertiesConfigurationUtil.create();
 
         configuration.setProperty(DatabaseConstants.DATABASE_ENABLE_READ_WRITE_SPLIT, Boolean.toString(splitReadWrite));
 

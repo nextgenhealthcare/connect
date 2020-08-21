@@ -11,7 +11,7 @@ package com.mirth.connect.server.migration;
 
 import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 
 public interface ConfigurationMigrator {
     /**

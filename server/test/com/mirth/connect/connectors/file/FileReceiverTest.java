@@ -31,8 +31,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.logging.LogFactory;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.runtime.RuntimeConstants;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -88,7 +86,7 @@ public class FileReceiverTest {
         });
         injector.getInstance(ControllerFactory.class);
 
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
+//        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
     }
 
     /*

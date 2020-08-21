@@ -1,8 +1,8 @@
 package com.mirth.connect.util;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 public class VfsUtilsTest {
     @Test(expected = NullPointerException.class)

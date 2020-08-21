@@ -22,9 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.PropertiesConfigurationLayout;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfigurationLayout;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -106,14 +105,9 @@ public class ServerMigrator extends Migrator {
             version = version.getNextVersion();
         }
 
-        try {
-            mirthConfig.setProperty("version", Version.getLatest().toString());
-            mirthConfig.getLayout().setBlancLinesBefore("version", 1);
-            mirthConfig.getLayout().setComment("version", "Only used for migration purposes, do not modify");
-            mirthConfig.save();
-        } catch (ConfigurationException e) {
-            logger.error("Unable to update mirth.properties version during migration.", e);
-        }
+        mirthConfig.setProperty("version", Version.getLatest().toString());
+        mirthConfig.getLayout().setBlancLinesBefore("version", 1);
+        mirthConfig.getLayout().setComment("version", "Only used for migration purposes, do not modify");
     }
 
     private void runConfigurationMigrator(ConfigurationMigrator configurationMigrator, PropertiesConfiguration mirthConfig, Version version) {
@@ -180,20 +174,6 @@ public class ServerMigrator extends Migrator {
 
             if (!removedProperties.isEmpty()) {
                 logger.info("Removing properties in mirth.properties: " + removedProperties);
-            }
-
-            try {
-                mirthConfig.save();
-            } catch (ConfigurationException e) {
-                logger.error("There was an error updating mirth.properties.", e);
-
-                if (!addedProperties.isEmpty()) {
-                    logger.error("The following properties should be added to mirth.properties manually: " + addedProperties.toString());
-                }
-
-                if (!removedProperties.isEmpty()) {
-                    logger.error("The following properties should be removed from mirth.properties manually: " + removedProperties.toString());
-                }
             }
         }
     }

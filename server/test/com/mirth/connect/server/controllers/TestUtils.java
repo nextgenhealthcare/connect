@@ -24,7 +24,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executors;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +32,7 @@ import org.apache.commons.math3.util.Precision;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.connectors.TestAutoResponder;
 import com.mirth.connect.connectors.TestDestinationConnector;
 import com.mirth.connect.connectors.TestResponseTransformer;
@@ -303,8 +304,7 @@ public class TestUtils {
 
         try {
             InputStream is = ResourceUtil.getResourceStream(SqlSession.class, "mirth.properties");
-            mirthProperties.setDelimiterParsingDisabled(true);
-            mirthProperties.load(is);
+            mirthProperties = PropertiesConfigurationUtil.create(is);
             IOUtils.closeQuietly(is);
         } catch (Exception e) {
             e.printStackTrace();

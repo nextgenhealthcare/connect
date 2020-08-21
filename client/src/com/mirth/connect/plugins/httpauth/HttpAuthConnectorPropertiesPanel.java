@@ -41,6 +41,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -79,8 +81,6 @@ import com.mirth.connect.plugins.httpauth.javascript.JavaScriptHttpAuthPropertie
 import com.mirth.connect.plugins.httpauth.oauth2.OAuth2HttpAuthProperties;
 import com.mirth.connect.plugins.httpauth.oauth2.OAuth2HttpAuthProperties.TokenLocation;
 import com.mirth.connect.util.JavaScriptSharedUtil;
-
-import net.miginfocom.swing.MigLayout;
 
 public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertiesPanel {
 

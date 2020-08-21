@@ -68,10 +68,10 @@
 	<classpathentry kind="lib" path="lib/commons-io-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.4.7.jar"/>
-	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>
-	<classpathentry kind="lib" path="lib/velocity-tools-2.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-configuration-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections4-4.4.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-engine-core-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-tools-generic-3.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-configuration2-2.7.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>

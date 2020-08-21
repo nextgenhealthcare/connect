@@ -1,5 +1,15 @@
 package com.mirth.connect.connectors.file.filesystems;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.net.ftp.FTPClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,16 +18,6 @@ import org.mockito.stubbing.Answer;
 
 import com.mirth.connect.connectors.file.FTPSchemeProperties;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
-
-import static org.mockito.Mockito.mock;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class FtpConnectionTest {
 

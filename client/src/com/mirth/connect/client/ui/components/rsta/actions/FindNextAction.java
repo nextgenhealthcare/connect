@@ -12,7 +12,7 @@ package com.mirth.connect.client.ui.components.rsta.actions;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
 import org.fife.ui.rtextarea.SearchResult;

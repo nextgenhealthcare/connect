@@ -18,7 +18,7 @@ import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.logging.LogFactory;

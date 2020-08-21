@@ -9,6 +9,9 @@
 
 package com.mirth.connect.server;
 
+import io.swagger.v3.jaxrs2.integration.resources.AcceptHeaderOpenApiResource;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -36,7 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -111,9 +114,6 @@ import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.PackagePredicate;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MirthSSLUtil;
-
-import io.swagger.v3.jaxrs2.integration.resources.AcceptHeaderOpenApiResource;
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 
 public class MirthWebServer extends Server {
 
