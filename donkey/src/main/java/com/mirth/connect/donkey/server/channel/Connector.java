@@ -49,6 +49,10 @@ public abstract class Connector {
     public void onDebugDeploy() throws ConnectorTaskException {
     	onDeploy();
     }
+    
+    public void stopDebugging() throws ConnectorTaskException {
+
+    }
 
     public Channel getChannel() {
         return channel;

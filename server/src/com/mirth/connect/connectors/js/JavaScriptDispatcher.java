@@ -18,7 +18,6 @@ import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
-import org.mozilla.javascript.tools.debugger.Main;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -55,7 +54,8 @@ public class JavaScriptDispatcher extends DestinationConnector {
     private volatile String contextFactoryId;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
     private boolean debug = false;
-    private Main debugger;
+    private MirthMain debugger;
+    private boolean ignoreBreakpoints = false;
     
     protected EventController getEventController() {
     	return ControllerFactory.getFactory().createEventController();
@@ -91,10 +91,6 @@ public class JavaScriptDispatcher extends DestinationConnector {
             if (debug) {
             	contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId());
             	debugger = getDebugger(contextFactory);
-            	debugger.setExitAction(() -> {
-            		debugger.clearAllBreakpoints();
-            		debugger.go();
-            	});
             } else {
             	contextFactory = contextFactoryController.getContextFactory(getResourceIds());
             }
@@ -109,7 +105,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
     }
     
-    protected Main getDebugger(MirthContextFactory contextFactory) {
+    protected MirthMain getDebugger(MirthContextFactory contextFactory) {
     	return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, getChannel().getName() + "-" + getChannelId());
     }
     
@@ -130,14 +126,31 @@ public class JavaScriptDispatcher extends DestinationConnector {
     }
 
     @Override
-    public void onStart() throws ConnectorTaskException {}
+    public void onStart() throws ConnectorTaskException {
+    	ignoreBreakpoints = false;
+    	if (debug && debugger != null) {
+    		debugger.enableDebugging();
+    	}
+    }
 
     @Override
-    public void onStop() throws ConnectorTaskException {}
+    public void onStop() throws ConnectorTaskException {
+    	if (debug && debugger != null) {
+    		debugger.finishScriptExecution();
+    	}
+    }
 
     @Override
     public void onHalt() throws ConnectorTaskException {}
 
+    @Override
+    public void stopDebugging() throws ConnectorTaskException {
+    	ignoreBreakpoints = true;
+    	if (debug && debugger != null) {
+    		debugger.finishScriptExecution();
+    	}
+    }
+    
     @Override
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {}
 
@@ -205,9 +218,12 @@ public class JavaScriptDispatcher extends DestinationConnector {
                     if (debug) {
                     	scopeProvider.setScope(scope);
 
-                    	if (debugger != null && !debugger.isVisible()) {
+                    	if (debugger != null && !ignoreBreakpoints) {
                     		debugger.doBreak();
-                    		debugger.setVisible(true);
+                    		
+                    		if (!debugger.isVisible()) {
+                    			debugger.setVisible(true);
+                    		}
                     	}
                     }
                     

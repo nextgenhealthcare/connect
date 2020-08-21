@@ -60,7 +60,7 @@ public class Dim {
     /**
      * Interface to the debugger GUI.
      */
-    private GuiCallback callback;
+    protected GuiCallback callback;
 
     /**
      * Whether the debugger should break.
@@ -81,12 +81,12 @@ public class Dim {
     /**
      * The index of the current stack frame.
      */
-    private int frameIndex = -1;
+    protected int frameIndex = -1;
 
     /**
      * Information about the current stack at the point of interruption.
      */
-    private volatile ContextData interruptedContextData;
+    protected volatile ContextData interruptedContextData;
 
     /**
      * The ContextFactory to listen to for debugging information.
@@ -97,39 +97,39 @@ public class Dim {
      * Synchronization object used to allow script evaluations to
      * happen when a thread is resumed.
      */
-    private Object monitor = new Object();
+    protected Object monitor = new Object();
 
     /**
      * Synchronization object used to wait for valid
      * {@link #interruptedContextData}.
      */
-    private Object eventThreadMonitor = new Object();
+    protected Object eventThreadMonitor = new Object();
 
     /**
      * The action to perform to end the interruption loop.
      */
-    private volatile int returnValue = -1;
+    protected volatile int returnValue = -1;
 
     /**
      * Whether the debugger is inside the interruption loop.
      */
-    private boolean insideInterruptLoop;
+    protected boolean insideInterruptLoop;
 
     /**
      * The requested script string to be evaluated when the thread
      * has been resumed.
      */
-    private String evalRequest;
+    protected String evalRequest;
 
     /**
      * The stack frame in which to evaluate {@link #evalRequest}.
      */
-    private StackFrame evalFrame;
+    protected StackFrame evalFrame;
 
     /**
      * The result of evaluating {@link #evalRequest}.
      */
-    private String evalResult;
+    protected String evalResult;
 
     /**
      * Whether the debugger should break when a script exception is thrown.
@@ -505,7 +505,7 @@ public class Dim {
     /**
      * Called when a breakpoint has been hit.
      */
-    private void handleBreakpointHit(StackFrame frame, Context cx) {
+    protected void handleBreakpointHit(StackFrame frame, Context cx) {
         breakFlag = false;
         interrupted(cx, frame, null);
     }
@@ -724,7 +724,7 @@ public class Dim {
     /**
      * Interrupts script execution.
      */
-    private void interrupted(Context cx, final StackFrame frame,
+    protected void interrupted(Context cx, final StackFrame frame,
                                Throwable scriptException) {
         ContextData contextData = frame.contextData();
         boolean eventThreadFlag = callback.isGuiEventThread();
@@ -863,7 +863,7 @@ interruptedCheck:
     /**
      * Evaluates script in the given stack frame.
      */
-    private static String do_eval(Context cx, StackFrame frame, String expr) {
+    protected static String do_eval(Context cx, StackFrame frame, String expr) {
         String resultString;
         Debugger saved_debugger = cx.getDebugger();
         Object saved_data = cx.getDebuggerContextData();
@@ -1087,18 +1087,18 @@ interruptedCheck:
         /**
          * Whether the debugger should break at the next line in this context.
          */
-        private boolean breakNextLine;
+        protected boolean breakNextLine;
 
         /**
          * The frame depth the debugger should stop at.  Used to implement
          * "step over" and "step out".
          */
-        private int stopAtFrameDepth = -1;
+        protected int stopAtFrameDepth = -1;
 
         /**
          * Whether this context is in the event thread.
          */
-        private boolean eventThreadFlag;
+        protected boolean eventThreadFlag;
 
         /**
          * The last exception that was processed.

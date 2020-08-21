@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
-import org.mozilla.javascript.tools.debugger.Main;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.EventController;
@@ -24,10 +24,9 @@ public class JavaScriptDispatcherTest {
 		TestJavaScriptDispatcher dispatcher = new TestJavaScriptDispatcher();
 		dispatcher.onDebugDeploy();
 		
-		Main debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
+		MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
 		ContextFactoryController contextFactoryController = dispatcher.getContextFactoryController();
 		
-		verify(debugger, times(1)).setExitAction(any());
 		verify(contextFactoryController, times(1)).getDebugContextFactory(any(), any());
 		
 		// Undeploy
@@ -38,8 +37,41 @@ public class JavaScriptDispatcherTest {
 		verify(contextFactoryController, times(1)).removeDebugContextFactory(any(), any());
 	}
 	
+	@Test
+	public void testOnStop() throws Exception {
+		TestJavaScriptDispatcher dispatcher = new TestJavaScriptDispatcher();
+		dispatcher.onDebugDeploy();
+		
+		MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
+		dispatcher.onStop();
+		
+		verify(debugger, times(1)).finishScriptExecution();
+	}
+	
+	@Test
+	public void testStopDebugging() throws Exception {
+		TestJavaScriptDispatcher dispatcher = new TestJavaScriptDispatcher();
+		dispatcher.onDebugDeploy();
+		
+		MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
+		dispatcher.stopDebugging();
+		
+		verify(debugger, times(1)).finishScriptExecution();
+	}
+	
+	@Test
+	public void testOnStart() throws Exception {
+		TestJavaScriptDispatcher dispatcher = new TestJavaScriptDispatcher();
+		dispatcher.onDebugDeploy();
+		
+		MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
+		dispatcher.onStart();
+		
+		verify(debugger, times(1)).enableDebugging();
+	}
+	
 	private static class TestJavaScriptDispatcher extends JavaScriptDispatcher {
-		private Main debugger = mock(Main.class);
+		private MirthMain debugger = mock(MirthMain.class);
 		private ContextFactoryController contextFactoryController;
 		
 		@Override
@@ -71,7 +103,7 @@ public class JavaScriptDispatcherTest {
 	    }
 		
 		@Override
-		protected Main getDebugger(MirthContextFactory contextFactory) {
+		protected MirthMain getDebugger(MirthContextFactory contextFactory) {
 			return debugger;
 		}
 		

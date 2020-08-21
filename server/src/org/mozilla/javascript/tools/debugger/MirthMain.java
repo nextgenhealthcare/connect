@@ -8,14 +8,15 @@ public class MirthMain extends Main {
 
 	public MirthMain(String title) {
 		super(title);
+		dim = new MirthDim();
 		debugGui = new MirthSwingGui(dim, title);
 	}
 
-	public static Main mirthMainEmbedded(ContextFactory factory, Object scopeProvider, String title) {
+	public static MirthMain mirthMainEmbedded(ContextFactory factory, Object scopeProvider, String title) {
 		if (title == null) {
 			title = "Rhino JavaScript Debugger (embedded usage)";
 		}
-		Main main = new MirthMain(title);
+		MirthMain main = new MirthMain(title);
 		main.doBreak();
 
 		main.attachTo(factory);
@@ -35,7 +36,36 @@ public class MirthMain extends Main {
 		main.pack();
 		main.setSize(600, 460);
 		main.setVisible(true);
+		
 		return main;
 	}
+	
+	@Override
+	public void setVisible(boolean flag) {
+		if (flag) {
+			MirthSwingGui mirthDebugGui = (MirthSwingGui)debugGui;
+			mirthDebugGui.setStopping(false);
+			((MirthDim)dim).setStopping(false);
+		}
+		super.setVisible(flag);
+	}
 
+	@Override
+	public void dispose() {
+		debugGui.dispose();
+		dim = null;
+	}
+	
+	public void finishScriptExecution() {
+		((MirthSwingGui) debugGui).setStopping(true);
+		((MirthDim) dim).setStopping(true);
+		dim.clearAllBreakpoints();
+		dim.go();
+	}
+	
+	public void enableDebugging() {
+		doBreak();
+		((MirthSwingGui) debugGui).setStopping(false);
+		((MirthDim) dim).setStopping(false);
+	}
 }

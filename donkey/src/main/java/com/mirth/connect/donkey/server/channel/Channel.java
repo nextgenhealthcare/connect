@@ -515,7 +515,6 @@ public class Channel implements Runnable {
             }
             
             if (sourceConnector.getBatchAdaptorFactory() != null) {
-            	//TODO Does this need to be run in debug mode?
             	sourceConnector.getBatchAdaptorFactory().onDeploy();
             }
 
@@ -993,6 +992,33 @@ public class Channel implements Runnable {
     private void stop(List<Integer> metaDataIds) throws Throwable {
         stopSourceQueue = true;
         Throwable firstCause = null;
+        
+        // Stop debugging on all connectors
+        ThreadUtils.checkInterruptedStatus();
+        try {
+        	sourceConnector.stopDebugging();
+        } catch (Throwable t) {
+        	logger.error("Error stopping debugging on Source connector for channel " + name + " (" + channelId + ").", t);
+            if (firstCause == null) {
+                firstCause = t;
+            }
+        }
+        
+        for (Integer metaDataId : metaDataIds) {
+            try {
+                if (metaDataId > 0) {
+                    getDestinationConnector(metaDataId).stopDebugging();
+                }
+            } catch (Throwable t) {
+                logger.error("Error stopping debugging on destination connector \"" + getDestinationConnector(metaDataId).getDestinationName() + "\" for channel " + name + " (" + channelId + ").", t);
+                if (firstCause == null) {
+                    firstCause = t;
+                }
+            }
+
+            ThreadUtils.checkInterruptedStatus();
+        }
+        
 
         ThreadUtils.checkInterruptedStatus();
         try {

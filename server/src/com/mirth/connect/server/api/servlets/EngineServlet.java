@@ -19,7 +19,6 @@ import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.client.core.api.servlets.EngineServletInterface;
 import com.mirth.connect.server.api.CheckAuthorizedChannelId;

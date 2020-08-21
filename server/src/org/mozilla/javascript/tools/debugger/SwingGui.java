@@ -136,7 +136,7 @@ public class SwingGui extends JFrame implements GuiCallback {
      * The action to run when the 'Exit' menu item is chosen or the
      * frame is closed.
      */
-    private Runnable exitAction;
+    protected Runnable exitAction;
 
     /**
      * The {@link JDesktopPane} that holds the script windows.
@@ -146,7 +146,7 @@ public class SwingGui extends JFrame implements GuiCallback {
     /**
      * The {@link JPanel} that shows information about the context.
      */
-    private ContextWindow context;
+    protected ContextWindow context;
 
     /**
      * The menu bar.
@@ -172,7 +172,7 @@ public class SwingGui extends JFrame implements GuiCallback {
     /**
      * The status bar.
      */
-    private JLabel statusBar;
+    protected JLabel statusBar;
 
     /**
      * Hash table of internal frame names to the internal frames themselves.
@@ -395,7 +395,7 @@ public class SwingGui extends JFrame implements GuiCallback {
     /**
      * Runs the {@link #exitAction}.
      */
-    private void exit() {
+    protected void exit() {
         if (exitAction != null) {
             SwingUtilities.invokeLater(exitAction);
         }
@@ -752,7 +752,7 @@ public class SwingGui extends JFrame implements GuiCallback {
      * Enables or disables the menu and tool bars with respect to the
      * state of script execution.
      */
-    private void updateEnabled(boolean interrupted) {
+    protected void updateEnabled(boolean interrupted) {
         ((Menubar)getJMenuBar()).updateEnabled(interrupted);
         for (int ci = 0, cc = toolBar.getComponentCount(); ci < cc; ci++) {
             boolean enableButton;
