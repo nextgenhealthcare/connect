@@ -322,17 +322,20 @@ public class DefaultConfigurationController extends ConfigurationController {
             FileBasedConfigurationBuilder<PropertiesConfiguration> serverIdConfigBuilder = PropertiesConfigurationUtil.createBuilder(serverIdFile);
 
             PropertiesConfiguration serverIdConfig = null;
-            if (!serverIdFile.exists()) {
-                // Save to file first so the file gets created
-                serverIdConfigBuilder.save();
+            if (serverIdFile.exists()) {
+                serverIdConfig = serverIdConfigBuilder.getConfiguration();
             }
-            serverIdConfig = serverIdConfigBuilder.getConfiguration();
 
             if (!mirthConfig.getBoolean("server.id.ephemeral", false) && serverIdConfig != null && serverIdConfig.getString("server.id") != null && serverIdConfig.getString("server.id").length() > 0) {
                 serverId = serverIdConfig.getString("server.id");
             } else {
                 serverId = generateGuid();
                 logger.debug("generated new server id: " + serverId);
+                if (!serverIdFile.exists()) {
+                    // Save to file first so the file gets created
+                    serverIdConfigBuilder.save();
+                    serverIdConfig = serverIdConfigBuilder.getConfiguration();
+                }
                 serverIdConfig.setProperty("server.id", serverId);
                 serverIdConfigBuilder.save();
             }
