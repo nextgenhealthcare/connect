@@ -361,11 +361,11 @@ public class DefaultConfigurationController extends ConfigurationController {
 
                 try {
                     File configFile = new File(configurationFile);
-                    FileBasedConfigurationBuilder<PropertiesConfiguration> builder = PropertiesConfigurationUtil.createBuilder(configFile);
-                    if (!configFile.exists()) {
-                        builder.save();
+                    if (configFile.exists()) {
+                        configurationMapProperties = PropertiesConfigurationUtil.create(configFile);
+                    } else {
+                        configurationMapProperties = PropertiesConfigurationUtil.create();
                     }
-                    configurationMapProperties = builder.getConfiguration();
                     configMapLoaded = true;
                 } catch (ConfigurationException e) {
                     logger.warn("Failed to find configuration map file", e);
