@@ -33,8 +33,6 @@ import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.ChannelStatus;
 
 public class ChannelWriter extends ConnectorSettingsPanel {
 

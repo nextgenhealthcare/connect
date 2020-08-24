@@ -9,6 +9,14 @@
 
 package com.mirth.connect.connectors.smtp;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -22,14 +30,6 @@ import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.util.ConnectionTestResponse;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path("/connectors/smtp")
 @Tag(name = "Connector Services")

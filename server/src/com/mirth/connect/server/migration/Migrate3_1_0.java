@@ -10,19 +10,22 @@
 package com.mirth.connect.server.migration;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.model.util.MigrationException;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
@@ -38,11 +41,9 @@ public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
     }
 
     private void migrateLog4jProperties() {
-        PropertiesConfiguration log4jproperties = new PropertiesConfiguration();
-        log4jproperties.setDelimiterParsingDisabled(true);
-        log4jproperties.setFile(new File(ClassPathResource.getResourceURI("log4j.properties")));
         try {
-            log4jproperties.load();
+            FileBasedConfigurationBuilder<PropertiesConfiguration> builder = PropertiesConfigurationUtil.createBuilder(new File(ClassPathResource.getResourceURI("log4j.properties")));
+            PropertiesConfiguration log4jproperties = builder.getConfiguration();
 
             String level = (String) log4jproperties.getProperty("log4j.logger.shutdown");
             if (level != null) {
@@ -58,9 +59,9 @@ public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
                 Logger.getLogger("com.mirth.connect.donkey.server.channel.RecoveryTask").setLevel(Level.toLevel(level));
             }
 
-            log4jproperties.save();
-        } catch (ConfigurationException e) {
-            logger.error("Failed to migrate log4j properties.");
+            builder.save();
+        } catch (ConfigurationException | IOException e) {
+            logger.error("Failed to migrate log4j properties.", e);
         }
     }
 

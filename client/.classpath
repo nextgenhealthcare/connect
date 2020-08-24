@@ -123,7 +123,6 @@
 	<classpathentry kind="lib" path="lib/hapi-1.1.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dicomviewer/ij.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/pdfviewer/PDFRenderer.jar"/>
-	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/swingx-core-1.6.2.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://www.jarvana.com/jarvana/view/org/swinglabs/swingx-core/1.6.2-2/swingx-core-1.6.2-2-javadoc.jar!/"/>
@@ -137,9 +136,9 @@
 	<classpathentry kind="lib" path="lib/miglayout-swing-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout-core-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-1.9.3.jar"/>
-	<classpathentry kind="lib" path="lib/velocity-1.7.jar"/>
-	<classpathentry kind="lib" path="lib/velocity-tools-2.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-configuration-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-engine-core-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-tools-generic-3.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-configuration2-2.7.jar"/>
 	<classpathentry kind="lib" path="lib/javax.mail-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/rsyntaxtextarea-2.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/autocomplete-2.5.4.jar"/>
@@ -153,7 +152,7 @@
 	<classpathentry kind="lib" path="lib/javax.ws.rs-api-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-client-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-proxy-client-2.22.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons-collections4-4.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections4-4.4.jar"/>
 	<classpathentry kind="lib" path="lib/reflections-0.9.10.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-common-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/hk2-api-2.4.0-b31.jar"/>

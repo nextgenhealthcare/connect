@@ -15,7 +15,7 @@ import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import com.mirth.connect.client.ui.panels.reference.ReferenceListPanel;
 import com.mirth.connect.client.ui.reference.Category;

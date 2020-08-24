@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;

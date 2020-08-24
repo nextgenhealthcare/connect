@@ -42,7 +42,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import org.apache.commons.collections.MapUtils;
+import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -68,8 +70,6 @@ import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.util.ConnectionTestResponse;
-
-import net.miginfocom.swing.MigLayout;
 
 public class HttpSender extends ConnectorSettingsPanel {
 

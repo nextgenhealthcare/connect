@@ -11,8 +11,7 @@ package com.mirth.connect.server.migration;
 
 import java.util.Map;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -43,12 +42,6 @@ public class Migrate3_4_0 extends Migrator implements ConfigurationMigrator {
     public void updateConfiguration(PropertiesConfiguration configuration) {
         if (StringUtils.containsIgnoreCase(configuration.getLayout().getComment("database"), "sqlserver2000")) {
             configuration.getLayout().setComment("database", "options: derby, mysql, postgres, oracle, sqlserver");
-
-            try {
-                configuration.save();
-            } catch (ConfigurationException e) {
-                logger.warn("An error occurred updating the database property comment.");
-            }
         }
     }
 }

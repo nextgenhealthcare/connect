@@ -23,8 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -234,12 +233,6 @@ public class Migrate3_5_0 extends Migrator implements ConfigurationMigrator {
                 }
 
                 configuration.setProperty("https.ciphersuites", newValue);
-
-                try {
-                    configuration.save();
-                } catch (ConfigurationException e) {
-                    logger.warn("Unable to update HTTPS cipher suites during migration.", e);
-                }
             }
         }
     }

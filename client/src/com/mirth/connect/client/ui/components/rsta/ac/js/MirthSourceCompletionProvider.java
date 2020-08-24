@@ -22,7 +22,7 @@ import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Segment;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.fife.rsta.ac.js.SourceCompletionProvider;
 import org.fife.ui.autocomplete.Completion;

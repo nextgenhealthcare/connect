@@ -11,7 +11,7 @@ package com.mirth.connect.server.userutil;
 
 import java.util.Map;
 
-import org.apache.commons.collections.map.CaseInsensitiveMap;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.converters.IMessageSerializer;

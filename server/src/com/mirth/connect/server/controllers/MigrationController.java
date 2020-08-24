@@ -9,7 +9,7 @@
 
 package com.mirth.connect.server.controllers;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 
 import com.mirth.connect.model.util.MigrationException;
 

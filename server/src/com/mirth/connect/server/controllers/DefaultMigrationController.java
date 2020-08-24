@@ -13,7 +13,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.PluginMetaData;

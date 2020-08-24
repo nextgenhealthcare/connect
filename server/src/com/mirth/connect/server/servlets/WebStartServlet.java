@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -39,6 +39,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.model.ExtensionLibrary;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.converters.DocumentSerializer;
@@ -138,13 +139,12 @@ public class WebStartServlet extends HttpServlet {
         Element jnlpElement = document.getDocumentElement();
 
         // Change the title to include the version of Mirth Connect
-        PropertiesConfiguration versionProperties = new PropertiesConfiguration();
-        versionProperties.setDelimiterParsingDisabled(true);
+        PropertiesConfiguration versionProperties = PropertiesConfigurationUtil.create();
         
         InputStream versionPropsIs = null;
         try {
             versionPropsIs = ResourceUtil.getResourceStream(getClass(), "version.properties");
-            versionProperties.load(versionPropsIs);
+            versionProperties = PropertiesConfigurationUtil.create(versionPropsIs);
         } finally {
             ResourceUtil.closeResourceQuietly(versionPropsIs);
         }
@@ -177,13 +177,12 @@ public class WebStartServlet extends HttpServlet {
         String contextPath = request.getContextPath();
         String codebase = scheme + "://" + serverHostname + ":" + serverPort + contextPath;
 
-        PropertiesConfiguration mirthProperties = new PropertiesConfiguration();
-        mirthProperties.setDelimiterParsingDisabled(true);
+        PropertiesConfiguration mirthProperties = PropertiesConfigurationUtil.create();
         
         InputStream mirthPropsIs = null;
         try {
             mirthPropsIs = ResourceUtil.getResourceStream(getClass(), "mirth.properties"); 
-            mirthProperties.load(mirthPropsIs);
+            mirthProperties = PropertiesConfigurationUtil.create(mirthPropsIs);
         } finally {
             ResourceUtil.closeResourceQuietly(mirthPropsIs);
         }

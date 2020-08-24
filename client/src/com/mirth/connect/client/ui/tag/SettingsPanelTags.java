@@ -69,9 +69,9 @@ import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ComparatorUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 

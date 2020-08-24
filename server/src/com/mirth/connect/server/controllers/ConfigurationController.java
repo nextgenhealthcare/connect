@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 
 import com.mirth.commons.encryption.Digester;
 import com.mirth.commons.encryption.Encryptor;

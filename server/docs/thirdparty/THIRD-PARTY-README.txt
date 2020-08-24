@@ -14,8 +14,8 @@ APACHE-LICENSE-2.0.txt):
 	Apache Standard Taglib 1.2.1 [Mirth Connect only]
 	Apache Tomcat Jasper JSP Engine 8.5.24.2 [Mirth Connect only]
 	Apache Tomcat Jasper Expression Language Impl 8.5.24.2 [Mirth Connect only]
-	Apache Velocity Engine 1.7
-	Apache Velocity Tools 2.0
+	Apache Velocity Engine 2.2
+	Apache Velocity Tools 3.0
 	Apache XMLBeans [Mirth Connect only]
 	AWS SDK v2 for Java [Mirth Connect only] (https://github.com/aws/aws-sdk-java-v2)
 	Bean Validation API 1.1.0 (http://beanvalidation.org/)
