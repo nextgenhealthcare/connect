@@ -152,4 +152,54 @@ public class DefaultMigrationController extends MigrationController {
             }
         }
     }
+
+    @Override
+    public void checkStartupLockTable() {
+        int startupLockSleep = configurationController.getStartupLockSleep();
+        if (startupLockSleep > 0) {
+            try {
+                boolean insertedStartupLock = false;
+                SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
+
+                try {
+                    Connection connection = SqlConfig.getInstance().getSqlSessionManager().getConnection();
+                    serverMigrator.setConnection(connection);
+                    serverMigrator.setDatabaseType(configurationController.getDatabaseType());
+
+                    insertedStartupLock = serverMigrator.checkStartupLockTable();
+                } finally {
+                    if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
+                        SqlConfig.getInstance().getSqlSessionManager().close();
+                    }
+                }
+
+                // Sleep if lock row was not able to be inserted
+                if (!insertedStartupLock) {
+                    logger.warn("Detected startup lock, sleeping " + startupLockSleep + "ms...");
+                    Thread.sleep(startupLockSleep);
+                }
+            } catch (Throwable t) {
+                logger.error("Error checking startup lock table.", t);
+            }
+        }
+    }
+
+    @Override
+    public void clearStartupLockTable() {
+        int startupLockSleep = configurationController.getStartupLockSleep();
+        if (startupLockSleep > 0) {
+            SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
+
+            try {
+                Connection connection = SqlConfig.getInstance().getSqlSessionManager().getConnection();
+                serverMigrator.setConnection(connection);
+                serverMigrator.setDatabaseType(configurationController.getDatabaseType());
+                serverMigrator.clearStartupLockTable();
+            } finally {
+                if (SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
+                    SqlConfig.getInstance().getSqlSessionManager().close();
+                }
+            }
+        }
+    }
 }

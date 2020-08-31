@@ -254,6 +254,62 @@ public class ServerMigrator extends Migrator {
         }
     }
 
+    /**
+     * In case multiple servers startup and initialize the database at the same time, this inserts a
+     * row into a custom table as a simple lock mechanism.
+     * 
+     * @return True if a row was inserted into the startup lock table.
+     */
+    public boolean checkStartupLockTable() {
+        try {
+            try {
+                executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-create-startup-lock-table.sql");
+            } catch (Exception e) {
+                logger.debug("Unable to create startup lock table.", e);
+            }
+
+            Connection connection = getConnection();
+            PreparedStatement stmt = null;
+            try {
+                stmt = connection.prepareStatement("INSERT INTO STARTUP_LOCK (ID) VALUES (1)");
+                int result = stmt.executeUpdate();
+                if (result != 1) {
+                    throw new SQLException("Got insert result: " + result);
+                }
+                return true;
+            } catch (SQLException e) {
+                logger.debug("Unable to insert into startup lock table.", e);
+            } finally {
+                DbUtils.closeQuietly(stmt);
+            }
+        } catch (Throwable t) {
+            logger.error("Error checking startup lock table.", t);
+        }
+
+        return false;
+    }
+
+    /**
+     * Deletes the inserted row from the startup lock table.
+     */
+    public void clearStartupLockTable() {
+        try {
+            Connection connection = getConnection();
+            PreparedStatement stmt = null;
+
+            try {
+                stmt = connection.prepareStatement("DELETE FROM STARTUP_LOCK WHERE ID = 1");
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                logger.debug("Unable to delete row from startup lock table.", e);
+            } finally {
+                DbUtils.closeQuietly(stmt);
+            }
+        } catch (Throwable t) {
+            logger.error("Error clearing startup lock table.", t);
+        }
+    }
+
     private Version getCurrentVersion() throws MigrationException {
         Statement statement = null;
         ResultSet resultSet = null;

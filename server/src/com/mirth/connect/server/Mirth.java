@@ -239,27 +239,34 @@ public class Mirth extends Thread {
             }
         }
 
-        extensionController.removePropertiesForUninstalledExtensions();
+        // First make a check in case multiple servers are initializing at the same time
+        migrationController.checkStartupLockTable();
 
         try {
-            migrationController.migrate();
-        } catch (MigrationException e) {
-            logger.error("Failed to migrate database schema", e);
-            stopDatabase();
-            running = false;
-            return;
+            extensionController.removePropertiesForUninstalledExtensions();
+
+            try {
+                migrationController.migrate();
+            } catch (MigrationException e) {
+                logger.error("Failed to migrate database schema", e);
+                stopDatabase();
+                running = false;
+                return;
+            }
+
+            // MIRTH-3535 disable Quartz update check
+            System.setProperty("org.terracotta.quartz.skipUpdateCheck", "true");
+
+            configurationController.migrateKeystore();
+            extensionController.setDefaultExtensionStatus();
+            extensionController.uninstallExtensions();
+            migrationController.migrateExtensions();
+            extensionController.initPlugins();
+            migrationController.migrateSerializedData();
+            userController.resetUserStatus();
+        } finally {
+            migrationController.clearStartupLockTable();
         }
-
-        // MIRTH-3535 disable Quartz update check
-        System.setProperty("org.terracotta.quartz.skipUpdateCheck", "true");
-
-        configurationController.migrateKeystore();
-        extensionController.setDefaultExtensionStatus();
-        extensionController.uninstallExtensions();
-        migrationController.migrateExtensions();
-        extensionController.initPlugins();
-        migrationController.migrateSerializedData();
-        userController.resetUserStatus();
 
         // disable the velocity logging
         Logger velocityLogger = Logger.getLogger(RuntimeConstants.DEFAULT_RUNTIME_LOG_NAME);
