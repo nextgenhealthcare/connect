@@ -52,7 +52,7 @@
 			<attribute name="javadoc_location" value="http://jdbc.postgresql.org/documentation/publicapi/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/xstream/xstream-1.4.7.jar"/>
+	<classpathentry kind="lib" path="lib/xstream/xstream-1.4.12.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc8-12.2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.9.3.jar"/>

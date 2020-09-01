@@ -73,7 +73,7 @@
 			<attribute name="javadoc_location" value="http://quartz-scheduler.org/api/2.1.7/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/xstream-1.4.7.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.12.jar"/>
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-8.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-common-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-container-servlet-2.22.1.jar"/>
