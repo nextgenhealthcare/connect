@@ -41,6 +41,10 @@ public class LoginActionBean extends BaseActionBean {
             try {
                 User validUser = client.getUser(loginStatus.getUpdatedUsername() != null ? loginStatus.getUpdatedUsername() : username);
 
+                // recreate the session to prevent session fixation attack
+                request.getSession().invalidate();
+                request.getSession(true);
+                
                 // set the sessions attributes
                 getContext().setUser(validUser);
                 getContext().setAuthorized(true);
