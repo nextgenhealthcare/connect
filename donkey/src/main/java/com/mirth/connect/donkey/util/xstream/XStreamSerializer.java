@@ -28,6 +28,7 @@ import com.thoughtworks.xstream.core.util.HierarchicalStreams;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
+import com.thoughtworks.xstream.security.AnyTypePermission;
 
 public class XStreamSerializer implements Serializer {
 
@@ -63,6 +64,13 @@ public class XStreamSerializer implements Serializer {
         } else {
             xstream = new XStream(new Xpp3Driver());
         }
+
+        /*
+         * Allow all types to be unmarshalled. Users can put anything they want into the
+         * channel/connector map etc, and those objects need to be unmarshalled by XStream when
+         * reading from the database.
+         */
+        xstream.addPermission(AnyTypePermission.ANY);
 
         if (classLoader != null) {
             xstream.setClassLoader(classLoader);
