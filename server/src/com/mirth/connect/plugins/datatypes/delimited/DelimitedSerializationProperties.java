@@ -302,6 +302,9 @@ public class DelimitedSerializationProperties extends SerializationProperties {
 
     @Override
     public void migrate3_7_0(DonkeyElement element) {}
+    
+    @Override
+    public void migrate3_9_0(DonkeyElement element) {}
 
     @Override
     public Map<String, Object> getPurgedProperties() {

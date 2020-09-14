@@ -1206,6 +1206,10 @@ public class DcmSnd extends StorageCommitmentService {
     }
 
     public void send() {
+        send(null);
+    }
+
+    public void send(CustomDimseRSPHandler responseHandler) {
         int i = 0, n = files.size();
         for ( ; (i+lastSentFile) < n && (batchSize==0 || i < batchSize); ++i) {
             FileInfo info = files.get(i + lastSentFile);
@@ -1238,6 +1242,9 @@ public class DcmSnd extends StorageCommitmentService {
                     public void onDimseRSP(Association as, DicomObject cmd,
                             DicomObject data) {
                         DcmSnd.this.onDimseRSP(cmd);
+                        if (responseHandler != null) {
+                            responseHandler.onDimseRSP(as, cmd, data);
+                        }
                     }
                 };
 

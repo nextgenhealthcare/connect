@@ -406,6 +406,18 @@ public class FileReceiverProperties extends ConnectorProperties implements PollC
     @Override public void migrate3_5_0(DonkeyElement element) {}
     @Override public void migrate3_6_0(DonkeyElement element) {}
     @Override public void migrate3_7_0(DonkeyElement element) {} // @formatter:on
+    
+    @Override
+    public void migrate3_9_0(DonkeyElement element) {
+    	if (element.getChildElement("scheme").getTextContent().equalsIgnoreCase("smb")) {
+            DonkeyElement schemeProperties = element.addChildElementIfNotExists("schemeProperties");
+            if (schemeProperties != null) {
+                schemeProperties.setAttribute("class", "com.mirth.connect.connectors.file.SmbSchemeProperties");
+                schemeProperties.addChildElementIfNotExists("smbMinVersion", "SMB1");
+                schemeProperties.addChildElementIfNotExists("smbMaxVersion", "SMB311");
+            }
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {

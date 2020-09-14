@@ -27,8 +27,6 @@
 		<property name="connectors.tcp" value="${extensions}/tcp" />
 		<property name="connectors.file" value="${extensions}/file" />
 		<property name="connectors.js" value="${extensions}/js" />
-		<property name="connectors.mongo" value="${extensions}/mongo" />
-		<property name="connectors.udp" value="${extensions}/udp" />
 		<property name="connectors.ws" value="${extensions}/ws" />
 		<property name="connectors.vm" value="${extensions}/vm" />
 		
@@ -158,16 +156,6 @@
 		<mkdir dir="${connectors.js}" />
 		<jar destfile="${connectors.js}/js-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/connectors/js/**" />
-		</jar>
-		
-		<mkdir dir="${connectors.mongo}" />
-		<jar destfile="${connectors.mongo}/mongo-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/mongo/**" />
-		</jar>
-		
-		<mkdir dir="${connectors.udp}" />
-		<jar destfile="${connectors.udp}/udp-client.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/udp/**" />
 		</jar>
 
 		<mkdir dir="${connectors.ws}" />

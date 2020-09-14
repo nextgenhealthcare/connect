@@ -158,6 +158,7 @@ public class FileDispatcher extends DestinationConnector {
             String template = fileDispatcherProperties.getTemplate();
 
             byte[] bytes = getAttachmentHandlerProvider().reAttachMessage(template, connectorMessage, charsetEncoding, fileDispatcherProperties.isBinary(), fileDispatcherProperties.getDestinationConnectorProperties().isReattachAttachments());
+            long contentLength = bytes.length;
 
             is = new ByteArrayInputStream(bytes);
 
@@ -168,11 +169,11 @@ public class FileDispatcher extends DestinationConnector {
             } else if (fileDispatcherProperties.isTemporary()) {
                 String tempFilename = filename + ".tmp";
                 logger.debug("writing temp file: " + tempFilename);
-                fileSystemConnection.writeFile(tempFilename, path, false, is, connectorMessage.getConnectorMap());
+                fileSystemConnection.writeFile(tempFilename, path, false, is, contentLength, connectorMessage.getConnectorMap());
                 logger.debug("renaming temp file: " + filename);
                 fileSystemConnection.move(tempFilename, path, filename, path);
             } else {
-                fileSystemConnection.writeFile(filename, path, fileDispatcherProperties.isOutputAppend(), is, connectorMessage.getConnectorMap());
+                fileSystemConnection.writeFile(filename, path, fileDispatcherProperties.isOutputAppend(), is, contentLength, connectorMessage.getConnectorMap());
             }
 
             // update the message status to sent

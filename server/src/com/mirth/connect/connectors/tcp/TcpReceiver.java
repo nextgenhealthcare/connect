@@ -37,9 +37,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLSocket;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
@@ -120,11 +117,7 @@ public class TcpReceiver extends SourceConnector {
             configuration = (TcpConfiguration) Class.forName(configurationClass).newInstance();
         } catch (Throwable t) {
             logger.trace("could not find custom configuration class, using default");
-			if (connectorProperties.isTLSEnabled()) {
-				configuration = new DefaultTcpConfigurationSecure();
-			} else {
-				configuration = new DefaultTcpConfiguration();
-			}
+            configuration = new DefaultTcpConfiguration();
         }
 
         try {
@@ -199,9 +192,6 @@ public class TcpReceiver extends SourceConnector {
                         try {
                             logger.debug("Waiting for new client socket (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").");
                             socket = serverSocket.accept();
-                            if (socket instanceof SSLSocket) {							
-								((SSLSocket) socket).startHandshake();
-							}
                             logger.trace("Accepted new socket: " + socket.getRemoteSocketAddress().toString() + " -> " + socket.getLocalSocketAddress());
                         } catch (java.io.InterruptedIOException e) {
                             logger.debug("Interruption during server socket accept operation (" + connectorProperties.getName() + " \"Source\" on channel " + getChannelId() + ").", e);

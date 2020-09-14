@@ -11,12 +11,12 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/dbutils/apidocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons/commons-io-2.3.jar">
+	<classpathentry kind="lib" path="lib/commons/commons-io-2.6.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/io/api-release/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.9.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-lang-2.6.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-2.6/"/>
@@ -33,11 +33,12 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.6.6.jar">
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.28.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://www.slf4j.org/apidocs/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.7.28.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-math3-3.0.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/math/apidocs/"/>
@@ -53,13 +54,12 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/xstream/xstream-1.4.7.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/xpp3-1.1.4c.jar"/>
-	<classpathentry kind="lib" path="lib/database/ojdbc7-12.1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/database/ojdbc8-12.2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.9.3.jar"/>
 	<classpathentry kind="lib" path="lib/database/jtds-1.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/database/mysql-connector-java-8.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/HikariCP-2.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/javassist-3.19.0-GA.jar"/>
-	<classpathentry kind="lib" path="lib/guava-18.0.jar"/>
+	<classpathentry kind="lib" path="lib/javassist-3.26.0-GA.jar"/>
 	<classpathentry kind="lib" path="lib/quartz-all-2.1.7.jar"/>
 	<classpathentry kind="lib" path="testlib/junit-4.8.1.jar"/>
 	<classpathentry kind="lib" path="testlib/mockito-core-2.7.9.jar"/>
@@ -69,6 +69,13 @@
 	<classpathentry kind="lib" path="testlib/javax.inject-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="testlib/aopalliance-repackaged-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/guice-4.1.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons/commons-codec-1.11.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-codec-1.13.jar"/>
+	<classpathentry kind="lib" path="lib/guava/checker-qual-2.10.0.jar"/>
+	<classpathentry kind="lib" path="lib/guava/error_prone_annotations-2.3.4.jar"/>
+	<classpathentry kind="lib" path="lib/guava/failureaccess-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/guava/guava-28.2-jre.jar"/>
+	<classpathentry kind="lib" path="lib/guava/j2objc-annotations-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/guava/jsr305-3.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

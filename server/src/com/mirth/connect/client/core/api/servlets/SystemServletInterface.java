@@ -9,8 +9,12 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -25,19 +29,29 @@ import com.mirth.connect.model.SystemInfo;
 import com.mirth.connect.model.SystemStats;
 
 @Path("/system")
-@Api("System Information and Statistics")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Tag(name = "System Information and Statistics")
+@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface SystemServletInterface extends BaseServletInterface {
     @GET
     @Path("/info")
-    @ApiOperation("Returns information about the underlying system.")
+    @Operation(summary="Returns information about the underlying system.")
+    @ApiResponse(content = {
+            @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                    @ExampleObject(name = "systemInfo", ref = "../apiexamples/system_info_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "systemInfo", ref = "../apiexamples/system_info_json") }) })
     @MirthOperation(name = "getJVMInfo", display = "Get System Information", auditable = false)
     public SystemInfo getInfo() throws ClientException;
 
     @GET
     @Path("/stats")
-    @ApiOperation("Returns statistics for the underlying system.")
+    @Operation(summary="Returns statistics for the underlying system.")
+    @ApiResponse(content = {
+            @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                    @ExampleObject(name = "systemStats", ref = "../apiexamples/system_stats_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "systemStats", ref = "../apiexamples/system_stats_json") }) })
     @MirthOperation(name = "getStats", display = "Get System Statistics", auditable = false)
     public SystemStats getStats() throws ClientException;
 }

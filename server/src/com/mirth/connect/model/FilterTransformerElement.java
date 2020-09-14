@@ -105,4 +105,7 @@ public abstract class FilterTransformerElement implements Serializable, Purgable
     public void migrate3_7_0(DonkeyElement element) {
         element.addChildElement("enabled", Boolean.toString(Boolean.TRUE));
     }
+    
+    // @formatter:off
+    @Override public void migrate3_9_0(DonkeyElement element) {} // @formatter:on
 }

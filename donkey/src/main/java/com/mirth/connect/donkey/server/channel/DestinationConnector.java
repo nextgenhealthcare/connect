@@ -482,7 +482,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
         // have the connector generate the connector envelope and store it in the message
         connectorProperties = ((DestinationConnectorPropertiesInterface) getConnectorProperties()).clone();
-        replaceConnectorProperties(connectorProperties, message);        
+        replaceConnectorProperties(connectorProperties, message);
         // Cache the replaced connector properties here so that the queue can use it later
         message.setSentProperties(connectorProperties);
 

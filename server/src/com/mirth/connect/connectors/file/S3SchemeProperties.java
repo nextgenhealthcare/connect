@@ -19,7 +19,7 @@ import java.util.Map.Entry;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import com.amazonaws.regions.Regions;
+import software.amazon.awssdk.regions.Region;
 
 public class S3SchemeProperties extends SchemeProperties {
 
@@ -33,7 +33,7 @@ public class S3SchemeProperties extends SchemeProperties {
         useDefaultCredentialProviderChain = true;
         useTemporaryCredentials = false;
         duration = 7200;
-        region = Regions.DEFAULT_REGION.getName();
+        region = Region.US_EAST_1.id();
         customHeaders = new LinkedHashMap<String, List<String>>();
     }
 
@@ -100,8 +100,8 @@ public class S3SchemeProperties extends SchemeProperties {
 
         try {
             // Only include region if it's a static identifier
-            Regions regionValue = Regions.fromName(region);
-            purgedProperties.put("region", regionValue.getName());
+            Region regionValue = Region.of(region);
+            purgedProperties.put("region", regionValue.id());
         } catch (Exception e) {
         }
 
@@ -122,8 +122,8 @@ public class S3SchemeProperties extends SchemeProperties {
 
         try {
             // Only include region if it's a static identifier
-            Regions regionValue = Regions.fromName(region);
-            builder.append("region ").append(regionValue.getName());
+            Region regionValue = Region.of(region);
+            builder.append("region ").append(regionValue.id());
         } catch (Exception e) {
             builder.append("variable region");
         }

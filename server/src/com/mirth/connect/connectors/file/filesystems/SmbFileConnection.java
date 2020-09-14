@@ -15,10 +15,15 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.CIFSContext;
+import jcifs.CIFSException;
+import jcifs.config.PropertyConfiguration;
+import jcifs.context.BaseContext;
+import jcifs.smb.NtlmPasswordAuthenticator;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileFilter;
@@ -31,6 +36,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.connectors.file.FileConnectorException;
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
+import com.mirth.connect.connectors.file.SmbSchemeProperties;
 import com.mirth.connect.connectors.file.filters.SmbFilenameWildcardFilter;
 
 /**
@@ -102,8 +108,9 @@ public class SmbFileConnection implements FileSystemConnection {
     }
 
     private Logger logger = Logger.getLogger(getClass());
-    private NtlmPasswordAuthentication auth = null;
+    private NtlmPasswordAuthenticator auth = null;
     private SmbFile share = null;
+    private int timeout;
 
     public SmbFileConnection(String share, FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
         String domainAndUser = fileSystemOptions.getUsername();
@@ -121,22 +128,67 @@ public class SmbFileConnection implements FileSystemConnection {
         }
 
         if ((username != null) && (password != null)) {
-            auth = new NtlmPasswordAuthentication(domain, username, password);
+            auth = new NtlmPasswordAuthenticator(domain, username, password);
         }
-        this.share = new SmbFile("smb://" + share, auth);
+        
+        String minVersion = ((SmbSchemeProperties) fileSystemOptions.getSchemeProperties()).getSmbMinVersion();
+        String maxVersion = ((SmbSchemeProperties) fileSystemOptions.getSchemeProperties()).getSmbMaxVersion();
+        
+        Properties jcifsProperties = new Properties();
+        jcifsProperties.setProperty("jcifs.smb.client.minVersion", minVersion);
+        jcifsProperties.setProperty("jcifs.smb.client.maxVersion", maxVersion);
+        jcifsProperties.setProperty("jcifs.smb.client.useExtendedSecurity", "true");
+        jcifsProperties.setProperty("jcifs.smb.lmCompatibility", "3");
+        
+        
+        CIFSContext baseContext = new BaseContext(new PropertyConfiguration(jcifsProperties)).withCredentials(auth);
+        this.share = new SmbFile("smb://" + share, baseContext);
         this.share.setConnectTimeout(timeout);
+        this.timeout = timeout;
+    }
+    
+    protected SmbFile getShare() {
+        return share;
+    }
+    
+    protected void setShare(SmbFile share) {
+        this.share = share;
     }
 
-    private String getPath(String dir, String name) {
+    protected String getPath(String dir, String name) {
+    	if (dir == null) {
+    		dir = "";
+    	}
+    	
+        if (dir.endsWith("/")) {
+            dir = dir.substring(0, dir.length() - 1);
+        }
+        
+        if (!dir.startsWith("smb://")) {
+        	if (dir.length() < 1) {
+        		dir = share.getURL().toString();
+        	} else if (dir.startsWith("/")) {
+        		dir = share.getURL().toString() + dir;
+        	} else {
+        		dir = share.getURL().toString() + "/" + dir;
+        	}
+        }
+        
         if (name != null) {
+            if (name.startsWith("/")) {
+                name = name.substring(1, name.length());
+            }
             return dir + "/" + name;
         } else {
             return dir + "/";
         }
     }
-
-    private SmbFile getSmbFile(SmbFile context, String name) throws Exception {
-        return new SmbFile(context, name);
+    
+    protected SmbFile getSmbFile(SmbFile share, String name) throws Exception {
+        CIFSContext context = share.getContext();
+        SmbFile smbFile = new SmbFile(name, context);
+        smbFile.setConnectTimeout(timeout);
+        return smbFile;
     }
 
     @Override
@@ -270,7 +322,7 @@ public class SmbFileConnection implements FileSystemConnection {
     }
 
     @Override
-    public void writeFile(String name, String dir, boolean append, InputStream is, Map<String, Object> connectorMap) throws Exception {
+    public void writeFile(String name, String dir, boolean append, InputStream is, long contentLength, Map<String, Object> connectorMap) throws Exception {
         OutputStream os = null;
         SmbFile dst = null;
         SmbFile dstDir = null;
@@ -354,7 +406,13 @@ public class SmbFileConnection implements FileSystemConnection {
     public void passivate() {}
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+        try {
+            share.getContext().close();
+        } catch (CIFSException e) {
+            logger.error("Error attempting to close SMB file context.", e);
+        }
+    }
 
     @Override
     public boolean isValid() {

@@ -632,7 +632,3 @@ donkey/donkey-test
 
 # /webadmin/src/com/mirth/connect/webadmin/utils/
 
-/command/nbproject/private/
-/generator/nbproject/private/
-/webadmin/nbproject/private/
-/simplesender/nbproject/private/

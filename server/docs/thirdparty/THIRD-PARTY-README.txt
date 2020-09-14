@@ -8,6 +8,7 @@ APACHE-LICENSE-2.0.txt):
 	Apache Commons
 	Apache Derby 10.10.1.1 [Mirth Connect only]
 	Apache Geronimo (only components needed for the JMS API) [Mirth Connect only]
+	Apache HttpComponents 4.x
 	Apache Log4j 1.2.16
 	Apache PDFBox 1.8.4 [Mirth Connect only]
 	Apache Standard Taglib 1.2.1 [Mirth Connect only]
@@ -16,25 +17,29 @@ APACHE-LICENSE-2.0.txt):
 	Apache Velocity Engine 1.7
 	Apache Velocity Tools 2.0
 	Apache XMLBeans [Mirth Connect only]
-	AWS SDK for Java [Mirth Connect only] (https://github.com/aws/aws-sdk-java)
+	AWS SDK v2 for Java [Mirth Connect only] (https://github.com/aws/aws-sdk-java-v2)
 	Bean Validation API 1.1.0 (http://beanvalidation.org/)
+	Error Prone Annotations 2.3.4 [Mirth Connect only] (https://github.com/google/error-prone)
 	Fast Infoset Project 1.2.13 [Mirth Connect only] (https://github.com/javaee/metro-fi/tree/fastinfoset-project-1.2.13)
 	Google Code Prettify [Mirth Connect only] (https://github.com/google/code-prettify)
-	Guava 18.0 (https://code.google.com/p/guava-libraries)
+	Guava 28.2 (https://code.google.com/p/guava-libraries)
 	Guice 4.1 (https://github.com/google/guice)
 	HikariCP 2.3.2 [Mirth Connect only]
+	J2ObjC Annotations 1.3 [Mirth Connect only] (https://github.com/google/j2objc/)
 	Jackson Project (https://github.com/FasterXML/jackson)
 	Jasypt 1.7.1 [Mirth Connect only]
 	Java Native Access (JNA) 4.5.2 [Mirth Connect only] (https://github.com/java-native-access/jna)
-	Jetty 9.4.9 [Mirth Connect only]
+	Jetty 9.4.21 [Mirth Connect only]
 	Joda-Time 2.2 [Mirth Connect only]
+	JSR305 Annotations for Findbugs 3.0.2 [Mirth Connect only] (http://findbugs.sourceforge.net/)
 	MyBatis 3.1.1 [Mirth Connect only]
+	Netty 4.1.41 [Mirth Connect only]
 	Not-Going-To-Be-Commons-SSL 0.3.18
 	Quartz Scheduler 2.1.7 [Mirth Connect only]
 	SQLite JDBC Driver 3.7.2 [Mirth Connect only] (https://bitbucket.org/xerial/sqlite-jdbc)
 	StAXON 1.3 [Mirth Connect only] (https://github.com/beckchr/staxon)
-	Swagger Core 1.5.4 (https://github.com/swagger-api/swagger-core)
-	Swagger UI 2.1.3 (http://swagger.io/swagger-ui/)
+	Swagger Core 2.0.10 (https://github.com/swagger-api/swagger-core)
+	Swagger UI 2.2.10 (http://swagger.io/swagger-ui/)
 	webdavclient4j 0.92 [Mirth Connect only] (http://sourceforge.net/projects/webdavclient4j/)
 	Woodstox 5.0.3 [Mirth Connect only] (https://github.com/FasterXML/woodstox)
 	Zip4j 1.3.3 (http://www.lingala.net/zip4j/)
@@ -71,7 +76,7 @@ the same license terms.
 	http://search.maven.org/remotecontent?filepath=com/lowagie/itext/2.1.7/itext
 	-2.1.7-sources.jar)
 
-	Javassist 3.19.0 (source code can be downloaded at: 
+	Javassist 3.26.0 (source code can be downloaded at: 
 	http://www.csg.ci.i.u-tokyo.ac.jp/~chiba/javassist/)
 
 	
@@ -169,7 +174,7 @@ the Common Development and Distribution License version 1.0 (see CDDL-1.0.txt):
 	Java Servlet API 3.1.0 (source code can be downloaded from: https://java.net
 	/projects/glassfish/sources/svn/show/tags/javax.servlet-api-3.1.0)
 	
-	Jetty Apache JSP Implementation 9.4.9 (source code can be downloaded from:
+	Jetty Apache JSP Implementation 9.4.21 (source code can be downloaded from:
 	http://download.eclipse.org/jetty/)
 
 	Swinglabs Wizard (source code can be downloaded from:
@@ -276,11 +281,23 @@ available at http://www.soapui.org/.
 --------------------------------------------------------------------------------
 
 
-Mirth Connect includes the JCIFS SMB client library in Java version 1.3.17. This
+Mirth Connect includes the jcifs-ng SMB client library in Java version 2.1.3. This
 library and it's use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). The
-library source code is available at http://jcifs.samba.org/.
+library source code is available at https://github.com/AgNO3/jcifs-ng/.
 
 
+--------------------------------------------------------------------------------
+
+
+Mirth Connect includes modified versions of files from jcifs-ng. This
+library and it's use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). 
+The following files have changed:
+
+	jcifs/internal/smb2/nego/Smb2NegotiateResponse.java
+	
+	Changes: Modified to prevent OutOfMemoryError when SMB max version is 3.1.1.
+	
+	
 --------------------------------------------------------------------------------
 
 
@@ -816,12 +833,12 @@ DAMAGE.
 --------------------------------------------------------------------------------
 
 
-The license below pertains to Simple Logging Facade for Java (SLF4J) versions
-1.6.1 and 1.6.6, which are included with Mirth Connect.
+The license below pertains to Simple Logging Facade for Java (SLF4J) version
+1.7.28, which is included with Mirth Connect.
 
 =================== Beginning of License ===================
 
-Copyright (c) 2004-2008 QOS.ch
+Copyright (c) 2004-2017 QOS.ch
 All rights reserved.
 
 Permission is hereby granted, free  of charge, to any person obtaining
@@ -1368,6 +1385,38 @@ included with Mirth Connect.
 
 Copyright (c) 2003-2016 by Kohsuke Kawaguchi
 https://github.com/kohsuke/args4j
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+=================== End of License Information ===================
+
+
+--------------------------------------------------------------------------------
+
+
+The license below pertains to the Checker Qual annotations library, which is
+included with Mirth Connect.
+
+=================== Beginning of License Information ===================
+
+The Checker Framework
+Copyright 2004-present by the Checker Framework developers
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

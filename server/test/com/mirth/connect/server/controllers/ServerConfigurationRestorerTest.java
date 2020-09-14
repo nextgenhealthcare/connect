@@ -911,6 +911,12 @@ public class ServerConfigurationRestorerTest {
         public ExtensionPermission[] getExtensionPermissions() {
             return null;
         }
+        
+        @Override
+        public Map<String, Object> getObjectsForSwaggerExamples() {
+        	// TODO Auto-generated method stub
+        	return null;
+        }
     }
 
     private class TestResourceProperties extends ResourceProperties {

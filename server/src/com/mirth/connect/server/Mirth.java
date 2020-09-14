@@ -15,7 +15,6 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -32,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
+import org.apache.log4j.MDC;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
 
@@ -60,6 +60,7 @@ import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.logging.JuliToLog4JService;
 import com.mirth.connect.server.logging.LogOutputStream;
 import com.mirth.connect.server.logging.MirthLog4jFilter;
+import com.mirth.connect.server.util.NetworkUtil;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
@@ -113,6 +114,12 @@ public class Mirth extends Thread {
 
     public void run() {
         Thread.currentThread().setName("Main Server Thread");
+        
+        // Add the host address as a variable that log4j can output
+        try {
+            MDC.put("hostAddress", NetworkUtil.getIpv4HostAddress());
+        } catch (Exception e) {}
+        
         initializeLogging();
 
         if (initResources()) {
@@ -474,8 +481,8 @@ public class Mirth extends Thread {
     private String getWebServerUrl(String prefix, String host, int port, String contextPath) {
         if (StringUtils.equals(host, "0.0.0.0") || StringUtils.equals(host, "::")) {
             try {
-                host = InetAddress.getLocalHost().getHostAddress();
-            } catch (UnknownHostException e) {
+                host = NetworkUtil.getIpv4HostAddress();
+            } catch (Exception e) {
                 host = "localhost";
             }
         } else if (StringUtils.isEmpty(host)) {

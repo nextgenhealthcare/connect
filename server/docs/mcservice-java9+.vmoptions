@@ -13,5 +13,6 @@
 --add-opens=java.base/sun.security.rsa=ALL-UNNAMED
 --add-opens=java.base/sun.security.x509=ALL-UNNAMED
 --add-opens=java.desktop/java.awt=ALL-UNNAMED
+--add-opens=java.desktop/java.awt.color=ALL-UNNAMED
 --add-opens=java.desktop/java.awt.font=ALL-UNNAMED
 --add-opens=java.xml/com.sun.org.apache.xalan.internal.xsltc.trax=ALL-UNNAMED

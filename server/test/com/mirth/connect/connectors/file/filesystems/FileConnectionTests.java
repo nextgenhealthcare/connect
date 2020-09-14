@@ -127,7 +127,7 @@ public class FileConnectionTests {
         File testFile = new File("writeFile" + System.currentTimeMillis() + ".dat");
 
         try {
-            fc.writeFile(testFile.getName(), someFolder.getAbsolutePath(), false, new ByteArrayInputStream(byteTest), null);
+            fc.writeFile(testFile.getName(), someFolder.getAbsolutePath(), false, new ByteArrayInputStream(byteTest), byteTest.length, null);
         } catch (Exception e) {
             fail("The FileConnection threw an exception, it should not have.");
         }
@@ -144,7 +144,7 @@ public class FileConnectionTests {
 
         // Verify that appending works
         try {
-            fc.writeFile(testFile.getName(), someFolder.getAbsolutePath(), true, new ByteArrayInputStream(byteTest), null);
+            fc.writeFile(testFile.getName(), someFolder.getAbsolutePath(), true, new ByteArrayInputStream(byteTest), byteTest.length, null);
         } catch (Exception e) {
             fail("The FileConnection threw an exception, it should not have (when appending).");
         }

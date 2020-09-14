@@ -19,7 +19,7 @@ public enum Version {
      * When a new version of Mirth Connect is released, do the following:
      * 1) Add the new version to the end of the list below (the list must be kept in historical order)
      * 2) Specify a Migrator class for the new version in the ServerMigrator class
-     * 3) Add migration code/classes for any plugins that need to be migrated
+     * 3) Add migration code/classes for any plugins that need to be migrated (don't forget the MigratableConverter class)
      */
 
     V0("0"),
@@ -57,7 +57,8 @@ public enum Version {
     V3_7_1("3.7.1"),
     V3_8_0("3.8.0"),
     V3_8_1("3.8.1"),
-    V3_9_0("3.9.0");
+    V3_9_0("3.9.0"),
+    V3_9_1("3.9.1");
     
     // @formatter:on
 

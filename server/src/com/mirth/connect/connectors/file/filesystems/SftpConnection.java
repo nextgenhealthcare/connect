@@ -110,7 +110,6 @@ public class SftpConnection implements FileSystemConnection {
     public SftpConnection(String host, int port, FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
 
         JSch jsch = new JSch();
-        client = new ChannelSftp();
         configuration = new Properties();
 
         try {
@@ -277,7 +276,7 @@ public class SftpConnection implements FileSystemConnection {
     }
 
     @Override
-    public void writeFile(String file, String toDir, boolean append, InputStream is, Map<String, Object> connectorMap) throws Exception {
+    public void writeFile(String file, String toDir, boolean append, InputStream is, long contentLength, Map<String, Object> connectorMap) throws Exception {
         lastDir = toDir;
         cdmake(toDir);
         int mode = 0;
@@ -365,11 +364,11 @@ public class SftpConnection implements FileSystemConnection {
 
     @Override
     public void destroy() {
-        if ((client != null) && client.isConnected()) {
+        if (client != null) {
             client.quit();
         }
 
-        if ((session != null) && session.isConnected()) {
+        if (session != null) {
             session.disconnect();
         }
     }

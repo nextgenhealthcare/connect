@@ -38,7 +38,6 @@ import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
-import com.mirth.connect.connectors.udp.UdpDispatcherProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
@@ -48,8 +47,6 @@ import com.mirth.connect.plugins.BasicModeClientProvider;
 import com.mirth.connect.plugins.ConnectorPropertiesPlugin;
 import com.mirth.connect.plugins.TransmissionModeClientProvider;
 import com.mirth.connect.plugins.TransmissionModePlugin;
-import com.mirth.connect.client.ui.components.MirthCheckBox;
-import javax.swing.SwingConstants;
 
 public class TcpListener extends ConnectorSettingsPanel implements ActionListener {
 
@@ -86,22 +83,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         transmissionModeComboBox.setModel(model);
 
         parent.setupCharsetEncodingForConnector(charsetEncodingComboBox);
-        
-        lblTlssslEnabled = new JLabel("TLS/SSL Enabled:");
-        lblTlssslEnabled.setHorizontalAlignment(SwingConstants.RIGHT);
-        add(lblTlssslEnabled, "cell 0 16,alignx right");
-        
-        isTLSEnabledField = new MirthCheckBox("");
-        isTLSEnabledField.setText("");
-        add(isTLSEnabledField, "cell 1 16");
-        
-        isTLSEnabledField.addActionListener(new ActionListener() {			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				((TcpReceiverProperties)getProperties()).setTLSEnabled(isTLSEnabledField.isSelected());				
-			}
-		});
-       
     }
 
     @Override
@@ -127,8 +108,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         properties.setKeepConnectionOpen(keepConnectionOpenYesRadio.isSelected());
         properties.setCharsetEncoding(parent.getSelectedEncodingForConnector(charsetEncodingComboBox));
         properties.setDataTypeBinary(dataTypeBinaryRadio.isSelected());
-        
-        properties.setTLSEnabled(isTLSEnabledField.isSelected());
 
         if (respondOnNewConnectionYesRadio.isSelected()) {
             properties.setRespondOnNewConnection(TcpReceiverProperties.NEW_CONNECTION);
@@ -235,8 +214,6 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
 
         responseAddressField.setText(props.getResponseAddress());
         responsePortField.setText(props.getResponsePort());
-        
-        isTLSEnabledField.setSelected(props.isTLSEnabled());        
     }
 
     @Override
@@ -321,7 +298,7 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
         if (responseConnectorPropertiesPanel != null && props.getResponseConnectorPluginProperties() != null) {
             for (ConnectorPluginProperties pluginProperties : props.getResponseConnectorPluginProperties()) {
                 if (!(pluginProperties instanceof InvalidConnectorPluginProperties)) {
-                    responseConnectorPropertiesPanel.checkProperties(pluginProperties, Mode.DESTINATION, props.getName(), highlight);
+                    responseConnectorPropertiesPanel.checkProperties(props, pluginProperties, Mode.DESTINATION, props.getName(), highlight);
                 }
             }
         }
@@ -553,50 +530,50 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
     }
 
     private void initLayout() {
-        setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, gap 12 6", "[][]", "[][]4[]4[][]4[]4[][][][]4[]4[]4[]4[]4[][][]"));
+        setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, gap 12 6", "", "[][]4[]4[][]4[]4[][][][]4[]4[]4[]4[]4[][]"));
 
-        add(transmissionModeLabel, "cell 0 0,alignx right");
-        add(transmissionModeComboBox, "flowx,cell 1 0,height 22!");
+        add(transmissionModeLabel, "right");
+        add(transmissionModeComboBox, "h 22!, split 2");
 
         settingsPlaceHolder.setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, fill"));
-        add(settingsPlaceHolder, "cell 1 0,gapx 6,height 22!");
+        add(settingsPlaceHolder, "gapbefore 6, h 22!");
 
-        add(sampleLabel, "cell 0 1,alignx right");
-        add(sampleValue, "cell 1 1,growx");
-        add(modeLabel, "cell 0 2,alignx right");
-        add(modeServerRadio, "cell 1 2");
-        add(modeClientRadio, "cell 1 2");
-        add(remoteAddressLabel, "cell 0 3,alignx right");
-        add(remoteAddressField, "cell 1 3,width 200!");
-        add(remotePortLabel, "cell 0 4,alignx right");
-        add(remotePortField, "cell 1 4,width 50!");
-        add(overrideLocalBindingLabel, "cell 0 5,alignx right");
-        add(overrideLocalBindingYesRadio, "cell 1 5");
-        add(overrideLocalBindingNoRadio, "cell 1 5");
-        add(reconnectIntervalLabel, "cell 0 6,alignx right");
-        add(reconnectIntervalField, "cell 1 6,width 75!");
-        add(maxConnectionsLabel, "cell 0 7,alignx right");
-        add(maxConnectionsField, "cell 1 7,width 75!");
-        add(receiveTimeoutLabel, "cell 0 8,alignx right");
-        add(receiveTimeoutField, "cell 1 8,width 75!");
-        add(bufferSizeLabel, "cell 0 9,alignx right");
-        add(bufferSizeField, "cell 1 9,width 75!");
-        add(keepConnectionOpenLabel, "cell 0 10,alignx right");
-        add(keepConnectionOpenYesRadio, "cell 1 10");
-        add(keepConnectionOpenNoRadio, "cell 1 10");
-        add(dataTypeLabel, "cell 0 11,alignx right");
-        add(dataTypeBinaryRadio, "cell 1 11");
-        add(dataTypeTextRadio, "cell 1 11");
-        add(charsetEncodingLabel, "cell 0 12,alignx right");
-        add(charsetEncodingComboBox, "cell 1 12");
-        add(respondOnNewConnectionLabel, "cell 0 13,alignx right");
-        add(respondOnNewConnectionYesRadio, "cell 1 13");
-        add(respondOnNewConnectionNoRadio, "cell 1 13");
-        add(respondOnNewConnectionRecoveryRadio, "cell 1 13");
-        add(responseAddressLabel, "cell 0 14,alignx right");
-        add(responseAddressField, "cell 1 14,width 200!");
-        add(responsePortLabel, "cell 0 15,alignx right");
-        add(responsePortField, "cell 1 15,width 50!");
+        add(sampleLabel, "newline, right");
+        add(sampleValue, "growx, sx");
+        add(modeLabel, "newline, right");
+        add(modeServerRadio, "split 2");
+        add(modeClientRadio);
+        add(remoteAddressLabel, "newline, right");
+        add(remoteAddressField, "w 200!, sx");
+        add(remotePortLabel, "newline, right");
+        add(remotePortField, "w 50!, sx");
+        add(overrideLocalBindingLabel, "newline, right");
+        add(overrideLocalBindingYesRadio, "split 2");
+        add(overrideLocalBindingNoRadio);
+        add(reconnectIntervalLabel, "newline, right");
+        add(reconnectIntervalField, "w 75!, sx");
+        add(maxConnectionsLabel, "newline, right");
+        add(maxConnectionsField, "w 75!, sx");
+        add(receiveTimeoutLabel, "newline, right");
+        add(receiveTimeoutField, "w 75!, sx");
+        add(bufferSizeLabel, "newline, right");
+        add(bufferSizeField, "w 75!, sx");
+        add(keepConnectionOpenLabel, "newline, right");
+        add(keepConnectionOpenYesRadio, "split 2");
+        add(keepConnectionOpenNoRadio);
+        add(dataTypeLabel, "newline, right");
+        add(dataTypeBinaryRadio, "split 2");
+        add(dataTypeTextRadio);
+        add(charsetEncodingLabel, "newline, right");
+        add(charsetEncodingComboBox);
+        add(respondOnNewConnectionLabel, "newline, right");
+        add(respondOnNewConnectionYesRadio, "split 3");
+        add(respondOnNewConnectionNoRadio);
+        add(respondOnNewConnectionRecoveryRadio);
+        add(responseAddressLabel, "newline, right");
+        add(responseAddressField, "w 200!, sx");
+        add(responsePortLabel, "newline, right");
+        add(responsePortField, "w 50!, sx");
 
         if (responseConnectorPropertiesPanel != null && responseConnectorPropertiesPanel.getLayoutComponents() != null) {
             Component[][] components = responseConnectorPropertiesPanel.getLayoutComponents();
@@ -761,6 +738,4 @@ public class TcpListener extends ConnectorSettingsPanel implements ActionListene
     private JLabel responsePortLabel;
     private MirthTextField responsePortField;
     private AbstractConnectorPropertiesPanel responseConnectorPropertiesPanel;
-    private MirthCheckBox isTLSEnabledField;
-    private JLabel lblTlssslEnabled;
 }

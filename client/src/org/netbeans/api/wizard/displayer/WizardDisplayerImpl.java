@@ -477,12 +477,10 @@ public class WizardDisplayerImpl extends WizardDisplayer
                         catch (InvocationTargetException ex)
                         {
                             ex.printStackTrace();
-                            return;
                         }
                         catch (InterruptedException ex)
                         {
                             ex.printStackTrace();
-                            return;
                         }
                         finally
                         {

@@ -377,6 +377,18 @@ public class FileDispatcherProperties extends ConnectorProperties implements Des
         element.addChildElementIfNotExists("keepConnectionOpen", "true");
         element.addChildElementIfNotExists("maxIdleTime", "0");
     }
+    
+    @Override
+    public void migrate3_9_0(DonkeyElement element) {
+    	if (element.getChildElement("scheme").getTextContent().equalsIgnoreCase("smb")) {
+            DonkeyElement schemeProperties = element.addChildElementIfNotExists("schemeProperties");
+            if (schemeProperties != null) {
+                schemeProperties.setAttribute("class", "com.mirth.connect.connectors.file.SmbSchemeProperties");
+                schemeProperties.addChildElementIfNotExists("smbMinVersion", "SMB1");
+                schemeProperties.addChildElementIfNotExists("smbMaxVersion", "SMB311");
+            }
+        }
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {

@@ -27,8 +27,6 @@
 		<property name="connectors.tcp" value="${extensions}/tcp" />
 		<property name="connectors.file" value="${extensions}/file" />
 		<property name="connectors.js" value="${extensions}/js" />
-		<property name="connectors.mongo" value="${extensions}/mongo" />
-		<property name="connectors.udp" value="${extensions}/udp" />
 		<property name="connectors.ws" value="${extensions}/ws" />
 		<property name="connectors.vm" value="${extensions}/vm" />
 
@@ -83,7 +81,6 @@
 
 		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="classpath" />
-			<exclude name="com/cloudsolutions/tests/**"/>
 			<!-- Uncomment the following and add additional dashes in front of the arguments to allow Java 9+
 				<compilerarg value="-add-modules" />
 				<compilerarg value="java.sql.rowset,java.xml.ws" />
@@ -191,6 +188,8 @@
 		<jar destfile="${connectors.file}/file-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/connectors/file/SchemeProperties.class" />
 			<include name="com/mirth/connect/connectors/file/FTPSchemeProperties.class" />
+			<include name="com/mirth/connect/connectors/file/SmbDialectVersion.class" />
+			<include name="com/mirth/connect/connectors/file/SmbSchemeProperties.class" />
 			<include name="com/mirth/connect/connectors/file/SftpSchemeProperties.class" />
 			<include name="com/mirth/connect/connectors/file/S3SchemeProperties.class" />
 			<include name="com/mirth/connect/connectors/file/FileReceiverProperties.class" />
@@ -202,6 +201,7 @@
 		<jar destfile="${connectors.file}/file-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/file/**" />
+				<include name="jcifs/**" />
 				<exclude name="com/mirth/connect/connectors/file/SchemeProperties.class" />
 				<exclude name="com/mirth/connect/connectors/file/FTPSchemeProperties.class" />
 				<exclude name="com/mirth/connect/connectors/file/SftpSchemeProperties.class" />
@@ -319,49 +319,6 @@
 				<exclude name="com/mirth/connect/connectors/js/JavaScriptDispatcherProperties.class" />
 			</fileset>
 		</jar>
-		
-		<!-- connectors.mongo -->
-		<mkdir dir="${connectors.mongo}" />
-		<copy todir="${connectors.mongo}">
-			<fileset dir="${src}/com/mirth/connect/connectors/mongo">
-				<include name="*.xml" />
-			</fileset>
-		</copy>
-		<copy todir="${connectors.mongo}/lib" failonerror="false">
-			<fileset dir="${lib.extensions}/mongo" />
-		</copy>
-		<jar destfile="${connectors.mongo}/mongo-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/mongo/MongoDispatcherProperties.class" />			
-		</jar>
-		<jar destfile="${connectors.mongo}/mongo-server.jar">
-			<fileset dir="${classes}">
-				<include name="com/mirth/connect/connectors/mongo/**" />
-				<!--exclude name="com/mirth/connect/connectors/mongo/MongoDispatcherProperties.class" /-->
-			</fileset>
-		</jar>		
-		
-		<!-- connectors.udp -->
-		<mkdir dir="${connectors.udp}" />
-		<copy todir="${connectors.udp}">
-			<fileset dir="${src}/com/mirth/connect/connectors/udp">
-				<include name="*.xml" />
-			</fileset>
-		</copy>
-		<copy todir="${connectors.udp}/lib" failonerror="false">
-			<fileset dir="${lib.extensions}/udp" />
-		</copy>
-		<jar destfile="${connectors.udp}/udp-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/udp/**" />
-			<!--include name="com/mirth/connect/connectors/js/JavaScriptDispatcherProperties.class" /-->
-		</jar>
-		<jar destfile="${connectors.udp}/udp-server.jar">
-			<fileset dir="${classes}">
-				<include name="com/mirth/connect/connectors/udp/**" />
-				<!--exclude name="com/mirth/connect/connectors/udp/JavaScriptReceiverProperties.class" />
-				<exclude name="com/mirth/connect/connectors/udp/JavaScriptDispatcherProperties.class" /-->
-			</fileset>
-		</jar>
-		
 
 		<!-- connectors.smtp -->
 		<mkdir dir="${connectors.smtp}" />
@@ -996,8 +953,7 @@
 		<mkdir dir="${setup.logs}" />
 		<mkdir dir="${setup.docs}" />
 		<mkdir dir="${setup.server.launcher.lib}" />
-		<mkdir dir="${setup.customlib}" />
-		
+
 		<!-- copy lib -->
 		<copy todir="${setup.server.lib}">
 			<fileset dir="${lib}">
@@ -1047,7 +1003,7 @@
 			<include name="com/mirth/connect/plugins/*.class" />
 			<include name="com/mirth/connect/connectors/*.class" />
 			<include name="org/**" />
-			<include name="com/cloudsolutions/ssl/**" />
+
 			<include name="mirth-client.jnlp" />
 
 			<exclude name="com/mirth/connect/server/launcher/**" />
@@ -1064,7 +1020,7 @@
 
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
-				<attribute name="Class-Path" value="server-lib/commons/commons-io-2.3.jar conf/" />
+				<attribute name="Class-Path" value="server-lib/commons/commons-io-2.6.jar conf/" />
 			</manifest>
 		</jar>
 		
@@ -1073,11 +1029,6 @@
 			<include name="com/mirth/connect/userutil/**.java" />
 			<include name="com/mirth/connect/server/userutil/**.java" />
 			<exclude name="**/package-info.java" />
-		</jar>
-		
-		<!-- create the customLib jars -->		
-		<jar destfile="${setup.customlib}/CloudSolutionsNtpLib.jar" basedir="${classes}">
-			<include name="com/cloudsolutions/ct/**" />
 		</jar>
 
 		<!-- remove svn folders -->

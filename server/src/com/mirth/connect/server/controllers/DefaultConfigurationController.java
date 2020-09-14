@@ -1007,7 +1007,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public void initializeSecuritySettings() {
-        try {        	
+        try {
             /*
              * Load the encryption settings so that they can be referenced client side.
              */
@@ -1036,15 +1036,13 @@ public class DefaultConfigurationController extends ConfigurationController {
                  * create new passwords.
                  */
                 if (Arrays.equals(keyStorePassword, DEFAULT_STOREPASS.toCharArray()) && Arrays.equals(keyPassword, DEFAULT_STOREPASS.toCharArray())) {
-//		Auto password generation disabled for development environment                	
-//                    String keyStorePasswordStr = generateNewPassword();
-//                    mirthConfig.setProperty("keystore.storepass", keyStorePasswordStr);
-//                    keyStorePassword = keyStorePasswordStr.toCharArray();                    
-//                    String keyPasswordStr = generateNewPassword();
-//                    mirthConfig.setProperty("keystore.keypass", keyPasswordStr);
-//                    keyPassword = keyPasswordStr.toCharArray();                	
-                	mirthConfig.setProperty("keystore.storepass", DEFAULT_STOREPASS);
-                    mirthConfig.setProperty("keystore.keypass", DEFAULT_STOREPASS);
+                    String keyStorePasswordStr = generateNewPassword();
+                    mirthConfig.setProperty("keystore.storepass", keyStorePasswordStr);
+                    keyStorePassword = keyStorePasswordStr.toCharArray();
+
+                    String keyPasswordStr = generateNewPassword();
+                    mirthConfig.setProperty("keystore.keypass", keyPasswordStr);
+                    keyPassword = keyPasswordStr.toCharArray();
 
                     saveMirthConfig();
                 }
@@ -1065,8 +1063,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
-
-	/**
+    /**
      * Creates a random 12-character alphanumeric password.
      */
     private String generateNewPassword() {
@@ -1465,8 +1462,4 @@ public class DefaultConfigurationController extends ConfigurationController {
             return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, e.getMessage());
         }
     }
-    
-    public static void main(String[] arg) {
-    	System.exit(STATUS_OK);
-    	}
 }

@@ -2,7 +2,7 @@
 	<name>DICOM Sender</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.9.0</mirthVersion>
+	<mirthVersion>3.9.1</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This connector allows Mirth Connect to send messages using DICOM protocol.</description>
 	<clientClassName>com.mirth.connect.connectors.dimse.DICOMSender</clientClassName>
@@ -10,8 +10,6 @@
 	<sharedClassName>com.mirth.connect.connectors.dimse.DICOMDispatcherProperties</sharedClassName>
 	<library type="CLIENT" path="dicom-client.jar" />
 	<library type="SHARED" path="dicom-shared.jar" />
-	<library type="SHARED" path="lib/slf4j-api-1.6.1.jar" />
-	<library type="SHARED" path="lib/slf4j-log4j12-1.6.1.jar" />
 	<library type="SHARED" path="lib/dcm4che-core-2.0.29.jar" />
 	<library type="SERVER" path="dicom-server.jar" />
 	<library type="SERVER" path="lib/jai_imageio.jar" />

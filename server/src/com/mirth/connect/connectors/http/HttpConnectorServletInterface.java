@@ -9,10 +9,6 @@
 
 package com.mirth.connect.connectors.http;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -27,21 +23,39 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.util.ConnectionTestResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @Path("/connectors/http")
-@Api("Connector Services")
-@Consumes(MediaType.APPLICATION_XML)
-@Produces(MediaType.APPLICATION_XML)
+@Tag(name = "Connector Services")
+@Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface HttpConnectorServletInterface extends BaseServletInterface {
 
     public static final String PLUGIN_POINT = "HTTP Connector Service";
 
     @POST
     @Path("/_testConnection")
-    @ApiOperation("Tests whether a connection can be successfully established to the destination endpoint.")
+    @Operation(summary = "Tests whether a connection can be successfully established to the destination endpoint.")
+    @ApiResponse(content = { @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+            @ExampleObject(name = "connection_test_response_http", ref = "../apiexamples/connection_test_response_http_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "connection_test_response_http", ref = "../apiexamples/connection_test_response_http_json") }) })
     @MirthOperation(name = "testConnection", display = "Test HTTP Connection", type = ExecuteType.ASYNC, auditable = false)
     public ConnectionTestResponse testConnection(// @formatter:off
-            @Param("channelId") @ApiParam(value = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
-            @Param("channelName") @ApiParam(value = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
-            @Param("properties") @ApiParam(value = "The HTTP Sender properties to use.", required = true) HttpDispatcherProperties properties) throws ClientException;
+            @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
+            @Param("channelName") @Parameter(description = "The name of the channel.", required = true) @QueryParam("channelName") String channelName,
+            @Param("properties") 
+            @RequestBody(description = "The HTTP Sender properties to use.", required = true, content = {
+                    @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                            @ExampleObject(name = "http_dispatcher_properties", ref = "../apiexamples/http_dispatcher_properties_xml") }),
+                    @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                            @ExampleObject(name = "http_dispatcher_properties", ref = "../apiexamples/http_dispatcher_properties_json") }) })
+            HttpDispatcherProperties properties) throws ClientException;
     // @formatter:on
 }

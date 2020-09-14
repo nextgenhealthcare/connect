@@ -9,6 +9,7 @@
 
 package com.mirth.connect.connectors.tcp;
 
+import java.util.Map;
 import java.util.Properties;
 
 import com.mirth.connect.model.ExtensionPermission;
@@ -48,5 +49,11 @@ public class TcpServicePlugin implements ServicePlugin {
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
         return null;
+    }
+    
+    @Override
+    public Map<String, Object> getObjectsForSwaggerExamples() {
+    	// TODO Auto-generated method stub
+    	return null;
     }
 }

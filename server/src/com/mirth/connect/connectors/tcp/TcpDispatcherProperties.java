@@ -32,6 +32,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
     public static final String NAME = "TCP Sender";
 
     private TransmissionModeProperties transmissionModeProperties;
+    private boolean serverMode;
     private String remoteAddress;
     private String remotePort;
     private boolean overrideLocalBinding;
@@ -39,6 +40,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
     private String localPort;
     private String sendTimeout;
     private String bufferSize;
+    private String maxConnections;
     private boolean keepConnectionOpen;
     private boolean checkRemoteHost;
     private String responseTimeout;
@@ -47,7 +49,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
     private boolean dataTypeBinary;
     private String charsetEncoding;
     private String template;
-    private boolean isTLSEnabled;
+
     public TcpDispatcherProperties() {
         destinationConnectorProperties = new DestinationConnectorProperties(true);
 
@@ -56,6 +58,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
         frameModeProperties.setEndOfMessageBytes(TcpUtil.DEFAULT_LLP_END_BYTES);
         this.transmissionModeProperties = frameModeProperties;
 
+        this.serverMode = false; 
         this.remoteAddress = "127.0.0.1";
         this.remotePort = "6660";
         this.overrideLocalBinding = false;
@@ -63,6 +66,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
         this.localPort = "0";
         this.sendTimeout = "5000";
         this.bufferSize = "65536";
+        this.maxConnections = "10";
         this.keepConnectionOpen = false;
         this.checkRemoteHost = false;
         this.responseTimeout = "5000";
@@ -79,6 +83,7 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
 
         transmissionModeProperties = props.getTransmissionModeProperties();
 
+        serverMode = props.isServerMode();
         remoteAddress = props.getRemoteAddress();
         remotePort = props.getRemotePort();
         overrideLocalBinding = props.isOverrideLocalBinding();
@@ -102,6 +107,14 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
 
     public void setTransmissionModeProperties(TransmissionModeProperties transmissionModeProperties) {
         this.transmissionModeProperties = transmissionModeProperties;
+    }
+    
+    public boolean isServerMode() {
+        return serverMode;
+    }
+
+    public void setServerMode(boolean serverMode) {
+        this.serverMode = serverMode;
     }
 
     public String getRemoteAddress() {
@@ -158,6 +171,14 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
 
     public void setBufferSize(String bufferSize) {
         this.bufferSize = bufferSize;
+    }
+    
+    public String getMaxConnections() {
+        return maxConnections;
+    }
+
+    public void setMaxConnections(String maxConnections) {
+        this.maxConnections = maxConnections;
     }
 
     public boolean isKeepConnectionOpen() {
@@ -303,16 +324,19 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
     @Override public void migrate3_4_0(DonkeyElement element) {}
     @Override public void migrate3_5_0(DonkeyElement element) {}
     @Override public void migrate3_6_0(DonkeyElement element) {}
-    @Override public void migrate3_7_0(DonkeyElement element) {} // @formatter:on
+    @Override public void migrate3_7_0(DonkeyElement element) {}
+    @Override public void migrate3_9_0(DonkeyElement element) {} // @formatter:on
 
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = super.getPurgedProperties();
         purgedProperties.put("destinationConnectorProperties", destinationConnectorProperties.getPurgedProperties());
         purgedProperties.put("transmissionModeProperties", transmissionModeProperties.getPurgedProperties());
+        purgedProperties.put("serverMode", serverMode);
         purgedProperties.put("overrideLocalBinding", overrideLocalBinding);
         purgedProperties.put("sendTimeout", PurgeUtil.getNumericValue(sendTimeout));
         purgedProperties.put("bufferSize", PurgeUtil.getNumericValue(bufferSize));
+        purgedProperties.put("maxConnections", PurgeUtil.getNumericValue(maxConnections));
         purgedProperties.put("keepConnectionOpen", keepConnectionOpen);
         purgedProperties.put("checkRemoteHost", checkRemoteHost);
         purgedProperties.put("responseTimeout", PurgeUtil.getNumericValue(responseTimeout));
@@ -322,14 +346,4 @@ public class TcpDispatcherProperties extends ConnectorProperties implements Dest
         purgedProperties.put("templateLines", PurgeUtil.countLines(template));
         return purgedProperties;
     }
-
-	public void setTLSEnabled(boolean isTLSEnabled) {
-		this.isTLSEnabled = isTLSEnabled;
-	}
-
-	public boolean isTLSEnabled() {
-		return this.isTLSEnabled;
-	}
-	
-	
 }
