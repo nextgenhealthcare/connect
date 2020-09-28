@@ -93,8 +93,6 @@ public class SettingsPanelTags extends AbstractSettingsPanel {
 
     public static final String TAB_NAME = "Tags";
 
-    private static int MAX_TAG_COUNT = 10;
-
     private static final int TAGS_NAME_COLUMN = 0;
     private static final int TAGS_BACKGROUND_COLUMN = 1;
     private static final int TAGS_CHANNEL_COUNT_COLUMN = 2;
