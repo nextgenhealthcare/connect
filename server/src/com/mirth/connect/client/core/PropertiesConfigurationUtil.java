@@ -21,6 +21,7 @@ import org.apache.commons.configuration2.builder.ReloadingFileBasedConfiguration
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.builder.fluent.PropertiesBuilderParameters;
+import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.io.FileHandler;
 import org.apache.commons.configuration2.reloading.PeriodicReloadingTrigger;
@@ -61,7 +62,15 @@ public class PropertiesConfigurationUtil {
     }
 
     public static ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> createReloadingBuilder(File file) {
-        return new ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration>(PropertiesConfiguration.class).configure(getDefaultParameters().setFile(file));
+        return createReloadingBuilder(file, false);
+    }
+    
+    public static ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> createReloadingBuilder(File file, boolean commaDelimited) {
+    	PropertiesBuilderParameters params = getDefaultParameters().setFile(file);
+    	if (commaDelimited) {
+    		params.setListDelimiterHandler(new DefaultListDelimiterHandler(','));
+    	}
+        return new ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration>(PropertiesConfiguration.class).configure(params);
     }
 
     public static PeriodicReloadingTrigger createReloadTrigger(ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> builder) {

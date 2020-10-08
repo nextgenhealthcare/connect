@@ -76,7 +76,7 @@ public class ManagerController {
             e.printStackTrace();
         }
 
-        log4jPropertiesBuilder = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_LOG4J_PROPERTIES, true);
+        log4jPropertiesBuilder = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_LOG4J_PROPERTIES, true, true);
         try {
             log4jProperties = log4jPropertiesBuilder.getConfiguration();
         } catch (ConfigurationException e) {
@@ -106,10 +106,14 @@ public class ManagerController {
             }
         }
     }
-
+    
     private ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> initializeProperties(String path, boolean alert) {
+    	return initializeProperties(path, alert, false);
+    }
+
+    private ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> initializeProperties(String path, boolean alert, boolean commaDelimited) {
         // Auto reload changes
-        ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> builder = PropertiesConfigurationUtil.createReloadingBuilder(new File(path));
+        ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> builder = PropertiesConfigurationUtil.createReloadingBuilder(new File(path), commaDelimited);
 
         PropertiesConfiguration properties = null;
         try {

@@ -134,6 +134,21 @@ public class PropertiesConfigurationUtilTest {
         trigger.shutdown();
         file.delete();
     }
+    
+    @Test
+    public void testCreateReloadingBuilderCommaDelimited() throws Exception {
+        File file = new File(UUID.randomUUID().toString());
+        file.createNewFile();
+        FileUtils.writeStringToFile(file, getTestFile(), "UTF-8");
+        
+        ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> builder = PropertiesConfigurationUtil.createReloadingBuilder(file, true);
+
+        PropertiesConfiguration config = builder.getConfiguration();
+        assertTrue(config.getListDelimiterHandler() != DisabledListDelimiterHandler.INSTANCE);
+        verifyCommaDelimitedTestProperties(config);
+
+        file.delete();
+    }
 
     private static void verifyTestProperties(PropertiesConfiguration config) {
         Iterator<String> keys = config.getKeys();
@@ -148,6 +163,30 @@ public class PropertiesConfigurationUtilTest {
         assertEquals(TEST_KEY4, keys.next());
         assertEquals(TEST_VAL4, config.getString(TEST_KEY4));
         assertEquals(TEST_VAL4, config.getStringArray(TEST_KEY4)[0]);
+        assertEquals(TEST_KEY5, keys.next());
+        assertEquals(3, config.getStringArray(TEST_KEY5).length);
+        assertEquals(TEST_VAL5_1, config.getStringArray(TEST_KEY5)[0]);
+        assertEquals(TEST_VAL5_2, config.getStringArray(TEST_KEY5)[1]);
+        assertEquals(TEST_VAL5_3, config.getStringArray(TEST_KEY5)[2]);
+        assertFalse(keys.hasNext());
+    }
+    
+    private static void verifyCommaDelimitedTestProperties(PropertiesConfiguration config) {
+        Iterator<String> keys = config.getKeys();
+
+        assertEquals(TEST_KEY1, keys.next());
+        assertEquals(TEST_VAL1, config.getString(TEST_KEY1));
+        assertEquals(TEST_KEY2, keys.next());
+        assertEquals(TEST_VAL2, config.getString(TEST_KEY2));
+        assertEquals(TEST_KEY3_COMMENT, config.getLayout().getComment(TEST_KEY3));
+        assertEquals(TEST_KEY3, keys.next());
+        assertEquals(TEST_VAL3, config.getString(TEST_KEY3));
+        assertEquals(TEST_KEY4, keys.next());
+        String[] testVal4Array = config.getStringArray(TEST_KEY4);
+        assertEquals(3, testVal4Array.length);
+        assertEquals(TEST_VAL4_1, testVal4Array[0]);
+        assertEquals(TEST_VAL4_2, testVal4Array[1]);
+        assertEquals(TEST_VAL4_3, testVal4Array[2]);
         assertEquals(TEST_KEY5, keys.next());
         assertEquals(3, config.getStringArray(TEST_KEY5).length);
         assertEquals(TEST_VAL5_1, config.getStringArray(TEST_KEY5)[0]);
