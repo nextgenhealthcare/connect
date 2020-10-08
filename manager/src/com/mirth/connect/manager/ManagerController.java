@@ -422,11 +422,17 @@ public class ManagerController {
     }
 
     public String getServerVersion() {
-        return versionProperties.getString(ManagerConstants.PROPERTY_SERVER_VERSION);
+    	if (versionProperties != null) {
+    		return versionProperties.getString(ManagerConstants.PROPERTY_SERVER_VERSION, "");
+    	}
+    	return "";
     }
 
     public String getServerId() {
-        return serverIdProperties.getString(ManagerConstants.PROPERTY_SERVER_ID);
+    	if (serverIdProperties != null) {
+    		return serverIdProperties.getString(ManagerConstants.PROPERTY_SERVER_ID, "");
+    	}
+    	return "";
     }
 
     public List<String> getLogFiles(String path) {
