@@ -269,8 +269,6 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getGenerateEnvelopeExample();
         } else if (exampleRequested.equals("generic_map")) {
             requestedObject = getGenericMapExample();
-        } else if (exampleRequested.equals("global_map")) {
-            requestedObject = getGlobalMapExample();
         } else if (exampleRequested.equals("global_maps")) {
             requestedObject = getGlobalMapsExample();
         } else if (exampleRequested.equals("global_scripts")) {
@@ -969,29 +967,17 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return envelope;
 	}
 	
-	private Map<String, String> getGenericMapExample() {
-        Map<String, String> genericMap = new HashMap<>();
+	private Map<String, Object> getGenericMapExample() {
+        Map<String, Object> genericMap = new HashMap<>();
         genericMap.put("exampleKey", "exampleValue");
         return genericMap;
     }
 	
-	private String getGenericMapStringExample() {
-	    try {
-	        return xmlSerialize(getGenericMapExample());
-	    } catch (UnsupportedEncodingException e) {}
-	    
-	    return "";
-	}
-	
-	private Map<String, String> getGlobalMapExample() {
-	    Map<String, String> globalMap = new HashMap<>();
-	    globalMap.put(null, getGenericMapStringExample());
-	    return globalMap;
-	}
-	
-	private Map<String, Map<String, String>> getGlobalMapsExample() {
-	    Map<String, Map<String, String>> globalMaps = new HashMap<>();
-	    globalMaps.put(UUID.randomUUID().toString(), getGlobalMapExample());
+	private Map<String, Map<String, Map<String, Object>>>getGlobalMapsExample() {
+	    Map<String, Map<String, Map<String, Object>>> globalMaps = new HashMap<>();
+	    Map<String, Map<String, Object>> serverGlobalMap = new HashMap<>();
+	    serverGlobalMap.put(UUID.randomUUID().toString(), getGenericMapExample());
+	    globalMaps.put(UUID.randomUUID().toString(), serverGlobalMap);
 	    return globalMaps;
 	}
 	

@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.mirth.connect.client.core.ControllerException;
-import com.mirth.connect.donkey.util.MapUtil;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
@@ -24,17 +22,16 @@ import com.mirth.connect.server.util.GlobalVariableStore;
 
 public class DefaultGlobalMapController extends GlobalMapController {
 
-    private static final ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private static final ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     protected static final String GLOBAL_MAP_KEY = "<Global Map>";
 
     @Override
-    public Map<String, Map<String, String>> getAllMaps(Set<String> channelIds, boolean includeGlobalMap) throws ControllerException {
-        Map<String, String> serializedMaps = new HashMap<String, String>();
+    public Map<String, Map<String, Map<String, Object>>> getAllMaps(Set<String> channelIds, boolean includeGlobalMap) throws ControllerException {
+        Map<String, Map<String, Object>> localMaps = new HashMap<>();
 
         if (includeGlobalMap) {
-            serializedMaps.put(null, MapUtil.serializeMap(serializer, new HashMap<String, Object>(GlobalVariableStore.getInstance().getVariables())));
+            localMaps.put(null, new HashMap<String, Object>(GlobalVariableStore.getInstance().getVariables()));
         }
 
         if (channelIds == null) {
@@ -42,21 +39,21 @@ public class DefaultGlobalMapController extends GlobalMapController {
         }
 
         for (String channelId : channelIds) {
-            serializedMaps.put(channelId, MapUtil.serializeMap(serializer, new HashMap<String, Object>(GlobalChannelVariableStoreFactory.getInstance().get(channelId).getVariables())));
+            localMaps.put(channelId, new HashMap<String, Object>(GlobalChannelVariableStoreFactory.getInstance().get(channelId).getVariables()));
         }
 
-        Map<String, Map<String, String>> serverMap = new HashMap<String, Map<String, String>>();
-        serverMap.put(configurationController.getServerId(), serializedMaps);
+        Map<String, Map<String, Map<String, Object>>> serverMap = new HashMap<>();
+        serverMap.put(configurationController.getServerId(), localMaps);
         return serverMap;
     }
 
     @Override
-    public String getGlobalMap() {
-        return MapUtil.serializeMap(serializer, new HashMap<String, Object>(GlobalVariableStore.getInstance().getVariables()));
+    public Map<String, Object> getGlobalMap() {
+        return new HashMap<String, Object>(GlobalVariableStore.getInstance().getVariables());
     }
 
     @Override
-    public String getGlobalChannelMap(String channelId) {
-        return MapUtil.serializeMap(serializer, new HashMap<String, Object>(GlobalChannelVariableStoreFactory.getInstance().get(channelId).getVariables()));
+    public Map<String, Object> getGlobalChannelMap(String channelId) {
+        return new HashMap<String, Object>(GlobalChannelVariableStoreFactory.getInstance().get(channelId).getVariables());
     }
 }

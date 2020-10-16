@@ -28,10 +28,7 @@ import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ForbiddenException;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.donkey.util.MapUtil;
-import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.model.DashboardStatus;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.DashboardTabPlugin;
 import com.mirth.connect.plugins.DashboardTablePlugin;
 import com.mirth.connect.util.StringUtil;
@@ -100,15 +97,14 @@ public class GlobalMapClient extends DashboardTabPlugin {
 
         try {
             data = new Vector<Object>();
-            Serializer serializer = ObjectXMLSerializer.getInstance();
-            Map<String, Map<String, String>> globalMaps = null;
+            Map<String, Map<String, Map<String, Object>>> globalMaps = null;
 
             selectedRow = 0;
             String currentlySelectedServer = globalMapPanel.getSelectedServer();
             String currentlySelectedMap = globalMapPanel.getSelectedMap();
             String currentlySelectedVar = globalMapPanel.getSelectedVar();
             try {
-                globalMaps = (Map<String, Map<String, String>>) PlatformUI.MIRTH_FRAME.mirthClient.getServlet(GlobalMapServletInterface.class).getAllMapsPost(channelIds, true);
+                globalMaps = (Map<String, Map<String, Map<String, Object>>>) PlatformUI.MIRTH_FRAME.mirthClient.getServlet(GlobalMapServletInterface.class).getAllMapsPost(channelIds, true);
             } catch (ClientException e) {
                 if (e instanceof ForbiddenException) {
                     // Don't error. Let an empty map be processed
@@ -119,8 +115,8 @@ public class GlobalMapClient extends DashboardTabPlugin {
             }
 
             if (globalMaps != null) {
-                Map<String, Map<String, String>> sortedGlobalMaps = new TreeMap<String, Map<String, String>>();
-                Map<String, String> serializedGlobalMaps = new TreeMap<String, String>();
+                Map<String, Map<String, Map<String, Object>>> sortedGlobalMaps = new TreeMap<>();
+                Map<String, Map<String, Object>> workingGlobalMaps = new TreeMap<>();
 
                 String selectedServerId = null;
                 if (!selectedServer.isEmpty()) {
@@ -128,21 +124,21 @@ public class GlobalMapClient extends DashboardTabPlugin {
                 }
 
                 // Sort the maps in order of channel name for better readability
-                for (Entry<String, Map<String, String>> serverEntry : globalMaps.entrySet()) {
+                for (Entry<String, Map<String, Map<String, Object>>> serverEntry : globalMaps.entrySet()) {
                     if (selectedServerId != null && !selectedServerId.equals(serverEntry.getKey())) {
                         continue;
                     }
 
-                    Map<String, String> sortedServerGlobalMaps = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+                    Map<String, Map<String, Object>> sortedServerGlobalMaps = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-                    for (Entry<String, String> channelEntry : serverEntry.getValue().entrySet()) {
+                    for (Entry<String, Map<String, Object>> channelEntry : serverEntry.getValue().entrySet()) {
                         if (channelEntry.getKey() == null) {
                             /*
                              * Since the global map's name is null, it cannot be used as a key in
                              * the Tree Map. We also want to display it last, so we'll just store a
                              * reference to it and use it later
                              */
-                            serializedGlobalMaps.put(serverEntry.getKey(), channelEntry.getValue());
+                            workingGlobalMaps.put(serverEntry.getKey(), channelEntry.getValue());
                         } else {
                             sortedServerGlobalMaps.put(channelNameMap.get(channelEntry.getKey()), channelEntry.getValue());
                         }
@@ -152,13 +148,13 @@ public class GlobalMapClient extends DashboardTabPlugin {
                 }
 
                 // For each global channel map, display each of its keys alphabetically
-                for (Entry<String, Map<String, String>> serverEntry : sortedGlobalMaps.entrySet()) {
-                    for (Entry<String, String> channelEntry : serverEntry.getValue().entrySet()) {
+                for (Entry<String, Map<String, Map<String, Object>>> serverEntry : sortedGlobalMaps.entrySet()) {
+                    for (Entry<String, Map<String, Object>> channelEntry : serverEntry.getValue().entrySet()) {
                         String channelName = channelEntry.getKey();
-                        String serializedMap = channelEntry.getValue();
+                        Map<String, Object> map = channelEntry.getValue();
 
                         Map<String, Object> sortedMap = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
-                        sortedMap.putAll(MapUtil.deserializeMap(serializer, serializedMap));
+                        sortedMap.putAll(map);
 
                         for (Entry<String, Object> entry : sortedMap.entrySet()) {
                             Vector<Object> row = new Vector<Object>();
@@ -178,10 +174,10 @@ public class GlobalMapClient extends DashboardTabPlugin {
                 }
 
                 // Now we add the global map if necessary
-                if (MapUtils.isNotEmpty(serializedGlobalMaps)) {
-                    for (Entry<String, String> serverEntry : serializedGlobalMaps.entrySet()) {
+                if (MapUtils.isNotEmpty(workingGlobalMaps)) {
+                    for (Entry<String, Map<String, Object>> serverEntry : workingGlobalMaps.entrySet()) {
                         Map<String, Object> sortedMap = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
-                        sortedMap.putAll(MapUtil.deserializeMap(serializer, serverEntry.getValue()));
+                        sortedMap.putAll(serverEntry.getValue());
 
                         for (Entry<String, Object> entry : sortedMap.entrySet()) {
 
