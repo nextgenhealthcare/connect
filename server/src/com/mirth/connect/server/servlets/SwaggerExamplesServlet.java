@@ -119,6 +119,7 @@ import com.mirth.connect.server.controllers.DefaultExtensionController;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
 
+@SuppressWarnings("serial")
 public class SwaggerExamplesServlet extends HttpServlet {
 	
 	private static Calendar dateNow;
@@ -967,15 +968,15 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return envelope;
 	}
 	
-	private Map<String, Object> getGenericMapExample() {
-        Map<String, Object> genericMap = new HashMap<>();
+	private Map<String, String> getGenericMapExample() {
+        Map<String, String> genericMap = new HashMap<>();
         genericMap.put("exampleKey", "exampleValue");
         return genericMap;
     }
 	
-	private Map<String, Map<String, Map<String, Object>>>getGlobalMapsExample() {
-	    Map<String, Map<String, Map<String, Object>>> globalMaps = new HashMap<>();
-	    Map<String, Map<String, Object>> serverGlobalMap = new HashMap<>();
+	private Map<String, Map<String, Map<String, String>>>getGlobalMapsExample() {
+	    Map<String, Map<String, Map<String, String>>> globalMaps = new HashMap<>();
+	    Map<String, Map<String, String>> serverGlobalMap = new HashMap<>();
 	    serverGlobalMap.put(UUID.randomUUID().toString(), getGenericMapExample());
 	    globalMaps.put(UUID.randomUUID().toString(), serverGlobalMap);
 	    return globalMaps;

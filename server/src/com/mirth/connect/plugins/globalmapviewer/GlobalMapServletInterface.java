@@ -53,7 +53,7 @@ public interface GlobalMapServletInterface extends BaseServletInterface {
             @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
                     @ExampleObject(name = "globalMaps", ref = "../apiexamples/global_maps_json") }) })
     @MirthOperation(name = "getAllMaps", display = "Get global / global channel maps", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
-    public Map<String, Map<String, Map<String, Object>>> getAllMaps(// @formatter:off
+    public Map<String, Map<String, Map<String, String>>> getAllMaps(// @formatter:off
             @Param("channelIds") @Parameter(description = "The ID of the channel to retrieve global channel map information for.") @QueryParam("channelId") Set<String> channelIds,
             @Param("includeGlobalMap") @Parameter(description = "If true, the global map will be returned.") @QueryParam("includeGlobalMap") boolean includeGlobalMap) throws ClientException;
     // @formatter:on
@@ -67,7 +67,7 @@ public interface GlobalMapServletInterface extends BaseServletInterface {
             @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
                     @ExampleObject(name = "globalMaps", ref = "../apiexamples/global_maps_json") }) })
     @MirthOperation(name = "getAllMaps", display = "Get global / global channel maps", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
-    public Map<String, Map<String, Map<String, Object>>> getAllMapsPost(// @formatter:off
+    public Map<String, Map<String, Map<String, String>>> getAllMapsPost(// @formatter:off
             @Param("channelIds") @RequestBody(description = "The ID of the channel to retrieve global channel map information for.", content = {
                     @Content(mediaType = MediaType.APPLICATION_XML, examples = {
                             @ExampleObject(name = "channelIds", ref = "../apiexamples/guid_set_xml") }),
@@ -86,7 +86,7 @@ public interface GlobalMapServletInterface extends BaseServletInterface {
                     @ExampleObject(name = "genericMap", ref = "../apiexamples/generic_map_xml") }) })
     @MirthOperation(name = "getGlobalMap", display = "Get global map", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
     @Produces({ MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN })
-    public Map<String, Object> getGlobalMap() throws ClientException;
+    public Map<String, String> getGlobalMap() throws ClientException;
 
     @GET
     @Path("/maps/{channelId}")
@@ -97,5 +97,5 @@ public interface GlobalMapServletInterface extends BaseServletInterface {
                     @ExampleObject(name = "genericMapString", ref = "../apiexamples/generic_map_xml") }) })
     @MirthOperation(name = "getGlobalChannelMap", display = "Get global channel map", permission = PERMISSION_VIEW, type = ExecuteType.ASYNC, auditable = false)
     @Produces({ MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN })
-    public Map<String, Object> getGlobalChannelMap(@Param("channelId") @Parameter(description = "The ID of the channel to retrieve global channel map information for.") @PathParam("channelId") String channelId) throws ClientException;
+    public Map<String, String> getGlobalChannelMap(@Param("channelId") @Parameter(description = "The ID of the channel to retrieve global channel map information for.") @PathParam("channelId") String channelId) throws ClientException;
 }

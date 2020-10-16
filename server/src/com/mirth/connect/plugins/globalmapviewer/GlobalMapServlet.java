@@ -30,7 +30,7 @@ public class GlobalMapServlet extends MirthServlet implements GlobalMapServletIn
     }
 
     @Override
-    public Map<String, Map<String, Map<String, Object>>> getAllMaps(Set<String> channelIds, boolean includeGlobalMap) throws ClientException {
+    public Map<String, Map<String, Map<String, String>>> getAllMaps(Set<String> channelIds, boolean includeGlobalMap) throws ClientException {
         try {
             return globalMapController.getAllMaps(channelIds, includeGlobalMap);
         } catch (Exception e) {
@@ -39,12 +39,12 @@ public class GlobalMapServlet extends MirthServlet implements GlobalMapServletIn
     }
 
     @Override
-    public Map<String, Map<String, Map<String, Object>>> getAllMapsPost(Set<String> channelIds, boolean includeGlobalMap) throws ClientException {
+    public Map<String, Map<String, Map<String, String>>> getAllMapsPost(Set<String> channelIds, boolean includeGlobalMap) throws ClientException {
         return getAllMaps(channelIds, includeGlobalMap);
     }
 
     @Override
-    public Map<String, Object> getGlobalMap() throws ClientException {
+    public Map<String, String> getGlobalMap() throws ClientException {
         try {
             return globalMapController.getGlobalMap();
         } catch (Exception e) {
@@ -54,7 +54,7 @@ public class GlobalMapServlet extends MirthServlet implements GlobalMapServletIn
 
     @Override
     @CheckAuthorizedChannelId
-    public Map<String, Object> getGlobalChannelMap(String channelId) throws ClientException {
+    public Map<String, String> getGlobalChannelMap(String channelId) throws ClientException {
         try {
             return globalMapController.getGlobalChannelMap(channelId);
         } catch (Exception e) {
