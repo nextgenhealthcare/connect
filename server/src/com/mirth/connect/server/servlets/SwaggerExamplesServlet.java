@@ -119,6 +119,7 @@ import com.mirth.connect.server.controllers.DefaultExtensionController;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
 
+@SuppressWarnings("serial")
 public class SwaggerExamplesServlet extends HttpServlet {
 	
 	private static Calendar dateNow;
@@ -269,8 +270,6 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getGenerateEnvelopeExample();
         } else if (exampleRequested.equals("generic_map")) {
             requestedObject = getGenericMapExample();
-        } else if (exampleRequested.equals("global_map")) {
-            requestedObject = getGlobalMapExample();
         } else if (exampleRequested.equals("global_maps")) {
             requestedObject = getGlobalMapsExample();
         } else if (exampleRequested.equals("global_scripts")) {
@@ -975,23 +974,11 @@ public class SwaggerExamplesServlet extends HttpServlet {
         return genericMap;
     }
 	
-	private String getGenericMapStringExample() {
-	    try {
-	        return xmlSerialize(getGenericMapExample());
-	    } catch (UnsupportedEncodingException e) {}
-	    
-	    return "";
-	}
-	
-	private Map<String, String> getGlobalMapExample() {
-	    Map<String, String> globalMap = new HashMap<>();
-	    globalMap.put(null, getGenericMapStringExample());
-	    return globalMap;
-	}
-	
-	private Map<String, Map<String, String>> getGlobalMapsExample() {
-	    Map<String, Map<String, String>> globalMaps = new HashMap<>();
-	    globalMaps.put(UUID.randomUUID().toString(), getGlobalMapExample());
+	private Map<String, Map<String, Map<String, String>>>getGlobalMapsExample() {
+	    Map<String, Map<String, Map<String, String>>> globalMaps = new HashMap<>();
+	    Map<String, Map<String, String>> serverGlobalMap = new HashMap<>();
+	    serverGlobalMap.put(UUID.randomUUID().toString(), getGenericMapExample());
+	    globalMaps.put(UUID.randomUUID().toString(), serverGlobalMap);
 	    return globalMaps;
 	}
 	
