@@ -82,7 +82,7 @@ public class LicenseClient {
                     }
 
                     int days = (int) Math.ceil((double) Duration.between(now, endDate).getSeconds() / 60 / 60 / 24);
-                    builder.append(days).append(" day").append(days == 1 ? "" : "s").append(".<br/>Please contact your account manager or connectsales@nextgen.com to renew your commercial license.</html>");
+                    builder.append(days).append(" day").append(days == 1 ? "" : "s").append(".<br/>Please create a support ticket through the Success Community client portal<br/>or contact the NextGen Connected Health support team at 800.952.0243 for assistance with renewing your commercial license.</html>");
                     final String message = builder.toString();
 
                     SwingUtilities.invokeLater(() -> {
