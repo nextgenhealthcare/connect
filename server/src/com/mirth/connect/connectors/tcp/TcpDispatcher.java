@@ -640,7 +640,7 @@ public class TcpDispatcher extends DestinationConnector {
     private void closeSocket(String socketKey) throws IOException {
         Socket socket = connectedSockets.get(socketKey);
         if (socket != null) {
-            boolean wasOpen = !socket.isClosed();
+            boolean wasOpen = socket.isConnected();
             try {
                 if (wasOpen) {
                     logger.trace("Closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
@@ -666,7 +666,7 @@ public class TcpDispatcher extends DestinationConnector {
 
     private void closeServerModeSocket(Socket socket) throws IOException {
         if (socket != null) {
-            boolean wasOpen = !socket.isClosed();
+            boolean wasOpen = socket.isConnected();
             try {
                 if (wasOpen) {
                     logger.trace("Closing socket (" + connectorProperties.getName() + " \"" + getDestinationName() + "\" on channel " + getChannelId() + ").");
