@@ -141,7 +141,8 @@ public class DefaultConfigurationControllerTest {
                 "com.mysql.jdbc.Driver" }))));
         drivers.add(new DriverInfo("Oracle", "oracle.jdbc.driver.OracleDriver", "jdbc:oracle:thin:@host:port:dbname", "SELECT * FROM ? WHERE ROWNUM < 2"));
         drivers.add(new DriverInfo("PostgreSQL", "org.postgresql.Driver", "jdbc:postgresql://host:port/dbname", "SELECT * FROM ? LIMIT 1"));
-        drivers.add(new DriverInfo("SQL Server/Sybase", "net.sourceforge.jtds.jdbc.Driver", "jdbc:jtds:sqlserver://host:port/dbname", "SELECT TOP 1 * FROM ?"));
+        drivers.add(new DriverInfo("SQL Server/Sybase (jTDS)", "net.sourceforge.jtds.jdbc.Driver", "jdbc:jtds:sqlserver://host:port/dbname", "SELECT TOP 1 * FROM ?"));
+        drivers.add(new DriverInfo("Microsoft SQL Server", "com.microsoft.sqlserver.jdbc.SQLServerDriver", "jdbc:sqlserver://host:port;databaseName=dbname", "SELECT TOP 1 * FROM ?"));
         drivers.add(new DriverInfo("SQLite", "org.sqlite.JDBC", "jdbc:sqlite:dbfile.db", "SELECT * FROM ? LIMIT 1"));
 
         configurationController.setDatabaseDrivers(drivers);
@@ -190,7 +191,7 @@ public class DefaultConfigurationControllerTest {
     }
 
     private void assertDefaultDrivers(List<DriverInfo> drivers, boolean includeODBC) {
-        assertEquals(includeODBC ? 6 : 5, drivers.size());
+        assertEquals(includeODBC ? 7 : 6, drivers.size());
         int i = 0;
 
         if (includeODBC) {
@@ -224,9 +225,16 @@ public class DefaultConfigurationControllerTest {
         assertEquals(new ArrayList<String>(), drivers.get(i).getAlternativeClassNames());
         i++;
 
-        assertEquals("SQL Server/Sybase", drivers.get(i).getName());
+        assertEquals("SQL Server/Sybase (jTDS)", drivers.get(i).getName());
         assertEquals("net.sourceforge.jtds.jdbc.Driver", drivers.get(i).getClassName());
         assertEquals("jdbc:jtds:sqlserver://host:port/dbname", drivers.get(i).getTemplate());
+        assertEquals("SELECT TOP 1 * FROM ?", drivers.get(i).getSelectLimit());
+        assertEquals(new ArrayList<String>(), drivers.get(i).getAlternativeClassNames());
+        i++;
+        
+        assertEquals("Microsoft SQL Server", drivers.get(i).getName());
+        assertEquals("com.microsoft.sqlserver.jdbc.SQLServerDriver", drivers.get(i).getClassName());
+        assertEquals("jdbc:sqlserver://host:port;databaseName=dbname", drivers.get(i).getTemplate());
         assertEquals("SELECT TOP 1 * FROM ?", drivers.get(i).getSelectLimit());
         assertEquals(new ArrayList<String>(), drivers.get(i).getAlternativeClassNames());
         i++;
@@ -246,53 +254,61 @@ public class DefaultConfigurationControllerTest {
     }
 
     // @formatter:off
-    private String DEFAULT_DRIVERS_XML = "<list>\n"+
-            "  <driverInfo>\n"+
-            "    <className>com.mysql.cj.jdbc.Driver</className>\n"+
-            "    <name>MySQL</name>\n"+
-            "    <template>jdbc:mysql://host:port/dbname</template>\n"+
-            "    <selectLimit>SELECT * FROM ? LIMIT 1</selectLimit>\n"+
-            "    <alternativeClassNames>\n"+
-            "      <string>com.mysql.jdbc.Driver</string>\n"+
-            "    </alternativeClassNames>\n"+
-            "  </driverInfo>\n"+
-            "  <driverInfo>\n"+
-            "    <className>oracle.jdbc.driver.OracleDriver</className>\n"+
-            "    <name>Oracle</name>\n"+
-            "    <template>jdbc:oracle:thin:@host:port:dbname</template>\n"+
-            "    <selectLimit>SELECT * FROM ? WHERE ROWNUM &lt; 2</selectLimit>\n"+
-            "    <alternativeClassNames/>\n"+
-            "  </driverInfo>\n"+
-            "  <driverInfo>\n"+
-            "    <className>org.postgresql.Driver</className>\n"+
-            "    <name>PostgreSQL</name>\n"+
-            "    <template>jdbc:postgresql://host:port/dbname</template>\n"+
-            "    <selectLimit>SELECT * FROM ? LIMIT 1</selectLimit>\n"+
-            "    <alternativeClassNames/>\n"+
-            "  </driverInfo>\n"+
-            "  <driverInfo>\n"+
-            "    <className>net.sourceforge.jtds.jdbc.Driver</className>\n"+
-            "    <name>SQL Server/Sybase</name>\n"+
-            "    <template>jdbc:jtds:sqlserver://host:port/dbname</template>\n"+
-            "    <selectLimit>SELECT TOP 1 * FROM ?</selectLimit>\n"+
-            "    <alternativeClassNames/>\n"+
-            "  </driverInfo>\n"+
-            "  <driverInfo>\n"+
-            "    <className>org.sqlite.JDBC</className>\n"+
-            "    <name>SQLite</name>\n"+
-            "    <template>jdbc:sqlite:dbfile.db</template>\n"+
-            "    <selectLimit>SELECT * FROM ? LIMIT 1</selectLimit>\n"+
-            "    <alternativeClassNames/>\n"+
-            "  </driverInfo>\n"+
-            "</list>\n";
+    private String DEFAULT_DRIVERS_XML = "<list>\n" + 
+    		"  <driverInfo>\n" + 
+    		"    <className>com.mysql.cj.jdbc.Driver</className>\n" + 
+    		"    <name>MySQL</name>\n" + 
+    		"    <template>jdbc:mysql://host:port/dbname</template>\n" + 
+    		"    <selectLimit>SELECT * FROM ? LIMIT 1</selectLimit>\n" + 
+    		"    <alternativeClassNames>\n" + 
+    		"      <string>com.mysql.jdbc.Driver</string>\n" + 
+    		"    </alternativeClassNames>\n" + 
+    		"  </driverInfo>\n" + 
+    		"  <driverInfo>\n" + 
+    		"    <className>oracle.jdbc.driver.OracleDriver</className>\n" + 
+    		"    <name>Oracle</name>\n" + 
+    		"    <template>jdbc:oracle:thin:@host:port:dbname</template>\n" + 
+    		"    <selectLimit>SELECT * FROM ? WHERE ROWNUM &lt; 2</selectLimit>\n" + 
+    		"    <alternativeClassNames/>\n" + 
+    		"  </driverInfo>\n" + 
+    		"  <driverInfo>\n" + 
+    		"    <className>org.postgresql.Driver</className>\n" + 
+    		"    <name>PostgreSQL</name>\n" + 
+    		"    <template>jdbc:postgresql://host:port/dbname</template>\n" + 
+    		"    <selectLimit>SELECT * FROM ? LIMIT 1</selectLimit>\n" + 
+    		"    <alternativeClassNames/>\n" + 
+    		"  </driverInfo>\n" + 
+    		"  <driverInfo>\n" + 
+    		"    <className>net.sourceforge.jtds.jdbc.Driver</className>\n" + 
+    		"    <name>SQL Server/Sybase (jTDS)</name>\n" + 
+    		"    <template>jdbc:jtds:sqlserver://host:port/dbname</template>\n" + 
+    		"    <selectLimit>SELECT TOP 1 * FROM ?</selectLimit>\n" + 
+    		"    <alternativeClassNames/>\n" + 
+    		"  </driverInfo>\n" + 
+    		"  <driverInfo>\n" + 
+    		"    <className>com.microsoft.sqlserver.jdbc.SQLServerDriver</className>\n" + 
+    		"    <name>Microsoft SQL Server</name>\n" + 
+    		"    <template>jdbc:sqlserver://host:port;databaseName=dbname</template>\n" + 
+    		"    <selectLimit>SELECT TOP 1 * FROM ?</selectLimit>\n" + 
+    		"    <alternativeClassNames/>\n" + 
+    		"  </driverInfo>\n" + 
+    		"  <driverInfo>\n" + 
+    		"    <className>org.sqlite.JDBC</className>\n" + 
+    		"    <name>SQLite</name>\n" + 
+    		"    <template>jdbc:sqlite:dbfile.db</template>\n" + 
+    		"    <selectLimit>SELECT * FROM ? LIMIT 1</selectLimit>\n" + 
+    		"    <alternativeClassNames/>\n" + 
+    		"  </driverInfo>\n" + 
+    		"</list>\n";
     
     private String DEFAULT_DBDRIVERS_FILE = "<drivers>\n"+
             "   <driver class=\"sun.jdbc.odbc.JdbcOdbcDriver\" name=\"Sun JDBC-ODBC Bridge\" template=\"jdbc:odbc:DSN\" selectLimit=\"\" />\n"+
-            "   <driver class=\"com.mysql.cj.jdbc.Driver\" alternativeClasses=\"com.mysql.jdbc.Driver\" name=\"MySQL\" template=\"jdbc:mysql://host:port/dbname\" selectLimit=\"SELECT * FROM ? LIMIT 1\" />\n"+
-            "   <driver class=\"oracle.jdbc.driver.OracleDriver\" name=\"Oracle\" template=\"jdbc:oracle:thin:@host:port:dbname\" selectLimit=\"SELECT * FROM ? WHERE ROWNUM &lt; 2\" />\n"+
-            "   <driver class=\"org.postgresql.Driver\" name=\"PostgreSQL\" template=\"jdbc:postgresql://host:port/dbname\" selectLimit=\"SELECT * FROM ? LIMIT 1\" />\n"+
-            "   <driver class=\"net.sourceforge.jtds.jdbc.Driver\" name=\"SQL Server/Sybase\" template=\"jdbc:jtds:sqlserver://host:port/dbname\" selectLimit=\"SELECT TOP 1 * FROM ?\" />\n"+
-            "   <driver class=\"org.sqlite.JDBC\" name=\"SQLite\" template=\"jdbc:sqlite:dbfile.db\" selectLimit=\"SELECT * FROM ? LIMIT 1\" />\n"+
-            "</drivers>\n";
+    		"   <driver class=\"com.mysql.cj.jdbc.Driver\" name=\"MySQL\" template=\"jdbc:mysql://host:port/dbname\" selectLimit=\"SELECT * FROM ? LIMIT 1\" alternativeClasses=\"com.mysql.jdbc.Driver\" />\n" + 
+    		"	<driver class=\"oracle.jdbc.driver.OracleDriver\" name=\"Oracle\" template=\"jdbc:oracle:thin:@host:port:dbname\" selectLimit=\"SELECT * FROM ? WHERE ROWNUM &lt; 2\" />\n" + 
+    		"	<driver class=\"org.postgresql.Driver\" name=\"PostgreSQL\" template=\"jdbc:postgresql://host:port/dbname\" selectLimit=\"SELECT * FROM ? LIMIT 1\" />\n" + 
+    		"	<driver class=\"net.sourceforge.jtds.jdbc.Driver\" name=\"SQL Server/Sybase (jTDS)\" template=\"jdbc:jtds:sqlserver://host:port/dbname\" selectLimit=\"SELECT TOP 1 * FROM ?\" />\n" + 
+    		"	<driver class=\"com.microsoft.sqlserver.jdbc.SQLServerDriver\" name=\"Microsoft SQL Server\" template=\"jdbc:sqlserver://host:port;databaseName=dbname\" selectLimit=\"SELECT TOP 1 * FROM ?\" />\n" + 
+    		"	<driver class=\"org.sqlite.JDBC\" name=\"SQLite\" template=\"jdbc:sqlite:dbfile.db\" selectLimit=\"SELECT * FROM ? LIMIT 1\" />\n" + 
+    		"</drivers>\n";
     // @formatter:on
 }
