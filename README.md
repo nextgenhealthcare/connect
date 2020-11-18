@@ -13,7 +13,7 @@
 <a name="useful-links"></a>
 ## 1. Useful Links
 - [Downloads](https://github.com/nextgenhealthcare/connect/releases) 
-- [User Guide](https://www.nextgen.com/-/media/Files/nextgen-connect/nextgen-connect-38-user-guide.pdf)
+- [User Guide](https://www.nextgen.com/-/media/Files/nextgen-connect/nextgen-connect-310-user-guide.pdf)
 - [Wiki](https://www.mirthcorp.com/community/wiki/display/mirth/Home)
   - [System requirements](https://www.mirthcorp.com/community/wiki/display/mirth/System+Requirements)
   - [FAQ](https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+FAQ)
