@@ -21,7 +21,7 @@
   - [Developer Guide](https://www.mirthcorp.com/community/wiki/pages/viewpage.action?pageId=11174703)
   - [Examples and Tutorials](https://www.mirthcorp.com/community/wiki/display/mirth/Examples+and+Tutorials)
   - [FHIR Extension Guide](https://www.mirthcorp.com/community/wiki/display/mirth/User+Guide)
-- [Forums](http://www.mirthcorp.com/community/forums/)
+- [Forums](https://forums.mirthproject.io/)
 - [Slack Channel](https://mirthconnect.slack.com/) 
   - [Slack Registration](https://mirthconnect.herokuapp.com)
 - [Issue Tracker (JIRA)](http://www.mirthcorp.com/community/issues)
