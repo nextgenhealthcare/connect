@@ -24,7 +24,6 @@
 - [Forums](https://forums.mirthproject.io/)
 - [Slack Channel](https://mirthconnect.slack.com/) 
   - [Slack Registration](https://mirthconnect.herokuapp.com)
-- [Issue Tracker (JIRA)](http://www.mirthcorp.com/community/issues)
 
 ------------
 
