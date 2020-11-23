@@ -9,6 +9,17 @@
 
 package com.mirth.connect.model.datatype;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
+
 public abstract class BatchProperties extends DataTypePropertiesGroup {
 
+	// @formatter:off
+    @Override public void migrate3_2_0(DonkeyElement element) {}
+    @Override public void migrate3_3_0(DonkeyElement element) {}
+    @Override public void migrate3_4_0(DonkeyElement element) {}
+    @Override public void migrate3_5_0(DonkeyElement element) {}
+    @Override public void migrate3_6_0(DonkeyElement element) {}
+    @Override public void migrate3_7_0(DonkeyElement element) {}
+    @Override public void migrate3_9_0(DonkeyElement element) {} 
+    @Override public void migrate3_11_0(DonkeyElement element) {} // @formatter:on
 }
