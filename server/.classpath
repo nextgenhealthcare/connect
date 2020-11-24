@@ -242,5 +242,6 @@
 	<classpathentry kind="lib" path="lib/jackson/jackson-dataformat-yaml-2.11.3.jar"/>
 	<classpathentry kind="lib" path="lib/jackson/jackson-datatype-jsr310-2.11.3.jar"/>
 	<classpathentry kind="lib" path="/Donkey/lib/slf4j-api-1.7.30.jar"/>
+	<classpathentry kind="lib" path="lib/aws/metrics-spi-2.15.28.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
