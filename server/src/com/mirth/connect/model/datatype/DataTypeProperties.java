@@ -13,6 +13,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.SerializationUtils;
 
+import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.migration.Migratable;
 import com.mirth.connect.donkey.util.purge.Purgable;
 
@@ -72,4 +73,14 @@ public abstract class DataTypeProperties implements Serializable, Migratable, Pu
             return false;
         }
     }
+    
+    // @formatter:off
+    @Override public void migrate3_2_0(DonkeyElement element) {}
+    @Override public void migrate3_3_0(DonkeyElement element) {}
+    @Override public void migrate3_4_0(DonkeyElement element) {}
+    @Override public void migrate3_5_0(DonkeyElement element) {}
+    @Override public void migrate3_6_0(DonkeyElement element) {}
+    @Override public void migrate3_7_0(DonkeyElement element) {}
+    @Override public void migrate3_9_0(DonkeyElement element) {} 
+    @Override public void migrate3_11_0(DonkeyElement element) {} // @formatter:on
 }

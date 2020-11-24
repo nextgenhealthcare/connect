@@ -33,12 +33,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.7.28.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://www.slf4j.org/apidocs/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.7.28.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-math3-3.0.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/math/apidocs/"/>
@@ -78,5 +72,11 @@
 	<classpathentry kind="lib" path="lib/guava/jsr305-3.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"/>
 	<classpathentry kind="lib" path="lib/database/mssql-jdbc-8.4.1.jre8.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.30.jar">
+		<attributes>
+- 			<attribute name="javadoc_location" value="http://www.slf4j.org/apidocs/"/>
+- 		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.7.30.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
