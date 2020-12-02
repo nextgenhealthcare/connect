@@ -104,6 +104,7 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.server.api.MirthServlet;
 import com.mirth.connect.server.api.providers.ApiOriginFilter;
 import com.mirth.connect.server.api.providers.ClickjackingFilter;
+import com.mirth.connect.server.api.providers.StrictTransportSecurityFilter;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
@@ -299,6 +300,7 @@ public class MirthWebServer extends Server {
 
                 webapp.setContextPath(contextPath + "/" + file.getName().substring(0, file.getName().length() - 4));
                 webapp.addFilter(new FilterHolder(new ClickjackingFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
+                webapp.addFilter(new FilterHolder(new StrictTransportSecurityFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
 
                 /*
                  * Set the ContainerIncludeJarPattern so that Jetty examines these JARs for TLDs,
@@ -443,6 +445,7 @@ public class MirthWebServer extends Server {
         apiServletContextHandler.addFilter(new FilterHolder(new ApiOriginFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         apiServletContextHandler.addFilter(new FilterHolder(new ClickjackingFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         apiServletContextHandler.addFilter(new FilterHolder(new MethodFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
+        apiServletContextHandler.addFilter(new FilterHolder(new StrictTransportSecurityFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
         setConnectorNames(apiServletContextHandler, apiAllowHTTP);
     	
         return apiServletContextHandler;
