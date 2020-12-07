@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -221,7 +222,11 @@ public class ValueReplacer {
         StringWriter writer = new StringWriter();
 
         try {
-            Velocity.init();
+        	// Set properties to ensure backward compatibility with Velocity 1.x
+        	Properties props = new Properties();
+        	props.put(Velocity.PARSER_HYPHEN_ALLOWED, true);
+        	
+            Velocity.init(props);
             Velocity.evaluate(context, writer, "LOG", template);
         } catch (Exception e) {
             logger.warn("Could not replace template values", e);
