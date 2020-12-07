@@ -40,15 +40,18 @@ public class TemplateValueReplacerTests {
         assertEquals("valueOfVelocity1", templateReplacer.replaceValues("$velocity1", "channelId", "channelName"));
         assertEquals("$velocityUnknown", templateReplacer.replaceValues("$velocityUnknown", "channelId", "channelName"));
         assertEquals("unusedVelocity1", templateReplacer.replaceValues("unusedVelocity1", "channelId", "channelName"));
+        assertEquals("valueOfVelocityHyphen", templateReplacer.replaceValues("$velocity-hyphen", "channelId", "channelName"));
     }
-
+    
     private class TestTemplateValueReplacer extends TemplateValueReplacer {
         @Override
         protected void loadContextFromMap(VelocityContext context, Map<String, ?> map) {
             Map<String, String> velocityMap = new HashMap<String, String>();
             velocityMap.put("velocity1", "valueOfVelocity1");
             velocityMap.put("unusedVelocity1", "valueOfUnusedVelocity1");
+            velocityMap.put("velocity-hyphen", "valueOfVelocityHyphen");
             super.loadContextFromMap(context, velocityMap);
         }
     }
 }
+
