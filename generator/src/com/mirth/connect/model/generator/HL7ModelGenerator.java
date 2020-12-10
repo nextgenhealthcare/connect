@@ -29,6 +29,14 @@ public class HL7ModelGenerator {
 
     public String outputPath = "";
     public String version = "";
+    
+    static {
+    	// Set properties to ensure backward compatibility with Velocity 1.x
+    	Properties props = new Properties();
+    	props.put(Velocity.PARSER_HYPHEN_ALLOWED, true);
+    	
+        Velocity.init(props);
+    }
 
     public static void main(String[] args) {
         String baseDirectory = args[0];
@@ -276,11 +284,6 @@ public class HL7ModelGenerator {
         StringWriter writer = new StringWriter();
 
         try {
-        	// Set properties to ensure backward compatibility with Velocity 1.x
-        	Properties props = new Properties();
-        	props.put(Velocity.PARSER_HYPHEN_ALLOWED, true);
-        	
-            Velocity.init(props);
             Velocity.evaluate(context, writer, "LOG", template);
         } catch (Exception e) {
             e.printStackTrace();
