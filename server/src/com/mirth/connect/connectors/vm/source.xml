@@ -2,7 +2,7 @@
 	<name>Channel Reader</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.10.1</mirthVersion>
+	<mirthVersion>3.11.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This connector allows Mirth Connect to listen for incoming events from other channels in the same Mirth Connect instance.</description>
 	<clientClassName>com.mirth.connect.connectors.vm.ChannelReader</clientClassName>
