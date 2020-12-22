@@ -2,7 +2,7 @@
 	<name>Server Log</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.10.1</mirthVersion>
+	<mirthVersion>3.11.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This plugin allows you to view the server log on the Mirth Connect administrator.</description>
 	<serverClasses>
