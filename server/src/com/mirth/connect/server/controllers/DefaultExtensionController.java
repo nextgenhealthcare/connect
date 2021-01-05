@@ -723,9 +723,9 @@ public class DefaultExtensionController extends ExtensionController {
                 outputStream = new BufferedOutputStream(fileOutputStream);
                 IOUtils.copy(zipInputStream, outputStream);
             } finally {
-                ResourceUtil.closeResourceQuietly(zipInputStream);
-                ResourceUtil.closeResourceQuietly(fileOutputStream);
                 ResourceUtil.closeResourceQuietly(outputStream);
+                ResourceUtil.closeResourceQuietly(fileOutputStream);
+                ResourceUtil.closeResourceQuietly(zipInputStream);
             }
         }
     }
