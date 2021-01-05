@@ -409,8 +409,8 @@ public class WebStartServlet extends HttpServlet {
 
             return Base64.getEncoder().encodeToString(digest.digest());
         } finally {
-            ResourceUtil.closeResourceQuietly(fis);
             ResourceUtil.closeResourceQuietly(bis);
+            ResourceUtil.closeResourceQuietly(fis);
         }
     }
 }
