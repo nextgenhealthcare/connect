@@ -8,9 +8,13 @@ assignees: ''
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+A clear and concise description of what the bug is. Is this consistently reproducible?
 
 **To Reproduce**
+Setup steps (if required). Example:
+1. Setup table in database with this schema
+2. Add rows '...'
+
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
@@ -19,6 +23,9 @@ Steps to reproduce the behavior:
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
+
+**Actual behavior**
+A clear and concise description of what actually happens.
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
