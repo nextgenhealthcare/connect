@@ -35,5 +35,8 @@ If applicable, add screenshots to help explain your problem.
  - Java Distribution/Version [e.g. OpenJDK 11, Java 8 (201)]
  - Connect Version [e.g. 3.8.0]
 
+**Workaround(s)**
+Are there one or more workarounds for this issue currently?
+
 **Additional context**
 Add any other context about the problem here.
