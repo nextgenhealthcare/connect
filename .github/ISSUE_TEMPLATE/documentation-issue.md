@@ -2,7 +2,7 @@
 name: Documentation Issue
 about: Report a documentation issue
 title: "[Docs] Your Issue Title"
-labels: documentation
+labels: documentation, Needs-Triage
 assignees: ''
 
 ---
