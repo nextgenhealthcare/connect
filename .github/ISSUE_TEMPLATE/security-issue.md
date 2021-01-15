@@ -2,7 +2,7 @@
 name: Security Issue
 about: Create a report to help us better secure the project
 title: "[SECURITY] Your Issue Title"
-labels: Needs-Triage, Security
+labels: Security
 assignees: ''
 
 ---

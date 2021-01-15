@@ -2,7 +2,7 @@
 name: Feature request
 about: Suggest an idea for this project
 title: "[IDEA] Your Issue Title"
-labels: enhancement, Needs-Triage
+labels: enhancement
 assignees: ''
 
 ---
