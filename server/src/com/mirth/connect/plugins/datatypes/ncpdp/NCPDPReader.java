@@ -240,6 +240,11 @@ public class NCPDPReader extends SAXParser {
             String fieldDescription = NCPDPReference.getInstance().getDescription(fieldId, version);
             String fieldMessage = field.substring(2);
 
+            if (fieldDescription.isEmpty()) {
+                // if field Description is not found in NCPDPReference then set to fieldId_field
+                fieldDescription = fieldId + "_field";
+            }
+            
             if (inCount && !isRepeatingField(fieldDescription) && !fieldDescription.endsWith("Count")) {
                 // if we are were in count field then end the element
                 contentHandler.endElement("", fieldStack.pop(), "");
