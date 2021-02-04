@@ -297,10 +297,10 @@ public class MirthWebServer extends Server {
                 // Set the session cache directly on the handler so it doesn't use the server bean
                 sessionHandler.setSessionCache(sessionCache);
                 webapp.setSessionHandler(sessionHandler);
-
+                
                 webapp.setContextPath(contextPath + "/" + file.getName().substring(0, file.getName().length() - 4));
                 webapp.addFilter(new FilterHolder(new ClickjackingFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
-                webapp.addFilter(new FilterHolder(new StrictTransportSecurityFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
+                webapp.addFilter(new FilterHolder(new StrictTransportSecurityFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
 
                 /*
                  * Set the ContainerIncludeJarPattern so that Jetty examines these JARs for TLDs,
@@ -445,9 +445,11 @@ public class MirthWebServer extends Server {
         apiServletContextHandler.addFilter(new FilterHolder(new ApiOriginFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         apiServletContextHandler.addFilter(new FilterHolder(new ClickjackingFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         apiServletContextHandler.addFilter(new FilterHolder(new MethodFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
-        apiServletContextHandler.addFilter(new FilterHolder(new StrictTransportSecurityFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
+        apiServletContextHandler.addFilter(new FilterHolder(new StrictTransportSecurityFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         setConnectorNames(apiServletContextHandler, apiAllowHTTP);
-    	
+    
+        
+        
         return apiServletContextHandler;
     }
     

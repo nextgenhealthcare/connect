@@ -10,16 +10,28 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.configuration2.PropertiesConfiguration;
+
 public class StrictTransportSecurityFilter implements Filter {
+
+    boolean strictTransportSecurityEnabled;
+
+    public StrictTransportSecurityFilter(PropertiesConfiguration mirthProperties) {
+        strictTransportSecurityEnabled = mirthProperties.getBoolean("http.stricttransportsecurity", true);
+
+    }
 
     @Override
     public void destroy() {}
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletResponse res = (HttpServletResponse) response;
-        res.addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-        chain.doFilter(request, response);
+
+        if (strictTransportSecurityEnabled) {
+            HttpServletResponse res = (HttpServletResponse) response;
+            res.addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+            chain.doFilter(request, response);
+        }
     }
 
     @Override
