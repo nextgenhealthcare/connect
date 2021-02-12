@@ -45,9 +45,7 @@ public class NCPDPSerializer implements IMessageSerializer {
     private String deserializationFieldDelimiter = null;
 
     private static Pattern prettyPattern = Pattern.compile(">\\s+<");
-    
 
-    
     public NCPDPSerializer(SerializerProperties properties) {
         serializationProperties = (NCPDPSerializationProperties) properties.getSerializationProperties();
         deserializationProperties = (NCPDPDeserializationProperties) properties.getDeserializationProperties();
@@ -63,8 +61,7 @@ public class NCPDPSerializer implements IMessageSerializer {
             deserializationGroupDelimiter = StringUtil.unescape(deserializationProperties.getGroupDelimiter());
             deserializationFieldDelimiter = StringUtil.unescape(deserializationProperties.getFieldDelimiter());
         }
-        
-     
+
     }
 
     public String getDeserializationSegmentDelimiter() {
@@ -164,10 +161,10 @@ public class NCPDPSerializer implements IMessageSerializer {
              * Parse, but first replace all spaces between brackets. This fixes pretty-printed XML
              * we might receive
              */
-            
+
             String tansformedSource = validateTransformHeader(prettyPattern.matcher(source).replaceAll("><"));
 
-            reader.parse(new InputSource(new StringReader(tansformedSource)));         
+            reader.parse(new InputSource(new StringReader(tansformedSource)));
             return handler.getOutput().toString();
         } catch (Exception e) {
             throw new MessageSerializerException("Error converting XML to NCPDP message.", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to NCPDP", e));
@@ -175,8 +172,8 @@ public class NCPDPSerializer implements IMessageSerializer {
     }
 
     public String validateTransformHeader(String sourceXml) {
-        Map<String, Integer> headerFieldsLengthMap = new LinkedHashMap<String, Integer>(); 
-        headerFieldsLengthMap.put("BinNumber", 6); 
+        Map<String, Integer> headerFieldsLengthMap = new LinkedHashMap<String, Integer>();
+        headerFieldsLengthMap.put("BinNumber", 6);
         headerFieldsLengthMap.put("VersionReleaseNumber", 2);
         headerFieldsLengthMap.put("TransactionCode", 2);
         headerFieldsLengthMap.put("ProcessorControlNumber", 10);
@@ -186,32 +183,32 @@ public class NCPDPSerializer implements IMessageSerializer {
         headerFieldsLengthMap.put("DateOfService", 8);
         headerFieldsLengthMap.put("SoftwareVendorCertificationId", 10);
         headerFieldsLengthMap = Collections.unmodifiableMap(headerFieldsLengthMap);
-         
+
         String transformedXml = sourceXml;
-        for(Map.Entry<String, Integer> entry : headerFieldsLengthMap.entrySet()) {
+        for (Map.Entry<String, Integer> entry : headerFieldsLengthMap.entrySet()) {
             String paddingString = "";
             String tagValue = entry.getKey();
             int fieldLength = entry.getValue();
             paddingString = StringUtils.leftPad(paddingString, fieldLength);
-                
-            //condition when only closing tag present with no value
-            if(transformedXml.contains("<" + tagValue +"/>")){
-                transformedXml = transformedXml.replace("<"+ tagValue + "/>" , "<" + tagValue +">" + paddingString + "</" + tagValue + ">");  
-           }
-            // condition when both open and closing tag present but with no value
-            if(transformedXml.contains("<" + tagValue +">"+"</" + tagValue +">")){
-                transformedXml = transformedXml.replace(("<" + tagValue +">"+"</" + tagValue +">") , ("<" + tagValue +">" + paddingString + "</" + tagValue + ">"));  
-           } // condition when field length is not as expected
-            else if(transformedXml.contains("<" + tagValue +">")){
-                   String fieldValue =   StringUtils.substringBetween(transformedXml, "<" + tagValue +">", "</");
-                     if(fieldValue.length() < fieldLength) {
-                         String replacementString = paddingString.substring(0, fieldLength-fieldValue.length())+ "</" + tagValue +">";
-                         transformedXml = transformedXml.replace("</" + tagValue +">" ,replacementString);  
 
-                     }
-           }
-            
-        }       
+            //condition when only closing tag present with no value
+            if (transformedXml.contains("<" + tagValue + "/>")) {
+                transformedXml = transformedXml.replace("<" + tagValue + "/>", "<" + tagValue + ">" + paddingString + "</" + tagValue + ">");
+            }
+            // condition when both open and closing tag present but with no value
+            if (transformedXml.contains("<" + tagValue + ">" + "</" + tagValue + ">")) {
+                transformedXml = transformedXml.replace(("<" + tagValue + ">" + "</" + tagValue + ">"), ("<" + tagValue + ">" + paddingString + "</" + tagValue + ">"));
+            } // condition when field length is not as expected
+            else if (transformedXml.contains("<" + tagValue + ">")) {
+                String fieldValue = StringUtils.substringBetween(transformedXml, "<" + tagValue + ">", "</");
+                if (fieldValue.length() < fieldLength) {
+                    String replacementString = paddingString.substring(0, fieldLength - fieldValue.length()) + "</" + tagValue + ">";
+                    transformedXml = transformedXml.replace("</" + tagValue + ">", replacementString);
+
+                }
+            }
+
+        }
         return transformedXml;
     }
 
