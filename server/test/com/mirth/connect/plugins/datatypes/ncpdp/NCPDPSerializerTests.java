@@ -87,7 +87,7 @@ public class NCPDPSerializerTests {
         NCPDPSerializer serializer = new NCPDPSerializer(defaultProperties.getSerializerProperties());
         String actualOutput = serializer.validateTransformHeader(input);
         Assert.assertEquals(actualOutput, expectedOutput);
-        }
+    }
     
     @Test
     public void testvalidateTransformHeaderWithoutFieldValue() throws Exception {
@@ -96,7 +96,8 @@ public class NCPDPSerializerTests {
         NCPDPSerializer serializer = new NCPDPSerializer(defaultProperties.getSerializerProperties());
         String actualOutput = serializer.validateTransformHeader(input);
         Assert.assertEquals(actualOutput, expectedOutput);  
-        }
+    }
+    
     @Test
     public void testvalidateTransformHeaderWithOneEndTag() throws Exception {
         String input = "<BinNumber/>";

@@ -171,6 +171,11 @@ public class NCPDPSerializer implements IMessageSerializer {
     }
 
     public String validateTransformHeader(String sourceXml) {
+        /* NCPDP field info can be found in here 
+         * lengths of fields in page 4
+         *  https://www.cms.gov/medicare/billing/electronicbillingeditrans/downloads/ncpdpflatfile.pdf
+         * */
+        
         Map<String, Integer> headerFieldsLengthMap = new LinkedHashMap<String, Integer>();
         headerFieldsLengthMap.put("BinNumber", 6);
         headerFieldsLengthMap.put("VersionReleaseNumber", 2);
