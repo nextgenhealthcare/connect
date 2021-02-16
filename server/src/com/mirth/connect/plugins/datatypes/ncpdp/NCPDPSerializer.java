@@ -161,9 +161,8 @@ public class NCPDPSerializer implements IMessageSerializer {
              * Parse, but first replace all spaces between brackets. This fixes pretty-printed XML
              * we might receive
              */
-
-            String tansformedSource = validateTransformHeader(prettyPattern.matcher(source).replaceAll("><"));
-
+            String rawXmlSource = prettyPattern.matcher(source).replaceAll("><");
+            String tansformedSource = source.contains("<TransactionHeaderRequest>") ? validateTransformHeader(rawXmlSource) : rawXmlSource;
             reader.parse(new InputSource(new StringReader(tansformedSource)));
             return handler.getOutput().toString();
         } catch (Exception e) {
