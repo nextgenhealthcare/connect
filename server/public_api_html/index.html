@@ -152,62 +152,62 @@
 						return false;
 					}
 				});
-		});
+			});
 		
-		$(window).on('load', function () {
-	        // Swagger-ui configuration goes here.
-	        // See further: https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md
-	        const ui = SwaggerUIBundle({
-	          deepLinking: true,
-	          presets: [
-	        	  SwaggerUIBundle.presets.apis,
-	        	  SwaggerUIBundle.SwaggerUIStandalonePreset
-			  ],
-	          dom_id: "#swagger-ui-container",
-	          supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
-	          validatorUrl: null,
-	          showExtensions: true,
-	          showCommonExtensions: true,
-	          docExpansion: 'none',
-	          operationsSorter: 'alpha',
-	          defaultModelRendering: 'example',
-	          tagsSorter: 'alpha',
-	          url: url, // <-- adjust this to your webserver's structure
-	          onComplete: function(swaggerApi, swaggerUi){
-	        	/* TODO - Figure out how to replace this */
-	        	// If this page is being loaded over HTTPS, endpoints should also be invoked over HTTPS
-				/* if (window.location.protocol == 'https:' && window.swaggerUi.api.schemes.indexOf('https') >= 0) {
-					window.swapProp(window.swaggerUi.api, 'scheme', 'https');
-				} else if (window.location.protocol == 'http:' && window.swaggerUi.api.schemes.indexOf('http') >= 0) {
-					window.swapProp(window.swaggerUi.api, 'scheme', 'http');
-				} */
-
-				if(window.SwaggerTranslator) {
-					window.SwaggerTranslator.translate();
-				}
-
-				$('pre code').each(function(i, e) {
-					hljs.highlightBlock(e)
-				});
-
-				/* Get the list of servers */
-				var serversArray = new Array;
-				$('.servers label[for="servers"] select option').each ( function() {
-					serversArray.push($(this).val());
-				});
-
-				window.servers = serversArray;
-				
-				$('#loginImage').show();
-				window.getCurrentUser(window.servers[0]);
-	          },
-	          onFailure: function(data) {
-				log("Unable to Load SwaggerUI");
-	          }
-	        });
-	        window.ui = ui;
-	    }
-		);
+			$(window).on('load', function () {
+		        // Swagger-ui configuration goes here.
+		        // See further: https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md
+		        const ui = SwaggerUIBundle({
+		          deepLinking: true,
+		          presets: [
+		        	  SwaggerUIBundle.presets.apis,
+		        	  SwaggerUIBundle.SwaggerUIStandalonePreset
+				  ],
+		          dom_id: "#swagger-ui-container",
+		          supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+		          validatorUrl: null,
+		          showExtensions: true,
+		          showCommonExtensions: true,
+		          docExpansion: 'none',
+		          operationsSorter: 'alpha',
+		          defaultModelRendering: 'example',
+		          tagsSorter: 'alpha',
+		          url: url, // <-- adjust this to your webserver's structure
+		          onComplete: function(swaggerApi, swaggerUi){
+		        	/* TODO - Figure out how to replace this */
+		        	// If this page is being loaded over HTTPS, endpoints should also be invoked over HTTPS
+					/* if (window.location.protocol == 'https:' && window.swaggerUi.api.schemes.indexOf('https') >= 0) {
+						window.swapProp(window.swaggerUi.api, 'scheme', 'https');
+					} else if (window.location.protocol == 'http:' && window.swaggerUi.api.schemes.indexOf('http') >= 0) {
+						window.swapProp(window.swaggerUi.api, 'scheme', 'http');
+					} */
+	
+					if(window.SwaggerTranslator) {
+						window.SwaggerTranslator.translate();
+					}
+	
+					$('pre code').each(function(i, e) {
+						hljs.highlightBlock(e)
+					});
+	
+					/* Get the list of servers */
+					var serversArray = new Array;
+					$('.servers label[for="servers"] select option').each ( function() {
+						serversArray.push($(this).val());
+					});
+	
+					window.servers = serversArray;
+					
+					$('#loginImage').show();
+					window.getCurrentUser(window.servers[0]);
+		          },
+		          onFailure: function(data) {
+					log("Unable to Load SwaggerUI");
+		          }
+		        });
+		        window.ui = ui;
+		    }
+			);
 		</script>
 	</head>
 
