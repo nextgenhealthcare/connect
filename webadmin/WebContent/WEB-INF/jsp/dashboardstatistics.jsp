@@ -19,8 +19,8 @@
         </div>
 
         <ul id="myTab" class="nav nav-tabs">
-            <li class="active"><a id="current" href="#" data-toggle="tab">Current Statistics</a></li>
-            <li><a id="lifetime" href="#" data-toggle="tab">Lifetime Statistics</a></li>
+			<li class="active"><a id="current" data-toggle="tab" onmouseover="this.style.cursor='pointer'">Current Statistics</a></li>
+			<li><a id="lifetime" data-toggle="tab" onmouseover="this.style.cursor='pointer'">Lifetime Statistics</a></li>
         </ul>
 
         <table class="table table-striped table-bordered table-condensed tablesorter" style="width: 98%;" id="treeTable">
