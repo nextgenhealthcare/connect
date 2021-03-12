@@ -49,6 +49,9 @@ public class LoginActionBean extends BaseActionBean {
                 getContext().setUser(validUser);
                 getContext().setAuthorized(true);
                 getContext().setClient(client);
+                
+                getContext().setCurrentPort("8443");
+                getContext().setCurrentScheme(request.getScheme());
 
                 // this prevents the session from timing out
                 request.getSession().setMaxInactiveInterval(-1);
