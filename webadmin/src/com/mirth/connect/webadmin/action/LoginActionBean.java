@@ -9,6 +9,10 @@
 
 package com.mirth.connect.webadmin.action;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.sourceforge.stripes.action.DefaultHandler;
@@ -16,6 +20,7 @@ import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 
 import com.mirth.connect.client.core.Client;
+import com.mirth.connect.donkey.util.ResourceUtil;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 import com.mirth.connect.webadmin.utils.Constants;
@@ -26,7 +31,36 @@ public class LoginActionBean extends BaseActionBean {
         Client client;
         HttpServletRequest request = getContext().getRequest();
         LoginStatus loginStatus = null;
+        InputStream mirthPropertiesStream = getClass().getResourceAsStream("/mirth.properties");
+        String httpsPort = "8443";
+        String contextPath = "/";
+        
+        if (mirthPropertiesStream != null) {
+            Properties mirthProps = new Properties();
 
+            try {
+                mirthProps.load(mirthPropertiesStream);
+
+                httpsPort = mirthProps.getProperty("https.port", httpsPort);
+                contextPath = mirthProps.getProperty("http.contextpath", contextPath);
+
+                // Add a starting slash if one does not exist
+                if (!contextPath.startsWith("/")) {
+                    contextPath = "/" + contextPath;
+                }
+
+                // Remove a trailing slash if one exists
+                if (contextPath.endsWith("/")) {
+                    contextPath = contextPath.substring(0, contextPath.length() - 1);
+                }
+
+            } catch (IOException e) {
+                // Ignore
+            } finally {
+                ResourceUtil.closeResourceQuietly(mirthPropertiesStream);
+            }
+        }
+        
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
@@ -50,7 +84,8 @@ public class LoginActionBean extends BaseActionBean {
                 getContext().setAuthorized(true);
                 getContext().setClient(client);
                 
-                getContext().setCurrentPort("8443");
+                getContext().setCurrentPort(httpsPort);
+                getContext().setContextPath(contextPath);
                 getContext().setCurrentScheme(request.getScheme());
 
                 // this prevents the session from timing out
