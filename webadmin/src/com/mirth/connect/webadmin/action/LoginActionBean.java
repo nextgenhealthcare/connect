@@ -32,7 +32,6 @@ public class LoginActionBean extends BaseActionBean {
         HttpServletRequest request = getContext().getRequest();
         LoginStatus loginStatus = null;
         InputStream mirthPropertiesStream = getClass().getResourceAsStream("/mirth.properties");
-        String httpsPort = "8443";
         String contextPath = "/";
         
         if (mirthPropertiesStream != null) {
@@ -41,7 +40,6 @@ public class LoginActionBean extends BaseActionBean {
             try {
                 mirthProps.load(mirthPropertiesStream);
 
-                httpsPort = mirthProps.getProperty("https.port", httpsPort);
                 contextPath = mirthProps.getProperty("http.contextpath", contextPath);
 
                 // Add a starting slash if one does not exist
@@ -84,7 +82,7 @@ public class LoginActionBean extends BaseActionBean {
                 getContext().setAuthorized(true);
                 getContext().setClient(client);
                 
-                getContext().setCurrentPort(httpsPort);
+                getContext().setCurrentPort(String.valueOf(request.getServerPort()));
                 getContext().setContextPath(contextPath);
                 getContext().setCurrentScheme(request.getScheme());
 
