@@ -33,6 +33,8 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
     public static final String DIR_BASE = "dir.base";
 
     public static final int DEFAULT_MAX_CONNECTIONS = 20;
+    public static final int DEFAULT_MAX_RETRY = 1;
+    public static final int DEFAULT_MAX_RETRY_WAIT_TIME = 0;
 
     private static Map<String, String> databaseDriverMap = null;
     private static Map<String, Boolean> databaseJdbc4Map = null;
@@ -79,6 +81,8 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
     private String databaseReadOnlyUsername;
     private String databaseReadOnlyPassword;
     private Integer databaseReadOnlyMaxConnections;
+    private Integer databaseConnectionMaxRetry;
+    private Integer databaseConnectionMaxRetryWaitTimeInMs;
     private String databaseReadOnlyPool;
 
     private String dirBase;
@@ -227,6 +231,22 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         this.dirBase = dirBase;
     }
 
+    public Integer getDatabaseConnectionMaxRetry() {
+        return databaseConnectionMaxRetry;
+    }
+
+    public void setDatabaseConnectionMaxRetry(Integer databaseConnectionMaxRetry) {
+        this.databaseConnectionMaxRetry = databaseConnectionMaxRetry;
+    }
+
+    public Integer getDatabaseConnectionMaxRetryWaitTimeInMs() {
+        return databaseConnectionMaxRetryWaitTimeInMs;
+    }
+
+    public void setDatabaseConnectionMaxRetryWaitTimeInMs(Integer databaseConnectionMaxRetryWaitTimeInMs) {
+        this.databaseConnectionMaxRetryWaitTimeInMs = databaseConnectionMaxRetryWaitTimeInMs;
+    }
+
     String getMappedDatabaseDriver() {
         if (StringUtils.isBlank(databaseDriver)) {
             return MapUtils.getString(databaseDriverMap, getDatabase());
@@ -275,6 +295,8 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
         setDatabasePassword(properties.getProperty(DatabaseConstants.DATABASE_PASSWORD));
         setDatabaseMaxConnections(NumberUtils.toInt(properties.getProperty(DatabaseConstants.DATABASE_MAX_CONNECTIONS), DEFAULT_MAX_CONNECTIONS));
         setDatabasePool(properties.getProperty(DatabaseConstants.DATABASE_POOL));
+        setDatabaseConnectionMaxRetry(NumberUtils.toInt(properties.getProperty(DatabaseConstants.DATABASE_CONN_MAX_RETRY), DEFAULT_MAX_RETRY));
+        setDatabaseConnectionMaxRetryWaitTimeInMs(NumberUtils.toInt(properties.getProperty(DatabaseConstants.DATABASE_CONN_RETRY_TIMEOUT), DEFAULT_MAX_RETRY_WAIT_TIME));
 
         setDatabaseReadOnly(properties.getProperty(DatabaseConstants.DATABASE_READONLY));
         setDatabaseReadOnlyUrl(properties.getProperty(DatabaseConstants.DATABASE_READONLY_URL));
@@ -345,6 +367,18 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
             configuration.setProperty(DatabaseConstants.DATABASE_MAX_CONNECTIONS, getDatabaseMaxConnections().toString());
         } else {
             configuration.setProperty(DatabaseConstants.DATABASE_MAX_CONNECTIONS, StringUtils.EMPTY);
+        }
+
+        if (getDatabaseConnectionMaxRetry() != null) {
+            configuration.setProperty(DatabaseConstants.DATABASE_CONN_MAX_RETRY, getDatabaseConnectionMaxRetry().toString());
+        } else {
+            configuration.setProperty(DatabaseConstants.DATABASE_CONN_MAX_RETRY, StringUtils.EMPTY);
+        }
+
+        if (getDatabaseConnectionMaxRetryWaitTimeInMs() != null) {
+            configuration.setProperty(DatabaseConstants.DATABASE_CONN_RETRY_TIMEOUT, getDatabaseConnectionMaxRetryWaitTimeInMs().toString());
+        } else {
+            configuration.setProperty(DatabaseConstants.DATABASE_CONN_RETRY_TIMEOUT, StringUtils.EMPTY);
         }
 
         /**** READ ONLY PROPERTIES ****/
