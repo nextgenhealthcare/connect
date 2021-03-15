@@ -23,4 +23,17 @@ public abstract class BaseActionBean implements ActionBean {
     public BaseActionBeanContext getContext() {
         return this.context;
     }
+    
+    public String getSlashedContextPath(String contextPath) {
+		// Add a starting slash if one does not exist
+		if (!contextPath.startsWith("/")) {
+		    contextPath = "/" + contextPath;
+		}
+
+		// Remove a trailing slash if one exists
+		if (contextPath.endsWith("/")) {
+		    contextPath = contextPath.substring(0, contextPath.length() - 1);
+		}
+		return contextPath;
+	}
 }

@@ -51,18 +51,7 @@ public class IndexActionBean extends BaseActionBean {
                 httpPort = mirthProps.getProperty("http.port", httpPort);
                 maxHeapSize = mirthProps.getProperty("administrator.maxheapsize", maxHeapSize);
                 maxHeapSizeOptions = mirthProps.getProperty("administrator.maxheapsizeoptions", maxHeapSizeOptions);
-                contextPath = mirthProps.getProperty("http.contextpath", contextPath);
-
-                // Add a starting slash if one does not exist
-                if (!contextPath.startsWith("/")) {
-                    contextPath = "/" + contextPath;
-                }
-
-                // Remove a trailing slash if one exists
-                if (contextPath.endsWith("/")) {
-                    contextPath = contextPath.substring(0, contextPath.length() - 1);
-                }
-
+                contextPath = getSlashedContextPath(mirthProps.getProperty("http.contextpath", contextPath));
             } catch (IOException e) {
                 // Ignore
             } finally {
@@ -84,6 +73,8 @@ public class IndexActionBean extends BaseActionBean {
 
         return new ForwardResolution(Constants.INDEX_JSP);
     }
+
+
 
     public boolean isSecureHttps() {
         return secureHttps;
