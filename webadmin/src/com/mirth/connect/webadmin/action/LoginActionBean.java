@@ -40,17 +40,7 @@ public class LoginActionBean extends BaseActionBean {
             try {
                 mirthProps.load(mirthPropertiesStream);
 
-                contextPath = mirthProps.getProperty("http.contextpath", contextPath);
-
-                // Add a starting slash if one does not exist
-                if (!contextPath.startsWith("/")) {
-                    contextPath = "/" + contextPath;
-                }
-
-                // Remove a trailing slash if one exists
-                if (contextPath.endsWith("/")) {
-                    contextPath = contextPath.substring(0, contextPath.length() - 1);
-                }
+                contextPath = getSlashedContextPath(mirthProps.getProperty("http.contextpath", contextPath));
 
             } catch (IOException e) {
                 // Ignore
