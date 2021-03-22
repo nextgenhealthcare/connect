@@ -238,7 +238,7 @@ public class Mirth extends Thread {
                     }
                 }
 
-            }while(maxRetry > 0);
+            }while(maxRetry >= 0);
 
             maxRetry = configurationController.getDatabaseSettings().getDatabaseConnectionMaxRetry();
             do {
@@ -262,7 +262,7 @@ public class Mirth extends Thread {
                     }
                 }
 
-            }while(maxRetry > 0);
+            }while(maxRetry >= 0);
 
             maxRetry = configurationController.getDatabaseSettings().getDatabaseConnectionMaxRetry();
             do {
@@ -288,7 +288,7 @@ public class Mirth extends Thread {
                     }
                 }
 
-            }while(maxRetry > 0);
+            }while(maxRetry >= 0);
 
         } catch (Exception e) {
             // the getCause is needed since the wrapper exception is from the connection pool

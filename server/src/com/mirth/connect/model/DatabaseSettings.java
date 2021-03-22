@@ -33,8 +33,8 @@ public class DatabaseSettings extends AbstractSettings implements Serializable, 
     public static final String DIR_BASE = "dir.base";
 
     public static final int DEFAULT_MAX_CONNECTIONS = 20;
-    public static final int DEFAULT_MAX_RETRY = 1;
-    public static final int DEFAULT_MAX_RETRY_WAIT_TIME = 0;
+    public static final int DEFAULT_MAX_RETRY = 2;
+    public static final int DEFAULT_MAX_RETRY_WAIT_TIME = 1000;
 
     private static Map<String, String> databaseDriverMap = null;
     private static Map<String, Boolean> databaseJdbc4Map = null;
