@@ -52,9 +52,15 @@ public class LicenseClient {
         try {
             LicenseInfo licenseInfo = PlatformUI.MIRTH_FRAME.mirthClient.getLicenseInfo();
 
-            if (licenseInfo.getExpirationDate() != null && licenseInfo.getExpirationDate() > 0) {
+            if (licenseInfo.getReason() != null || (licenseInfo.getExpirationDate() != null && licenseInfo.getExpirationDate() > 0)) {
                 final ZonedDateTime now = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
                 final ZonedDateTime expiration = ZonedDateTime.ofInstant(Instant.ofEpochMilli(licenseInfo.getExpirationDate()), ZoneId.systemDefault());
+              
+                StringBuilder builder = new StringBuilder("<html>");
+
+                if(licenseInfo.getReason()!= null) {
+                    builder.append(licenseInfo.getReason() + "<br/>");
+                }
 
                 Long warningPeriod = licenseInfo.getWarningPeriod();
                 if (warningPeriod == null) {
@@ -70,7 +76,7 @@ public class LicenseClient {
                 ZonedDateTime graceEnd = expiration.plus(Duration.ofMillis(gracePeriod));
 
                 if (now.isAfter(expiration) || now.isAfter(warningStart)) {
-                    StringBuilder builder = new StringBuilder("<html>Your NextGen Connect license for the extensions<br/>[").append(StringUtils.join(licenseInfo.getExtensions(), ", ")).append("]<br/>");
+                    builder.append("Your NextGen Connect license for the extensions<br/>[").append(StringUtils.join(licenseInfo.getExtensions(), ", ")).append("]<br/>");
                     Temporal endDate;
 
                     if (now.isAfter(expiration)) {

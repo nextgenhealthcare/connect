@@ -16,12 +16,22 @@ import java.util.Set;
 public class LicenseInfo implements Serializable {
 
     public static final LicenseInfo INSTANCE = new LicenseInfo();
-
+    
     private boolean activated;
     private boolean online;
     private Long expirationDate;
     private Long warningPeriod;
     private Long gracePeriod;
+    private String reason = null;
+    
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
     private Set<String> extensions = new HashSet<String>();
 
     public LicenseInfo() {}
