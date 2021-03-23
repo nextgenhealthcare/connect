@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -24,6 +25,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -501,6 +504,13 @@ public class WebStartServletTest {
 
 	private static class TestWebStartServlet extends WebStartServlet {
 		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected PropertiesConfiguration getMirthProperties() throws FileNotFoundException, ConfigurationException {
+		    PropertiesConfiguration mirthPropertiesConfiguration = super.getMirthProperties();
+		    mirthPropertiesConfiguration.setProperty("http.contextpath", "/");
+		    return mirthPropertiesConfiguration;
+		}
 
 		@Override
 		protected Document getAdministratorJnlp(HttpServletRequest request) throws Exception {

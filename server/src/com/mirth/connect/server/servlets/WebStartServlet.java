@@ -12,6 +12,7 @@ package com.mirth.connect.server.servlets;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -75,7 +77,10 @@ public class WebStartServlet extends HttpServlet {
             PrintWriter out = response.getWriter();
             Document jnlpDocument = null;
             
-            if ((request.getRequestURI().equals("/webstart.jnlp") || request.getRequestURI().equals("/webstart")) && isWebstartRequestValid(request)) {
+            PropertiesConfiguration mirthProperties = getMirthProperties();
+            String contextPathProp = getContextPathProp(mirthProperties);
+            
+            if ((request.getRequestURI().equals(contextPathProp + "/webstart.jnlp") || request.getRequestURI().equals(contextPathProp + "/webstart")) && isWebstartRequestValid(request)) {
                 jnlpDocument = getAdministratorJnlp(request);
                 response.setHeader("Content-Disposition", "attachment; filename = \"webstart.jnlp\"");
             } else if (request.getServletPath().equals("/webstart/extensions") && isWebstartExtensionsRequestValid(request)) {
@@ -177,15 +182,7 @@ public class WebStartServlet extends HttpServlet {
         String contextPath = request.getContextPath();
         String codebase = scheme + "://" + serverHostname + ":" + serverPort + contextPath;
 
-        PropertiesConfiguration mirthProperties = PropertiesConfigurationUtil.create();
-        
-        InputStream mirthPropsIs = null;
-        try {
-            mirthPropsIs = ResourceUtil.getResourceStream(getClass(), "mirth.properties"); 
-            mirthProperties = PropertiesConfigurationUtil.create(mirthPropsIs);
-        } finally {
-            ResourceUtil.closeResourceQuietly(mirthPropsIs);
-        }
+        PropertiesConfiguration mirthProperties = getMirthProperties();
 
         String server = null;
 
@@ -193,17 +190,7 @@ public class WebStartServlet extends HttpServlet {
             server = mirthProperties.getString("server.url");
         } else {
             int httpsPort = mirthProperties.getInt("https.port", 8443);
-            String contextPathProp = mirthProperties.getString("http.contextpath", "");
-
-            // Add a starting slash if one does not exist
-            if (!contextPathProp.startsWith("/")) {
-                contextPathProp = "/" + contextPathProp;
-            }
-
-            // Remove a trailing slash if one exists
-            if (contextPathProp.endsWith("/")) {
-                contextPathProp = contextPathProp.substring(0, contextPathProp.length() - 1);
-            }
+            String contextPathProp = getContextPathProp(mirthProperties);
 
             server = "https://" + serverHostname + ":" + httpsPort + contextPathProp;
         }
@@ -412,5 +399,34 @@ public class WebStartServlet extends HttpServlet {
             ResourceUtil.closeResourceQuietly(bis);
             ResourceUtil.closeResourceQuietly(fis);
         }
+    }
+    
+    protected PropertiesConfiguration getMirthProperties() throws FileNotFoundException, ConfigurationException {
+        PropertiesConfiguration mirthProperties = PropertiesConfigurationUtil.create();
+        
+        InputStream mirthPropsIs = null;
+        try {
+            mirthPropsIs = ResourceUtil.getResourceStream(getClass(), "mirth.properties"); 
+            mirthProperties = PropertiesConfigurationUtil.create(mirthPropsIs);
+        } finally {
+            ResourceUtil.closeResourceQuietly(mirthPropsIs);
+        }
+        return mirthProperties;
+    }
+    
+    private String getContextPathProp(PropertiesConfiguration mirthProperties) {
+        String contextPathProp = mirthProperties.getString("http.contextpath", "");
+
+        // Add a starting slash if one does not exist
+        if (!contextPathProp.startsWith("/")) {
+            contextPathProp = "/" + contextPathProp;
+        }
+
+        // Remove a trailing slash if one exists
+        if (contextPathProp.endsWith("/")) {
+            contextPathProp = contextPathProp.substring(0, contextPathProp.length() - 1);
+        }
+        
+        return contextPathProp;
     }
 }
