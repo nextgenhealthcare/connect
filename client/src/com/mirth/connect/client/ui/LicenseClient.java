@@ -55,10 +55,10 @@ public class LicenseClient {
             if (licenseInfo.getReason() != null || (licenseInfo.getExpirationDate() != null && licenseInfo.getExpirationDate() > 0)) {
                 final ZonedDateTime now = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
                 final ZonedDateTime expiration = ZonedDateTime.ofInstant(Instant.ofEpochMilli(licenseInfo.getExpirationDate()), ZoneId.systemDefault());
-              
+
                 StringBuilder builder = new StringBuilder("<html>");
 
-                if(licenseInfo.getReason()!= null) {
+                if (licenseInfo.getReason() != null) {
                     builder.append(licenseInfo.getReason() + "<br/>");
                 }
 
