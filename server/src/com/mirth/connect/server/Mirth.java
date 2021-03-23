@@ -226,7 +226,7 @@ public class Mirth extends Thread {
                     break;
                 }catch(Exception e) {
                     maxRetry--;
-                    if(maxRetry > 0) {
+                    if(maxRetry >= 0) {
                         try {
                             logger.error("Error establishing connection to database, retrying startup in " + maxRetryTimeout + " milliseconds", e);
                             Thread.sleep(maxRetryTimeout);
@@ -250,7 +250,7 @@ public class Mirth extends Thread {
                     break;
                 }catch(Exception e) {
                     maxRetry--;
-                    if(maxRetry > 0) {
+                    if(maxRetry >= 0) {
                         try {
                             logger.error("Error establishing connection to database, retrying startup in " + maxRetryTimeout + " milliseconds", e);
                             Thread.sleep(maxRetryTimeout);
@@ -276,7 +276,7 @@ public class Mirth extends Thread {
                     break;
                 }catch(Exception e) {
                     maxRetry--;
-                    if(maxRetry > 0) {
+                    if(maxRetry >= 0) {
                         try {
                             logger.error("Error establishing connection to database, retrying startup in " + maxRetryTimeout + " milliseconds", e);
                             Thread.sleep(maxRetryTimeout);
