@@ -22,6 +22,16 @@ public class LicenseInfo implements Serializable {
     private Long expirationDate;
     private Long warningPeriod;
     private Long gracePeriod;
+    private String reason = null;
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
     private Set<String> extensions = new HashSet<String>();
 
     public LicenseInfo() {}
