@@ -59,7 +59,7 @@ public class LicenseClient {
                 StringBuilder builder = new StringBuilder("<html>");
 
                 if (licenseInfo.getReason() != null) {
-                    builder.append(licenseInfo.getReason() + "<br/>");
+                    builder.append(licenseInfo.getReason() + "You are receiving this error due to a failed Connect license validation. Please create a support ticket through the Success Community client portal or contact the NextGen Connected Health support team at 800.952.0243 for assistance." + "<br/>");
                 }
 
                 Long warningPeriod = licenseInfo.getWarningPeriod();
