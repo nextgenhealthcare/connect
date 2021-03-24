@@ -57,7 +57,7 @@ public class WebStartServletTest {
 		assertEquals(CORE_JNLP.trim(), response.getResponseString().trim());
 		assertEquals("application/x-java-jnlp-file", response.getContentType());
 		assertEquals("no-cache", response.getHeader("Pragma"));
-		assertEquals("nosniff", response.getHeader("X-Content-Type-Options:"));
+		assertEquals("nosniff", response.getHeader("X-Content-Type-Options"));
 		assertEquals("attachment; filename = \"webstart.jnlp\"", response.getHeader("Content-Disposition"));
 
 		// Test /webstart.jnlp
@@ -73,7 +73,7 @@ public class WebStartServletTest {
 		assertEquals(CORE_JNLP.trim(), response.getResponseString().trim());
 		assertEquals("application/x-java-jnlp-file", response.getContentType());
 		assertEquals("no-cache", response.getHeader("Pragma"));
-		assertEquals("nosniff", response.getHeader("X-Content-Type-Options:"));
+		assertEquals("nosniff", response.getHeader("X-Content-Type-Options"));
 		assertEquals("attachment; filename = \"webstart.jnlp\"", response.getHeader("Content-Disposition"));
 	}
 
@@ -219,7 +219,7 @@ public class WebStartServletTest {
 		assertEquals(EXTENSION_JNLP.trim(), response.getResponseString().trim());
 		assertEquals("application/x-java-jnlp-file", response.getContentType());
 		assertEquals("no-cache", response.getHeader("Pragma"));
-		assertEquals("nosniff", response.getHeader("X-Content-Type-Options:"));
+		assertEquals("nosniff", response.getHeader("X-Content-Type-Options"));
 		assertEquals("attachment; filename = \"testextension.jnlp\"", response.getHeader("Content-Disposition"));
 
 		// Test /webstart/extensions/testextension.jnlp
@@ -236,7 +236,7 @@ public class WebStartServletTest {
 		assertEquals(EXTENSION_JNLP.trim(), response.getResponseString().trim());
 		assertEquals("application/x-java-jnlp-file", response.getContentType());
 		assertEquals("no-cache", response.getHeader("Pragma"));
-		assertEquals("nosniff", response.getHeader("X-Content-Type-Options:"));
+		assertEquals("nosniff", response.getHeader("X-Content-Type-Options"));
 		assertEquals("attachment; filename = \"testextension.jnlp\"", response.getHeader("Content-Disposition"));
 	}
 
