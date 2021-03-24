@@ -507,8 +507,11 @@ public class WebStartServletTest {
 
 		@Override
 		protected PropertiesConfiguration getMirthProperties() throws FileNotFoundException, ConfigurationException {
-		    PropertiesConfiguration mirthPropertiesConfiguration = super.getMirthProperties();
+		    PropertiesConfiguration mirthPropertiesConfiguration = new PropertiesConfiguration();
 		    mirthPropertiesConfiguration.setProperty("http.contextpath", "/");
+		    mirthPropertiesConfiguration.setProperty("server.url", "");
+		    mirthPropertiesConfiguration.setProperty("https.port", 8443);
+		    mirthPropertiesConfiguration.setProperty("administrator.maxheapsize", "512m");
 		    return mirthPropertiesConfiguration;
 		}
 
