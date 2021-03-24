@@ -23,9 +23,9 @@ public class Migrate3_11_0 extends Migrator implements ConfigurationMigrator {
     public Map<String, Object> getConfigurationPropertiesToAdd() {
         Map<String, Object> propertiesToAdd = new LinkedHashMap<String, Object>();
 
-         propertiesToAdd.put("database.connection.maxretry", new MutablePair<Object, String>("2", "Maximum number of retries to establish database connections in case of failure"));
+         propertiesToAdd.put("database.connection.maxretry", new MutablePair<Object, String>("2", "On startup, Maximum number of retries to establish database connections in case of failure"));
 
-        propertiesToAdd.put("database.connection.retrywaitinmilliseconds", new MutablePair<Object, String>("1000", "Maximum wait time in millseconds for retry to establish database connections in case of failure"));
+        propertiesToAdd.put("database.connection.retrywaitinmilliseconds", new MutablePair<Object, String>("1000", "On startup, Maximum wait time in millseconds for retry to establish database connections in case of failure"));
 
         return propertiesToAdd;
     }
