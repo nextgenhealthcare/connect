@@ -27,6 +27,7 @@ import com.mirth.connect.model.LicenseInfo;
 public class LicenseClient {
 
     private static Timer timer;
+    private static boolean isLicenseExpired = false;
 
     public static void start() {
         stop();
@@ -51,17 +52,17 @@ public class LicenseClient {
     private static void check() {
         try {
             LicenseInfo licenseInfo = PlatformUI.MIRTH_FRAME.mirthClient.getLicenseInfo();
-
-            if (licenseInfo.getReason() != null || (licenseInfo.getExpirationDate() != null && licenseInfo.getExpirationDate() > 0)) {
-                final ZonedDateTime now = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+            final ZonedDateTime now = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+            StringBuilder builder = new StringBuilder("<html>");
+            boolean invalidLicense = false;
+            
+            if (licenseInfo.getReason() != null) {
+                invalidLicense = true;
+                builder.append(licenseInfo.getReason() + "<br/>");
+            }
+            if ((licenseInfo.getExpirationDate() != null && licenseInfo.getExpirationDate() > 0)) {
+               
                 final ZonedDateTime expiration = ZonedDateTime.ofInstant(Instant.ofEpochMilli(licenseInfo.getExpirationDate()), ZoneId.systemDefault());
-
-                StringBuilder builder = new StringBuilder("<html>");
-                boolean invalidLicense = false;
-                if (licenseInfo.getReason() != null) {
-                    invalidLicense = true;
-                    builder.append(licenseInfo.getReason() + "<br/>");
-                }
 
                 Long warningPeriod = licenseInfo.getWarningPeriod();
                 if (warningPeriod == null) {
@@ -82,6 +83,7 @@ public class LicenseClient {
                     Temporal endDate;
 
                     if (now.isAfter(expiration)) {
+                        isLicenseExpired = true;
                         endDate = graceEnd;
                         builder.append(" has expired and you are now in a grace period.<br/>Extension functionality will cease in ");
                     } else {
@@ -92,19 +94,19 @@ public class LicenseClient {
                     int days = (int) Math.ceil((double) Duration.between(now, endDate).getSeconds() / 60 / 60 / 24);
                     builder.append(days).append(" day").append(days == 1 ? "" : "s");
                 }
-                if (invalidLicense) {
-                    builder.append(".<br/>Please create a support ticket through the Success Community client portal<br/>or contact the NextGen Connected Health support team at 800.952.0243 for assistance with your commercial license.</html>");
-                    final String message = builder.toString();
 
-                    SwingUtilities.invokeLater(() -> {
-                        if (now.isAfter(expiration)) {
-                            PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, message);
-                        } else {
-                            PlatformUI.MIRTH_FRAME.alertWarning(PlatformUI.MIRTH_FRAME, message);
-                        }
-                    });
-                }
+            }
+            if (invalidLicense) {
+                builder.append("<br/>Please create a support ticket through the Success Community client portal<br/>or contact the NextGen Connected Health support team at 800.952.0243 for assistance with your commercial license.</html>");
+                final String message = builder.toString();
 
+                SwingUtilities.invokeLater(() -> {
+                    if (isLicenseExpired) {
+                        PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, message);
+                    } else {
+                        PlatformUI.MIRTH_FRAME.alertWarning(PlatformUI.MIRTH_FRAME, message);
+                    }
+                });
             }
 
         } catch (ClientException e) {
