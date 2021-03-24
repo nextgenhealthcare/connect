@@ -83,7 +83,7 @@ public class WebStartServlet extends HttpServlet {
             if ((request.getRequestURI().equals(contextPathProp + "/webstart.jnlp") || request.getRequestURI().equals(contextPathProp + "/webstart")) && isWebstartRequestValid(request)) {
                 jnlpDocument = getAdministratorJnlp(request);
                 response.setHeader("Content-Disposition", "attachment; filename = \"webstart.jnlp\"");
-            } else if (request.getServletPath().equals("/webstart/extensions") && isWebstartExtensionsRequestValid(request)) {
+            } else if (request.getServletPath().equals("/webstart/extensions") && isWebstartExtensionsRequestValid(request, contextPathProp)) {
                 String extensionPath = getExtensionPath(request);
                 jnlpDocument = getExtensionJnlp(getExtensionPath(request));
                 response.setHeader("Content-Disposition", "attachment; filename = \"" + extensionPath +  ".jnlp\"");
@@ -121,10 +121,10 @@ public class WebStartServlet extends HttpServlet {
         return true;
     }
     
-    private boolean isWebstartExtensionsRequestValid(HttpServletRequest request) {
-    	// Don't allow any parameters and don't allow modified URIs
-    	return request.getParameterMap().isEmpty() 
-    			&& (request.getServletPath() + "/" + getExtensionPath(request)).equals(StringUtils.removeEnd(request.getRequestURI(), ".jnlp"));
+    private boolean isWebstartExtensionsRequestValid(HttpServletRequest request, String contextPathProp) {
+        // Don't allow any parameters and don't allow modified URIs
+        return request.getParameterMap().isEmpty() 
+                && (contextPathProp + request.getServletPath() + "/" + getExtensionPath(request)).equals(StringUtils.removeEnd(request.getRequestURI(), ".jnlp"));
     }
     
     private String getExtensionPath(HttpServletRequest request) {
