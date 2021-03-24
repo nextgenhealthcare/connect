@@ -265,30 +265,30 @@ public class Mirth extends Thread {
             }while(maxRetry >= 0);
 
             maxRetry = configurationController.getDatabaseSettings().getDatabaseConnectionMaxRetry();
-            do {
-                try {
-                    if (SqlConfig.getInstance().isSplitReadWrite()) {
+            if (SqlConfig.getInstance().isSplitReadWrite()) {
+                do {
+                    try {
                         if (!SqlConfig.getInstance().getReadOnlySqlSessionManager().isManagedSessionStarted()) {
                             SqlConfig.getInstance().getReadOnlySqlSessionManager().startManagedSession();
                         }
                         SqlConfig.getInstance().getReadOnlySqlSessionManager().getConnection();
-                    }
-                    break;
-                }catch(Exception e) {
-                    maxRetry--;
-                    if(maxRetry >= 0) {
-                        try {
-                            logger.error("Error establishing connection to database, retrying startup in " + maxRetryTimeout + " milliseconds", e);
-                            Thread.sleep(maxRetryTimeout);
-                        }catch(InterruptedException ie) {
-                            //ignore
+                        break;
+                    }catch(Exception e) {
+                        maxRetry--;
+                        if(maxRetry >= 0) {
+                            try {
+                                logger.error("Error establishing connection to database, retrying startup in " + maxRetryTimeout + " milliseconds", e);
+                                Thread.sleep(maxRetryTimeout);
+                            }catch(InterruptedException ie) {
+                                //ignore
+                            }
+                        }else {
+                            throw e;
                         }
-                    }else {
-                        throw e;
                     }
-                }
 
-            }while(maxRetry >= 0);
+                }while(maxRetry >= 0);
+            }
 
         } catch (Exception e) {
             // the getCause is needed since the wrapper exception is from the connection pool
