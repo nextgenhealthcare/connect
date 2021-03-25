@@ -115,12 +115,12 @@ public class Mirth extends Thread {
 
     public void run() {
         Thread.currentThread().setName("Main Server Thread");
-        
+
         // Add the host address as a variable that log4j can output
         try {
             MDC.put("hostAddress", NetworkUtil.getIpv4HostAddress());
         } catch (Exception e) {}
-        
+
         initializeLogging();
 
         if (initResources()) {
@@ -218,14 +218,78 @@ public class Mirth extends Thread {
         configurationController.updatePropertiesConfiguration(mirthProperties);
 
         try {
-            DonkeyConnectionPools.getInstance().init(configurationController.getDatabaseSettings().getProperties());
-            SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
-            SqlConfig.getInstance().getSqlSessionManager().getConnection();
+            int maxRetry = configurationController.getDatabaseSettings().getDatabaseConnectionMaxRetry();
+            int maxRetryTimeout = configurationController.getDatabaseSettings().getDatabaseConnectionMaxRetryWaitTimeInMs();
+            do {
+                try {
+                    DonkeyConnectionPools.getInstance().init(configurationController.getDatabaseSettings().getProperties());
+                    break;
+                }catch(Exception e) {
+                    maxRetry--;
+                    if(maxRetry >= 0) {
+                        try {
+                            logger.error("Error establishing connection to database, retrying startup in " + maxRetryTimeout + " milliseconds", e);
+                            Thread.sleep(maxRetryTimeout);
+                        }catch(InterruptedException ie) {
+                            //ignore
+                        }
+                    }else {
+                        throw e;
+                    }
+                }
 
+            }while(maxRetry >= 0);
+
+            maxRetry = configurationController.getDatabaseSettings().getDatabaseConnectionMaxRetry();
+            do {
+                try {
+                    if (!SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
+                        SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
+                    }
+                    SqlConfig.getInstance().getSqlSessionManager().getConnection();
+                    break;
+                }catch(Exception e) {
+                    maxRetry--;
+                    if(maxRetry >= 0) {
+                        try {
+                            logger.error("Error establishing connection to database, retrying startup in " + maxRetryTimeout + " milliseconds", e);
+                            Thread.sleep(maxRetryTimeout);
+                        }catch(InterruptedException ie) {
+                            //ignore
+                        }
+                    }else {
+                        throw e;
+                    }
+                }
+
+            }while(maxRetry >= 0);
+
+            maxRetry = configurationController.getDatabaseSettings().getDatabaseConnectionMaxRetry();
             if (SqlConfig.getInstance().isSplitReadWrite()) {
-                SqlConfig.getInstance().getReadOnlySqlSessionManager().startManagedSession();
-                SqlConfig.getInstance().getReadOnlySqlSessionManager().getConnection();
+                do {
+                    try {
+                        if (!SqlConfig.getInstance().getReadOnlySqlSessionManager().isManagedSessionStarted()) {
+                            SqlConfig.getInstance().getReadOnlySqlSessionManager().startManagedSession();
+                        }
+                        SqlConfig.getInstance().getReadOnlySqlSessionManager().getConnection();
+                        break;
+                    }catch(Exception e) {
+                        maxRetry--;
+                        if(maxRetry >= 0) {
+                            try {
+                                logger.error("Error establishing connection to database, retrying startup in " + maxRetryTimeout + " milliseconds", e);
+                                Thread.sleep(maxRetryTimeout);
+                            }catch(InterruptedException ie) {
+                                //ignore
+                            }
+                        }else {
+                            throw e;
+                        }
+                    }
+
+                }while(maxRetry >= 0);
             }
+
         } catch (Exception e) {
             // the getCause is needed since the wrapper exception is from the connection pool
             logger.error("Error establishing connection to database, aborting startup. " + e.getCause().getMessage());
