@@ -53,15 +53,15 @@ public class LicenseClient {
         try {
             LicenseInfo licenseInfo = PlatformUI.MIRTH_FRAME.mirthClient.getLicenseInfo();
             final ZonedDateTime now = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
-            StringBuilder builder = new StringBuilder("<html>");
+            StringBuilder builder = new StringBuilder("<html> ");
             boolean invalidLicense = false;
-            
+
             if (licenseInfo.getReason() != null) {
                 invalidLicense = true;
-                builder.append(licenseInfo.getReason() + "<br/>");
+                builder.append(licenseInfo.getReason()).append("<br/>");
             }
             if ((licenseInfo.getExpirationDate() != null && licenseInfo.getExpirationDate() > 0)) {
-               
+
                 final ZonedDateTime expiration = ZonedDateTime.ofInstant(Instant.ofEpochMilli(licenseInfo.getExpirationDate()), ZoneId.systemDefault());
 
                 Long warningPeriod = licenseInfo.getWarningPeriod();
@@ -85,20 +85,22 @@ public class LicenseClient {
                     if (now.isAfter(expiration)) {
                         isLicenseExpired = true;
                         endDate = graceEnd;
-                        builder.append(" has expired and you are now in a grace period.<br/>Extension functionality will cease in ");
+                        builder.append(" has expired and you are now in a grace period. ");
                     } else {
                         endDate = expiration;
                         builder.append(" will expire in ");
+                        int days = (int) Math.ceil((double) Duration.between(now, endDate).getSeconds() / 60 / 60 / 24);
+                        builder.append(days).append(" day").append(days == 1 ? "" : "s");
                     }
 
-                    int days = (int) Math.ceil((double) Duration.between(now, endDate).getSeconds() / 60 / 60 / 24);
-                    builder.append(days).append(" day").append(days == 1 ? "" : "s");
                 }
 
             }
             if (invalidLicense) {
-                builder.append("<br/>Please create a support ticket through the Success Community client portal<br/>or contact the NextGen Connected Health support team at 800.952.0243 for assistance with your commercial license.</html>");
+                builder.append("<br/>Please create a support ticket through the Success Community client portal<br/>or contact the NextGen Connected Health support team at 800.952.0243 for assistance with your commercial license. </html>");
                 final String message = builder.toString();
+
+                System.out.println("the html generated :" + message);
 
                 SwingUtilities.invokeLater(() -> {
                     if (isLicenseExpired) {
