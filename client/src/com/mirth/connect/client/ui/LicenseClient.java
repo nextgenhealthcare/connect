@@ -100,8 +100,6 @@ public class LicenseClient {
                 builder.append("<br/>Please create a support ticket through the Success Community client portal<br/>or contact the NextGen Connected Health support team at 800.952.0243 for assistance with your commercial license. </html>");
                 final String message = builder.toString();
 
-                System.out.println("the html generated :" + message);
-
                 SwingUtilities.invokeLater(() -> {
                     if (isLicenseExpired) {
                         PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, message);
