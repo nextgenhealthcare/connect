@@ -73,7 +73,7 @@ public class WebStartServlet extends HttpServlet {
         try {
             response.setContentType("application/x-java-jnlp-file");
             response.setHeader("Pragma", "no-cache");
-            response.setHeader("X-Content-Type-Options:", "nosniff");
+            response.setHeader("X-Content-Type-Options", "nosniff");
             PrintWriter out = response.getWriter();
             Document jnlpDocument = null;
             
