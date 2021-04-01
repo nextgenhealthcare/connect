@@ -306,7 +306,7 @@
         			if (suffix == 'linux.sh') {
         				suffix = 'unix.sh';
         			}
-        			window.location.href = 'https://s3.amazonaws.com/downloads.mirthcorp.com/connect-client-launcher/mirth-administrator-launcher-1.1.0-' + suffix;
+        			window.location.href = 'https://s3.amazonaws.com/downloads.mirthcorp.com/connect-client-launcher/mirth-administrator-launcher-latest-' + suffix;
         		}});
        		}
         
