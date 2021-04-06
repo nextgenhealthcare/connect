@@ -13,18 +13,17 @@
 <a name="useful-links"></a>
 ## 1. Useful Links
 - [Downloads](https://github.com/nextgenhealthcare/connect/releases) 
-- [User Guide](https://www.nextgen.com/-/media/Files/nextgen-connect/nextgen-connect-38-user-guide.pdf)
+- [User Guide](https://www.nextgen.com/-/media/Files/nextgen-connect/nextgen-connect-310-user-guide.pdf)
 - [Wiki](https://www.mirthcorp.com/community/wiki/display/mirth/Home)
   - [System requirements](https://www.mirthcorp.com/community/wiki/display/mirth/System+Requirements)
   - [FAQ](https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+FAQ)
-  - [What's New in NextGen Connect](https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+3.8.0+-+What%27s+New)
+  - [What's New in NextGen Connect](https://github.com/nextgenhealthcare/connect/wiki/3.10.0---What's-New)
   - [Developer Guide](https://www.mirthcorp.com/community/wiki/pages/viewpage.action?pageId=11174703)
   - [Examples and Tutorials](https://www.mirthcorp.com/community/wiki/display/mirth/Examples+and+Tutorials)
   - [FHIR Extension Guide](https://www.mirthcorp.com/community/wiki/display/mirth/User+Guide)
-- [Forums](http://www.mirthcorp.com/community/forums/)
+- [Forums](https://forums.mirthproject.io/)
 - [Slack Channel](https://mirthconnect.slack.com/) 
   - [Slack Registration](https://mirthconnect.herokuapp.com)
-- [Issue Tracker (JIRA)](http://www.mirthcorp.com/community/issues)
 
 ------------
 
@@ -48,7 +47,7 @@ Users manage and develop channels (message pathways) using the interface known a
 ## 3. Installation and Upgrade
 NextGen Connect installers are available for individual operating systems (.exe for Windows, .rpm and .sh for Linux, and .dmg for Mac OS X). Pre-packaged distributions are also available for individual operating systems (ZIP for Windows, tar.gz for Linux, and tar.gz for Mac OS X). The installer allows you to automatically upgrade previous NextGen Connect installations (starting with version 1.5).
 
-NextGen Connect installers also come with the option to install and start a service which will run in the background. You also have the option of installing and running the NextGen Connect Server Manager, which allows you to start and stop the service on some operating systems, change NextGen Connect properties and backend database settings, and view the server logs.
+NextGen Connect installers also come with the option to install and start a service that will run in the background. You also have the option of installing and running the NextGen Connect Server Manager, which allows you to start and stop the service on some operating systems, change NextGen Connect properties and backend database settings, and view the server logs.
 
 An optional NextGen Connect Command Line Interface can be installed, allowing you to connect to a running NextGen Connect Server using a command line. This tool is useful for performing or scripting server tasks without opening the NextGen Connect Administrator.
 
