@@ -1112,7 +1112,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             if (MigrationUtil.compareVersions("2.2.0", getServerVersion()) == 1) {
                 keyStore = KeyStore.getInstance("JKS");
             } else {
-                keyStore = KeyStore.getInstance("JCEKS");
+                keyStore = KeyStore.getInstance(mirthConfig.getString("keystore.type"));
             }
 
             if (keyStoreFile.exists()) {
