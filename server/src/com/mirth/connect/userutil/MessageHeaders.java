@@ -36,7 +36,7 @@ public class MessageHeaders {
      */
     @Deprecated
     public String get(String key) {
-        logger.error("The get(key) method for retrieving Http headers is deprecated and will soon be removed. Please use getHeader(key) or getHeaderList(key) instead.");
+        logger.error("The get(key) method for retrieving Http headers is deprecated and will soon be removed. Please use getHeader(key) or getHeaderList(key) instead. The caller was trying to retrieve the key: " + key);
         return getHeader(key);
     }
 
