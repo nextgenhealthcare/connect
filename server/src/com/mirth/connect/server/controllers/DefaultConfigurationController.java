@@ -168,7 +168,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static int statsUpdateInterval;
     private static Integer rhinoLanguageVersion;
     private static int startupLockSleep;
-    public volatile boolean configMapLoaded = false;
+    protected volatile boolean configMapLoaded = false;
 
     private static KeyEncryptor encryptor = null;
     private static Digester digester = null;
@@ -207,7 +207,9 @@ public class DefaultConfigurationController extends ConfigurationController {
                 } else {
                     try {
                         instance.getClass().getDeclaredMethod("initialize").invoke(instance);
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                    	Logger.getLogger(DefaultConfigurationController.class).error("Error calling initialize method in DefaultConfigurationController", e);
+                    }
                 }
             }
             return instance;
@@ -770,7 +772,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         return configurationMap;
     }
 
-    public void loadDatabaseConfigPropsIfNecessary() {
+    protected void loadDatabaseConfigPropsIfNecessary() {
         try {
             if (!configMapLoaded && "database".equals(mirthConfig.getString(CONFIGURATION_MAP_LOCATION))) {
                 // load configurations from database
