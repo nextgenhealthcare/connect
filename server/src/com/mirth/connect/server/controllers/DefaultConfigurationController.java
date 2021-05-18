@@ -161,14 +161,14 @@ public class DefaultConfigurationController extends ConfigurationController {
     private volatile Map<String, String> commentMap = Collections.unmodifiableMap(new HashMap<String, String>());
     private static PropertiesConfiguration versionConfig = PropertiesConfigurationUtil.create();
     private static FileBasedConfigurationBuilder<PropertiesConfiguration> mirthConfigBuilder = PropertiesConfigurationUtil.createBuilder();
-    private static PropertiesConfiguration mirthConfig = PropertiesConfigurationUtil.create();
+    protected static PropertiesConfiguration mirthConfig = PropertiesConfigurationUtil.create();
     private static EncryptionSettings encryptionConfig;
     private static DatabaseSettings databaseConfig;
     private static String apiBypassword;
     private static int statsUpdateInterval;
     private static Integer rhinoLanguageVersion;
     private static int startupLockSleep;
-    private volatile boolean configMapLoaded = false;
+    protected volatile boolean configMapLoaded = false;
 
     private static KeyEncryptor encryptor = null;
     private static Digester digester = null;
@@ -176,8 +176,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
     private static final String PROPERTY_TEMP_DIR = "dir.tempdata";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
-    private static final String CONFIGURATION_MAP_PATH = "configurationmap.path";
-    private static final String CONFIGURATION_MAP_LOCATION = "configurationmap.location";
+    public static final String CONFIGURATION_MAP_PATH = "configurationmap.path";
+    public static final String CONFIGURATION_MAP_LOCATION = "configurationmap.location";
     private static final String MAX_INACTIVE_SESSION_INTERVAL = "server.api.sessionmaxinactiveinterval";
     private static final String HTTPS_CLIENT_PROTOCOLS = "https.client.protocols";
     private static final String HTTPS_SERVER_PROTOCOLS = "https.server.protocols";
@@ -193,26 +193,30 @@ public class DefaultConfigurationController extends ConfigurationController {
     // singleton pattern
     private static ConfigurationController instance = null;
 
-    DefaultConfigurationController() {
+    public DefaultConfigurationController() {
 
     }
-
+    
     public static ConfigurationController create() {
         synchronized (DefaultConfigurationController.class) {
             if (instance == null) {
                 instance = ExtensionLoader.getInstance().getControllerInstance(ConfigurationController.class);
-
                 if (instance == null) {
                     instance = new DefaultConfigurationController();
                     ((DefaultConfigurationController) instance).initialize();
+                } else {
+                    try {
+                        instance.getClass().getDeclaredMethod("initialize").invoke(instance);
+                    } catch (Exception e) {
+                    	Logger.getLogger(DefaultConfigurationController.class).error("Error calling initialize method in DefaultConfigurationController", e);
+                    }
                 }
             }
-
             return instance;
         }
     }
 
-    private void initialize() {
+    protected void initialize() {
         InputStream versionPropertiesStream = null;
 
         try {
@@ -768,7 +772,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         return configurationMap;
     }
 
-    private void loadDatabaseConfigPropsIfNecessary() {
+    protected void loadDatabaseConfigPropsIfNecessary() {
         try {
             if (!configMapLoaded && "database".equals(mirthConfig.getString(CONFIGURATION_MAP_LOCATION))) {
                 // load configurations from database
