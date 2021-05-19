@@ -206,7 +206,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                     ((DefaultConfigurationController) instance).initialize();
                 } else {
                     try {
-                        instance.getClass().getDeclaredMethod("initialize").invoke(instance);
+                        instance.getClass().getMethod("initialize").invoke(instance);
                     } catch (Exception e) {
                     	Logger.getLogger(DefaultConfigurationController.class).error("Error calling initialize method in DefaultConfigurationController", e);
                     }
@@ -216,7 +216,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
-    protected void initialize() {
+    public void initialize() {
         InputStream versionPropertiesStream = null;
 
         try {
