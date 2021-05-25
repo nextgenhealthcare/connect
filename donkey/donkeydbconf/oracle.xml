@@ -48,11 +48,11 @@
 	<query id="createConnectorMessageTableIndex3">
 		CREATE INDEX D_MM${localChannelId}_INDEX3 ON D_MM${localChannelId}(ID, STATUS, SERVER_ID)
 	</query>
-	
+        <!-- Index has the same column as the first column in Primary Key. There is no query in the system using Order By this column in this table. There is no need for this index.	
 	<query id="createConnectorMessageTableIndex4">
 		CREATE INDEX D_MM${localChannelId}_FKI ON D_MM${localChannelId}(MESSAGE_ID)
 	</query>
-	
+	-->
 	<query id="createMessageContentTable">
 		CREATE TABLE D_MC${localChannelId} (
 	        METADATA_ID NUMBER(10) NOT NULL,
@@ -65,11 +65,11 @@
 	        CONSTRAINT D_MC${localChannelId}_FKEY FOREIGN KEY(MESSAGE_ID, METADATA_ID) REFERENCES D_MM${localChannelId}(MESSAGE_ID, ID) ON DELETE CASCADE
         )
 	</query>
-	
+        <!-- Index has the same columns in the same order as Primary Key. There is no need for this index.	
 	<query id="createMessageContentTableIndex1">
 		CREATE INDEX D_MC${localChannelId}_FKI ON D_MC${localChannelId}(MESSAGE_ID, METADATA_ID)
 	</query>
-
+        -->
 	<query id="createMessageCustomMetaDataTable">
 		CREATE TABLE D_MCM${localChannelId} (
 	        METADATA_ID NUMBER(10) NOT NULL,
