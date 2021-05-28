@@ -9,9 +9,6 @@
 
 package com.mirth.connect.server;
 
-import io.swagger.v3.jaxrs2.integration.resources.AcceptHeaderOpenApiResource;
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -104,6 +101,7 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.server.api.MirthServlet;
 import com.mirth.connect.server.api.providers.ApiOriginFilter;
 import com.mirth.connect.server.api.providers.ClickjackingFilter;
+import com.mirth.connect.server.api.providers.RequestedWithFilter;
 import com.mirth.connect.server.api.providers.StrictTransportSecurityFilter;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -115,6 +113,9 @@ import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.PackagePredicate;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.MirthSSLUtil;
+
+import io.swagger.v3.jaxrs2.integration.resources.AcceptHeaderOpenApiResource;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 
 public class MirthWebServer extends Server {
 
@@ -437,6 +438,8 @@ public class MirthWebServer extends Server {
             apiPath += "/" + apiVersion.toString();
         }
     	
+        
+        logger.info("In createApiServletContextHandler()");
         // Create the servlet handler for the API
     	ServletContextHandler apiServletContextHandler = new ServletContextHandler();
         apiServletContextHandler.setMaxFormContentSize(0);
@@ -444,6 +447,7 @@ public class MirthWebServer extends Server {
         apiServletContextHandler.setContextPath(contextPath + baseAPI + apiPath);
         apiServletContextHandler.addFilter(new FilterHolder(new ApiOriginFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         apiServletContextHandler.addFilter(new FilterHolder(new ClickjackingFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
+        apiServletContextHandler.addFilter(new FilterHolder(new RequestedWithFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         apiServletContextHandler.addFilter(new FilterHolder(new MethodFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
         apiServletContextHandler.addFilter(new FilterHolder(new StrictTransportSecurityFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         setConnectorNames(apiServletContextHandler, apiAllowHTTP);
