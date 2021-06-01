@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.ErrorResolution;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.donkey.util.ResourceUtil;
@@ -47,6 +48,12 @@ public class LoginActionBean extends BaseActionBean {
             } finally {
                 ResourceUtil.closeResourceQuietly(mirthPropertiesStream);
             }
+        }
+
+        
+        String nonce = request.getParameter("nonce");
+        if (nonce == null || nonce.isEmpty() || !nonce.equals(getContext().getNonce())) {
+            return new ErrorResolution(403, "Invalid request");
         }
         
         String username = request.getParameter("username");
