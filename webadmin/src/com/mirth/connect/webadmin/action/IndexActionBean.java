@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -67,7 +68,8 @@ public class IndexActionBean extends BaseActionBean {
         context.setServerAddress(getWebServerUrl("https://", httpsHost, httpsPort, contextPath));
         context.setMaxHeapSize(maxHeapSize);
         context.setMaxHeapSizeOptions(maxHeapSizeOptions);
-
+        context.setNonce(UUID.randomUUID().toString());
+        
         // Check if http or https
         secureHttps = request.isSecure();
 
