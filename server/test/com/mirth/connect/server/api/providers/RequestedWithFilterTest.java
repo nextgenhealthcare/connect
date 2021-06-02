@@ -48,7 +48,7 @@ public class RequestedWithFilterTest extends TestCase {
     }
     
     @Test
-  //assert that HttpServletResponse.sendError() is NOT called when X-Requested-With is not required but and not present 
+    //assert that HttpServletResponse.sendError() is NOT called when X-Requested-With is not required and not present 
     public void testDoFilterRequestedWithFalse() {
         
         mirthProperties.setProperty("server.api.require-requested-with", "false");

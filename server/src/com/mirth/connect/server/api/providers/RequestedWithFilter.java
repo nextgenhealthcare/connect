@@ -38,6 +38,7 @@ public class RequestedWithFilter implements Filter {
         if (requestedWithHeader != null) {
             isRequestedWithHeaderRequired = Boolean.valueOf(requestedWithHeader);
         }
+
     }
 
     @Override
