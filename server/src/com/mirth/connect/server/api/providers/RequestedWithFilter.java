@@ -52,7 +52,7 @@ public class RequestedWithFilter implements Filter {
         String requestedWithHeader = (String) servletRequest.getHeader("X-Requested-With");
         
         //if header is required and not present, send an error
-        if(isRequestedWithHeaderRequired && (requestedWithHeader == null) && (StringUtils.isBlank(requestedWithHeader))) {
+        if(isRequestedWithHeaderRequired && StringUtils.isBlank(requestedWithHeader)) {
             res.sendError(400, "All requests must have 'X-Requested-With' header");
         }
         else {
