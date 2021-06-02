@@ -860,7 +860,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public Properties getPropertiesForGroup(String category, Set<String> propertyKeys) {
-        logger.debug("retrieving properties: category=" + category + " propertyKeys=" + StringUtils.join(propertyKeys, ","));
+        logger.trace("retrieving properties: category=" + category + " propertyKeys=" + StringUtils.join(propertyKeys, ","));
         Properties properties = new Properties();
 
         StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
@@ -904,7 +904,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public String getProperty(String category, String name) {
-        logger.debug("retrieving property: category=" + category + ", name=" + name);
+        logger.trace("retrieving property: category=" + category + ", name=" + name);
 
         StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
         try {
