@@ -22,12 +22,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringUtils;
 
 @Provider
 public class RequestedWithFilter implements Filter {
 
     private boolean isRequestedWithHeaderRequired = true; 
+
 
     public RequestedWithFilter(PropertiesConfiguration mirthProperties) {
         
@@ -35,9 +36,8 @@ public class RequestedWithFilter implements Filter {
         
         //if property exists and is false, set to false
         if (requestedWithHeader != null) {
-            isRequestedWithHeaderRequired = String.valueOf(requestedWithHeader).equalsIgnoreCase("false");
+            isRequestedWithHeaderRequired = Boolean.valueOf(requestedWithHeader);
         }
-        
     }
 
     @Override
@@ -47,19 +47,21 @@ public class RequestedWithFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletResponse res = (HttpServletResponse) response;
         
-        
         HttpServletRequest servletRequest = (HttpServletRequest)request;
         String requestedWithHeader = (String) servletRequest.getHeader("X-Requested-With");
         
         //if header is required and not present, send an error
-        if(isRequestedWithHeaderRequired && (requestedWithHeader == null)) {
-        
+        if(isRequestedWithHeaderRequired && (requestedWithHeader == null) && (StringUtils.isBlank(requestedWithHeader))) {
             res.sendError(400, "All requests must have 'X-Requested-With' header");
         }
         else {
             chain.doFilter(request, response);
         }
         
+    }
+    
+    public boolean isRequestedWithHeaderRequired() {
+        return isRequestedWithHeaderRequired;
     }
 
     @Override

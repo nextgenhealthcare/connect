@@ -438,8 +438,6 @@ public class MirthWebServer extends Server {
             apiPath += "/" + apiVersion.toString();
         }
     	
-        
-        logger.info("In createApiServletContextHandler()");
         // Create the servlet handler for the API
     	ServletContextHandler apiServletContextHandler = new ServletContextHandler();
         apiServletContextHandler.setMaxFormContentSize(0);
