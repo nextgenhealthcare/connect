@@ -32,13 +32,7 @@ public class RequestedWithFilter implements Filter {
 
     public RequestedWithFilter(PropertiesConfiguration mirthProperties) {
         
-        String requestedWithHeader = mirthProperties.getString("server.api.require-requested-with");
-        
-        //if property exists and is false, set to false
-        if (requestedWithHeader != null) {
-            isRequestedWithHeaderRequired = mirthProperties.getBoolean("server.api.require-requested-with", true);
-        }
-
+        isRequestedWithHeaderRequired = mirthProperties.getBoolean("server.api.require-requested-with", true);
     }
 
     @Override
