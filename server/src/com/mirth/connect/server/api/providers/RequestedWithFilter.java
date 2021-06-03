@@ -36,7 +36,7 @@ public class RequestedWithFilter implements Filter {
         
         //if property exists and is false, set to false
         if (requestedWithHeader != null) {
-            isRequestedWithHeaderRequired = Boolean.valueOf(requestedWithHeader);
+            isRequestedWithHeaderRequired = mirthProperties.getBoolean("server.api.require-requested-with", true);
         }
 
     }
