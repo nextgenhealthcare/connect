@@ -206,9 +206,7 @@
 		          },
 		          // Add the X-Requested-With header to all requests to the Connect API
 		          requestInterceptor: (req) => {
-	        	    if (!req.loadSpec) {
-	        	        req.headers["X-Requested-With"] = "OpenAPI";
-	        	    }
+	        	    req.headers["X-Requested-With"] = "OpenAPI";
 	        	    return req;
 	        	  }
 		        });
