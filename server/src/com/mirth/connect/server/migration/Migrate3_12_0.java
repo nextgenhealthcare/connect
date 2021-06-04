@@ -29,7 +29,7 @@ public class Migrate3_12_0 extends Migrator implements ConfigurationMigrator {
     	}
         
         propertiesToAdd.put(REQUIRE_REQUESTED_WITH_PROPERTY, 
-        		new MutablePair<Object, String>(defaultRequireRequestedWith, "If set to true, the Connect REST API will require all incoming requests to contain an \"X-Requested-With\" header. This protects against Cross-Site Request Forgery (CSRF) security vulnerabilities."));
+        		new MutablePair<Object, String>(defaultRequireRequestedWith, "If set to true, the Connect REST API will require all incoming requests to contain an \"X-Requested-With\" header.\nThis protects against Cross-Site Request Forgery (CSRF) security vulnerabilities."));
         
         return propertiesToAdd;
     }
