@@ -9,10 +9,12 @@
 
 package com.mirth.connect.client.core;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,8 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -82,6 +86,7 @@ import org.glassfish.jersey.message.internal.Statuses;
 import com.mirth.connect.client.core.Operation.ExecuteType;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.util.HttpUtil;
 import com.mirth.connect.util.MirthSSLUtil;
 
@@ -423,6 +428,8 @@ public class ServerConnection implements Connector {
         HttpRequestBase requestBase = getRequestBase(executeType, request.getMethod());
         requestBase.setURI(request.getUri());
 
+        requestBase.addHeader("X-Requested-With", "nextgen-connect-client");
+
         for (Entry<String, List<String>> entry : request.getStringHeaders().entrySet()) {
             for (String value : entry.getValue()) {
                 requestBase.addHeader(entry.getKey(), value);
@@ -430,6 +437,7 @@ public class ServerConnection implements Connector {
         }
 
         if (MapUtils.isNotEmpty(customHeaders)) {
+            
             for (Entry<String, List<String>> entry : customHeaders.entrySet()) {
                 String key = entry.getKey();
 
