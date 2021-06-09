@@ -2,7 +2,7 @@
 	<name>TCP Sender</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.11.0</mirthVersion>
+	<mirthVersion>3.11.1</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This connector allows Mirth Connect to send messages to a TCP server.</description>
 	<clientClassName>com.mirth.connect.connectors.tcp.TcpSender</clientClassName>
