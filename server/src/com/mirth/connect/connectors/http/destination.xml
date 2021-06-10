@@ -2,7 +2,7 @@
 	<name>HTTP Sender</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.11.1</mirthVersion>
+	<mirthVersion>3.12.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This connector allows Mirth Connect to send messages to an HTTP server. Custom header properties can be specified.</description>
 	<clientClassName>com.mirth.connect.connectors.http.HttpSender</clientClassName>

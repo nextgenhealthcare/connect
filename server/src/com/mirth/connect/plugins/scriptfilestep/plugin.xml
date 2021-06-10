@@ -2,7 +2,7 @@
 	<name>External Script Transformer Step</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.11.1</mirthVersion>
+	<mirthVersion>3.12.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This plugin provides an External Script step-type for Mirth Connect transformers</description>
 	<clientClasses>
