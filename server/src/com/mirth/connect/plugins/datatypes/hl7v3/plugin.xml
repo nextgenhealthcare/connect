@@ -2,7 +2,7 @@
 	<name>HL7v3 Data Type</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.11.1</mirthVersion>
+	<mirthVersion>3.12.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This plugin provides support for the HL7v3 data type</description>
 	<serverClasses>

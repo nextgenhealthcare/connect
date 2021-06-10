@@ -529,7 +529,7 @@ public class WebStartServletTest {
 	}
 
 	private static String CORE_JNLP = "<jnlp codebase=\"https://localhost:8443\" version=\"3.11.1\">\n"
-			+ "	<information>\n" + "		<title>Mirth Connect Administrator 3.11.1</title>\n"
+			+ "	<information>\n" + "		<title>Mirth Connect Administrator 3.12.0</title>\n"
 			+ "		<vendor>NextGen Healthcare</vendor>\n" + "		<homepage href=\"http://www.nextgen.com\"/>\n"
 			+ "		<description>Open Source Healthcare Integration Engine</description>\n" + "		\n"
 			+ "		<icon href=\"images/mirth_128_ico.png\"/>\n"
@@ -546,7 +546,7 @@ public class WebStartServletTest {
 			+ "        <jar download=\"eager\" href=\"webstart/client-lib/mirth-client-core.jar\" sha256=\"testsha256\"/>\n"
 			+ "        <extension href=\"webstart/extensions/test.jnlp\"/>\n" + "    </resources>\n" + "	\n"
 			+ "	<application-desc main-class=\"com.mirth.connect.client.ui.Mirth\">\n"
-			+ "        <argument>https://localhost:8443</argument>\n" + "        <argument>3.11.1</argument>\n"
+			+ "        <argument>https://localhost:8443</argument>\n" + "        <argument>3.12.0</argument>\n"
 			+ "    </application-desc>\n" + "</jnlp>";
 
 	private static String EXTENSION_JNLP = "<jnlp>\n" + "    <information>\n"
