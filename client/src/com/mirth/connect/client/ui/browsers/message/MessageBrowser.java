@@ -377,6 +377,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         statusBoxTransformed.setSelected(false);
         statusBoxFiltered.setSelected(false);
         statusBoxQueued.setSelected(false);
+        statusBoxPending.setSelected(false);
         statusBoxSent.setSelected(false);
         statusBoxError.setSelected(false);
         pageSizeField.setText(String.valueOf(Preferences.userNodeForPackage(Mirth.class).getInt("messageBrowserPageSize", 20)));
@@ -522,6 +523,9 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         if (statusBoxQueued.isSelected()) {
             statuses.add(Status.QUEUED);
+        }
+        if (statusBoxPending.isSelected()) {
+            statuses.add(Status.PENDING);
         }
 
         if (!statuses.isEmpty()) {
@@ -2165,6 +2169,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         lastSearchCriteria = new javax.swing.JTextArea();
         previousPageButton = new javax.swing.JButton();
         statusBoxQueued = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        statusBoxPending = new com.mirth.connect.client.ui.components.MirthCheckBox();
         pageTotalLabel = new javax.swing.JLabel();
         textSearchField = new javax.swing.JTextField();
         pageNumberField = new com.mirth.connect.client.ui.components.MirthTextField();
@@ -2666,6 +2671,10 @@ public class MessageBrowser extends javax.swing.JPanel {
         statusBoxReceived.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         statusBoxReceived.setPreferredSize(new java.awt.Dimension(90, 22));
 
+        statusBoxPending.setBackground(new java.awt.Color(255, 255, 255));
+        statusBoxPending.setText("PENDING");
+        statusBoxPending.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        
         pageGoButton.setText("Go");
         pageGoButton.setNextFocusableComponent(messageTreeTable);
         pageGoButton.addActionListener(new java.awt.event.ActionListener() {
@@ -2743,6 +2752,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     .addComponent(statusBoxQueued, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(statusBoxSent, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(statusBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(statusBoxPending, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(statusBoxReceived, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(statusBoxFiltered, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -2838,7 +2848,9 @@ public class MessageBrowser extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(statusBoxSent, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(statusBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(statusBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(statusBoxPending, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -3065,6 +3077,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxError;
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxFiltered;
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxQueued;
+    private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxPending;
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxReceived;
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxSent;
     private com.mirth.connect.client.ui.components.MirthCheckBox statusBoxTransformed;
