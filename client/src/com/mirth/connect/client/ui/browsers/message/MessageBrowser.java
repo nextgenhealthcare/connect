@@ -2593,6 +2593,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         statusBoxQueued.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxQueued.setText("QUEUED");
         statusBoxQueued.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxQueued.setToolTipText("Filter messages by 'queued' status");
 
         pageTotalLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         pageTotalLabel.setText("of ?");
@@ -2629,6 +2630,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         statusBoxFiltered.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         statusBoxFiltered.setMaximumSize(new java.awt.Dimension(83, 23));
         statusBoxFiltered.setMinimumSize(new java.awt.Dimension(83, 23));
+        statusBoxFiltered.setToolTipText("Filter messages by 'filtered' status");
 
         pageSizeLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         pageSizeLabel.setText("Page Size:");
@@ -2637,6 +2639,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         statusBoxSent.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxSent.setText("SENT");
         statusBoxSent.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxSent.setToolTipText("Filter messages by 'sent' status");
 
         resetButton.setText("Reset");
         resetButton.addActionListener(new java.awt.event.ActionListener() {
@@ -2665,15 +2668,18 @@ public class MessageBrowser extends javax.swing.JPanel {
         statusBoxError.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxError.setText("ERROR");
         statusBoxError.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxError.setToolTipText("Filter messages by 'error' status");
 
         statusBoxReceived.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxReceived.setText("RECEIVED");
         statusBoxReceived.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         statusBoxReceived.setPreferredSize(new java.awt.Dimension(90, 22));
+        statusBoxReceived.setToolTipText("Filter messages by 'received' status");
 
         statusBoxPending.setBackground(new java.awt.Color(255, 255, 255));
         statusBoxPending.setText("PENDING");
         statusBoxPending.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        statusBoxPending.setToolTipText("Filter messages by 'pending' status");
         
         pageGoButton.setText("Go");
         pageGoButton.setNextFocusableComponent(messageTreeTable);
@@ -2688,6 +2694,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         statusBoxTransformed.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         statusBoxTransformed.setMaximumSize(new java.awt.Dimension(83, 23));
         statusBoxTransformed.setMinimumSize(new java.awt.Dimension(83, 23));
+        statusBoxTransformed.setToolTipText("Filter messages by 'transformed' status");
 
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel3.setText("Start Time:");
