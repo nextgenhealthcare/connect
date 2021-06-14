@@ -214,6 +214,9 @@ public class SourceConnectorProperties implements Serializable, Migratable, Purg
     public void migrate3_11_0(DonkeyElement element) {}
 
     @Override
+    public void migrate3_11_1(DonkeyElement element) {}
+    
+    @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("respondAfterProcessing", respondAfterProcessing);
