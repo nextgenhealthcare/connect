@@ -85,24 +85,15 @@ public class JmsClient implements ExceptionListener {
         String channelId = connector.getChannelId();
         String channelName = connector.getChannel().getName();
 
-        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        env.put(Context.PROVIDER_URL, replacer.replaceValues(connectorProperties.getJndiProviderUrl(), channelId, channelName));
+        env.put(Context.INITIAL_CONTEXT_FACTORY, replacer.replaceValues(connectorProperties.getJndiInitialContextFactory(), channelId, channelName));
+        env.put(Context.SECURITY_PRINCIPAL, replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName));
+        env.put(Context.SECURITY_CREDENTIALS, replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName));
 
-        try {
-            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(resourceIds);
-            Thread.currentThread().setContextClassLoader(contextFactory.getApplicationClassLoader());
-
-            Hashtable<String, Object> env = new Hashtable<String, Object>();
-            env.put(Context.PROVIDER_URL, replacer.replaceValues(connectorProperties.getJndiProviderUrl(), channelId, channelName));
-            env.put(Context.INITIAL_CONTEXT_FACTORY, replacer.replaceValues(connectorProperties.getJndiInitialContextFactory(), channelId, channelName));
-            env.put(Context.SECURITY_PRINCIPAL, replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName));
-            env.put(Context.SECURITY_CREDENTIALS, replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName));
-
-            initialContext = new InitialContext(env);
-            String connectionFactoryName = replacer.replaceValues(connectorProperties.getJndiConnectionFactoryName(), channelId, channelName);
-            return (ConnectionFactory) initialContext.lookup(connectionFactoryName);
-        } finally {
-            Thread.currentThread().setContextClassLoader(contextClassLoader);
-        }
+        initialContext = new InitialContext(env);
+        String connectionFactoryName = replacer.replaceValues(connectorProperties.getJndiConnectionFactoryName(), channelId, channelName);
+        return (ConnectionFactory) initialContext.lookup(connectionFactoryName);
     }
 
     /**
@@ -114,49 +105,61 @@ public class JmsClient implements ExceptionListener {
         Map<String, String> connectionProperties = replacer.replaceValues(connectorProperties.getConnectionProperties(), channelId, channelName);
         ConnectionFactory connectionFactory = null;
 
-        if (connectorProperties.isUseJndi()) {
-            try {
-                connectionFactory = lookupConnectionFactoryWithJndi();
-            } catch (Exception e) {
-                throw new ConnectorTaskException("Failed to obtain the connection factory via JNDI", e);
-            }
-        } else {
-            String className = replacer.replaceValues(connectorProperties.getConnectionFactoryClass(), channelId, channelName);
-
-            try {
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(resourceIds);
-                connectionFactory = (ConnectionFactory) Class.forName(className, true, contextFactory.getApplicationClassLoader()).newInstance();
-            } catch (Exception e) {
-                throw new ConnectorTaskException("Failed to instantiate ConnectionFactory class: " + className, e);
-            }
-        }
-
-        BeanUtil.setProperties(connectionFactory, connectionProperties);
-
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        
         try {
-            logger.debug("Creating JMS connection and session");
-            connection = connectionFactory.createConnection(replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName), replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName));
-            String clientId = replacer.replaceValues(connectorProperties.getClientId(), channelId, channelName);
-
-            if (!clientId.isEmpty()) {
-                connection.setClientID(clientId);
-            }
-
-            connection.setExceptionListener(this);
-
-            logger.debug("Starting JMS connection");
-            connection.start();
-
-            logger.debug("Creating JMS session");
-            session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-            logger.debug("JMS session created");
-        } catch (JMSException e) {
+            MirthContextFactory contextFactory = null;
             try {
-                stop();
-            } catch (Exception e1) {
+                contextFactory = contextFactoryController.getContextFactory(resourceIds);
+                Thread.currentThread().setContextClassLoader(contextFactory.getApplicationClassLoader());
+            } catch (Exception e) {
+                throw new ConnectorTaskException("Failed to set ContextClassLoader on thread", e);
             }
-
-            throw new ConnectorTaskException("Failed to establish a JMS connection", e);
+            
+            if (connectorProperties.isUseJndi()) {
+                try {
+                    connectionFactory = lookupConnectionFactoryWithJndi();
+                } catch (Exception e) {
+                    throw new ConnectorTaskException("Failed to obtain the connection factory via JNDI", e);
+                }
+            } else {
+                String className = replacer.replaceValues(connectorProperties.getConnectionFactoryClass(), channelId, channelName);
+                try {
+                    connectionFactory = (ConnectionFactory) Class.forName(className, true, contextFactory.getApplicationClassLoader()).newInstance();
+                } catch (Exception e) {
+                    throw new ConnectorTaskException("Failed to instantiate ConnectionFactory class: " + className, e);
+                }
+            }
+    
+            BeanUtil.setProperties(connectionFactory, connectionProperties);
+    
+            try {
+                logger.debug("Creating JMS connection and session");
+                connection = connectionFactory.createConnection(replacer.replaceValues(connectorProperties.getUsername(), channelId, channelName), replacer.replaceValues(connectorProperties.getPassword(), channelId, channelName));
+                String clientId = replacer.replaceValues(connectorProperties.getClientId(), channelId, channelName);
+    
+                if (!clientId.isEmpty()) {
+                    connection.setClientID(clientId);
+                }
+    
+                connection.setExceptionListener(this);
+    
+                logger.debug("Starting JMS connection");
+                connection.start();
+    
+                logger.debug("Creating JMS session");
+                session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+                logger.debug("JMS session created");
+            } catch (JMSException e) {
+                try {
+                    stop();
+                } catch (Exception e1) {
+                }
+    
+                throw new ConnectorTaskException("Failed to establish a JMS connection", e);
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
 
         connected.set(true);
