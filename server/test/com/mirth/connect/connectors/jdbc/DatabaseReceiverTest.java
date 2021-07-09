@@ -11,7 +11,17 @@ package com.mirth.connect.connectors.jdbc;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -103,5 +113,59 @@ public class DatabaseReceiverTest {
         assertTrue(tagNames.contains("_abc"));
         assertTrue(tagNames.contains("ab_c"));
         assertTrue(tagNames.contains("_ab_c_"));
+    }
+
+    @Test
+    public void testCheckForDuplicateColumns() throws Exception {
+        ResultSetMetaData metaData = mock(ResultSetMetaData.class);
+        when(metaData.getColumnCount()).thenReturn(4);
+        when(metaData.getColumnLabel(1)).thenReturn("a");
+        when(metaData.getColumnLabel(2)).thenReturn("");
+        when(metaData.getColumnName(2)).thenReturn("b");
+        when(metaData.getColumnLabel(3)).thenReturn("c");
+        when(metaData.getColumnLabel(4)).thenReturn(null);
+        when(metaData.getColumnName(4)).thenReturn("d");
+
+        ResultSet resultSet = mock(ResultSet.class);
+        when(resultSet.getMetaData()).thenReturn(metaData);
+
+        DatabaseReceiver receiver = new DatabaseReceiver();
+
+        // Should not cause an exception
+        receiver.checkForDuplicateColumns(resultSet);
+
+        when(metaData.getColumnName(4)).thenReturn("A");
+        try {
+            // Should cause an exception
+            receiver.checkForDuplicateColumns(resultSet);
+            fail("Exception should have been thrown");
+        } catch (SQLException e) {
+        }
+    }
+
+    @Test
+    public void testProcessResultList() throws Exception {
+        List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("a", "test1");
+        map.put("b", "test1");
+        map.put("c", "test1");
+        map.put("d", "test1");
+        resultList.add(map);
+
+        DatabaseReceiver receiver = spy(DatabaseReceiver.class);
+        doNothing().when(receiver).processRecord(any());
+        doReturn(false).when(receiver).isTerminated();
+
+        // Should not cause an exception
+        receiver.processResultList(resultList);
+
+        map.put("A", "test1");
+        try {
+            // Should cause an exception
+            receiver.processResultList(resultList);
+            fail("Exception should have been thrown");
+        } catch (DatabaseReceiverException e) {
+        }
     }
 }
