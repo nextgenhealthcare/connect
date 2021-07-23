@@ -398,7 +398,9 @@ public class DatabaseReceiver extends PollConnector {
     }
 
     private String doResultMapToXml(Map<String, Object> resultMap, boolean fixColumnNames) throws Exception {
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        Document document = dbf.newDocumentBuilder().newDocument();
         Element root = document.createElement("result");
         document.appendChild(root);
 

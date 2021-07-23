@@ -58,7 +58,8 @@ public class HL7v2ResponseValidator implements ResponseValidator {
             try {
                 if (responseData.trim().startsWith("<")) {
                     // XML response received
-                    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new CharArrayReader(responseData.toCharArray())));
+            		DocumentBuilderFactory dbf = getSecureTransformerFactory();
+                    Document doc = dbf.newDocumentBuilder().parse(new InputSource(new CharArrayReader(responseData.toCharArray())));
                     String ackCode = XPathFactory.newInstance().newXPath().compile("//MSA.1/text()").evaluate(doc).trim();
 
                     boolean rejected = Arrays.asList(rejectedACKCodes).contains(ackCode);
@@ -231,7 +232,8 @@ public class HL7v2ResponseValidator implements ResponseValidator {
         }
 
         if (originalMessage.startsWith("<")) {
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new CharArrayReader(originalMessage.toCharArray())));
+    		DocumentBuilderFactory dbf = getSecureTransformerFactory();
+            Document doc = dbf.newDocumentBuilder().parse(new InputSource(new CharArrayReader(originalMessage.toCharArray())));
             controlId = XPathFactory.newInstance().newXPath().compile("//MSH.10.1/text()").evaluate(doc).trim();
         } else {
             int index;
@@ -305,4 +307,10 @@ public class HL7v2ResponseValidator implements ResponseValidator {
         response.setStatusMessage(statusMessage);
         response.setError(statusMessage + "\nExpected: " + originalControlID + "\nActual: " + msa2);
     }
+    
+	private static DocumentBuilderFactory getSecureTransformerFactory() throws Exception {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		return dbf;
+	}
 }

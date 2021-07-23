@@ -566,7 +566,9 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     private String getUninstallScriptForCurrentDatabase(String pluginSqlScripts) throws Exception {
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(pluginSqlScripts)));
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    	Document document = dbf.newDocumentBuilder().parse(new InputSource(new StringReader(pluginSqlScripts)));
         Element uninstallElement = (Element) document.getElementsByTagName("uninstall").item(0);
         String databaseType = ControllerFactory.getFactory().createConfigurationController().getDatabaseType();
         NodeList scriptNodes = uninstallElement.getElementsByTagName("script");

@@ -9,7 +9,6 @@
 
 package com.mirth.connect.model.converters;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.Assert;
@@ -31,9 +30,7 @@ public class DocumentSerailizerTests {
     @Test
     public void testToXML() throws Exception {
         DocumentSerializer serializer = new DocumentSerializer();
-
-        DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document document = parser.newDocument();
+        Document document = getSecureTransformerFactory();
 
         Element element = document.createElement("root");
         element.setTextContent("Hello\r\nworld!");
@@ -46,8 +43,7 @@ public class DocumentSerailizerTests {
 
     @Test
     public void testPreserveSpace() throws Exception {
-        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document document = builder.newDocument();
+        Document document = getSecureTransformerFactory();
         Element root = document.createElement("root");
         document.appendChild(root);
         Element child = document.createElement("child");
@@ -64,5 +60,11 @@ public class DocumentSerailizerTests {
     public void testFromXML() {
 
     }
+    
+	private static Document getSecureTransformerFactory() throws Exception {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		return dbf.newDocumentBuilder().newDocument();
+	}
 
 }

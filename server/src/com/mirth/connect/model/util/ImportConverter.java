@@ -67,7 +67,7 @@ public class ImportConverter {
     public static Document convertServerConfiguration(String serverConfiguration) throws Exception {
         serverConfiguration = convertPackageNames(serverConfiguration);
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = getSecureTransformerFactory();
         Document document;
         DocumentBuilder builder;
 
@@ -122,7 +122,7 @@ public class ImportConverter {
         codeTemplatesXML = convertPackageNames(codeTemplatesXML);
         codeTemplatesXML = runStringConversions(codeTemplatesXML);
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = getSecureTransformerFactory();
         Document document;
         DocumentBuilder builder;
 
@@ -158,7 +158,7 @@ public class ImportConverter {
         channel = runStringConversions(channel);
 
         String contents = removeInvalidHexChar(channel);
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = getSecureTransformerFactory();
         Document document;
         DocumentBuilder builder;
 
@@ -1014,7 +1014,7 @@ public class ImportConverter {
         filterXml = convertPackageNames(filterXml);
         filterXml = runStringConversions(filterXml);
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = getSecureTransformerFactory();
         Document document;
         DocumentBuilder builder;
         try {
@@ -1049,7 +1049,7 @@ public class ImportConverter {
         connectorXml = runStringConversions(connectorXml);
         connectorXml = removeInvalidHexChar(connectorXml);
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = getSecureTransformerFactory();
         Document document;
         DocumentBuilder builder;
 
@@ -1096,7 +1096,7 @@ public class ImportConverter {
         transformerXml = convertPackageNames(transformerXml);
         transformerXml = runStringConversions(transformerXml);
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = getSecureTransformerFactory();
         Document document;
         DocumentBuilder builder;
 
@@ -1730,4 +1730,11 @@ public class ImportConverter {
 
         return elements;
     }
+    
+	private static DocumentBuilderFactory getSecureTransformerFactory()
+			throws ParserConfigurationException, SAXException, IOException {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		return dbf;
+	}
 }

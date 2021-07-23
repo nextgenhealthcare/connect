@@ -50,7 +50,9 @@ public class DonkeyElement implements Element {
 
     public DonkeyElement(String xml) throws DonkeyElementException {
         try {
-            this.element = fromXml(xml, DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument());
+    		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            this.element = fromXml(xml, dbf.newDocumentBuilder().newDocument());
         } catch (ParserConfigurationException e) {
             throw new DonkeyElementException(e);
         }

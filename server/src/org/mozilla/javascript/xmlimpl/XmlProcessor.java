@@ -46,11 +46,12 @@ class XmlProcessor implements Serializable {
     private transient LinkedBlockingDeque<DocumentBuilder> documentBuilderPool;
     private RhinoSAXErrorHandler errorHandler = new RhinoSAXErrorHandler();
 
-    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException, Exception {
         stream.defaultReadObject();
         this.dom = DocumentBuilderFactory.newInstance();
         this.dom.setNamespaceAware(true);
         this.dom.setIgnoringComments(false);
+        this.dom.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         //create TF and set settings to secure it from XSLT attacks if given a malicious node in toXMLString
         this.xform = javax.xml.transform.TransformerFactory.newInstance();
         Context ctx = Context.getCurrentContext();
@@ -69,6 +70,7 @@ class XmlProcessor implements Serializable {
         try {
             // This feature is required to be supported by all DocumentBuilderFactories.
             dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             // Disallow XIncludeAware as it is an SSRF target using xi:include.
             // This should also be supported on all XML processors.
             dbf.setXIncludeAware(false);
@@ -146,11 +148,12 @@ class XmlProcessor implements Serializable {
         }
     }
 
-    XmlProcessor() {
+    XmlProcessor() throws Exception {
         setDefault();
         this.dom = DocumentBuilderFactory.newInstance();
         this.dom.setNamespaceAware(true);
         this.dom.setIgnoringComments(false);
+        this.dom.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         //create TF and set settings to secure it from XSLT attacks if given a malicious node in toXMLString
         this.xform = javax.xml.transform.TransformerFactory.newInstance();
         Context ctx = Context.getCurrentContext();

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<note>
+<to>NextGen</to>
+<from>ROCKSOLID</from>
+<heading>TEST XXE</heading>
+<body>This is valid xml without XXE attack!</body>
+</note>

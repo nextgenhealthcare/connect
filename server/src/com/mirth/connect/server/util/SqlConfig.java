@@ -124,7 +124,9 @@ public class SqlConfig {
         // parse the SqlMapConfig (ignoring the DTD)
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
         Document document = factory.newDocumentBuilder().parse(new InputSource(br));
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 
         addPluginSqlMaps(database, new DonkeyElement(document.getDocumentElement()).getChildElement("mappers"));
 

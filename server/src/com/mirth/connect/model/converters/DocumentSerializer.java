@@ -13,6 +13,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -107,11 +108,19 @@ public class DocumentSerializer {
         Document document = null;
 
         try {
-            document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(source)));
+    		DocumentBuilderFactory dbf = getSecureTransformerFactory();
+    		DocumentBuilder db = dbf.newDocumentBuilder();
+    		document = db.parse(new InputSource(new StringReader(source)));
         } catch (Exception e) {
             logger.error(e);
         }
 
         return document;
     }
+    
+	public static DocumentBuilderFactory getSecureTransformerFactory() throws Exception {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		return dbf;
+	}
 }

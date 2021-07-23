@@ -66,7 +66,9 @@ public class HL7ModelGenerator {
 
                 for (int i = 0; i < files.length; i++) {
                     if (!files[i].isDirectory()) {
-                        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                        DocumentBuilder builder = dbf.newDocumentBuilder();
                         Document document = builder.parse(new InputSource(new StringReader(FileUtils.readFileToString(new File(files[i].getAbsolutePath())))));
 
                         if (files[i].getName().startsWith("message")) {

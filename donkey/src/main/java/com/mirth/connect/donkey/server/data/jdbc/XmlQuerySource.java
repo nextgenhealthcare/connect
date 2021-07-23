@@ -37,6 +37,7 @@ public class XmlQuerySource implements QuerySource {
         InputStream is = null;
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
             is = ResourceUtil.getResourceStream(XmlQuerySource.class, xmlFile);
             document = documentBuilder.parse(is);

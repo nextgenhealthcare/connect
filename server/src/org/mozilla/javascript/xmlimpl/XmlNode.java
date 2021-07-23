@@ -106,7 +106,7 @@ class XmlNode implements Serializable {
     private XmlNode() {
     }
 
-    String debug() {
+    String debug() throws Exception {
         XmlProcessor raw = new XmlProcessor();
         raw.setIgnoreComments(false);
         raw.setIgnoreProcessingInstructions(false);
