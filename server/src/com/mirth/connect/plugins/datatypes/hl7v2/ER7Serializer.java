@@ -264,6 +264,7 @@ public class ER7Serializer implements IMessageSerializer {
 
                 XMLEncodedHL7Handler handler = new XMLEncodedHL7Handler(deserializationSegmentDelimiter, fieldSeparator, componentSeparator, repetitionSeparator, escapeCharacter, subcomponentSeparator, true);
                 XMLReader reader = XMLReaderFactory.createXMLReader();
+                reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
                 reader.setContentHandler(handler);
                 reader.setErrorHandler(handler);
 

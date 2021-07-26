@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -19,7 +18,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -41,25 +39,13 @@ public class DocumentSerializerTest {
 	@Test
 	public void testGetSecureTransformerFactory() throws Exception {
 		DocumentBuilderFactory trfactory = DocumentSerializer.getSecureTransformerFactory();
+		boolean doctypeFlag = trfactory.getFeature("http://apache.org/xml/features/disallow-doctype-decl");
 		assertNotNull(trfactory);
-		    	
-    	boolean flag = trfactory.getFeature(XMLConstants.FEATURE_SECURE_PROCESSING);
-    	//assertTrue(flag);
-    	
-    	flag = trfactory.getFeature(XMLConstants.ACCESS_EXTERNAL_DTD);
-    	assertTrue(flag);
-    	
-    	flag = trfactory.getFeature(XMLConstants.ACCESS_EXTERNAL_STYLESHEET);
-    	//assertTrue(flag);
-	}
-	
-	@Test
-	public void testGetSecureDocumentBuilderFactory() throws Exception {
-		DocumentBuilderFactory dbf = DocumentSerializer.getSecureTransformerFactory();
-    	
-    	boolean flag = dbf.isExpandEntityReferences();
+		assertTrue(doctypeFlag);
+    	boolean flag = trfactory.isExpandEntityReferences();
     	assertTrue(flag);
 	}
+
 	
 	@Test
 	public void testFromXML() {
@@ -70,11 +56,16 @@ public class DocumentSerializerTest {
 	@Test
 	public void testToXMLWithExternalDTD() throws Exception {
 		String xml = FileUtils.readFileToString(new File("tests/test-xxe-example.xml"), "UTF-8");
-		Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
-		String outputXml = serializer.toXML(document);
-		
+
 		// The above code should produce empty or null output due to encountering the external DTD
-		assertTrue(StringUtils.isBlank(outputXml));
+		boolean exceptionCaught = false;
+		try {
+			Document document = DocumentSerializer.getSecureTransformerFactory().newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+			serializer.toXML(document);
+		}catch(Exception e) {
+			exceptionCaught = true;
+		}
+		assertTrue(exceptionCaught);
 	}
 	
 	@Test

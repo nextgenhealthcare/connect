@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.xml.sax.SAXParseException;
 
 import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.model.datatype.SerializerProperties;
@@ -33,10 +34,8 @@ public class ER7SerializerTest {
 		} catch (MessageSerializerException e) {
 			exceptionThrown = true;
 			
-			// A ParserConfigurationException is thrown when an unsupported feature is invoked.
-			// Depending on our implementation, we may want to check for a SAXException instead.
 			// See https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html#jaxp-documentbuilderfactory-saxparserfactory-and-dom4j
-			assertTrue(e.getCause() instanceof ParserConfigurationException);
+			assertTrue(e.getCause() instanceof SAXParseException);
 		}
 		
 		assertTrue(exceptionThrown);
@@ -52,10 +51,6 @@ public class ER7SerializerTest {
 		} catch (MessageSerializerException e) {
 			exceptionThrown = true;
 			
-			// A ParserConfigurationException is thrown when an unsupported feature is invoked.
-			// Depending on our implementation, we may want to check for a SAXException instead.
-			// See https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html#jaxp-documentbuilderfactory-saxparserfactory-and-dom4j
-			assertTrue(e.getCause() instanceof ParserConfigurationException);
 		}
 		
 		assertFalse(exceptionThrown);
