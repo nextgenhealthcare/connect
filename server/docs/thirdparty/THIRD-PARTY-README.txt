@@ -255,7 +255,7 @@ Or in the Mirth Connect source code distribution, it can be found at:
 --------------------------------------------------------------------------------
 
 
-Mirth Connect includes the jTDS JDBC driver version 1.3.1. This library and it's
+Mirth Connect includes the jTDS JDBC driver version 1.3.1. This library and its
 use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). The library source
 code is available at http://jtds.sourceforge.net/. The following file has
 been changed:
@@ -271,7 +271,7 @@ been changed:
 
 
 Mirth Connect includes the MySQL Connector/J JDBC Driver version 5.1.25. This 
-library and it's use are covered by the GPL version 2 with Oracle's Free and 
+library and its use are covered by the GPL version 2 with Oracle's Free and 
 Open Source Software ("FOSS") License Exception (see 
 MYSQL-CONNECTOR-LICENSE.txt). The library source code is available at 
 http://mirrors.ibiblio.org/maven2/mysql/mysql-connector-java/5.1.25/src/.
@@ -280,7 +280,7 @@ http://mirrors.ibiblio.org/maven2/mysql/mysql-connector-java/5.1.25/src/.
 --------------------------------------------------------------------------------
 
 
-Mirth Connect includes SoapUI version 4.0.1. This library and it's use are
+Mirth Connect includes SoapUI version 4.0.1. This library and its use are
 covered by the LGPL version 2.1 (see LGPL-2.1.txt). The library source code is
 available at http://www.soapui.org/.
 
@@ -289,7 +289,7 @@ available at http://www.soapui.org/.
 
 
 Mirth Connect includes the jcifs-ng SMB client library in Java version 2.1.3. This
-library and it's use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). The
+library and its use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). The
 library source code is available at https://github.com/AgNO3/jcifs-ng/.
 
 
@@ -297,7 +297,7 @@ library source code is available at https://github.com/AgNO3/jcifs-ng/.
 
 
 Mirth Connect includes modified versions of files from jcifs-ng. This
-library and it's use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). 
+library and its use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). 
 The following files have changed:
 
 	jcifs/internal/smb2/nego/Smb2NegotiateResponse.java
@@ -309,7 +309,7 @@ The following files have changed:
 
 
 Mirth Connect includes the Pdf-renderer library ([Mirth Connect Install
-Folder]/extensions/pdfviewer/lib/PDFRenderer.jar). This library and it's use are
+Folder]/extensions/pdfviewer/lib/PDFRenderer.jar). This library and its use are
 covered by the LGPL version 2.1 (see LGPL-2.1.txt). The library source code is
 available at https://java.net/projects/pdf-renderer/.
 
@@ -317,7 +317,7 @@ available at https://java.net/projects/pdf-renderer/.
 --------------------------------------------------------------------------------
 
 
-Mirth Connect includes javaparser version 1.0.8. This library and it's use are
+Mirth Connect includes javaparser version 1.0.8. This library and its use are
 covered by the LGPL version 2.1 (see LGPL-2.1.txt). The library source code is
 available at https://code.google.com/p/javaparser/.
 
@@ -325,7 +325,7 @@ available at https://code.google.com/p/javaparser/.
 --------------------------------------------------------------------------------
 
 
-Mirth Connect includes SwingLabs SwingX version 1.6.2. This library and it's
+Mirth Connect includes SwingLabs SwingX version 1.6.2. This library and its
 use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). The library source
 code is available at https://swingx.java.net/.
 
@@ -437,8 +437,8 @@ THE SOFTWARE.
 
 
 The license information below pertains to Flying Saucer version 9.0.1, which is
-included with Mirth Connect. This library and it's use are covered by the LGPL
-version 2.1 (see LGPL-2.1.txt) and it's source code is available at
+included with Mirth Connect. This library and its use are covered by the LGPL
+version 2.1 (see LGPL-2.1.txt) and its source code is available at
 https://github.com/flyingsaucerproject/flyingsaucer or
 https://code.google.com/p/flying-saucer/.
 
