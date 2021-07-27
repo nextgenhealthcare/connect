@@ -110,4 +110,11 @@ public class BaseActionBeanContext extends ActionBeanContext {
     public void logout() {
         getRequest().getSession().invalidate();
     }
+    
+    public String getNonce() {
+        return (String) getRequest().getSession().getAttribute("nonce");
+    }
+    public void setNonce(String nonce) {
+        getRequest().getSession().setAttribute("nonce", nonce);
+    }
 }

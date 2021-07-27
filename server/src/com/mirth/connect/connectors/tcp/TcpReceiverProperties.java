@@ -299,7 +299,9 @@ public class TcpReceiverProperties extends ConnectorProperties implements Listen
     @Override public void migrate3_5_0(DonkeyElement element) {}
     @Override public void migrate3_6_0(DonkeyElement element) {}
     @Override public void migrate3_7_0(DonkeyElement element) {}
-    @Override public void migrate3_9_0(DonkeyElement element) {} // @formatter:on
+    @Override public void migrate3_9_0(DonkeyElement element) {}
+    @Override public void migrate3_11_0(DonkeyElement element) {}
+    @Override public void migrate3_11_1(DonkeyElement element) {} // @formatter:on
 
     @Override
     public Map<String, Object> getPurgedProperties() {

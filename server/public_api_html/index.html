@@ -203,7 +203,12 @@
 		          },
 		          onFailure: function(data) {
 					log("Unable to Load SwaggerUI");
-		          }
+		          },
+		          // Add the X-Requested-With header to all requests to the Connect API
+		          requestInterceptor: (req) => {
+	        	    req.headers["X-Requested-With"] = "OpenAPI";
+	        	    return req;
+	        	  }
 		        });
 		        window.ui = ui;
 		    }

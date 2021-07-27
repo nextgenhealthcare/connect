@@ -88,6 +88,7 @@
 			                            <input type="hidden" name="op" value="login" /> <input type="hidden" name="version" value="0.0.0" /> <label for="username">Username</label>
 			                            <input id="username" type="text" name="username" autocomplete="off" maxlength="32" /> <label for="password">Password</label>
 			                            <input id="password" type="password" name="password" autocomplete="off" />
+			                            <input type="hidden" name="nonce" value="${actionBean.context.nonce}" />
 			                            <div id="webLoginSecurityReminder" class="help-block">
 			                                <strong>Security Reminder:</strong><br /> Sign out of your account when you finish your session.
 			                            </div>

@@ -2,7 +2,7 @@
 	<name>TEST Plugin</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.11.0</mirthVersion>
+	<mirthVersion>3.12.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>Fake plugin.xml to test shared library loading</description>
 	<serverClasses>
