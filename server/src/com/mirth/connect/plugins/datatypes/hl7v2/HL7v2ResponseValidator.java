@@ -58,7 +58,7 @@ public class HL7v2ResponseValidator implements ResponseValidator {
             try {
                 if (responseData.trim().startsWith("<")) {
                     // XML response received
-            		DocumentBuilderFactory dbf = getSecureTransformerFactory();
+            		DocumentBuilderFactory dbf = getSecureDocumentBuilderFactory();
                     Document doc = dbf.newDocumentBuilder().parse(new InputSource(new CharArrayReader(responseData.toCharArray())));
                     String ackCode = XPathFactory.newInstance().newXPath().compile("//MSA.1/text()").evaluate(doc).trim();
 
@@ -232,7 +232,7 @@ public class HL7v2ResponseValidator implements ResponseValidator {
         }
 
         if (originalMessage.startsWith("<")) {
-    		DocumentBuilderFactory dbf = getSecureTransformerFactory();
+    		DocumentBuilderFactory dbf = getSecureDocumentBuilderFactory();
             Document doc = dbf.newDocumentBuilder().parse(new InputSource(new CharArrayReader(originalMessage.toCharArray())));
             controlId = XPathFactory.newInstance().newXPath().compile("//MSH.10.1/text()").evaluate(doc).trim();
         } else {
@@ -308,7 +308,7 @@ public class HL7v2ResponseValidator implements ResponseValidator {
         response.setError(statusMessage + "\nExpected: " + originalControlID + "\nActual: " + msa2);
     }
     
-	private static DocumentBuilderFactory getSecureTransformerFactory() throws Exception {
+	private static DocumentBuilderFactory getSecureDocumentBuilderFactory() throws Exception {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 		return dbf;

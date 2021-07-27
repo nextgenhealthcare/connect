@@ -30,7 +30,7 @@ public class DocumentSerailizerTests {
     @Test
     public void testToXML() throws Exception {
         DocumentSerializer serializer = new DocumentSerializer();
-        Document document = getSecureTransformerFactory();
+        Document document = getSecureDocumentBuilderFactory();
 
         Element element = document.createElement("root");
         element.setTextContent("Hello\r\nworld!");
@@ -43,7 +43,7 @@ public class DocumentSerailizerTests {
 
     @Test
     public void testPreserveSpace() throws Exception {
-        Document document = getSecureTransformerFactory();
+        Document document = getSecureDocumentBuilderFactory();
         Element root = document.createElement("root");
         document.appendChild(root);
         Element child = document.createElement("child");
@@ -61,7 +61,7 @@ public class DocumentSerailizerTests {
 
     }
     
-	private static Document getSecureTransformerFactory() throws Exception {
+	private static Document getSecureDocumentBuilderFactory() throws Exception {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 		return dbf.newDocumentBuilder().newDocument();

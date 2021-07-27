@@ -517,20 +517,20 @@ public class WebStartServletTest {
 
 		@Override
 		protected Document getAdministratorJnlp(HttpServletRequest request) throws Exception {
-	        DocumentBuilderFactory factory = getSecureTransformerFactory();
+	        DocumentBuilderFactory factory = getSecureDocumentBuilderFactory();
 			return factory.newDocumentBuilder()
 					.parse(new ByteArrayInputStream(CORE_JNLP.getBytes()));
 		}
 
 		@Override
 		protected Document getExtensionJnlp(String extensionPath) throws Exception {
-	        DocumentBuilderFactory factory = getSecureTransformerFactory();
+	        DocumentBuilderFactory factory = getSecureDocumentBuilderFactory();
 			return factory.newDocumentBuilder()
 					.parse(new ByteArrayInputStream(EXTENSION_JNLP.getBytes()));
 		}
 	}
 	
-	private static DocumentBuilderFactory getSecureTransformerFactory() throws Exception {
+	private static DocumentBuilderFactory getSecureDocumentBuilderFactory() throws Exception {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 		return dbf;

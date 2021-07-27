@@ -37,8 +37,8 @@ public class DocumentSerializerTest {
 	}
 	
 	@Test
-	public void testGetSecureTransformerFactory() throws Exception {
-		DocumentBuilderFactory trfactory = DocumentSerializer.getSecureTransformerFactory();
+	public void testgetSecureDocumentBuilderFactory() throws Exception {
+		DocumentBuilderFactory trfactory = DocumentSerializer.getSecureDocumentBuilderFactory();
 		boolean doctypeFlag = trfactory.getFeature("http://apache.org/xml/features/disallow-doctype-decl");
 		assertNotNull(trfactory);
 		assertTrue(doctypeFlag);
@@ -60,7 +60,7 @@ public class DocumentSerializerTest {
 		// The above code should produce empty or null output due to encountering the external DTD
 		boolean exceptionCaught = false;
 		try {
-			Document document = DocumentSerializer.getSecureTransformerFactory().newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+			Document document = DocumentSerializer.getSecureDocumentBuilderFactory().newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
 			serializer.toXML(document);
 		}catch(Exception e) {
 			exceptionCaught = true;
