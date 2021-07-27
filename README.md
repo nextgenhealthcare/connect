@@ -1,4 +1,4 @@
-# NextGen Connect Integration Engine (formerly Mirth Connect)
+# Mirth Connect by NextGen Healthcare
 
 1. [Useful Links](#useful-links)
 2. [General Information](#general-information)
