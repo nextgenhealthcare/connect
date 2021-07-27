@@ -4,7 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.util.MigrationException;
@@ -12,6 +14,7 @@ import com.mirth.connect.model.util.MigrationException;
 public class Migrate3_12_0 extends Migrator implements ConfigurationMigrator {
 	
 	public static final String REQUIRE_REQUESTED_WITH_PROPERTY = "server.api.require-requested-with";
+	Logger logger = Logger.getLogger(getClass());
 	
 	@Override
     public void migrate() throws MigrationException {}
@@ -40,5 +43,11 @@ public class Migrate3_12_0 extends Migrator implements ConfigurationMigrator {
     }
 
     @Override
-    public void updateConfiguration(PropertiesConfiguration configuration) {}
+    public void updateConfiguration(PropertiesConfiguration configuration) {
+        String keystoreType = configuration.getString("keystore.type");
+        if (!StringUtils.equals("JCEKS", keystoreType)) {
+            logger.error("Setting Keystore type from '" + keystoreType + "' to JCEKS");
+        }
+        configuration.setProperty("keystore.type", "JCEKS");
+    }
 }
