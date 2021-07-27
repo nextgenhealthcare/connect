@@ -333,6 +333,14 @@ code is available at https://swingx.java.net/.
 --------------------------------------------------------------------------------
 
 
+Mirth Connect includes openhtmltopdf version 1.0.9. This library and its use
+are covered by the LGPL version 2.1 (see LGPL-2.1.txt). The library source code
+is available at https://github.com/danfickle/openhtmltopdf/.
+
+
+--------------------------------------------------------------------------------
+
+
 The license below pertains to the jQuery JavaScript library, which is included
 with Mirth Connect.
 
