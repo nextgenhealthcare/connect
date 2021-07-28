@@ -136,7 +136,8 @@ public class WebStartServlet extends HttpServlet {
         Document document;
         try {
             clientJnlpIs = ResourceUtil.getResourceStream(this.getClass(), "mirth-client.jnlp");
-            document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(clientJnlpIs);
+            DocumentBuilderFactory dbf = getSecureDocumentBuilderFactory();
+            document = dbf.newDocumentBuilder().parse(clientJnlpIs);
         } finally {
             ResourceUtil.closeResourceQuietly(clientJnlpIs);
         }
@@ -335,7 +336,8 @@ public class WebStartServlet extends HttpServlet {
             throw new Exception("Extension metadata could not be located for the path: " + extensionPath);
         }
 
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        DocumentBuilderFactory dbf = getSecureDocumentBuilderFactory();
+        Document document = dbf.newDocumentBuilder().newDocument();
         Element jnlpElement = document.createElement("jnlp");
 
         Element informationElement = document.createElement("information");
@@ -429,4 +431,10 @@ public class WebStartServlet extends HttpServlet {
         
         return contextPathProp;
     }
+    
+	private static DocumentBuilderFactory getSecureDocumentBuilderFactory() throws Exception {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		return dbf;
+	}
 }

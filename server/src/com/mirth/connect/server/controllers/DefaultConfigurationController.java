@@ -605,7 +605,9 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     List<DriverInfo> parseDbdriversXml(Reader reader) throws Exception {
         List<DriverInfo> drivers = new ArrayList<DriverInfo>();
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(reader));
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        Document document = dbf.newDocumentBuilder().parse(new InputSource(reader));
         Element driversElement = document.getDocumentElement();
 
         for (int i = 0; i < driversElement.getElementsByTagName("driver").getLength(); i++) {

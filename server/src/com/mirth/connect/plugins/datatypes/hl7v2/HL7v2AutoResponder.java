@@ -120,6 +120,7 @@ public class HL7v2AutoResponder implements AutoResponder {
                     XPath xpath = XPathFactory.newInstance().newXPath();
                     XPathExpression msh15Query = xpath.compile("//MSH.15/text()");
                     DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            		domFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
                     DocumentBuilder builder = domFactory.newDocumentBuilder();
                     Reader reader = new CharArrayReader(hl7Message.toCharArray());
                     Document doc = builder.parse(new InputSource(reader));

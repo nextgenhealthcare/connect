@@ -517,15 +517,23 @@ public class WebStartServletTest {
 
 		@Override
 		protected Document getAdministratorJnlp(HttpServletRequest request) throws Exception {
-			return DocumentBuilderFactory.newInstance().newDocumentBuilder()
+	        DocumentBuilderFactory factory = getSecureDocumentBuilderFactory();
+			return factory.newDocumentBuilder()
 					.parse(new ByteArrayInputStream(CORE_JNLP.getBytes()));
 		}
 
 		@Override
 		protected Document getExtensionJnlp(String extensionPath) throws Exception {
-			return DocumentBuilderFactory.newInstance().newDocumentBuilder()
+	        DocumentBuilderFactory factory = getSecureDocumentBuilderFactory();
+			return factory.newDocumentBuilder()
 					.parse(new ByteArrayInputStream(EXTENSION_JNLP.getBytes()));
 		}
+	}
+	
+	private static DocumentBuilderFactory getSecureDocumentBuilderFactory() throws Exception {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		return dbf;
 	}
 
 	private static String CORE_JNLP = "<jnlp codebase=\"https://localhost:8443\" version=\"3.11.1\">\n"

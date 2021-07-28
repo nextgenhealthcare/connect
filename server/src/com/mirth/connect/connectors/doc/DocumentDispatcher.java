@@ -212,7 +212,9 @@ public class DocumentDispatcher extends DestinationConnector {
     }
 
     private void createPDF(Reader reader, OutputStream outputStream, DocumentDispatcherProperties props) throws Exception {
-        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        DocumentBuilder builder = dbf.newDocumentBuilder();
         builder.setEntityResolver(FSEntityResolver.instance());
         org.w3c.dom.Document doc = builder.parse(new InputSource(reader));
 
