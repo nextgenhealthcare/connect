@@ -248,5 +248,6 @@
 	<classpathentry kind="lib" path="lib/extensions/doc/fontbox-2.0.24.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/pdfbox-2.0.24.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/graphics2d-0.32.jar"/>
+	<classpathentry kind="lib" path="lib/hapi-base-2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
