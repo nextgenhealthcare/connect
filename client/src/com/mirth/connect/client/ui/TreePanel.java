@@ -38,6 +38,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Attr;
@@ -343,10 +344,14 @@ public class TreePanel extends javax.swing.JPanel {
         PlatformUI.MIRTH_FRAME.stopWorking(workingId);
     }
 
-    public void setMessage(DataTypeProperties dataTypeProperties, String messageType, String source, String ignoreText) throws Exception {
+    public void setMessage(DataTypeProperties dataTypeProperties, String messageType, String source, String ignoreText) {
         Document xmlDoc = null;
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-        docFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        try {
+        	docFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        }catch(ParserConfigurationException e) {
+        	logger.error("Could not disable doctype declaration ", e);
+        }
         DocumentBuilder docBuilder;
 
         JsonNode jsonDoc = null;

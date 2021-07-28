@@ -69,7 +69,6 @@ class XmlProcessor implements Serializable {
         try {
             // This feature is required to be supported by all DocumentBuilderFactories.
             dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             // Disallow XIncludeAware as it is an SSRF target using xi:include.
             // This should also be supported on all XML processors.
             dbf.setXIncludeAware(false);
