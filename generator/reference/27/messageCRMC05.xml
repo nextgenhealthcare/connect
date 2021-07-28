@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>CRMC05</name>
+    <description>Patient Enters Phase of Clinical Trial</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <group maxOccurs="unbounded">
+            <segment>PID</segment>
+            <segment minOccurs="0">PV1</segment>
+            <segment>CSR</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">CSP</segment>
+        </group>
+    </segments>
+</message>

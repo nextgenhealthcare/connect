@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>SAD</name>
+    <description>Street Address</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SAD.1</name>
+            <description>Street or Mailing Address</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SAD.2</name>
+            <description>Street Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SAD.3</name>
+            <description>Dwelling Number</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>DIN</name>
+    <description>Date and Institution Name</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DIN.1</name>
+            <description>Date</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DIN.2</name>
+            <description>Institution Name</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

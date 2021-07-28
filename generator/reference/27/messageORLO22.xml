@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ORLO22</name>
+    <description>General Laboratory Order Response Message to Any OML</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">ERR</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment>PID</segment>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>ORC</segment>
+                <group maxOccurs="unbounded" minOccurs="0">
+                    <segment>TQ1</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">TQ2</segment>
+                </group>
+                <group minOccurs="0">
+                    <segment>OBR</segment>
+                    <group maxOccurs="unbounded" minOccurs="0">
+                        <segment>SPM</segment>
+                        <segment minOccurs="0" maxOccurs="unbounded">SAC</segment>
+                    </group>
+                </group>
+            </group>
+        </group>
+    </segments>
+</message>
