@@ -80,7 +80,6 @@ public class JsonXmlUtil {
             // create source (XML)
             XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
             xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-            xmlInputFactory.setProperty("http://apache.org/xml/features/disallow-doctype-decl", true);
             XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(inputStream);
             Source source = new StAXSource(reader);
 
