@@ -69,6 +69,9 @@ public class EDISerializer implements IMessageSerializer {
         XMLReader xr;
         try {
             xr = XMLReaderFactory.createXMLReader();
+            xr.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            xr.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            xr.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
         } catch (SAXException e) {
             throw new MessageSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to EDI", e));
         }

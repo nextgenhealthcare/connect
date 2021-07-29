@@ -34,6 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.SOAPMessage;
@@ -226,7 +227,10 @@ public class WebServiceDispatcher extends DestinationConnector {
     }
 
     private String sourceToXmlString(Source source) throws TransformerConfigurationException, TransformerException {
-        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+    	TransformerFactory tf = TransformerFactory.newInstance();
+        tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    	Transformer transformer = tf.newTransformer();
         transformer.setOutputProperty(OutputKeys.METHOD, "xml");
         transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
         Writer writer = new StringWriter();

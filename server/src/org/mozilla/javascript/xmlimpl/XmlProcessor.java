@@ -16,6 +16,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptRuntime;
@@ -52,7 +53,7 @@ class XmlProcessor implements Serializable {
         this.dom.setNamespaceAware(true);
         this.dom.setIgnoringComments(false);
         //create TF and set settings to secure it from XSLT attacks if given a malicious node in toXMLString
-        this.xform = javax.xml.transform.TransformerFactory.newInstance();
+        this.xform = getTransformerFactory();
         Context ctx = Context.getCurrentContext();
         if(ctx == null || ctx.hasFeature(Context.FEATURE_ENABLE_XML_SECURE_PARSING)) {
             configureSecureDBF(this.dom);
@@ -152,7 +153,7 @@ class XmlProcessor implements Serializable {
         this.dom.setNamespaceAware(true);
         this.dom.setIgnoringComments(false);
         //create TF and set settings to secure it from XSLT attacks if given a malicious node in toXMLString
-        this.xform = javax.xml.transform.TransformerFactory.newInstance();
+        this.xform = getTransformerFactory();
         Context ctx = Context.getCurrentContext();
         if(ctx == null || ctx.hasFeature(Context.FEATURE_ENABLE_XML_SECURE_PARSING)) {
             configureSecureDBF(this.dom);
@@ -574,5 +575,12 @@ class XmlProcessor implements Serializable {
         if (indentChildren) {
             e.appendChild(e.getOwnerDocument().createTextNode(afterContent));
         }
+    }
+    
+    private static TransformerFactory getTransformerFactory() {
+    	TransformerFactory tf = TransformerFactory.newInstance();
+    	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    	return tf;
     }
 }

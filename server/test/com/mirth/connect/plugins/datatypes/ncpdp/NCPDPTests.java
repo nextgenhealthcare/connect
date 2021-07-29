@@ -132,6 +132,9 @@ public class NCPDPTests {
         xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
         xr.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation", SchemaUrl);
         xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "/ncpdp51.xsd");
+        xr.setProperty("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        xr.setProperty("http://xml.org/sax/features/external-general-entities", false);
+        xr.setProperty("http://xml.org/sax/features/external-parameter-entities", false);
         xr.parse(new InputSource(new StringReader(xmloutput)));
         stopwatch.stop();
 

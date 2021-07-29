@@ -90,7 +90,7 @@ public class JsonXmlUtil {
             Result result = new StAXResult(writer);
 
             // copy source to result via "identity transform"
-            TransformerFactory.newInstance().newTransformer().transform(source, result);
+            getTransformerFactory().newTransformer().transform(source, result);
             return outputStream.toString();
         }
     }
@@ -113,7 +113,7 @@ public class JsonXmlUtil {
             }
             Result result = new StAXResult(writer);
 
-            TransformerFactory.newInstance().newTransformer().transform(source, result);
+            getTransformerFactory().newTransformer().transform(source, result);
             return outputStream.toString();
         }
     }
@@ -595,5 +595,11 @@ public class JsonXmlUtil {
             }
         }
     }
-
+    
+    private static TransformerFactory getTransformerFactory() {
+    	TransformerFactory tf = TransformerFactory.newInstance();
+    	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    	return tf;
+    }
 }
