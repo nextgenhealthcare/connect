@@ -133,7 +133,9 @@ public class DICOMSerializer implements IMessageSerializer {
             }
 
             // parse the Document into a DicomObject
-            SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            SAXParser parser = factory.newSAXParser();
             DicomObject dicomObject = new BasicDicomObject();
             ContentHandlerAdapter contentHandler = new ContentHandlerAdapter(dicomObject);
             byte[] documentBytes = documentSerializer.toXML(document).trim().getBytes(charset);
