@@ -152,12 +152,10 @@ public class NCPDPSerializer implements IMessageSerializer {
                 reader.setFeature("http://xml.org/sax/features/validation", true);
                 reader.setFeature("http://apache.org/xml/features/validation/schema", true);
                 reader.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true);
+                reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
                 reader.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
                 reader.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation", "ncpdp" + version + ".xsd");
                 reader.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "/ncpdp" + version + ".xsd");
-                reader.setProperty("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-                reader.setProperty("http://xml.org/sax/features/external-general-entities", false);
-                reader.setProperty("http://xml.org/sax/features/external-parameter-entities", false);
             }
 
             /*

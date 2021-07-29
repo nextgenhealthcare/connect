@@ -68,9 +68,7 @@ public class DelimitedSerializer implements IMessageSerializer {
         try {
             DelimitedXMLHandler handler = new DelimitedXMLHandler(deserializationProperties);
             XMLReader xr = XMLReaderFactory.createXMLReader();
-            xr.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            xr.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            xr.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            xr.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             xr.setContentHandler(handler);
             xr.setErrorHandler(handler);
             xr.parse(new InputSource(new StringReader(source)));

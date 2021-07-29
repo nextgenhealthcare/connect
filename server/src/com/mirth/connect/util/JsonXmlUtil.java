@@ -78,7 +78,9 @@ public class JsonXmlUtil {
         try (InputStream inputStream = IOUtils.toInputStream(xmlStr);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             // create source (XML)
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
+            XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(inputStream);
             Source source = new StAXSource(reader);
 
             // create result (JSON)
