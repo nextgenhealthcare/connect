@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>SFT</name>
+    <description>Software Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SFT.1</name>
+            <description>Software Vendor Organization</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SFT.2</name>
+            <description>Software Certified Version or Release Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SFT.3</name>
+            <description>Software Product Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SFT.4</name>
+            <description>Software Binary ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SFT.5</name>
+            <description>Software Product Information</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SFT.6</name>
+            <description>Software Install Date</description>
+            <datatype>TS</datatype>
+        </field>
+    </elements>
+</segment>

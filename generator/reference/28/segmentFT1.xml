@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>FT1</name>
+    <description>Financial Transaction</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.2</name>
+            <description>Transaction ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.3</name>
+            <description>Transaction Batch ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>FT1.4</name>
+            <description>Transaction Date</description>
+            <datatype>DR</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.5</name>
+            <description>Transaction Posting Date</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>FT1.6</name>
+            <description>Transaction Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>FT1.7</name>
+            <description>Transaction Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.8</name>
+            <description>Transaction Description</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.9</name>
+            <description>Transaction Description - Alternative</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.10</name>
+            <description>Transaction Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.11</name>
+            <description>Transaction Amount - Extended</description>
+            <datatype>CP</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.12</name>
+            <description>Transaction Amount - Unit</description>
+            <datatype>CP</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.13</name>
+            <description>Department Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.14</name>
+            <description>Insurance Plan ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.15</name>
+            <description>Insurance Amount</description>
+            <datatype>CP</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.16</name>
+            <description>Assigned Patient Location</description>
+            <datatype>PL</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.17</name>
+            <description>Fee Schedule</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.18</name>
+            <description>Patient Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>FT1.19</name>
+            <description>Diagnosis Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>FT1.20</name>
+            <description>Performed by Code</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>FT1.21</name>
+            <description>Ordered by Code</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.22</name>
+            <description>Unit Cost</description>
+            <datatype>CP</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.23</name>
+            <description>Filler Order Number</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>FT1.24</name>
+            <description>Entered by Code</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.25</name>
+            <description>Procedure Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>FT1.26</name>
+            <description>Procedure Code Modifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.27</name>
+            <description>Advanced Beneficiary Notice Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.28</name>
+            <description>Medically Necessary Duplicate Procedure Reason.</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.29</name>
+            <description>NDC Code</description>
+            <datatype>CNE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FT1.30</name>
+            <description>Payment Reference ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>FT1.31</name>
+            <description>Transaction Reference Key</description>
+            <datatype>SI</datatype>
+        </field>
+    </elements>
+</segment>

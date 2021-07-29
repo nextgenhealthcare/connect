@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>EARU08</name>
+    <description>Automated Equipment Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>EQU</segment>
+        <group maxOccurs="unbounded">
+            <segment>ECD</segment>
+            <group minOccurs="0">
+                <segment>SAC</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">SPM</segment>
+            </group>
+            <segment>ECR</segment>
+        </group>
+        <segment minOccurs="0">ROL</segment>
+    </segments>
+</message>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>QRYPCE</name>
+    <description>PC/ Pathway (problem-oriented) Query</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>QRD</segment>
+        <segment minOccurs="0">QRF</segment>
+    </segments>
+</message>

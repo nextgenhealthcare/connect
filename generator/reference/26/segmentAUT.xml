@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>AUT</name>
+    <description>Authorization Information</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AUT.1</name>
+            <description>Authorizing Payor, Plan ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>AUT.2</name>
+            <description>Authorizing Payor, Company ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AUT.3</name>
+            <description>Authorizing Payor, Company Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AUT.4</name>
+            <description>Authorization Effective Date</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AUT.5</name>
+            <description>Authorization Expiration Date</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AUT.6</name>
+            <description>Authorization Identifier</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AUT.7</name>
+            <description>Reimbursement Limit</description>
+            <datatype>CP</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AUT.8</name>
+            <description>Requested Number of Treatments</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AUT.9</name>
+            <description>Authorized Number of Treatments</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AUT.10</name>
+            <description>Process Date</description>
+            <datatype>TS</datatype>
+        </field>
+    </elements>
+</segment>

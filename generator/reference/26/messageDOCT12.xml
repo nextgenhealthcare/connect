@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>DOCT12</name>
+    <description>Document Query - Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment minOccurs="0">QAK</segment>
+        <segment>QRD</segment>
+        <group maxOccurs="unbounded">
+            <segment minOccurs="0">EVN</segment>
+            <segment>PID</segment>
+            <segment>PV1</segment>
+            <segment>TXA</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">OBX</segment>
+        </group>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

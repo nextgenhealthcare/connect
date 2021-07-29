@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>PPRPC1</name>
+    <description>PC/ Problem Add</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>PID</segment>
+        <group minOccurs="0">
+            <segment>PV1</segment>
+            <segment minOccurs="0">PV2</segment>
+        </group>
+        <group maxOccurs="unbounded">
+            <segment>PRB</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">VAR</segment>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>ROL</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">VAR</segment>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>PTH</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">VAR</segment>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>OBX</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>GOL</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">VAR</segment>
+                <group maxOccurs="unbounded" minOccurs="0">
+                    <segment>ROL</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">VAR</segment>
+                </group>
+                <group maxOccurs="unbounded" minOccurs="0">
+                    <segment>OBX</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                </group>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>ORC</segment>
+                <group minOccurs="0">
+                    <group maxOccurs="unbounded" minOccurs="0">
+                        <segment>OBR</segment>
+                        <segment>ANY</segment>
+                    </group>
+                    <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">VAR</segment>
+                    <group maxOccurs="unbounded" minOccurs="0">
+                        <segment>OBX</segment>
+                        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                        <segment minOccurs="0" maxOccurs="unbounded">VAR</segment>
+                    </group>
+                </group>
+            </group>
+        </group>
+    </segments>
+</message>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>QRYT12</name>
+    <description>Document Query</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>QRD</segment>
+        <segment minOccurs="0">QRF</segment>
+    </segments>
+</message>

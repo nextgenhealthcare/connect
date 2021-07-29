@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PD1</name>
+    <description>Patient Additional Demographic</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>PD1.1</name>
+            <description>Living Dependency</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.2</name>
+            <description>Living Arrangement</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>PD1.3</name>
+            <description>Patient Primary Facility</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>PD1.4</name>
+            <description>Patient Primary Care Provider Name &amp; ID No.</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.5</name>
+            <description>Student Indicator</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.6</name>
+            <description>Handicap</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.7</name>
+            <description>Living Will Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.8</name>
+            <description>Organ Donor Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.9</name>
+            <description>Separate Bill</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>PD1.10</name>
+            <description>Duplicate Patient</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.11</name>
+            <description>Publicity Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.12</name>
+            <description>Protection Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.13</name>
+            <description>Protection Indicator Effective Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>PD1.14</name>
+            <description>Place of Worship</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>PD1.15</name>
+            <description>Advance Directive Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.16</name>
+            <description>Immunization Registry Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.17</name>
+            <description>Immunization Registry Status Effective Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.18</name>
+            <description>Publicity Code Effective Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.19</name>
+            <description>Military Branch</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.20</name>
+            <description>Military Rank/Grade</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PD1.21</name>
+            <description>Military Status</description>
+            <datatype>IS</datatype>
+        </field>
+    </elements>
+</segment>
