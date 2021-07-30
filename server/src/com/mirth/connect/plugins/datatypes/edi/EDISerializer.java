@@ -69,6 +69,7 @@ public class EDISerializer implements IMessageSerializer {
         XMLReader xr;
         try {
             xr = XMLReaderFactory.createXMLReader();
+            xr.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         } catch (SAXException e) {
             throw new MessageSerializerException("Error converting XML to EDI", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to EDI", e));
         }

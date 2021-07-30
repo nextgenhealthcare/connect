@@ -22,6 +22,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -92,6 +93,8 @@ public class ImportConverter {
             Element channel = (Element) channels.item(0);
 
             TransformerFactory tf = TransformerFactory.newInstance();
+        	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
             Transformer trans = tf.newTransformer();
             trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             StringWriter sw = new StringWriter();

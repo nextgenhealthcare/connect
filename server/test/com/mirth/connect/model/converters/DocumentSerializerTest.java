@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -90,6 +91,8 @@ public class DocumentSerializerTest {
 	@SuppressWarnings("unused")
 	private static void printDocument(Document doc) throws IOException, TransformerException {
 	    TransformerFactory tf = TransformerFactory.newInstance();
+	    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+	    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
 	    Transformer transformer = tf.newTransformer();
 	    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
 	    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
