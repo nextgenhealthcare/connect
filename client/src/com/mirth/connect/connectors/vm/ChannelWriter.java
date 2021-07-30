@@ -135,8 +135,8 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 						data = (String) transferable.getTransferData(DataFlavor.stringFlavor);
 						if(data.startsWith("${") && data.endsWith("}")) {
 							data = data.substring(2, data.length() - 1);
-							((CustomTableCellEditor)mapVariablesTable.getColumnModel().getColumn(0).getCellEditor()).getTextField().setText(data);
 						}
+						((CustomTableCellEditor)mapVariablesTable.getColumnModel().getColumn(0).getCellEditor()).getTextField().setText(data);
 						dtde.dropComplete(true);
 					} catch (Exception e) {
 						e.printStackTrace();
