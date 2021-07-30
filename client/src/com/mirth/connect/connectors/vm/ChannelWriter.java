@@ -103,7 +103,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
         mapVariablesTable.getColumnModel().getColumn(0).setCellEditor(new CustomTableCellEditor());
         mapVariablesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        mapVariablesTable.setToolTipText("The following map variables will be included in the source map of the destination channel's message.");
+        mapVariablesTable.setToolTipText("The following map variables will be included in the source map of the destination channel's message.\nWhen adding rows to this table, only use the map key itself, without the \"${}\" syntax.");
 
         mapVariablesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
