@@ -12,13 +12,12 @@ package com.mirth.connect.connectors.vm;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.FlavorMap;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -132,15 +131,16 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 					Transferable transferable = dtde.getTransferable();
 					String data = "";
 					try {
+						dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
 						data = (String) transferable.getTransferData(DataFlavor.stringFlavor);
-						data = data.substring(2, data.length() - 1);
-						((CustomTableCellEditor)mapVariablesTable.getColumnModel().getColumn(0).getCellEditor()).getTextField().setText(data);
-					} catch (UnsupportedFlavorException e) {
-						// e.printStackTrace();
-					} catch (IOException e) {
-						// e.printStackTrace();
+						if(data.startsWith("${") && data.endsWith("}")) {
+							data = data.substring(2, data.length() - 1);
+							((CustomTableCellEditor)mapVariablesTable.getColumnModel().getColumn(0).getCellEditor()).getTextField().setText(data);
+						}
+						dtde.dropComplete(true);
 					} catch (Exception e) {
-
+						e.printStackTrace();
+						dtde.rejectDrop();
 					}
 				}
 
