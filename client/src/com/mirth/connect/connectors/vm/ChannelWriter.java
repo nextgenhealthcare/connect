@@ -9,12 +9,22 @@
 
 package com.mirth.connect.connectors.vm;
 
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.FlavorMap;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TooManyListenersException;
 import java.util.Vector;
 
 import javax.swing.ListSelectionModel;
@@ -105,6 +115,53 @@ public class ChannelWriter extends ConnectorSettingsPanel {
                 }
             }
         });
+        
+        DropTarget gt = new DropTarget();
+		try {
+			gt.addDropTargetListener(new DropTargetListener() {
+
+				public void dragEnter(DropTargetDragEvent dtde) {}
+
+				public void dragExit(DropTargetEvent dte) {}
+
+				public void dragOver(DropTargetDragEvent dtde) {}
+
+				public void drop(DropTargetDropEvent dtde) {
+
+					Transferable transferable = dtde.getTransferable();
+					String data = "";
+					try {
+						dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+						data = (String) transferable.getTransferData(DataFlavor.stringFlavor);
+						if(data.startsWith("${") && data.endsWith("}")) {
+							data = data.substring(2, data.length() - 1);
+						}
+						((CustomTableCellEditor)mapVariablesTable.getColumnModel().getColumn(0).getCellEditor()).getTextField().setText(data);
+						dtde.dropComplete(true);
+					} catch (Exception e) {
+						e.printStackTrace();
+						dtde.rejectDrop();
+					}
+				}
+
+				public void dropActionChanged(DropTargetDragEvent dtde) {}
+			});
+		} catch (TooManyListenersException e) {
+			e.printStackTrace();
+		}
+
+		gt.setFlavorMap(new FlavorMap() {
+
+			public Map<String, DataFlavor> getFlavorsForNatives(String[] natives) {
+				return null;
+			}
+
+			public Map<DataFlavor, String> getNativesForFlavors(DataFlavor[] flavors) {
+				return null;
+			}
+		});
+        CustomTableCellEditor customTableCellEditor =  (CustomTableCellEditor)mapVariablesTable.getColumnModel().getColumn(0).getCellEditor();
+        customTableCellEditor.getTextField().setDropTarget(gt);
     }
 
     private void updateField() {
