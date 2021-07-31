@@ -2145,6 +2145,7 @@ public class DonkeyEngineController implements EngineController {
                 if (channelModel != null) {
 
                     DonkeyDao dao = null;
+                    boolean commitSuccess = false;
                     try {
                         dao = donkey.getDaoFactory().getDao();
                         dao.deleteAllMessages(channelId);
@@ -2159,10 +2160,16 @@ public class DonkeyEngineController implements EngineController {
                         }
 
                         dao.commit();
+                        commitSuccess = true;
                     } finally {
                         if (dao != null) {
+                            if (!commitSuccess) {
+                                try {
+                                    dao.rollback();
+                                } catch (Exception e) {}
+                            }
                             dao.close();
-                        }
+                        } 
                     }
                 }
             }

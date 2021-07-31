@@ -83,9 +83,11 @@ public class DonkeyStatisticsUpdater extends Thread implements StatisticsUpdater
             tempStats.update(stats);
 
             DonkeyDao dao = daoFactory.getDao();
+            boolean commitSuccess = false;
             try {
                 dao.addChannelStatistics(tempStats);
                 dao.commit();
+                commitSuccess = true;
 
                 // Invert the stats and update them on the Statistics object
                 for (Map<Integer, Map<Status, Long>> channelMap : stats.values()) {
@@ -112,7 +114,14 @@ public class DonkeyStatisticsUpdater extends Thread implements StatisticsUpdater
                     logger.error("Unable to update statistics.", t);
                 }
             } finally {
-                dao.close();
+                if (dao != null) {
+                    if (!commitSuccess) {
+                        try {
+                            dao.rollback();
+                        } catch (Exception e) {}
+                    }
+                    dao.close();
+                } 
             }
         }
     }

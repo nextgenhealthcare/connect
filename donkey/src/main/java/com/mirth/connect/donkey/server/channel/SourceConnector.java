@@ -323,6 +323,7 @@ public abstract class SourceConnector extends Connector {
             DonkeyDaoFactory daoFactory = channel.getDaoFactory();
             StorageSettings storageSettings = channel.getStorageSettings();
             DonkeyDao dao = null;
+            boolean commitSuccess = false;
             long messageId = dispatchResult.getMessageId();
 
             try {
@@ -395,6 +396,7 @@ public abstract class SourceConnector extends Connector {
 
                 if (dao != null) {
                     dao.commit(storageSettings.isDurable());
+                    commitSuccess = true;
                 }
 
                 // If destination queuing is enabled, we have to remove content in a separate transaction
@@ -403,6 +405,11 @@ public abstract class SourceConnector extends Connector {
                 }
             } finally {
                 if (dao != null) {
+                        if (!commitSuccess) {
+                            try {
+                                dao.rollback();
+                            } catch (Exception e) {}
+                        }
                     dao.close();
                 }
             }

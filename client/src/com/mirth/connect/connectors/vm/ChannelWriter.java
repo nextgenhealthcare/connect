@@ -94,9 +94,10 @@ public class ChannelWriter extends ConnectorSettingsPanel {
         mapVariablesTable.getColumnModel().getColumn(0).setCellEditor(new CustomTableCellEditor());
         mapVariablesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         mapVariablesTable.setToolTipText("The following map variables will be included in the source map of the destination channel's message.");
-
+//        mapVariablesTable.setTransferHandler(getTransferHandler());
         mapVariablesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
+            
             public void valueChanged(ListSelectionEvent evt) {
                 if (mapVariablesTable.getRowCount() > 0) {
                     deleteButton.setEnabled(true);

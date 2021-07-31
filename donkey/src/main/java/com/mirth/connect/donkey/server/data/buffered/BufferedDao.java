@@ -97,6 +97,7 @@ public class BufferedDao implements DonkeyDao {
 
     private void executeTasks(Boolean durable) {
         DonkeyDao dao = getDelegateDao();
+        boolean commitSuccess = false;
 
         try {
             while (!tasks.isEmpty()) {
@@ -143,12 +144,21 @@ public class BufferedDao implements DonkeyDao {
 
             if (durable == null) {
                 dao.commit();
+                commitSuccess = true;
             } else {
                 dao.commit(durable);
+                commitSuccess = true;
             }
         } finally {
             if (dao != null) {
-                dao.close();
+                if (dao != null) {
+                    if (!commitSuccess) {
+                        try {
+                            dao.rollback();
+                        } catch (Exception e) {}
+                    }
+                    dao.close();
+                }       
             }
         }
     }

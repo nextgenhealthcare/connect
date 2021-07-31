@@ -2416,11 +2416,11 @@ public class JdbcDao implements DonkeyDao {
 
         try {
             if (!connection.isClosed()) {
-                try {
-                    connection.rollback();
-                } catch (SQLException e) {
-                    logger.warn("Failed to rollback transaction", e);
-                }
+//                try {
+//                    connection.rollback();
+//                } catch (SQLException e) {
+//                    logger.warn("Failed to rollback transaction", e);
+//                }
                 connection.close();
             }
         } catch (SQLException e) {
