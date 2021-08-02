@@ -78,7 +78,9 @@ public class JsonXmlUtil {
         try (InputStream inputStream = IOUtils.toInputStream(xmlStr);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             // create source (XML)
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
+            XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(inputStream);
             Source source = new StAXSource(reader);
 
             // create result (JSON)
@@ -90,7 +92,7 @@ public class JsonXmlUtil {
             Result result = new StAXResult(writer);
 
             // copy source to result via "identity transform"
-            TransformerFactory.newInstance().newTransformer().transform(source, result);
+            getTransformerFactory().newTransformer().transform(source, result);
             return outputStream.toString();
         }
     }
@@ -113,7 +115,7 @@ public class JsonXmlUtil {
             }
             Result result = new StAXResult(writer);
 
-            TransformerFactory.newInstance().newTransformer().transform(source, result);
+            getTransformerFactory().newTransformer().transform(source, result);
             return outputStream.toString();
         }
     }
@@ -595,5 +597,11 @@ public class JsonXmlUtil {
             }
         }
     }
-
+    
+    private static TransformerFactory getTransformerFactory() {
+    	TransformerFactory tf = TransformerFactory.newInstance();
+    	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    	return tf;
+    }
 }

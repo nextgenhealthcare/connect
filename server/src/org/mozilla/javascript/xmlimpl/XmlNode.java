@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.XMLConstants;
+import javax.xml.transform.TransformerFactory;
+
 import org.mozilla.javascript.Undefined;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -558,7 +561,10 @@ class XmlNode implements Serializable {
 
     String ecmaToXMLString(XmlProcessor processor) {
         try {
-            javax.xml.transform.Transformer serializer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
+        	TransformerFactory tf = TransformerFactory.newInstance();
+        	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+            javax.xml.transform.Transformer serializer = tf.newTransformer();
             serializer.setOutputProperty(javax.xml.transform.OutputKeys.INDENT, "no"); 
             serializer.setOutputProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
             java.io.Writer writer = new java.io.StringWriter();

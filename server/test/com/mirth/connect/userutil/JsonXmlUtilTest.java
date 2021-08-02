@@ -20,6 +20,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
@@ -385,7 +386,10 @@ public class JsonXmlUtilTest {
     private String normalizeXml(String xml) throws Exception {
         Source source = new StreamSource(new StringReader(xml));
         Writer writer = new StringWriter();
-        TransformerFactory.newInstance().newTransformer().transform(source, new StreamResult(writer));
+        TransformerFactory tf = TransformerFactory.newInstance();
+        tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+        tf.newTransformer().transform(source, new StreamResult(writer));
         return writer.toString();
     }
 

@@ -15,6 +15,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -463,7 +464,10 @@ public class DonkeyElement implements Element {
         Writer writer = new StringWriter();
 
         try {
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        	TransformerFactory tf = TransformerFactory.newInstance();
+        	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+            Transformer transformer = tf.newTransformer();
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
