@@ -44,10 +44,13 @@ public class Migrate3_12_0 extends Migrator implements ConfigurationMigrator {
 
     @Override
     public void updateConfiguration(PropertiesConfiguration configuration) {
-        String keystoreType = configuration.getString("keystore.type");
-        if (!StringUtils.equals("JCEKS", keystoreType)) {
-            logger.error("Setting Keystore type from '" + keystoreType + "' to JCEKS");
+        // If upgrading to 3.12 from earlier version, explicitly set keystore.type to JCEKS
+        if (getStartingVersion() != null && getStartingVersion().compareTo(Version.v3_12_0) < 0) {
+            String keystoreType = configuration.getString("keystore.type");
+            if (!StringUtils.equals("JCEKS", keystoreType)) {
+                logger.error("Setting Keystore type from '" + keystoreType + "' to JCEKS");
+            }
+            configuration.setProperty("keystore.type", "JCEKS");
         }
-        configuration.setProperty("keystore.type", "JCEKS");
     }
 }
