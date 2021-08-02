@@ -977,8 +977,9 @@ public class Channel implements Runnable {
                                 dao.rollback();
                             } catch (Exception e) {}
                         }
+                        dao.close();   
                     }  
-                    dao.close();
+                    
                 }
             } finally {
                 DELETE_PERMIT.release();

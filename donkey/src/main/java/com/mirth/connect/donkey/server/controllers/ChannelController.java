@@ -132,6 +132,7 @@ public class ChannelController {
                 List<Integer> metaDataIds = entry.getValue();
 
                 for (Integer metaDataId : metaDataIds) {
+                    commitSuccess = false;
                     dao.resetStatistics(channelId, metaDataId, statuses);
 
                     // Each update here must have its own transaction, otherwise deadlocks may occur.

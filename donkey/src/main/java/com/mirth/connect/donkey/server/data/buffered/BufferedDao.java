@@ -150,7 +150,7 @@ public class BufferedDao implements DonkeyDao {
                 commitSuccess = true;
             }
         } finally {
-            if (dao != null) {
+            
                 if (dao != null) {
                     if (!commitSuccess) {
                         try {
@@ -159,7 +159,6 @@ public class BufferedDao implements DonkeyDao {
                     }
                     dao.close();
                 }       
-            }
         }
     }
 
