@@ -162,6 +162,9 @@ public class MigratableConverter extends ReflectionConverter {
             if (MigrationUtil.compareVersions(elementVersion, "3.11.1") < 0) {
                 instance.migrate3_11_1(element);
             }
+            if (MigrationUtil.compareVersions(elementVersion, "3.12.0") < 0) {
+                instance.migrate3_12_0(element);
+            }
         } catch (Exception e) {
             throw new SerializerException("An error occurred while attempting to migrate serialized object element: " + element.getNodeName(), e);
         }
