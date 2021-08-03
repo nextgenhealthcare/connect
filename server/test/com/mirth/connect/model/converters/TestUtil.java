@@ -40,7 +40,6 @@ public class TestUtil {
         TransformerFactory factory = TransformerFactory.newInstance();
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         factory.setAttribute("indent-number", new Integer(4));
         Transformer transformer = factory.newTransformer();
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
