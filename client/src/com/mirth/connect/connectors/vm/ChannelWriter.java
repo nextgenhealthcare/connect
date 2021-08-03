@@ -1,8 +1,8 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
- * 
+ *
  * http://www.mirthcorp.com
- * 
+ *
  * The software in this package is published under the terms of the MPL license a copy of which has
  * been included with this distribution in the LICENSE.txt file.
  */
@@ -103,9 +103,11 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
         mapVariablesTable.getColumnModel().getColumn(0).setCellEditor(new CustomTableCellEditor());
         mapVariablesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
         mapVariablesTable.setToolTipText("The following map variables will be included in the source map of the destination channel's message.\nWhen adding rows to this table, only use the map key itself, without the \"${}\" syntax.");
 
         mapVariablesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
 
             public void valueChanged(ListSelectionEvent evt) {
                 if (mapVariablesTable.getRowCount() > 0) {
@@ -115,7 +117,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
                 }
             }
         });
-        
+
         DropTarget gt = new DropTarget();
 		try {
 			gt.addDropTargetListener(new DropTargetListener() {

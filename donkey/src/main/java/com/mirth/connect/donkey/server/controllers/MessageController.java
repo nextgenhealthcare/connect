@@ -78,25 +78,43 @@ public class MessageController {
 
     public void insertAttachment(Attachment attachment, String channelId, Long messageId) {
         DonkeyDao dao = donkey.getDaoFactory().getDao();
+        boolean commitSuccess = false;
 
         try {
             dao.insertMessageAttachment(channelId, messageId, attachment);
 
             dao.commit();
+            commitSuccess = true;
         } finally {
-            dao.close();
-        }
+            if (dao != null) {
+                if (!commitSuccess) {
+                    try {
+                        dao.rollback();
+                    } catch (Exception e) {}
+                }
+                dao.close();
+            }        
+         }
     }
 
     public void updateAttachment(Attachment attachment, String channelId, Long messageId) {
         DonkeyDao dao = donkey.getDaoFactory().getDao();
+        boolean commitSuccess = false;
 
         try {
             dao.updateMessageAttachment(channelId, messageId, attachment);
 
             dao.commit();
+            commitSuccess = true;
         } finally {
-            dao.close();
+            if (dao != null) {
+                if (!commitSuccess) {
+                    try {
+                        dao.rollback();
+                    } catch (Exception e) {}
+                }
+                dao.close();
+            } 
         }
     }
 
@@ -132,6 +150,7 @@ public class MessageController {
 
     public void deleteMessages(String channelId, Map<Long, Set<Integer>> messages) {
         DonkeyDao dao = donkey.getDaoFactory().getDao();
+        boolean commitSuccess = false;
 
         try {
             for (Entry<Long, Set<Integer>> messageEntry : messages.entrySet()) {
@@ -146,8 +165,16 @@ public class MessageController {
             }
 
             dao.commit();
+            commitSuccess = true;
         } finally {
-            dao.close();
-        }
+            if (dao != null) {
+                if (!commitSuccess) {
+                    try {
+                        dao.rollback();
+                    } catch (Exception e) {}
+                }
+                dao.close();
+            }         
+         }
     }
 }

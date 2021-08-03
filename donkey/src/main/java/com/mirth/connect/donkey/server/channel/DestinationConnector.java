@@ -605,6 +605,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     @Override
     public void run() {
         DonkeyDao dao = null;
+        boolean commitSuccess = false;
         Serializer serializer = channel.getSerializer();
         ConnectorMessage connectorMessage = null;
         int retryIntervalMillis = destinationConnectorProperties.getRetryIntervalMillis();
@@ -750,6 +751,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
                         ThreadUtils.checkInterruptedStatus();
                         dao.commit(storageSettings.isDurable());
+                        commitSuccess = true;
 
                         // Only actually attempt to remove content if the status is SENT
                         if (connectorMessage.getStatus().isCompleted()) {
@@ -784,6 +786,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
                         exceptionCaught = true;
                     } finally {
                         if (dao != null) {
+                            if (!commitSuccess) {
+                                try {
+                                    dao.rollback();
+                                } catch (Exception e) {}
+                            }
                             dao.close();
                         }
 

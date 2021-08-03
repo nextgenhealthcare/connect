@@ -952,6 +952,7 @@ public class Channel implements Runnable {
 
             try {
                 DonkeyDao dao = getDaoFactory().getDao();
+                boolean commitSuccess = false;
                 try {
                     logger.debug("Removing messages for channel " + name + " (" + channelId + ").");
                     dao.deleteAllMessages(channelId);
@@ -968,8 +969,17 @@ public class Channel implements Runnable {
                     }
 
                     dao.commit();
+                    commitSuccess = true;
                 } finally {
-                    dao.close();
+                    if (dao != null) {
+                        if (!commitSuccess) {
+                            try {
+                                dao.rollback();
+                            } catch (Exception e) {}
+                        }
+                        dao.close();   
+                    }  
+                    
                 }
             } finally {
                 DELETE_PERMIT.release();
@@ -1240,6 +1250,7 @@ public class Channel implements Runnable {
             }
 
             DonkeyDao dao = null;
+            boolean commitSuccess = false;
             Message processedMessage = null;
             Response response = null;
             String responseErrorMessage = null;
@@ -1259,6 +1270,7 @@ public class Channel implements Runnable {
 
                 if (sourceConnector.isRespondAfterProcessing()) {
                     dao.commit(storageSettings.isRawDurable());
+                    commitSuccess = true;
                     persistedMessageId = sourceMessage.getMessageId();
                     dao.close();
 
@@ -1269,6 +1281,7 @@ public class Channel implements Runnable {
                     // Block other threads from adding to the source queue until both the current commit and queue addition finishes
                     synchronized (sourceQueue) {
                         dao.commit(storageSettings.isRawDurable());
+                        commitSuccess = true;
                         persistedMessageId = sourceMessage.getMessageId();
                         dao.close();
                         queue(sourceMessage);
@@ -1296,6 +1309,11 @@ public class Channel implements Runnable {
                 }
 
                 if (dao != null && !dao.isClosed()) {
+                    if (!commitSuccess) {
+                        try {
+                            dao.rollback();
+                        } catch (Exception e) {}
+                    }
                     dao.close();
                 }
 
@@ -1606,6 +1624,7 @@ public class Channel implements Runnable {
          */
         ThreadUtils.checkInterruptedStatus();
         DonkeyDao dao = daoFactory.getDao();
+        boolean commitSuccess = false;
 
         try {
             if (sourceMessage.getStatus() == Status.ERROR) {
@@ -1617,6 +1636,7 @@ public class Channel implements Runnable {
 
                 ThreadUtils.checkInterruptedStatus();
                 dao.commit(storageSettings.isDurable());
+                commitSuccess = true;
                 dao.close();
                 finishMessage(finalMessage, markAsProcessed);
                 return finalMessage;
@@ -1677,6 +1697,7 @@ public class Channel implements Runnable {
 
                 ThreadUtils.checkInterruptedStatus();
                 dao.commit();
+                commitSuccess = true;
                 dao.close();
 
                 finishMessage(finalMessage, markAsProcessed);
@@ -1767,6 +1788,7 @@ public class Channel implements Runnable {
 
             ThreadUtils.checkInterruptedStatus();
             dao.commit();
+            commitSuccess = true;
             dao.close();
 
             /*
@@ -1827,6 +1849,13 @@ public class Channel implements Runnable {
             return finalMessage;
         } finally {
             if (!dao.isClosed()) {
+                if (dao != null) {
+                    if (!commitSuccess) {
+                        try {
+                            dao.rollback();
+                        } catch (Exception e) {}
+                    }
+                }  
                 dao.close();
             }
         }
@@ -1952,6 +1981,7 @@ public class Channel implements Runnable {
          */
         ThreadUtils.checkInterruptedStatus();
         DonkeyDao dao = null;
+        boolean commitSuccess = false;
 
         try {
             if (storePostProcessorError) {
@@ -1980,6 +2010,7 @@ public class Channel implements Runnable {
 
             if (dao != null) {
                 dao.commit(storageSettings.isDurable());
+                commitSuccess = true;
             }
 
             // If destination queuing is enabled, we have to remove content in a separate transaction
@@ -1988,6 +2019,11 @@ public class Channel implements Runnable {
             }
         } finally {
             if (dao != null) {
+                if (!commitSuccess) {
+                    try {
+                        dao.rollback();
+                    } catch (Exception e) {}
+                }
                 dao.close();
             }
         }
@@ -2097,12 +2133,21 @@ public class Channel implements Runnable {
 
     public void importMessage(Message message) throws DonkeyException {
         DonkeyDao dao = null;
+        boolean commitSuccess = false;
 
         try {
             dao = daoFactory.getDao();
             importMessage(message, dao);
             dao.commit();
+            commitSuccess = true;
         } finally {
+            if (dao != null) {
+                if (!commitSuccess) {
+                    try {
+                        dao.rollback();
+                    } catch (Exception e) {}
+                }
+            }   
             dao.close();
         }
     }
@@ -2199,6 +2244,7 @@ public class Channel implements Runnable {
 
     private void updateMetaDataColumns() throws SQLException {
         DonkeyDao dao = daoFactory.getDao();
+        boolean commitSuccess = false;
 
         try {
             Map<String, MetaDataColumnType> existingColumnsMap = new HashMap<String, MetaDataColumnType>();
@@ -2233,7 +2279,15 @@ public class Channel implements Runnable {
             }
 
             dao.commit();
+            commitSuccess = true;
         } finally {
+            if (dao != null) {
+                if (!commitSuccess) {
+                    try {
+                        dao.rollback();
+                    } catch (Exception e) {}
+                }
+            }  
             dao.close();
         }
     }
