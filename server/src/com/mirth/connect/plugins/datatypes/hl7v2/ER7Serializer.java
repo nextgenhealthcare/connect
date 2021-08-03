@@ -61,58 +61,12 @@ public class ER7Serializer implements IMessageSerializer {
     private static Pattern prettyPattern1 = Pattern.compile("\\s*<([^/][^>]*)>");
     private static Pattern prettyPattern2 = Pattern.compile("<([^>]*/|/[^>]*)>\\s*");
 
-    private class CustomPipeParser extends PipeParser {
 
-        public CustomPipeParser(HapiContext context) {
-            super(context);
-        }
-        
-        @Override
-        protected Message instantiateMessage(String theName, String theVersion, boolean isExplicit) throws HL7Exception {
-
-            Message message = null;
-
-            try {
-                message = super.instantiateMessage(theName, theVersion, isExplicit);
-            } catch (HL7Exception e) {
-                // 
-                e.printStackTrace();
-            }
-            message.setParser(this);
-
-            return message;
-        }
-    }
-
-    private class CustomDefaultXMLParser extends DefaultXMLParser {
-        
-        public CustomDefaultXMLParser(HapiContext context) {
-            super(context);
-        }
-        
-        @Override
-        protected Message instantiateMessage(String theName, String theVersion, boolean isExplicit) throws HL7Exception {
-
-            Message message = null;
-
-            try {
-                message = super.instantiateMessage(theName, theVersion, isExplicit);
-            } catch (HL7Exception e) {
-                // 
-                e.printStackTrace();
-            }
-            message.setParser(this);
-
-            return message;
-        }
-    }
-    
     public ER7Serializer(SerializerProperties properties) {
         serializationProperties = (HL7v2SerializationProperties) properties.getSerializationProperties();
         deserializationProperties = (HL7v2DeserializationProperties) properties.getDeserializationProperties();
 
         HapiContext context = new DefaultHapiContext();
-       
 
         if (serializationProperties != null) {
             serializationSegmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
@@ -122,13 +76,11 @@ public class ER7Serializer implements IMessageSerializer {
             }
 
             if (serializationProperties.isUseStrictParser()) {
-                serializationPipeParser = new CustomPipeParser(context); 
+                serializationPipeParser = new CustomPipeParser(context);
                 serializationXmlParser = new CustomDefaultXMLParser(context);
 
                 // turn off strict validation if needed
                 if (!serializationProperties.isUseStrictValidation()) {
-                    serializationPipeParser.setValidationContext(new NoValidation());
-
                     context.setValidationContext(new NoValidation());
 
                 }
@@ -148,8 +100,6 @@ public class ER7Serializer implements IMessageSerializer {
 
                 // turn off strict validation if needed
                 if (!deserializationProperties.isUseStrictValidation()) {
-                    deserializationPipeParser.setValidationContext(new NoValidation());
-
                     context.setValidationContext(new NoValidation());
                 }
 
@@ -526,6 +476,39 @@ public class ER7Serializer implements IMessageSerializer {
     @Override
     public String fromJSON(String message) throws MessageSerializerException {
         return null;
+    }
+    
+
+    private class CustomPipeParser extends PipeParser {
+
+        public CustomPipeParser(HapiContext context) {
+            super(context);
+        }
+
+        @Override
+        protected Message instantiateMessage(String theName, String theVersion, boolean isExplicit) throws HL7Exception {
+
+            Message message = super.instantiateMessage(theName, theVersion, isExplicit);
+            message.setParser(this);
+
+            return message;
+        }
+    }
+
+    private class CustomDefaultXMLParser extends DefaultXMLParser {
+
+        public CustomDefaultXMLParser(HapiContext context) {
+            super(context);
+        }
+
+        @Override
+        protected Message instantiateMessage(String theName, String theVersion, boolean isExplicit) throws HL7Exception {
+
+            Message message = super.instantiateMessage(theName, theVersion, isExplicit);
+            message.setParser(this);
+
+            return message;
+        }
     }
 
 }
