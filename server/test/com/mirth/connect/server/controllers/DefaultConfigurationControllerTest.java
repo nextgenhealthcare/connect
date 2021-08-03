@@ -10,6 +10,7 @@
 package com.mirth.connect.server.controllers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -37,6 +38,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.invocation.Invocation;
+import org.xml.sax.SAXParseException;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -190,6 +192,18 @@ public class DefaultConfigurationControllerTest {
     public void testRhinoVersionUnknown() {
         assertEquals(0, (int) new DefaultConfigurationController().getRhinoLanguageVersion("asdf"));
     }
+    
+    @Test
+    public void testParseDbdriversXmlWithExternalDtd() {
+    	boolean exceptionCaught = false;
+    	try {
+			new DefaultConfigurationController().parseDbdriversXml(new StringReader(DBDRIVERS_FILE_WITH_EXTERNAL_DTD));
+		} catch (Exception e) {
+			assertEquals(SAXParseException.class, e.getClass());
+			exceptionCaught = true;
+		}
+    	assertTrue(exceptionCaught);
+    }
 
     private void assertDefaultDrivers(List<DriverInfo> drivers, boolean includeODBC) {
         assertEquals(includeODBC ? 7 : 6, drivers.size());
@@ -314,5 +328,17 @@ public class DefaultConfigurationControllerTest {
     		"	<driver class=\"com.microsoft.sqlserver.jdbc.SQLServerDriver\" name=\"Microsoft SQL Server\" template=\"jdbc:sqlserver://host:port;databaseName=dbname\" selectLimit=\"SELECT TOP 1 * FROM ?\" />\n" + 
     		"	<driver class=\"org.sqlite.JDBC\" name=\"SQLite\" template=\"jdbc:sqlite:dbfile.db\" selectLimit=\"SELECT * FROM ? LIMIT 1\" />\n" + 
     		"</drivers>\n";
+    
+    private String DBDRIVERS_FILE_WITH_EXTERNAL_DTD = "<!DOCTYPE foo[\n" + 
+    		"<!ELEMENT foo ANY >\n" + 
+    		"<!ENTITY xxe SYSTEM \"file:///dev/random\" >]\n" + 
+    		"<drivers>\n" + 
+    		"	<driver class=\"com.mysql.cj.jdbc.Driver\" name=\"&xxe;MySQL\" template=\"jdbc:mysql://host:port/dbname\" selectLimit=\"SELECT * FROM ? LIMIT 1\" alternativeClasses=\"com.mysql.jdbc.Driver\" />\n" + 
+    		"	<driver class=\"oracle.jdbc.driver.OracleDriver\" name=\"Oracle\" template=\"jdbc:oracle:thin:@host:port:dbname\" selectLimit=\"SELECT * FROM ? WHERE ROWNUM &lt; 2\" />\n" + 
+    		"	<driver class=\"org.postgresql.Driver\" name=\"PostgreSQL\" template=\"jdbc:postgresql://host:port/dbname\" selectLimit=\"SELECT * FROM ? LIMIT 1\" />\n" + 
+    		"	<driver class=\"net.sourceforge.jtds.jdbc.Driver\" name=\"SQL Server/Sybase (jTDS)\" template=\"jdbc:jtds:sqlserver://host:port/dbname\" selectLimit=\"SELECT TOP 1 * FROM ?\" />\n" + 
+    		"	<driver class=\"com.microsoft.sqlserver.jdbc.SQLServerDriver\" name=\"Microsoft SQL Server\" template=\"jdbc:sqlserver://host:port;databaseName=dbname\" selectLimit=\"SELECT TOP 1 * FROM ?\" />\n" + 
+    		"	<driver class=\"org.sqlite.JDBC\" name=\"SQLite\" template=\"jdbc:sqlite:dbfile.db\" selectLimit=\"SELECT * FROM ? LIMIT 1\" />\n" + 
+    		"</drivers>";
     // @formatter:on
 }
