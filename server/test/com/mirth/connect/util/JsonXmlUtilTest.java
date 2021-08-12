@@ -38,7 +38,8 @@ public class JsonXmlUtilTest {
 	
 	@Test
 	public void testJsonWithAttrsAtEndToXml() throws Exception {
-		assertEquals(EXPECTED_XML_FROM_JSON_1, JsonXmlUtil.jsonToXml(JSON_1_WITH_ATTRS_AT_END));
+		assertEquals(EXPECTED_XML_FROM_JSON_1, JsonXmlUtil.jsonToXml(JSON_1_WITH_ATTRS_AT_END_1));
+		assertEquals(EXPECTED_XML_FROM_JSON_1, JsonXmlUtil.jsonToXml(JSON_1_WITH_ATTRS_AT_END_2));
 	}
 	
 	private static String VALID_XML =  "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n"
@@ -57,10 +58,18 @@ public class JsonXmlUtilTest {
 			"	}\n" + 
 			"}";
 	
-	private static String JSON_1_WITH_ATTRS_AT_END = "{\n" + 
+	private static String JSON_1_WITH_ATTRS_AT_END_1 = "{\n" + 
 			"	\"key1\": {\n" + 
 			"		\"@attr1\": \"some attribute\",\n" + 
 			"		\"prop1\": \"some property\"\n" + 
+			"		\"@attr2\": \"some attribute 2\",\n" + 
+			"	}\n" + 
+			"}";
+	
+	private static String JSON_1_WITH_ATTRS_AT_END_2 = "{\n" + 
+			"	\"key1\": {\n" + 
+			"		\"prop1\": \"some property\"\n" + 
+			"		\"@attr1\": \"some attribute\",\n" + 
 			"		\"@attr2\": \"some attribute 2\",\n" + 
 			"	}\n" + 
 			"}";
