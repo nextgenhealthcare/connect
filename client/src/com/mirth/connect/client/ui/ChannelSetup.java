@@ -2375,7 +2375,7 @@ public class ChannelSetup extends JPanel {
         removeOnlyFilteredCheckBox.setToolTipText("<html>If checked, only content for filtered connector messages will be removed.</html>");
         archiveCheckBox.setToolTipText("<html>If checked and the data pruner and archiver are enabled, messages<br />in this channel will be archived before being pruned.</html>");
         
-        pruneErroredMessagesCheckBox.setToolTipText("<html>If checked and the data pruner and error are enabled, messages<br />in this channel with ERROR status will be pruned.</html>");
+        pruneErroredMessagesCheckBox.setToolTipText("<html>If checked and the data pruner is enabled,<br />errored messages in this channel will be pruned.</html>");
         revertMetaDataButton.setToolTipText("<html>Revert the custom metadata settings to the last save.<br>This option allows you to undo your metadata changes without affecting the rest of the channel.</html>");
         waitForPreviousCheckbox.setToolTipText("<html>Wait for the previous destination to finish before processing the current destination.<br/>Each destination connector for which this is not selected marks the beginning of a destination chain,<br/>such that all chains execute asynchronously, but each destination within a particular chain executes in order.<br/>This option has no effect on the first destination connector, which always marks the beginning of the first chain.</html>");
     }
@@ -2419,8 +2419,7 @@ public class ChannelSetup extends JPanel {
         messageStoragePanel.add(removeOnlyFilteredCheckBox);
         messageStoragePanel.add(removeAttachmentsCheckBox, "newline");
         messageStoragePanel.add(queueWarningLabel, "newline");
-        
-
+       
         messagePruningPanel.setLayout(new MigLayout("insets 0 10 10 10, novisualpadding, hidemode 3, gap 6"));
         messagePruningPanel.add(metadataPruningLabel);
         messagePruningPanel.add(metadataPruningOffRadio, "newline, gapleft 12");
@@ -2436,8 +2435,6 @@ public class ChannelSetup extends JPanel {
         messagePruningPanel.add(pruneErroredMessagesCheckBox, "newline");
         messagePruningPanel.add(pruningWarningLabel, "newline");
         
- 
-
         customMetadataPanel.setLayout(new MigLayout("insets 0 10 10 10, novisualpadding, hidemode 3, fill, gap 6", "[grow][]"));
         customMetadataPanel.add(metaDataScrollPane, "sy, grow");
         customMetadataPanel.add(addMetaDataButton, "top, sg button, flowy, split 2");

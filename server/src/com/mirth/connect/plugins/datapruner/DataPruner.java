@@ -423,7 +423,6 @@ public class DataPruner implements Runnable {
     	return pruneChannel(channelId, channelName, messageDateThreshold, contentDateThreshold, archiveFolder, channelArchiveEnabled, false);
     }
     
-
     public PruneResult pruneChannel(String channelId, String channelName, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder, boolean channelArchiveEnabled, boolean pruneErroredMessages) throws InterruptedException, DataPrunerException {
         logger.debug("Executing pruner for channel: " + channelId);
 
@@ -803,7 +802,7 @@ public class DataPruner implements Runnable {
             this.messageDateThreshold = messageDateThreshold;
             this.contentDateThreshold = contentDateThreshold;
             this.archiveEnabled = archiveEnabled;
-            this.setPruneErroredMessages(pruneErroredMessages);
+            this.pruneErroredMessages = pruneErroredMessages;
         }
 
         public String getChannelId() {
