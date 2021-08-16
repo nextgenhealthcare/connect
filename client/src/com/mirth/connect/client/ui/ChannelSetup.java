@@ -149,6 +149,9 @@ public class ChannelSetup extends JPanel {
     private static final int SOURCE_TAB_INDEX = 1;
     private static final int DESTINATIONS_TAB_INDEX = 2;
     private static final int SCRIPTS_TAB_INDEX = 3;
+    
+    private static final String PRUNING_WARNING_DEFAULT_TEXT = "(incomplete, errored, and queued messages will not be pruned)";
+    private static final String PRUNING_WARNING_ERRORED_TEXT = "(incomplete and queued messages will not be pruned)";
 
     public Channel currentChannel;
     public Map<Integer, Map<String, String>> resourceIds = new HashMap<Integer, Map<String, String>>();
@@ -800,6 +803,8 @@ public class ChannelSetup extends JPanel {
         }
 
         archiveCheckBox.setSelected(metadata.getPruningSettings().isArchiveEnabled());
+        
+        pruneErroredMessagesCheckBox.setSelected(metadata.getPruningSettings().isPruneErroredMessages());
 
         sourceConnectorTypeComboBox.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
 
@@ -1314,6 +1319,7 @@ public class ChannelSetup extends JPanel {
         }
 
         metadata.getPruningSettings().setArchiveEnabled(archiveCheckBox.isSelected());
+        metadata.getPruningSettings().setPruneErroredMessages(pruneErroredMessagesCheckBox.isSelected());
     }
 
     /**
@@ -2033,8 +2039,14 @@ public class ChannelSetup extends JPanel {
 
         archiveCheckBox = new MirthCheckBox("Allow message archiving");
         archiveCheckBox.setBackground(messagePruningPanel.getBackground());
+        
+        pruneErroredMessagesCheckBox = new MirthCheckBox("Prune Errored Messages");
+        pruneErroredMessagesCheckBox.setBackground(messagePruningPanel.getBackground());
+        pruneErroredMessagesCheckBox.addActionListener((evt) -> {
+        	pruneErroredMessagesCheckBoxActionPerformed(evt);
+        });
 
-        pruningWarningLabel = new JLabel("(incomplete, errored, and queued messages will not be pruned)");
+        pruningWarningLabel = new JLabel(PRUNING_WARNING_DEFAULT_TEXT);
 
         // Custom Metadata
         customMetadataPanel = new JPanel();
@@ -2362,6 +2374,8 @@ public class ChannelSetup extends JPanel {
         removeAttachmentsCheckBox.setToolTipText("<html>Remove message attachments once the message has completed processing.<br/>Not applicable for messages that are errored or queued.</html>");
         removeOnlyFilteredCheckBox.setToolTipText("<html>If checked, only content for filtered connector messages will be removed.</html>");
         archiveCheckBox.setToolTipText("<html>If checked and the data pruner and archiver are enabled, messages<br />in this channel will be archived before being pruned.</html>");
+        
+        pruneErroredMessagesCheckBox.setToolTipText("<html>If checked and the data pruner is enabled,<br />errored messages in this channel will be pruned.</html>");
         revertMetaDataButton.setToolTipText("<html>Revert the custom metadata settings to the last save.<br>This option allows you to undo your metadata changes without affecting the rest of the channel.</html>");
         waitForPreviousCheckbox.setToolTipText("<html>Wait for the previous destination to finish before processing the current destination.<br/>Each destination connector for which this is not selected marks the beginning of a destination chain,<br/>such that all chains execute asynchronously, but each destination within a particular chain executes in order.<br/>This option has no effect on the first destination connector, which always marks the beginning of the first chain.</html>");
     }
@@ -2405,7 +2419,7 @@ public class ChannelSetup extends JPanel {
         messageStoragePanel.add(removeOnlyFilteredCheckBox);
         messageStoragePanel.add(removeAttachmentsCheckBox, "newline");
         messageStoragePanel.add(queueWarningLabel, "newline");
-
+       
         messagePruningPanel.setLayout(new MigLayout("insets 0 10 10 10, novisualpadding, hidemode 3, gap 6"));
         messagePruningPanel.add(metadataPruningLabel);
         messagePruningPanel.add(metadataPruningOffRadio, "newline, gapleft 12");
@@ -2418,8 +2432,9 @@ public class ChannelSetup extends JPanel {
         messagePruningPanel.add(contentPruningDaysTextField, "w 30!");
         messagePruningPanel.add(contentDaysLabel);
         messagePruningPanel.add(archiveCheckBox, "newline");
+        messagePruningPanel.add(pruneErroredMessagesCheckBox, "newline");
         messagePruningPanel.add(pruningWarningLabel, "newline");
-
+        
         customMetadataPanel.setLayout(new MigLayout("insets 0 10 10 10, novisualpadding, hidemode 3, fill, gap 6", "[grow][]"));
         customMetadataPanel.add(metaDataScrollPane, "sy, grow");
         customMetadataPanel.add(addMetaDataButton, "top, sg button, flowy, split 2");
@@ -2431,8 +2446,8 @@ public class ChannelSetup extends JPanel {
 
         summaryPanel.setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill", "", "[][][][grow]"));
         summaryPanel.add(channelPropertiesPanel, "growx, sx");
-        summaryPanel.add(messageStoragePanel, "newline, w 420!, h 210!, split 2");
-        summaryPanel.add(messagePruningPanel, "growx, pushx, h 210!");
+        summaryPanel.add(messageStoragePanel, "newline, w 420!, h 230!, split 2");
+        summaryPanel.add(messagePruningPanel, "growx, pushx, h 230!");
         summaryPanel.add(customMetadataPanel, "newline, growx, sx, h 150!");
         summaryPanel.add(descriptionPanel, "newline, sx, grow");
 
@@ -2639,6 +2654,7 @@ public class ChannelSetup extends JPanel {
 
         if (contentPruningMetadataRadio.isSelected()) {
             archiveCheckBox.setEnabled(false);
+            pruneErroredMessagesCheckBox.setEnabled(false);
         }
     }
 
@@ -2784,6 +2800,7 @@ public class ChannelSetup extends JPanel {
         parent.setSaveEnabled(true);
         metadataPruningDaysTextField.setEnabled(true);
         archiveCheckBox.setEnabled(true);
+        pruneErroredMessagesCheckBox.setEnabled(true);
     }
 
     private void contentPruningMetadataRadioActionPerformed(ActionEvent evt) {
@@ -2792,6 +2809,7 @@ public class ChannelSetup extends JPanel {
 
         if (metadataPruningOffRadio.isSelected()) {
             archiveCheckBox.setEnabled(false);
+            pruneErroredMessagesCheckBox.setEnabled(false);
         }
     }
 
@@ -2799,6 +2817,16 @@ public class ChannelSetup extends JPanel {
         parent.setSaveEnabled(true);
         contentPruningDaysTextField.setEnabled(true);
         archiveCheckBox.setEnabled(true);
+        pruneErroredMessagesCheckBox.setEnabled(true);
+    }
+    
+    private void pruneErroredMessagesCheckBoxActionPerformed(ActionEvent evt) {
+    	parent.setSaveEnabled(true);
+    	if (pruneErroredMessagesCheckBox.isSelected()) {
+    		pruningWarningLabel.setText(PRUNING_WARNING_ERRORED_TEXT);
+    	} else {
+    		pruningWarningLabel.setText(PRUNING_WARNING_DEFAULT_TEXT);
+    	}
     }
 
     private void revertMetaDataButtonActionPerformed(ActionEvent evt) {
@@ -3284,6 +3312,7 @@ public class ChannelSetup extends JPanel {
     private MirthTextField contentPruningDaysTextField;
     private JLabel contentDaysLabel;
     private MirthCheckBox archiveCheckBox;
+    private MirthCheckBox pruneErroredMessagesCheckBox;
     private JLabel pruningWarningLabel;
 
     // Custom Metadata
