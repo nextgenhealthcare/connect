@@ -2374,7 +2374,6 @@ public class ChannelSetup extends JPanel {
         removeAttachmentsCheckBox.setToolTipText("<html>Remove message attachments once the message has completed processing.<br/>Not applicable for messages that are errored or queued.</html>");
         removeOnlyFilteredCheckBox.setToolTipText("<html>If checked, only content for filtered connector messages will be removed.</html>");
         archiveCheckBox.setToolTipText("<html>If checked and the data pruner and archiver are enabled, messages<br />in this channel will be archived before being pruned.</html>");
-        // TODO Add tooltip for pruneErroredMessagesCheckBox
         
         pruneErroredMessagesCheckBox.setToolTipText("<html>If checked and the data pruner and error are enabled, messages<br />in this channel with ERROR status will be pruned.</html>");
         revertMetaDataButton.setToolTipText("<html>Revert the custom metadata settings to the last save.<br>This option allows you to undo your metadata changes without affecting the rest of the channel.</html>");
@@ -2435,7 +2434,6 @@ public class ChannelSetup extends JPanel {
         messagePruningPanel.add(contentDaysLabel);
         messagePruningPanel.add(archiveCheckBox, "newline");
         messagePruningPanel.add(pruneErroredMessagesCheckBox, "newline");
-        // TODO The UI doesn't look correct. The "Message Storage" and "Message Pruning" sections need to be expanded vertically to account for the extra row.
         messagePruningPanel.add(pruningWarningLabel, "newline");
         
  
