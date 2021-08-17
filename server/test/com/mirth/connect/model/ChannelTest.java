@@ -70,7 +70,9 @@ public class ChannelTest {
             "  </properties>\n" +
             "  </testXml>\n" +
             "";
-    
+    // @formatter:on 
+
+
 
     @Test
     public void testMigrate3_12_0() throws Exception {
