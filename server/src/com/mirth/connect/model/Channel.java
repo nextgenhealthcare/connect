@@ -384,7 +384,7 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
 		            DonkeyElement pruningSettingsElement = metadataElement.getChildElement("pruningSettings");
 		            
 		            if (pruningSettingsElement != null) {
-		            pruningSettingsElement.addChildElement("pruneErroredMessages", "false");
+		                pruningSettingsElement.addChildElement("pruneErroredMessages", "false");
 		            }
 	            }
             }
