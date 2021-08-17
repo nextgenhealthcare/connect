@@ -374,7 +374,7 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
         // Only do migration if the properties exist. Otherwise this could be a stub channel inside of a channel group.
         if (propertiesElement != null) {
             // Get channel metadata
-            DonkeyElement exportDataElement = element.getChildElement("exportData");
+            DonkeyElement exportDataElement = propertiesElement.getChildElement("exportData");
             
             if (exportDataElement != null) {
 	            DonkeyElement metadataElement = exportDataElement.getChildElement("metadata");
@@ -382,7 +382,10 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
 	            if (metadataElement != null) {
 		            // Get pruning settings and add "pruneErroredMessages" property
 		            DonkeyElement pruningSettingsElement = metadataElement.getChildElement("pruningSettings");
-		            pruningSettingsElement.addChildElement("pruneErroredMessages", "false");
+		            
+		            if (pruningSettingsElement != null) {
+		                pruningSettingsElement.addChildElement("pruneErroredMessages", "false");
+		            }
 	            }
             }
         }
