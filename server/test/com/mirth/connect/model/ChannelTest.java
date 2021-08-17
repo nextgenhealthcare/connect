@@ -1,6 +1,5 @@
 package com.mirth.connect.model;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -72,11 +71,8 @@ public class ChannelTest {
             "";
     // @formatter:on 
 
-
-
     @Test
     public void testMigrate3_12_0() throws Exception {
-        // Test schemeProperties is added for SMB
         DonkeyElement donkey = new DonkeyElement(properties3_12_0);
         Channel props = new Channel();
         assertNotNull(donkey.getChildElement("properties"));
@@ -84,15 +80,13 @@ public class ChannelTest {
         assertNotNull(donkey.getChildElement("properties").getChildElement("exportData"));
         assertNotNull(donkey.getChildElement("properties").getChildElement("exportData").getChildElement("metadata"));
         assertNotNull(donkey.getChildElement("properties").getChildElement("exportData").getChildElement("metadata").getChildElement("pruningSettings"));
-        assertEquals("false",donkey.getChildElement("properties").getChildElement("exportData").getChildElement("metadata").getChildElement("pruningSettings").getChildElement("pruneErroredMessages").getTextContent());
+        assertEquals("false", donkey.getChildElement("properties").getChildElement("exportData").getChildElement("metadata").getChildElement("pruningSettings").getChildElement("pruneErroredMessages").getTextContent());
 
-        
         donkey = new DonkeyElement(properties3_12_0_negative);
         props.migrate3_12_0(donkey);
         assertNotNull(donkey.getChildElement("properties").getChildElement("exportData"));
         assertNotNull(donkey.getChildElement("properties").getChildElement("exportData").getChildElement("metadata"));
         assertNull(donkey.getChildElement("properties").getChildElement("exportData").getChildElement("metadata").getChildElement("pruningSettings"));
-        
 
     }
 }
