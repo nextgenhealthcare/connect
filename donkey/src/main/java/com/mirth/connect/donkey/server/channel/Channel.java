@@ -1170,7 +1170,16 @@ public class Channel implements Runnable {
                         destinationConnector.start();
                         destinationConnector.startQueue();
                     } catch (Throwable t) {
-                        throw new StartException("Failed to stop connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "). ", t);
+                        if (t instanceof InterruptedException) {
+                            throw new StartException("Start task for connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + ") terminated by halt notification.", t);
+                        }
+
+                        try {
+                            destinationConnector.stop();
+                        } catch (Throwable e2) {
+                        }
+
+                        throw new StartException("Failed to start connector " + destinationConnector.getDestinationName() + " for channel " + name + " (" + channelId + "). ", t);
                     }
                 }
             } else {
