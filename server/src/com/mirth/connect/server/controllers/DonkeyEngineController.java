@@ -1778,12 +1778,16 @@ public class DonkeyEngineController implements EngineController {
             return null;
         }
 
+        protected boolean checkEnabled(com.mirth.connect.model.Channel channelModel) {
+            ChannelMetadata metadata = configurationController.getChannelMetadata().get(channelModel.getId());
+            return metadata == null || metadata.isEnabled();
+        }
+
         protected Channel doDeploy(com.mirth.connect.model.Channel channelModel) throws Exception {
             if (channelModel == null || channelModel instanceof InvalidChannel) {
                 return null;
             }
-            ChannelMetadata metadata = configurationController.getChannelMetadata().get(channelModel.getId());
-            if ((metadata != null && !metadata.isEnabled()) || isDeployed(channelId)) {
+            if (!checkEnabled(channelModel) || isDeployed(channelId)) {
                 return null;
             }
 
