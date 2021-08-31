@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MFKM12</name>
+    <description>Master File Notification Message - Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">ERR</segment>
+        <segment>MFI</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">MFA</segment>
+    </segments>
+</message>
