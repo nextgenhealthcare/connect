@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MFNM06</name>
+    <description>Clinical Study with Phases and Schedules Master File</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>MFI</segment>
+        <group maxOccurs="unbounded">
+            <segment>MFE</segment>
+            <segment>CM0</segment>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>CM1</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">CM2</segment>
+            </group>
+        </group>
+    </segments>
+</message>

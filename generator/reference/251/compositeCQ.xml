@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CQ</name>
+    <description>Composite Quantity with Units</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CQ.1</name>
+            <description>Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CQ.2</name>
+            <description>Units</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

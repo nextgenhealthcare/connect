@@ -25,7 +25,7 @@ public class HL7ModelGenerator {
     private static final String MESSAGE_TEMPLATE = "Message.txt";
     private static final String SEGMENT_TEMPLATE = "Segment.txt";
     private static final String COMPOSITE_TEMPLATE = "Composite.txt";
-    private static final String[] VERSIONS = new String[] { "21", "22", "23", "231", "24", "25", "26", "27", "271", "28", "281", "282" };
+    private static final String[] VERSIONS = new String[] { "21", "22", "23", "231", "24", "25", "251", "26", "27", "271", "28", "281", "282" };
 
     public String outputPath = "";
     public String version = "";

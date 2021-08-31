@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>REFI14</name>
+    <description>Cancel Patient Referral</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment minOccurs="0">RF1</segment>
+        <group minOccurs="0">
+            <segment>AUT</segment>
+            <segment minOccurs="0">CTD</segment>
+        </group>
+        <group maxOccurs="unbounded">
+            <segment>PRD</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">CTD</segment>
+        </group>
+        <segment>PID</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NK1</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">GT1</segment>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment>IN1</segment>
+            <segment minOccurs="0">IN2</segment>
+            <segment minOccurs="0">IN3</segment>
+        </group>
+        <segment minOccurs="0">ACC</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">DG1</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">DRG</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">AL1</segment>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment>PR1</segment>
+            <group minOccurs="0">
+                <segment>AUT</segment>
+                <segment minOccurs="0">CTD</segment>
+            </group>
+        </group>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment>OBR</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>OBX</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+        </group>
+        <group minOccurs="0">
+            <segment>PV1</segment>
+            <segment minOccurs="0">PV2</segment>
+        </group>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+    </segments>
+</message>
