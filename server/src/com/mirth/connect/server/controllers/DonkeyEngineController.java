@@ -164,14 +164,14 @@ public class DonkeyEngineController implements EngineController {
 
     private Donkey donkey = Donkey.getInstance();
     private Logger logger = Logger.getLogger(DonkeyEngineController.class);
-    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
-    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
-    private com.mirth.connect.donkey.server.controllers.ChannelController donkeyChannelController = com.mirth.connect.donkey.server.controllers.ChannelController.getInstance();
-    private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
-    private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
+    protected ConfigurationController configurationController = getConfigurationController();
+    protected ScriptController scriptController = getScriptController();
+    protected ChannelController channelController = getChannelController();
+    protected com.mirth.connect.donkey.server.controllers.ChannelController donkeyChannelController = com.mirth.connect.donkey.server.controllers.ChannelController.getInstance();
+    protected EventController eventController = getEventController();
+    protected ExtensionController extensionController = getExtensionController();
+    protected ContextFactoryController contextFactoryController = getContextFactoryController();
+    protected CodeTemplateController codeTemplateController = getCodeTemplateController();
     private Map<String, ExecutorService> engineExecutors = new ConcurrentHashMap<String, ExecutorService>();
     private Set<Channel> deployingChannels = Collections.synchronizedSet(new HashSet<Channel>());
     private Set<Channel> undeployingChannels = Collections.synchronizedSet(new HashSet<Channel>());
@@ -184,6 +184,34 @@ public class DonkeyEngineController implements EngineController {
 
     protected DonkeyEngineController() {}
 
+    protected ConfigurationController getConfigurationController() {
+        return ControllerFactory.getFactory().createConfigurationController();
+    }
+    
+    protected ScriptController getScriptController() {
+        return ControllerFactory.getFactory().createScriptController();
+    }
+    
+    protected ChannelController getChannelController() {
+        return ControllerFactory.getFactory().createChannelController();
+    }
+    
+    protected EventController getEventController() {
+        return ControllerFactory.getFactory().createEventController();
+    }
+    
+    protected ExtensionController getExtensionController() {
+        return ControllerFactory.getFactory().createExtensionController();
+    }
+    
+    protected ContextFactoryController getContextFactoryController() {
+        return ControllerFactory.getFactory().createContextFactoryController();
+    }
+    
+    protected CodeTemplateController getCodeTemplateController() {
+        return ControllerFactory.getFactory().createCodeTemplateController();
+    }
+    
     @Override
     public void startEngine() throws StartException, StopException, ControllerException, InterruptedException {
         logger.debug("starting donkey engine");
