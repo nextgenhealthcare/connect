@@ -1440,10 +1440,16 @@ public class ChannelPanel extends AbstractFramePanel {
             return;
         }
 
-        String content = parent.browseForFileString("XML");
+        List<String> contentList = parent.browseForMultipleFileStrings("XML");
 
-        if (content != null) {
-            importChannel(content, true);
+        // If only one channel was selected, import it as usual.
+        if (contentList.size() == 1) {
+        	importChannel(contentList.get(0), true);
+        } else {
+        	// If multiple channels were selected, import them without showing alerts.
+	        for (String content : contentList) {
+	            importChannel(content, false);
+	        }
         }
     }
 
