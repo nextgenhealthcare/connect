@@ -3253,6 +3253,10 @@ public class ChannelSetup extends JPanel {
     public int getSelectedDestinationIndex() {
         return destinationTable.getSelectedModelIndex();
     }
+    
+    public void setChannelEnabledField(boolean enabled) {
+    	summaryEnabledCheckBox.setSelected(enabled);
+    }
 
     // Tab Container
     private JTabbedPane channelView;

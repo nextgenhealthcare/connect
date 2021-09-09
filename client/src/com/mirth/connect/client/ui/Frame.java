@@ -2757,8 +2757,19 @@ public class Frame extends JXFrame {
         }
 
         if (!channelStatus.getChannel().getExportData().getMetadata().isEnabled()) {
-            alertWarning(this, "The channel is disabled and will not be deployed.");
-            return;
+        	if (alertOption(PlatformUI.MIRTH_FRAME, "The channel is disabled. Are you sure you want to enable and deploy the channel?")) {
+        		// Check that there are no errors in the channel before enabling the channel
+        		if (channelEditPanel.checkAllForms(channelEditPanel.currentChannel) != null) {
+        			alertWarning(this, "There are errors in the channel that prevent it from being enabled and deployed.");
+        			return;
+        		} else {
+        			channelEditPanel.setChannelEnabledField(true);
+        			channelEditPanel.saveChanges();
+        		}
+        	} else {
+        		alertWarning(this, "The channel is disabled and will not be deployed.");
+        		return;
+        	}
         }
 
         deployChannel(Collections.singleton(channelId));
