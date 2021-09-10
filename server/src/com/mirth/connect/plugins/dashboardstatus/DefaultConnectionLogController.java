@@ -113,7 +113,7 @@ public class DefaultConnectionLogController extends ConnectionStatusLogControlle
                 connectorStateMap.put(connectorId, new Object[] { color, stateString });
             }
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             String channelName = "";
             String connectorType = "";
 

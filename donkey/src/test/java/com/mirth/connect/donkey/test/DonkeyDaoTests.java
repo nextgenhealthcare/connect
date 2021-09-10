@@ -230,7 +230,7 @@ public class DonkeyDaoTests {
                 try {
                     TestUtils.assertDatesEqual(result.getTimestamp("received_date").getTime(), connectorMessage.getReceivedDate().getTimeInMillis());
                 } catch (AssertionError e) {
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss:SSS");
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                     logger.error("database received_date: " + format.format(result.getTimestamp("received_date").getTime()) + ", connector message received_date: " + format.format(connectorMessage.getReceivedDate().getTimeInMillis()));
                     throw e;
                 }
