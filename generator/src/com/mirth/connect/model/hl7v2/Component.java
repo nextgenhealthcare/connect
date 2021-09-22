@@ -13,7 +13,7 @@ public class Component {
 	protected String description = "";
 	protected String name = "";
 	protected static Map<Class, Component> cacheMap = new HashMap<Class, Component>();
-	protected static String[] versions = new String[] { "21", "22", "23", "231", "24", "25", "26", "27", "271", "28", "281", "282" };
+	protected static String[] versions = new String[] { "21", "22", "23", "231", "24", "25", "251", "26", "27", "271", "28", "281", "282" };
 
 	public String getDescription() {
 		return description;

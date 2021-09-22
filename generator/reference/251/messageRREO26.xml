@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>RREO26</name>
+    <description>Pharmacy/Treatment Refill Authorization Acknowledgement</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">ERR</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        <group minOccurs="0">
+            <group minOccurs="0">
+                <segment>PID</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded">
+                <segment>ORC</segment>
+                <group maxOccurs="unbounded" minOccurs="0">
+                    <segment>TQ1</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">TQ2</segment>
+                </group>
+                <group minOccurs="0">
+                    <segment>RXE</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                    <group maxOccurs="unbounded">
+                        <segment>TQ1</segment>
+                        <segment minOccurs="0" maxOccurs="unbounded">TQ2</segment>
+                    </group>
+                    <segment maxOccurs="unbounded">RXR</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">RXC</segment>
+                </group>
+            </group>
+        </group>
+    </segments>
+</message>
