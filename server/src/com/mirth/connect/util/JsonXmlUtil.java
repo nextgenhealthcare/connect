@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -112,9 +113,9 @@ public class JsonXmlUtil {
         try {
             return jsonToXml(config, jsonStr);
         } catch (Exception e) {
-            System.out.println("exception caught is " + e);
+//            System.out.println("exception caught is " + e);
             if (!jsonReordered) {
-                String reOrderedString = reOrderJson(jsonStr);
+                String reOrderedString = reOrderJsonString(jsonStr);
                 jsonReordered = true;
                 return jsonToXml(config, reOrderedString);
             }
@@ -140,26 +141,37 @@ public class JsonXmlUtil {
         }
     }
 
-    public static String reOrderJson(String jsonStr) {
+    private static void reOrderJsonNode(JsonNode currentNode) {
+        if (currentNode.isObject()) {
+
+            Iterator<String> jsonFields = currentNode.fieldNames();
+
+            ArrayList<String> arr = new ArrayList<String>();
+            while (jsonFields.hasNext()) {
+                arr.add(jsonFields.next());
+
+            }
+            for (String currentKey : arr) {
+                if (!currentKey.startsWith("@")) {
+                    JsonNode removingObject = currentNode.get(currentKey);
+                    ObjectNode object = (ObjectNode) currentNode;
+                    object.remove(currentKey);
+                    object.put(currentKey, removingObject);
+                }
+            }
+
+            currentNode.fields().forEachRemaining(entry -> reOrderJsonNode(entry.getValue()));
+        }
+    }
+
+    public static String reOrderJsonString(String jsonStr) throws JsonMappingException, JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = null;
-        try {
-            jsonNode = objectMapper.readTree(jsonStr);
-            JsonNode subject = jsonNode.get("Envelope").get("Body").get("PRPA_IN201306UV02").get("controlActProcess").get("subject");
-            JsonNode registrationEvent = subject.get("registrationEvent");
-            JsonNode typeCode = subject.get("@typeCode");
-            ObjectNode object = (ObjectNode) subject;
 
-            object.remove("registrationEvent");
-            object.remove("@typeCode");
-            object.put("@typeCode", typeCode);
-            object.put("registrationEvent", registrationEvent);
+        jsonNode = objectMapper.readTree(jsonStr);
 
-        } catch (JsonMappingException e) {
+        reOrderJsonNode(jsonNode);
 
-        } catch (JsonProcessingException e) {
-
-        }
         return jsonNode.toString();
     }
 
