@@ -113,7 +113,6 @@ public class JsonXmlUtil {
         try {
             return jsonToXml(config, jsonStr);
         } catch (Exception e) {
-//            System.out.println("exception caught is " + e);
             if (!jsonReordered) {
                 String reOrderedString = reOrderJsonString(jsonStr);
                 jsonReordered = true;
