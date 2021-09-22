@@ -143,14 +143,14 @@ public class JsonXmlUtil {
     private static void reOrderJsonNode(JsonNode currentNode) {
         if (currentNode.isObject()) {
 
-            Iterator<String> jsonFields = currentNode.fieldNames();
+            Iterator<String> jsonFieldNames = currentNode.fieldNames();
 
-            ArrayList<String> arr = new ArrayList<String>();
-            while (jsonFields.hasNext()) {
-                arr.add(jsonFields.next());
+            ArrayList<String> jsonKeys = new ArrayList<String>();
+            while (jsonFieldNames.hasNext()) {
+                jsonKeys.add(jsonFieldNames.next());
 
             }
-            for (String currentKey : arr) {
+            for (String currentKey : jsonKeys) {
                 if (!currentKey.startsWith("@")) {
                     JsonNode removingObject = currentNode.get(currentKey);
                     ObjectNode object = (ObjectNode) currentNode;

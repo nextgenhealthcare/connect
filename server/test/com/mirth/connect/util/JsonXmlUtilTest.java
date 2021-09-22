@@ -61,16 +61,16 @@ public class JsonXmlUtilTest {
 	private static String JSON_1_WITH_ATTRS_AT_END_1 = "{\n" + 
 			"	\"key1\": {\n" + 
 			"		\"@attr1\": \"some attribute\",\n" + 
-			"		\"prop1\": \"some property\"\n" + 
-			"		\"@attr2\": \"some attribute 2\",\n" + 
+			"		\"prop1\": \"some property\",\n" + 
+			"		\"@attr2\": \"some attribute 2\"\n" + 
 			"	}\n" + 
 			"}";
 	
 	private static String JSON_1_WITH_ATTRS_AT_END_2 = "{\n" + 
 			"	\"key1\": {\n" + 
-			"		\"prop1\": \"some property\"\n" + 
+			"		\"prop1\": \"some property\",\n" + 
 			"		\"@attr1\": \"some attribute\",\n" + 
-			"		\"@attr2\": \"some attribute 2\",\n" + 
+			"		\"@attr2\": \"some attribute 2\"\n" + 
 			"	}\n" + 
 			"}";
 	
