@@ -16,9 +16,12 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.XMLConstants;
 import javax.xml.stream.FactoryConfigurationError;
@@ -39,6 +42,13 @@ import javax.xml.transform.stax.StAXSource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
@@ -100,9 +110,26 @@ public class JsonXmlUtil {
     public static String jsonToXml(String jsonStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         JsonXMLConfig config = new JsonXMLConfigBuilder().multiplePI(false).build();
         return jsonToXml(config, jsonStr);
+
     }
 
     public static String jsonToXml(JsonXMLConfig config, String jsonStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+        String xmlString = null;
+        try {
+            xmlString = conversionJsontoXml(config, jsonStr);
+        } catch (TransformerException e) {
+            if ( e.getCause() instanceof XMLStreamException) {
+                String reOrderedString = reOrderJsonString(jsonStr);
+                xmlString = conversionJsontoXml(config, reOrderedString);
+            }else {
+                throw e;
+            }
+          
+        }
+        return xmlString;
+    }
+
+    private static String conversionJsontoXml(JsonXMLConfig config, String jsonStr) throws XMLStreamException, FactoryConfigurationError, TransformerException, TransformerConfigurationException, IOException {
         try (InputStream inputStream = IOUtils.toInputStream(jsonStr);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             XMLStreamReader reader = new NormalizeXMLInputFactory(config).createXMLStreamReader(inputStream);
@@ -118,6 +145,38 @@ public class JsonXmlUtil {
             getTransformerFactory().newTransformer().transform(source, result);
             return outputStream.toString();
         }
+    }
+
+    private static void reOrderJsonNode(JsonNode currentNode) {
+        if (currentNode.isObject()) {
+
+            Iterator<String> jsonFieldNames = currentNode.fieldNames();
+
+            ArrayList<String> jsonKeys = new ArrayList<String>();
+            while (jsonFieldNames.hasNext()) {
+                jsonKeys.add(jsonFieldNames.next());
+
+            }
+            for (String currentKey : jsonKeys) {
+                if (!currentKey.startsWith("@")) {
+                    JsonNode removingObject = currentNode.get(currentKey);
+                    ObjectNode object = (ObjectNode) currentNode;
+                    object.remove(currentKey);
+                    object.put(currentKey, removingObject);
+                }
+            }
+
+            currentNode.fields().forEachRemaining(entry -> reOrderJsonNode(entry.getValue()));
+        }
+    }
+
+    public static String reOrderJsonString(String jsonStr) throws JsonMappingException, JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        JsonNode jsonNode = objectMapper.readTree(jsonStr);
+        reOrderJsonNode(jsonNode);
+
+        return jsonNode.toString();
     }
 
     /*
@@ -254,11 +313,11 @@ public class JsonXmlUtil {
             if (virtualRoot != null) {
                 target = new RemoveRootTarget(target, virtualRoot, namespaceSeparator);
             }
-            
+
             if (alwaysArray || autoArray) {
-            	target = new MirthArrayTarget(target, alwaysArray);
+                target = new MirthArrayTarget(target, alwaysArray);
             }
-            
+
             if (autoPrimitive) {
                 target = new AutoPrimitiveTarget(target, false);
             }
@@ -471,16 +530,16 @@ public class JsonXmlUtil {
         public NormalizeXMLStreamReader(JsonStreamSource decorate, boolean multiplePI, char namespaceSeparator, Map<String, String> namespaceMappings) throws XMLStreamException {
             super(decorate, multiplePI, namespaceSeparator, namespaceMappings);
         }
-        
+
         // Override to fix original's inability to handle JSON with null value
         @Override
-    	public int getTextLength() {
-        	try {
-        		return super.getTextLength();
-        	} catch (NullPointerException e) {
-        		return 0;
-        	}
-    	}
+        public int getTextLength() {
+            try {
+                return super.getTextLength();
+            } catch (NullPointerException e) {
+                return 0;
+            }
+        }
 
         protected void consumeName(ScopeInfo info) throws XMLStreamException, IOException {
             String fieldName = source.name();
@@ -597,11 +656,11 @@ public class JsonXmlUtil {
             }
         }
     }
-    
+
     private static TransformerFactory getTransformerFactory() {
-    	TransformerFactory tf = TransformerFactory.newInstance();
-    	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-    	return tf;
+        TransformerFactory tf = TransformerFactory.newInstance();
+        tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+        return tf;
     }
 }
