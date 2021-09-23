@@ -108,21 +108,28 @@ public class JsonXmlUtil {
     }
 
     public static String jsonToXml(String jsonStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
-        boolean jsonReordered = false;
         JsonXMLConfig config = new JsonXMLConfigBuilder().multiplePI(false).build();
-        try {
-            return jsonToXml(config, jsonStr);
-        } catch (Exception e) {
-            if (!jsonReordered) {
-                String reOrderedString = reOrderJsonString(jsonStr);
-                jsonReordered = true;
-                return jsonToXml(config, reOrderedString);
-            }
-            throw e;
-        }
+        return jsonToXml(config, jsonStr);
+
     }
 
     public static String jsonToXml(JsonXMLConfig config, String jsonStr) throws IOException, XMLStreamException, FactoryConfigurationError, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+        String xmlString = null;
+        try {
+            xmlString = conversionJsontoXml(config, jsonStr);
+        } catch (TransformerException e) {
+            if ( e.getCause() instanceof XMLStreamException) {
+                String reOrderedString = reOrderJsonString(jsonStr);
+                xmlString = conversionJsontoXml(config, reOrderedString);
+            }else {
+                throw e;
+            }
+          
+        }
+        return xmlString;
+    }
+
+    private static String conversionJsontoXml(JsonXMLConfig config, String jsonStr) throws XMLStreamException, FactoryConfigurationError, TransformerException, TransformerConfigurationException, IOException {
         try (InputStream inputStream = IOUtils.toInputStream(jsonStr);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             XMLStreamReader reader = new NormalizeXMLInputFactory(config).createXMLStreamReader(inputStream);
@@ -165,10 +172,8 @@ public class JsonXmlUtil {
 
     public static String reOrderJsonString(String jsonStr) throws JsonMappingException, JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = null;
 
-        jsonNode = objectMapper.readTree(jsonStr);
-
+        JsonNode jsonNode = objectMapper.readTree(jsonStr);
         reOrderJsonNode(jsonNode);
 
         return jsonNode.toString();
