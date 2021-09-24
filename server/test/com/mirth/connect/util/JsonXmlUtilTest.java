@@ -8,9 +8,6 @@ import javax.xml.transform.TransformerException;
 
 import org.junit.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 public class JsonXmlUtilTest {
 	
 	@Test
@@ -87,7 +84,7 @@ public class JsonXmlUtilTest {
 			"	}\n" + 
 			"}";
 	
-   private static String NESTED_JSON_1 = "{\n" + 
+	private static String NESTED_JSON_1 = "{\n" + 
             "   \"key1\": {\n" + 
             "       \"@attr1\": \"some attribute\",\n" + 
             "       \"@attr2\": \"some attribute 2\",\n" + 
@@ -97,8 +94,7 @@ public class JsonXmlUtilTest {
             "   }\n" + 
             "}";
    
-   
-   private static String NESTED_JSON_2 = "{\n" + 
+	private static String NESTED_JSON_2 = "{\n" + 
             "   \"key1\": {\n" + 
             "       \"@attr1\": \"some attribute\",\n" + 
             "       \"prop1\": { \"@attrN1\": \"valN1\",\n" +
