@@ -1101,6 +1101,7 @@ public class Frame extends JXFrame {
         otherPane.setName(TaskConstants.OTHER_KEY);
         otherPane.setFocusable(false);
         addTask(TaskConstants.OTHER_NOTIFICATIONS, UIConstants.VIEW_NOTIFICATIONS, "View notifications from NextGen Healthcare.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/flag_orange.png")), otherPane, null);
+        addTask(TaskConstants.OTHER_VIEW_USER_GUIDE, "View User Guide", "View the latest official Mirth Connect User Guide.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
         addTask(TaskConstants.OTHER_VIEW_USER_API, "View User API", "View documentation for the Mirth Connect User API.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
         addTask(TaskConstants.OTHER_VIEW_CLIENT_API, "View Client API", "View documentation for the Mirth Connect Client API.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_white_text.png")), otherPane, null);
         addTask(TaskConstants.OTHER_HELP, "Help", "View the Mirth Connect wiki.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/help.png")), otherPane, null);
@@ -4382,6 +4383,10 @@ public class Frame extends JXFrame {
 
     public void doHelp() {
         BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION);
+    }
+    
+    public void goToUserGuide() {
+        BareBonesBrowserLaunch.openURL(UIConstants.USER_GUIDE_LOCATION);
     }
 
     public void goToNotifications() {
