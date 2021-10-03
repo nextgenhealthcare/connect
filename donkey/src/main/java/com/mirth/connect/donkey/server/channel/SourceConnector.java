@@ -44,6 +44,43 @@ import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
  * The base class for all source connectors.
  */
 public abstract class SourceConnector extends Connector {
+    @Override
+    public void onDeploy() throws ConnectorTaskException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onUndeploy() throws ConnectorTaskException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onStart() throws ConnectorTaskException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onStop() throws ConnectorTaskException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onHalt() throws ConnectorTaskException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
+        if (debugOptions.isSourceConnectorScripts()) {
+            super.onDebugDeploy(debugOptions);
+        }
+    }
+
     private boolean respondAfterProcessing = true;
     private MetaDataReplacer metaDataReplacer;
     private BatchAdaptorFactory batchAdaptorFactory;

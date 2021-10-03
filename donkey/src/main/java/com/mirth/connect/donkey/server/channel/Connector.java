@@ -46,7 +46,7 @@ public abstract class Connector {
 
     public abstract void halt() throws ConnectorTaskException, InterruptedException;
     
-    public void onDebugDeploy() throws ConnectorTaskException {
+    public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
     	onDeploy();
     }
     
