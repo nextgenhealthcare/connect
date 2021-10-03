@@ -21,6 +21,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.mirth.connect.donkey.server.channel.DebugOptions;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.server.channel.ErrorTaskHandler;
@@ -294,7 +295,7 @@ public class ChannelUtil {
             @Override
             public Void call() throws Exception {
                 ErrorTaskHandler handler = new ErrorTaskHandler();
-                engineController.deployChannels(Collections.singleton(convertId(channelIdOrName)), null, handler, false);
+                engineController.deployChannels(Collections.singleton(convertId(channelIdOrName)), null, handler, new DebugOptions());
                 if (handler.isErrored()) {
                     throw handler.getError();
                 }

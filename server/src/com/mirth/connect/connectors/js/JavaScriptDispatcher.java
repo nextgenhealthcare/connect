@@ -27,6 +27,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
+import com.mirth.connect.donkey.server.channel.DebugOptions;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
@@ -71,12 +72,14 @@ public class JavaScriptDispatcher extends DestinationConnector {
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        onDeploy(false);
+        super.onDeploy();
     }
     
     @Override
-    public void onDebugDeploy() throws ConnectorTaskException {
-    	onDeploy(true);
+    public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
+        if (debugOptions.isDestinationConnectorScripts()) {
+            super.onDebugDeploy(debugOptions);
+        }
     }
     
     public void onDeploy(boolean debug) throws ConnectorTaskException {

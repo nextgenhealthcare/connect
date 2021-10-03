@@ -15,6 +15,7 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.mirth.connect.donkey.server.channel.DebugOptions;
 import com.mirth.connect.model.ServerEventContext;
 
 public class DonkeyEngineControllerTests {
@@ -49,7 +50,7 @@ public class DonkeyEngineControllerTests {
         channelIds.add(TestUtils.CHANNEL_ID);
 
         // Deploy Channel
-        donkeyEngineController.deployChannels(channelIds, context, null, false);
+        donkeyEngineController.deployChannels(channelIds, context, null, new DebugOptions());
 
         // Send message to channel and assert received
 
