@@ -856,7 +856,7 @@ public class ChannelPanel extends AbstractFramePanel {
 
     public void doDeployInDebug() {
         
-        new DeployInDebugMode();
+        new DeployInDebugMode2();
     }
     
     public void doDeployChannel() {

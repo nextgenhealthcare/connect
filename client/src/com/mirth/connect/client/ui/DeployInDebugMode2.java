@@ -82,74 +82,36 @@ public class DeployInDebugMode2 extends MirthDialog {
 
         pack();
 
+        Dimension dlgSize = getPreferredSize();
+        Dimension frmSize = parent.getSize();
+        Point loc = parent.getLocation();
+
+        if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
+            setLocationRelativeTo(null);
+        } else {
+            setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        }
       
         setVisible(true);
+        
     }
 
       private void initLayout() {
         
-
-
-//        notificationPanel.add(headerListPanel, "grow");
-//        notificationPanel.add(headerContentPanel, "wrap, grow");
-//        notificationPanel.add(listScrollPane, "grow");
-//        notificationPanel.add(contentScrollPane, "grow");
-//          notificationPanel.add(aboutContent);
           notificationPanel.add(debugLabel,"alignx left");
           notificationPanel.add(libraryChannelsSelectAllLabel,"alignx left");
           notificationPanel.add(libraryChannelsDeselectAllLabel,"alignx left");
-          notificationPanel.add(new JSeparator(), "grow, gaptop 4, span");
-          notificationPanel.add(deployUndeployCheckBox1);
-          notificationPanel.add(new JSeparator(), "grow, span");
-          notificationPanel.add(deployUndeployCheckBox);
-          notificationPanel.add(new JSeparator(), "grow, span");
-          notificationPanel.add(attachmentBatchCheckBox);
-          notificationPanel.add(new JSeparator(), "grow, span");
-          notificationPanel.add(sourceConnectorBatchCheckBox);
-          notificationPanel.add(new JSeparator(), "grow, span");
-          notificationPanel.add(sourceFilterTransformerCheckBox);
-          notificationPanel.add(new JSeparator(), "grow, span");
-          notificationPanel.add(destinationFilterTransformerCheckBox);
-          notificationPanel.add(new JSeparator(), "grow, span");
-          notificationPanel.add(destinationRespCheckBox);
-          notificationPanel.add(new JSeparator(), "grow, span");
+          notificationPanel.add(deployUndeployCheckBox, "newline, left");
+          notificationPanel.add(attachmentBatchCheckBox, "newline, left");
+          notificationPanel.add(sourceConnectorBatchCheckBox, "newline, left");
+          notificationPanel.add(sourceFilterTransformerCheckBox, "newline, left");
+          notificationPanel.add(destinationFilterTransformerCheckBox, "newline, left");
+          notificationPanel.add(destinationRespCheckBox, "newline, left");
 
         add(notificationPanel, "grow, push, span");
         add(new JSeparator(), "grow, gaptop 4, span");
           
-          
-//        add(debugLabel,"alignx left");
-//        add(libraryChannelsSelectAllLabel,"alignx left");
-//        add(libraryChannelsDeselectAllLabel,"alignx left");
-//        add(new JSeparator(), "grow, gaptop 4, span");
-
-//        
-//        add(deployUndeployCheckBox, "alignx left");
-//        add(new JSeparator(), "grow, gaptop 4, span");
-        
-
-        
-//        add(attachmentBatchCheckBox, "alignx left");
-//        add(new JSeparator(), "grow, gaptop 4, span");
-//
-//        add(sourceConnectorBatchCheckBox, "alignx left");
-//        add(new JSeparator(), "grow, gaptop 4, span");
-//
-//        add(sourceFilterTransformerCheckBox, "alignx left");
-//        add(new JSeparator(), "grow, gaptop 4, span");
-//
-//        add(destinationFilterTransformerCheckBox, "alignx left");
-//        add(new JSeparator(), "grow, gaptop 4, span");
-//
-//        add(destinationScriptsCheckBox, "alignx left");
-//        add(new JSeparator(), "grow, gaptop 4, span");
-//
-//        add(destinationRespCheckBox, "alignx left");
-//        add(new JSeparator(), "grow, gaptop 4, span");
-//        
-        
-
-
+ 
         add(okButton, "alignx center, width 60, spany 2");
 
         add(cancelButton, "alignx center, width 60, spany 2");
@@ -162,9 +124,7 @@ public class DeployInDebugMode2 extends MirthDialog {
         
         notificationPanel = new JPanel();
         notificationPanel.setLayout(new MigLayout("insets 0 0 0 0, fill", "[200!][]", "[25!]0[]"));
-        notificationPanel.setBackground(UIConstants.BACKGROUND_COLOR);
-
-        
+   
         debugLabel=new JLabel("Select channel script to debug");
         
         libraryChannelsSelectAllLabel = new JLabel("<html><u>Select All</u></html>");
@@ -172,46 +132,46 @@ public class DeployInDebugMode2 extends MirthDialog {
         libraryChannelsSelectAllLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         libraryChannelsSelectAllLabel.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
-                if (evt.getComponent().isEnabled()) {
-//                    for (int row = 0; row < libraryChannelsTable.getRowCount(); row++) {
-//                        ChannelInfo channelInfo = (ChannelInfo) libraryChannelsTable.getValueAt(row, LIBRARY_CHANNELS_NAME_COLUMN);
-//                        channelInfo.setEnabled(true);
-//                        libraryChannelsTable.setValueAt(channelInfo, row, LIBRARY_CHANNELS_NAME_COLUMN);
-//                    }
-                    setEnabled(true);
-                }
+                deployUndeployCheckBox.setSelected(true);
+                attachmentBatchCheckBox.setSelected(true);
+                sourceConnectorBatchCheckBox.setSelected(true);
+                sourceFilterTransformerCheckBox.setSelected(true);
+                destinationFilterTransformerCheckBox.setSelected(true);
+                destinationScriptsCheckBox.setSelected(true);                
+                destinationRespCheckBox.setSelected(true);
+
             }
         });
         
         libraryChannelsDeselectAllLabel = new JLabel("<html><u>Deselect All</u></html>");
         libraryChannelsDeselectAllLabel.setForeground(Color.BLUE);
         libraryChannelsDeselectAllLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        libraryChannelsDeselectAllLabel.addMouseListener(new MouseAdapter() {
+            public void mouseReleased(MouseEvent evt) {
+                deployUndeployCheckBox.setSelected(false);
+                attachmentBatchCheckBox.setSelected(false);
+                sourceConnectorBatchCheckBox.setSelected(false);
+                sourceFilterTransformerCheckBox.setSelected(false);
+                destinationFilterTransformerCheckBox.setSelected(false);
+                destinationScriptsCheckBox.setSelected(false);                
+                destinationRespCheckBox.setSelected(false);
+
+            }
+        });
         
-        deployUndeployCheckBox1 = new JCheckBox("Deploy/Undeploy/Preprocessor/Postprocessor scripts");
-        deployUndeployCheckBox1.setBackground(UIConstants.BACKGROUND_COLOR);
-
         deployUndeployCheckBox = new JCheckBox("Deploy/Undeploy/Preprocessor/Postprocessor scripts");
-        deployUndeployCheckBox.setBackground(UIConstants.BACKGROUND_COLOR);
-//        notificationPanel.add(deployUndeploy1);
-
 
         attachmentBatchCheckBox = new JCheckBox("Attachment/Batch scripts");
-        attachmentBatchCheckBox.setBackground(UIConstants.BACKGROUND_COLOR);
 
         sourceConnectorBatchCheckBox = new JCheckBox("Source connector scripts");
-        sourceConnectorBatchCheckBox.setBackground(UIConstants.BACKGROUND_COLOR);
 
         sourceFilterTransformerCheckBox = new JCheckBox("Source filter/transformer");
-        sourceFilterTransformerCheckBox.setBackground(UIConstants.BACKGROUND_COLOR);
 
         destinationFilterTransformerCheckBox = new JCheckBox("Destination filter/transformer");
-        destinationFilterTransformerCheckBox.setBackground(UIConstants.BACKGROUND_COLOR);
 
         destinationScriptsCheckBox = new JCheckBox("Destination connector scripts");
-        destinationScriptsCheckBox.setBackground(UIConstants.BACKGROUND_COLOR);
         
         destinationRespCheckBox = new JCheckBox("Destination response transformer");
-        destinationRespCheckBox.setBackground(UIConstants.BACKGROUND_COLOR);
 
 
         cancelButton = new JButton("Cancel");
@@ -225,17 +185,6 @@ public class DeployInDebugMode2 extends MirthDialog {
 
         
         okButton = new JButton("OK");
-
-
-
-              
-//        headerListPanel.add(deployUndeploy1);
-//        headerListPanel.add(deployUndeploy2);
-//        headerListPanel.add(deployUndeploy3);
-//        headerListPanel.add(deployUndeploy4);
-//        headerListPanel.add(deployUndeploy5);
-//        headerListPanel.add(deployUndeploy6);
-////        add(deployUndeploy6, "alignx left");
 
         pack();
     }
