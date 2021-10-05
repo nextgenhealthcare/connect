@@ -72,7 +72,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        super.onDebugDeploy(null);
+        onDeploy(false);
     }
     
     @Override
