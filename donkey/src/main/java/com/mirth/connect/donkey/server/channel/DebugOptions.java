@@ -10,7 +10,21 @@ public class DebugOptions {
     private boolean destinationConnectorScripts = false;
     private boolean destinationResponseTransformer = false;
     
+    public DebugOptions(boolean deployUndeployPreAndPostProcessorScripts, boolean attachmentBatchScripts, boolean sourceConnectorScripts, boolean sourceFilterTransformer, boolean destinationFilterTransformer, boolean destinationConnectorScripts, boolean destinationResponseTransformer) {
+        super();
+        this.deployUndeployPreAndPostProcessorScripts = deployUndeployPreAndPostProcessorScripts;
+        this.attachmentBatchScripts = attachmentBatchScripts;
+        this.sourceConnectorScripts = sourceConnectorScripts;
+        this.sourceFilterTransformer = sourceFilterTransformer;
+        this.destinationFilterTransformer = destinationFilterTransformer;
+        this.destinationConnectorScripts = destinationConnectorScripts;
+        this.destinationResponseTransformer = destinationResponseTransformer;
+    }
     
+    public DebugOptions() {
+
+    }
+
     public boolean isDeployUndeployPreAndPostProcessorScripts() {
         return deployUndeployPreAndPostProcessorScripts;
     }
