@@ -220,7 +220,7 @@ public class ChannelPanel extends AbstractFramePanel {
         parent.addTask(TaskConstants.CHANNEL_REFRESH, "Refresh", "Refresh the list of channels.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_REDEPLOY_ALL, "Redeploy All", "Undeploy all channels and deploy all currently enabled channels.", "A", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_rotate_clockwise.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_DEPLOY, "Deploy Channel", "Deploys the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelTasks, channelPopupMenu, this);
-        parent.addTask(TaskConstants.CHANNEL_DEPLOY_DEBUG, "Deploy Debug Channel", "Deploys the currently selected channel in debug mode.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelTasks, channelPopupMenu, this);
+        parent.addTask(TaskConstants.CHANNEL_DEPLOY_DEBUG, "Debug Channel", "Deploys the currently selected channel in debug mode.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EDIT_GLOBAL_SCRIPTS, "Edit Global Scripts", "Edit scripts that are not channel specific.", "G", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/script_edit.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EDIT_CODE_TEMPLATES, "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout Mirth Connect.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_edit.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_NEW_CHANNEL, "New Channel", "Create a new channel.", "N", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_add.png")), channelTasks, channelPopupMenu, this);
@@ -858,14 +858,12 @@ public class ChannelPanel extends AbstractFramePanel {
 
     public void doDeployInDebug() {
         
-        DeployInDebugMode deployInDebugMode2 = new DeployInDebugMode();
-        debugOptions = deployInDebugMode2.getdebugOptions();
-        doDeployChannel(debugOptions);
-//        channelId = channel
-//        PlatformUI.MIRTH_FRAME.mirthClient.deployChannel(channelId, false, debugOptions);
+        DeployInDebugModeDialog deployInDebugMode = new DeployInDebugModeDialog();
+        debugOptions = deployInDebugMode.getDebugOptions();
+        doDeployChannel();
     }
     
-    public void doDeployChannel(DebugOptions debugOptions) {
+    public void doDeployChannel() {
         List<Channel> selectedChannels = getSelectedChannels();
         if (selectedChannels.size() == 0) {
             parent.alertWarning(parent, "Channel no longer exists.");
