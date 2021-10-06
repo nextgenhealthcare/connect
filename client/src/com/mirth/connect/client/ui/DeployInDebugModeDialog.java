@@ -97,6 +97,7 @@ public class DeployInDebugModeDialog extends MirthDialog {
         libraryChannelsSelectAllLabel = new JLabel("<html><u>Select All</u></html>");
         libraryChannelsSelectAllLabel.setForeground(Color.BLUE);
         libraryChannelsSelectAllLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        libraryChannelsSelectAllLabel.setToolTipText("Select all channel scripts.");
         libraryChannelsSelectAllLabel.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
                 deployUndeployCheckBox.setSelected(true);
@@ -113,6 +114,7 @@ public class DeployInDebugModeDialog extends MirthDialog {
         libraryChannelsDeselectAllLabel = new JLabel("<html><u>Deselect All</u></html>");
         libraryChannelsDeselectAllLabel.setForeground(Color.BLUE);
         libraryChannelsDeselectAllLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        libraryChannelsDeselectAllLabel.setToolTipText("Deselect all channel scripts.");
         libraryChannelsDeselectAllLabel.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent evt) {
                 deployUndeployCheckBox.setSelected(false);
