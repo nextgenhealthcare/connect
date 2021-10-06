@@ -230,6 +230,7 @@ public class Frame extends JXFrame {
     private AttachmentExportDialog attachmentExportDialog;
     private KeyEventDispatcher keyEventDispatcher = null;
     private int deployedChannelCount;
+    private DebugOptions debugOptions;
 
     private static final int REFRESH_BLOCK_SIZE = 100;
 
@@ -950,6 +951,7 @@ public class Frame extends JXFrame {
         addTask(TaskConstants.CHANNEL_EDIT_EXPORT, "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelEditTasks, channelEditPopupMenu);
         addTask(TaskConstants.CHANNEL_EDIT_VALIDATE_SCRIPT, "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
         addTask(TaskConstants.CHANNEL_EDIT_DEPLOY, "Deploy Channel", "Deploy the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelEditTasks, channelEditPopupMenu);
+        addTask(TaskConstants.CHANNEL_EDIT_DEBUG_DEPLOY, "Deploy Debug Channel", "Deploy the currently selected channel in Debug mode.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelEditTasks, channelEditPopupMenu);
 
         setNonFocusable(channelEditTasks);
         taskPaneContainer.add(channelEditTasks);
@@ -2731,6 +2733,43 @@ public class Frame extends JXFrame {
             userPanel.setSelectedUser(userName);
         }
     }
+    
+    public void doDebugDeployFromChannelView() {
+        String channelId = channelEditPanel.currentChannel.getId();
+        if (isSaveEnabled()) {
+            if (alertOption(PlatformUI.MIRTH_FRAME, "<html>This channel will be saved before it is deployed in debug mode.<br/>Are you sure you want to save and deploy this channel?</html>")) {
+                if (channelEditPanel.saveChanges()) {
+                    setSaveEnabled(false);
+                } else {
+                    return;
+                }
+            } else {
+                return;
+            }
+        } else {
+            if (!alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you want to deploy this channel?")) {
+                return;
+            }
+        }
+
+        ChannelStatus channelStatus = channelPanel.getCachedChannelStatuses().get(channelId);
+        if (channelStatus == null) {
+            alertWarning(this, "The channel cannot be found and will not be deployed.");
+            return;
+        }
+
+        if (!channelStatus.getChannel().getExportData().getMetadata().isEnabled()) {
+            alertWarning(this, "The channel is disabled and will not be deployed.");
+            return;
+        }
+        
+ 
+        DeployInDebugMode deployInDebugMode2 = new DeployInDebugMode();
+        debugOptions = deployInDebugMode2.getdebugOptions();
+
+        deployChannel(Collections.singleton(channelId), debugOptions);
+        
+    }
 
     public void doDeployFromChannelView() {
         String channelId = channelEditPanel.currentChannel.getId();
@@ -2762,10 +2801,10 @@ public class Frame extends JXFrame {
             return;
         }
 
-        deployChannel(Collections.singleton(channelId));
+        deployChannel(Collections.singleton(channelId), new DebugOptions());
     }
 
-    public void deployChannel(final Set<String> selectedChannelIds) {
+    public void deployChannel(final Set<String> selectedChannelIds, DebugOptions debugOptions) {
         if (CollectionUtils.isNotEmpty(selectedChannelIds)) {
             String plural = (selectedChannelIds.size() > 1) ? "s" : "";
             final String workingId = startWorking("Deploying channel" + plural + "...");
@@ -2777,7 +2816,8 @@ public class Frame extends JXFrame {
 
                 public Void doInBackground() {
                     try {
-                        mirthClient.deployChannels(selectedChannelIds);
+                        //TODO once the backend changes for the deploy channels in debug mode is merged, need to add debugOptions parameter to the below method.
+                      mirthClient.deployChannels(selectedChannelIds);
                     } catch (ClientException e) {
                         SwingUtilities.invokeLater(() -> {
                             alertThrowable(PlatformUI.MIRTH_FRAME, e);
