@@ -259,13 +259,5 @@
 	<classpathentry kind="lib" path="lib/hapi/hapi-structures-v27-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/hapi/hapi-structures-v28-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/hapi/hapi-structures-v281-2.3.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/SSL Plugin"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ClusteringAdvanced"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Interoperability PDQ Connectors"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Interoperability PIX Connectors"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Interoperability Suite Core"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Interoperability XCA Connectors"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Interoperability XCPD Connectors"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Interoperability XDS.b Connectors"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
