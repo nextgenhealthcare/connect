@@ -535,7 +535,6 @@ public class ChannelPanel extends AbstractFramePanel {
 
                 if (channelNodeFound && !allDisabled) {
                     setChannelTaskVisible(TASK_CHANNEL_DEPLOY);
-                    setChannelTaskVisible(TASK_CHANNEL_DEBUG_DEPLOY);                 
                 }
 
                 if (!saveEnabled) {
@@ -548,7 +547,6 @@ public class ChannelPanel extends AbstractFramePanel {
             } else if (allChannels) {
                 if (!allDisabled) {
                     setChannelTaskVisible(TASK_CHANNEL_DEPLOY);
-                    setChannelTaskVisible(TASK_CHANNEL_DEBUG_DEPLOY);
                 }
                 if (!filterEnabled && model.isGroupModeEnabled()) {
                     setGroupTaskVisible(TASK_GROUP_ASSIGN_CHANNEL);
@@ -560,10 +558,10 @@ public class ChannelPanel extends AbstractFramePanel {
                     setChannelTaskVisible(TASK_CHANNEL_CLONE);
                     setChannelTaskVisible(TASK_CHANNEL_EDIT);
                     setChannelTaskVisible(TASK_CHANNEL_VIEW_MESSAGES);
+                    setChannelTaskVisible(TASK_CHANNEL_DEBUG_DEPLOY);
                 }
             } else {
                 setChannelTaskVisible(TASK_CHANNEL_DEPLOY);
-                setChannelTaskVisible(TASK_CHANNEL_DEBUG_DEPLOY);
             }
         }
     }
