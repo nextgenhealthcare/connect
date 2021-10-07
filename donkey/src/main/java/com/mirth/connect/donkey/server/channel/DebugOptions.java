@@ -24,14 +24,6 @@ public class DebugOptions {
     public DebugOptions() {
 
     }
- 
-    public DebugOptions(String foo) {
-
-    }
-    
-    public String toString() {
-        return "DebugOptions [deployUndeployPreAndPostProcessorScripts=" + deployUndeployPreAndPostProcessorScripts + ", attachmentBatchScripts=" + attachmentBatchScripts + ", sourceConnectorScripts=" + sourceConnectorScripts + ", sourceFilterTransformer=" + sourceFilterTransformer + ", destinationFilterTransformer=" + destinationFilterTransformer + ", destinationConnectorScripts=" + destinationConnectorScripts + ", destinationResponseTransformer=" + destinationResponseTransformer + "]";
-    }
 
     public boolean isDeployUndeployPreAndPostProcessorScripts() {
         return deployUndeployPreAndPostProcessorScripts;
