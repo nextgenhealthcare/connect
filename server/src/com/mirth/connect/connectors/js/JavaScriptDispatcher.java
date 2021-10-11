@@ -77,7 +77,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
     
     @Override
     public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
-        if (debugOptions.isDestinationConnectorScripts()) {
+        if (debugOptions != null && debugOptions.isDestinationConnectorScripts()) {
             onDeploy(true);
         }
     }

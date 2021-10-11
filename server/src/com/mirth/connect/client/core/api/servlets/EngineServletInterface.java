@@ -55,7 +55,6 @@ public interface EngineServletInterface extends BaseServletInterface {
     public void deployChannel(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel to deploy.", required = true) @PathParam("channelId") String channelId,
             @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors,
-
             @RequestBody(description = "Debug options for the channel to deploy", content = {
                     @Content(mediaType = MediaType.APPLICATION_XML, examples = {
                             @ExampleObject(name = "channel_set", ref = "../apiexamples/debug_options_xml") }),

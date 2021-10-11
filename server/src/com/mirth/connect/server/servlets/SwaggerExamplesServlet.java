@@ -255,7 +255,9 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getDatabaseTaskExample();
 		} else if (exampleRequested.equals("database_task_map")) {
 		    requestedObject = getDatabaseTaskMapExample();
-		} else if (exampleRequested.equals("definition_service_map")) {
+		} else if (exampleRequested.equals("debug_options")) {
+            requestedObject = getDebugOptionsExample();  
+        } else if (exampleRequested.equals("definition_service_map")) {
 		    requestedObject = getDefinitionServiceMapExample();
 		} else if (exampleRequested.equals("driver_info_list")) {
             requestedObject = getDriverInfoListExample();
@@ -362,12 +364,6 @@ public class SwaggerExamplesServlet extends HttpServlet {
         } else if (exampleRequested.equals("ws_dispatcher_properties")) {
             requestedObject = getWsDispatcherPropertiesExample();
         }
-        else if (exampleRequested.equals("debug_options")) {
-           
-            requestedObject = getDebugOptionsExample();
-            
-        } 
-		
 		resp.setContentType("application/json");
 		if (req.getPathInfo().endsWith("_json")) {
 	        String serializedObject = jsonSerialize(requestedObject);
@@ -892,6 +888,19 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return taskMap;
 	}
 	
+	private DebugOptions getDebugOptionsExample() {
+	    DebugOptions debugOptions=new DebugOptions();
+        debugOptions.setAttachmentBatchScripts(false);
+        debugOptions.setDeployUndeployPreAndPostProcessorScripts(false);
+        debugOptions.setDestinationConnectorScripts(false);
+        debugOptions.setDestinationFilterTransformer(false);
+        debugOptions.setDestinationResponseTransformer(false);
+        debugOptions.setDestinationResponseTransformer(false);
+        debugOptions.setSourceConnectorScripts(false);
+        debugOptions.setSourceFilterTransformer(false);
+        return debugOptions;
+    }
+	
 	private DefinitionServiceMap getDefinitionServiceMapExample() {
 	    DefinitionServiceMap definitionMap = new DefinitionServiceMap();
 	    Map<String, DefinitionPortMap> portMap = definitionMap.getMap();
@@ -1004,21 +1013,6 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		return stringSet;
 	}
 	
-	private DebugOptions getDebugOptionsExample() {
-	    
-	    DebugOptions debugOptions=new DebugOptions();
-	    debugOptions.setAttachmentBatchScripts(false);
-	    debugOptions.setDeployUndeployPreAndPostProcessorScripts(false);
-	    debugOptions.setDestinationConnectorScripts(false);
-	    debugOptions.setDestinationFilterTransformer(false);
-	    debugOptions.setDestinationResponseTransformer(false);
-	    debugOptions.setDestinationResponseTransformer(false);
-	    debugOptions.setSourceConnectorScripts(false);
-	    debugOptions.setSourceFilterTransformer(false);
-	   
-        return debugOptions;
-        
-    }
 	private Map<String, Integer> getGuidToIntMapExample() {
 	    Map<String, Integer> guidToIntMap = new HashMap<>();
 	    guidToIntMap.put(UUID.randomUUID().toString(), 1);
