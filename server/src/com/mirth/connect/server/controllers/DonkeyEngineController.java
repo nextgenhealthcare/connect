@@ -66,6 +66,7 @@ import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.ChannelProcessLock;
 import com.mirth.connect.donkey.server.channel.Connector;
+import com.mirth.connect.donkey.server.channel.DebugOptions;
 import com.mirth.connect.donkey.server.channel.DefaultChannelProcessLock;
 import com.mirth.connect.donkey.server.channel.DestinationChainProvider;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
@@ -263,14 +264,14 @@ public class DonkeyEngineController implements EngineController {
     @Override
     public void startupDeploy(boolean deployChannels) {
         if (deployChannels) {
-            deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, false);
+            deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, new DebugOptions());
         } else {
             logger.info("Property \"server.startupdeploy\" is disabled. Skipping initial deployment of channels...");
         }
     }
 
     @Override
-    public void deployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler, boolean debug) {
+    public void deployChannels(Set<String> channelIds, ServerEventContext context, ChannelTaskHandler handler, DebugOptions debugOptions) {
         List<ChannelTask> unorderedUndeployTasks = new ArrayList<ChannelTask>();
         List<ChannelTask> unorderedDeployTasks = new ArrayList<ChannelTask>();
         List<List<ChannelTask>> orderedUndeployTasks = new ArrayList<List<ChannelTask>>();
@@ -299,7 +300,7 @@ public class DonkeyEngineController implements EngineController {
                 hasUndeployTasks = true;
             }
 
-            unorderedDeployTasks.add(createDeployTask(channelId, null, null, context, debug));
+            unorderedDeployTasks.add(createDeployTask(channelId, null, null, context, debugOptions));
             hasDeployTasks = true;
         }
 
@@ -315,7 +316,7 @@ public class DonkeyEngineController implements EngineController {
                         hasUndeployTasks = true;
                     }
 
-                    deployTasks.add(createDeployTask(channelId, null, null, context, debug));                    
+                    deployTasks.add(createDeployTask(channelId, null, null, context, debugOptions));                    
                     hasDeployTasks = true;
                 }
 
@@ -490,7 +491,7 @@ public class DonkeyEngineController implements EngineController {
     public void redeployAllChannels(ServerEventContext context, ChannelTaskHandler handler) {
         undeployChannels(getDeployedIds(), context, handler);
         clearGlobalMap();
-        deployChannels(channelController.getChannelIds(), context, handler, false);
+        deployChannels(channelController.getChannelIds(), context, handler, new DebugOptions());
     }
 
     @Override
@@ -1781,8 +1782,8 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    protected DeployTask createDeployTask(String channelId, DeployedState initialState, Set<Integer> connectorsToStart, ServerEventContext context, boolean debug) {
-        return new DeployTask(channelId, initialState, connectorsToStart, context, debug);
+    protected DeployTask createDeployTask(String channelId, DeployedState initialState, Set<Integer> connectorsToStart, ServerEventContext context, DebugOptions debugOptions) {
+        return new DeployTask(channelId, initialState, connectorsToStart, context, debugOptions);
     }
 
     protected class DeployTask extends ChannelTask {
@@ -1790,14 +1791,14 @@ public class DonkeyEngineController implements EngineController {
         private DeployedState initialState;
         private Set<Integer> connectorsToStart;
         private ServerEventContext context;
-        private boolean debug;
+        private DebugOptions debugOptions;
 
-        public DeployTask(String channelId, DeployedState initialState, Set<Integer> connectorsToStart, ServerEventContext context, boolean debug) {
+        public DeployTask(String channelId, DeployedState initialState, Set<Integer> connectorsToStart, ServerEventContext context, DebugOptions debugOptions) {
             super(channelId);
             this.initialState = initialState;
             this.connectorsToStart = connectorsToStart;
             this.context = context;
-            this.debug = debug;
+            this.debugOptions = debugOptions;
         }
 
         @Override
@@ -1872,8 +1873,8 @@ public class DonkeyEngineController implements EngineController {
                 donkey.getDeployedChannels().put(channelId, channel);
 
                 try {
-                	if (debug) {
-                		channel.debugDeploy();
+                	if (debugOptions != null) {
+                		channel.debugDeploy(debugOptions);
                 	} else {
                 		channel.deploy();
                 	}

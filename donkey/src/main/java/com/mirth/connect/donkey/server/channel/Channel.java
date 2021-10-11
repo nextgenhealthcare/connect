@@ -450,14 +450,14 @@ public class Channel implements Runnable {
     }
 
     public synchronized void deploy() throws DeployException {
-        deploy(false);
+        deploy(null);
     }
     
-    public synchronized void debugDeploy() throws DeployException {
-    	deploy(true);
+    public synchronized void debugDeploy(DebugOptions debugOptions) throws DeployException {
+    	deploy(debugOptions);
     }
     
-    public synchronized void deploy(boolean debug) throws DeployException {
+    public synchronized void deploy(DebugOptions debugOptions) throws DeployException {
     	if (!isConfigurationValid()) {
             throw new DeployException("Failed to deploy channel. The channel configuration is incomplete.");
         }
@@ -508,8 +508,8 @@ public class Channel implements Runnable {
 
             deployedMetaDataIds.add(0);
             
-            if (debug) {
-            	sourceConnector.onDebugDeploy();
+            if (debugOptions != null) {
+            	sourceConnector.onDebugDeploy(debugOptions);
             } else {
             	sourceConnector.onDeploy();
             }
@@ -539,8 +539,8 @@ public class Channel implements Runnable {
 
                     deployedMetaDataIds.add(metaDataId);
                     
-                    if (debug) {
-                    	destinationConnector.onDebugDeploy();
+                    if (debugOptions != null) {
+                    	destinationConnector.onDebugDeploy(debugOptions);
                     } else {
                     	destinationConnector.onDeploy();
                     }
