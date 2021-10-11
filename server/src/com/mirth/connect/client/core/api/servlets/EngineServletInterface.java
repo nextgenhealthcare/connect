@@ -32,6 +32,8 @@ import com.mirth.connect.client.core.Permissions;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
+import com.mirth.connect.model.DebugOptions;
+import com.mirth.connect.model.User;
 
 @Path("/channels")
 @Tag(name = "Channel Deployment Operations")
@@ -45,7 +47,7 @@ public interface EngineServletInterface extends BaseServletInterface {
     @MirthOperation(name = "redeployAllChannels", display = "Redeploy all channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void redeployAllChannels(@Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
 
-    @POST
+    /* @POST
     @Path("/{channelId}/_deploy")
     @Operation(summary = "Deploys (or redeploys) a single channel.")
     @MirthOperation(name = "deployChannels", display = "Deploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
@@ -54,7 +56,39 @@ public interface EngineServletInterface extends BaseServletInterface {
             @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors,
             @Param("debug") @Parameter(description = "If true, the channel will be deployed in debug mode.") @QueryParam("debug") boolean debug) throws ClientException;
     // @formatter:on
-
+*/
+    
+    @POST
+    @Path("/{channelId}/_deploy")
+    @Operation(summary = "Deploys (or redeploys) a single channel.")
+    @MirthOperation(name = "deployChannels", display = "Deploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
+    public void deployChannel(// @formatter:off
+            @Param("channelId") @Parameter(description = "The ID of the channel to deploy.", required = true) 
+            @RequestBody(description = "Debug options for the channel to deploy", content = {
+                    @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                            @ExampleObject(name = "channel_set", ref = "../apiexamples/debug_options_xml") }),
+                    @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                            @ExampleObject(name = "channel_set", ref = "../apiexamples/debug_options_json") })}) String channelId,
+            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors,
+            @Param("debug") @Parameter(description = "If true, the channel will be deployed in debug mode.") @QueryParam("debug") boolean debug )throws ClientException;
+    // @formatter:on
+    /*
+    @POST
+    @Path("/{channelId}/_deploy")
+    @Operation(summary = "Deploys (or redeploys) a single channel.")
+    @MirthOperation(name = "deployChannels", display = "Deploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
+    public void deployChannel(// @formatter:off
+            @Param("channelId") @Parameter(description = "The ID of the channel to deploy.", required = true) @PathParam("channelId") String channelId,
+            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors,
+            @Param("debug") @Parameter(description = "If true, the channel will be deployed in debug mode.") @QueryParam("debug") boolean debug ,
+            @Param("debugOptions") @Parameter(description = "Debug options for the channel to deploy.", required = true) 
+    @RequestBody(description = "Debug options for the channel to deploy", content = {
+            @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                    @ExampleObject(name = "channel_set", ref = "../apiexamples/debug_options_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "channel_set", ref = "../apiexamples/debug_options_json") }) }) DebugOptions debugOptions) throws ClientException;
+    // @formatter:on
+*/
     @POST
     @Path("/_deploy")
     @Operation(summary = "Deploys (or redeploys) selected channels.")

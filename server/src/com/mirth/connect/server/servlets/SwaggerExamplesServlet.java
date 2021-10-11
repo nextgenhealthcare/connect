@@ -70,6 +70,7 @@ import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.model.DatabaseTask;
+import com.mirth.connect.model.DebugOptions;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.ExtensionLibrary;
@@ -361,6 +362,11 @@ public class SwaggerExamplesServlet extends HttpServlet {
         } else if (exampleRequested.equals("ws_dispatcher_properties")) {
             requestedObject = getWsDispatcherPropertiesExample();
         }
+        else if (exampleRequested.equals("debug_options")) {
+           
+            requestedObject = getDebugOptionsExample();
+            
+        } 
 		
 		resp.setContentType("application/json");
 		if (req.getPathInfo().endsWith("_json")) {
@@ -998,6 +1004,21 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		return stringSet;
 	}
 	
+	private DebugOptions getDebugOptionsExample() {
+	    
+	    DebugOptions debugOptions=new DebugOptions();
+	    debugOptions.setAttachmentBatchScripts(false);
+	    debugOptions.setDeployUndeployPreAndPostProcessorScripts(false);
+	    debugOptions.setDestinationConnectorScripts(false);
+	    debugOptions.setDestinationFilterTransformer(false);
+	    debugOptions.setDestinationResponseTransformer(false);
+	    debugOptions.setDestinationResponseTransformer(false);
+	    debugOptions.setSourceConnectorScripts(false);
+	    debugOptions.setSourceFilterTransformer(false);
+	   
+        return debugOptions;
+        
+    }
 	private Map<String, Integer> getGuidToIntMapExample() {
 	    Map<String, Integer> guidToIntMap = new HashMap<>();
 	    guidToIntMap.put(UUID.randomUUID().toString(), 1);
