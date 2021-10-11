@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.util.MigrationException;
 
-public class Migrate_3_12_1 extends Migrator implements ConfigurationMigrator {
+public class Migrate3_12_1 extends Migrator implements ConfigurationMigrator {
 	
 	private Logger logger = Logger.getLogger(getClass());
 
@@ -27,8 +27,8 @@ public class Migrate_3_12_1 extends Migrator implements ConfigurationMigrator {
     @Override
     public void updateConfiguration(PropertiesConfiguration configuration) {
         if (getStartingVersion() == null || getStartingVersion().ordinal() < Version.v3_12_1.ordinal()) {
-            updateConfiguration(configuration, "https.client.protocols", "TLSv1.2,TLSv1.1", "TLSv1.3,TLSv1.2");
-            updateConfiguration(configuration, "https.server.protocols", "TLSv1.2,TLSv1.1,SSLv2Hello", "TLSv1.3,TLSv1.2,SSLv2Hello");
+            updateConfiguration(configuration, "https.client.protocols", "TLSv1.3,TLSv1.2,TLSv1.1", "TLSv1.3,TLSv1.2");
+            updateConfiguration(configuration, "https.server.protocols", "TLSv1.3,TLSv1.2,TLSv1.1,SSLv2Hello", "TLSv1.3,TLSv1.2,SSLv2Hello");
             updateConfiguration(
             		configuration, 
             		"https.ciphersuites", 
@@ -67,6 +67,14 @@ public class Migrate_3_12_1 extends Migrator implements ConfigurationMigrator {
 	@Override
 	public void migrateSerializedData() throws MigrationException {
 
+	}
+
+	public Logger getLogger() {
+		return logger;
+	}
+
+	public void setLogger(Logger logger) {
+		this.logger = logger;
 	}
 
 }
