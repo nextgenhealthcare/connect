@@ -23,20 +23,6 @@ import com.mirth.connect.donkey.util.PollConnectorJobHandler;
 public abstract class PollConnector extends SourceConnector {
     private PollConnectorJobHandler handler;
     private AtomicBoolean terminated = new AtomicBoolean(true);
-
-    @Override
-    public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
-        if (debugOptions.isSourceConnectorScripts()) {
-            super.onDebugDeploy(debugOptions);
-        }
-    }
-
-    @Override
-    public void handleRecoveredResponse(DispatchResult dispatchResult) {
-        // TODO Auto-generated method stub
-        
-    }
-
     private JobDetail job;
     private Scheduler scheduler;
 
