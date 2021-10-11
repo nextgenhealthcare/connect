@@ -27,6 +27,7 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
+import com.mirth.connect.donkey.server.channel.DebugOptions;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
@@ -58,15 +59,15 @@ public class JavaScriptDispatcher extends DestinationConnector {
     private boolean ignoreBreakpoints = false;
     
     protected EventController getEventController() {
-    	return ControllerFactory.getFactory().createEventController();
+        return ControllerFactory.getFactory().createEventController();
     }
     
     protected ContextFactoryController getContextFactoryController() {
-    	return ControllerFactory.getFactory().createContextFactoryController();
+        return ControllerFactory.getFactory().createContextFactoryController();
     }
     
     protected CompiledScriptCache getCompiledScriptCache() {
-    	return CompiledScriptCache.getInstance();
+        return CompiledScriptCache.getInstance();
     }
 
     @Override
@@ -75,13 +76,15 @@ public class JavaScriptDispatcher extends DestinationConnector {
     }
     
     @Override
-    public void onDebugDeploy() throws ConnectorTaskException {
-    	onDeploy(true);
+    public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
+        if (debugOptions.isDestinationConnectorScripts()) {
+            onDeploy(true);
+        }
     }
     
     public void onDeploy(boolean debug) throws ConnectorTaskException {
-    	this.connectorProperties = (JavaScriptDispatcherProperties) getConnectorProperties();
-    	this.debug = debug;
+        this.connectorProperties = (JavaScriptDispatcherProperties) getConnectorProperties();
+        this.debug = debug;
 
         scriptId = UUID.randomUUID().toString();
 
@@ -89,10 +92,10 @@ public class JavaScriptDispatcher extends DestinationConnector {
             MirthContextFactory contextFactory;
             
             if (debug) {
-            	contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId());
-            	debugger = getDebugger(contextFactory);
+                contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId());
+                debugger = getDebugger(contextFactory);
             } else {
-            	contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+                contextFactory = contextFactoryController.getContextFactory(getResourceIds());
             }
             
             contextFactoryId = contextFactory.getId();
@@ -106,11 +109,11 @@ public class JavaScriptDispatcher extends DestinationConnector {
     }
     
     protected MirthMain getDebugger(MirthContextFactory contextFactory) {
-    	return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, getChannel().getName() + "-" + getChannelId());
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, getChannel().getName() + "-" + getChannelId());
     }
     
     protected void compileAndAddScript(MirthContextFactory contextFactory, String scriptId) throws Exception {
-    	JavaScriptUtil.compileAndAddScript(getChannelId(), contextFactory, scriptId, connectorProperties.getScript(), ContextType.DESTINATION_DISPATCHER, null, null);
+        JavaScriptUtil.compileAndAddScript(getChannelId(), contextFactory, scriptId, connectorProperties.getScript(), ContextType.DESTINATION_DISPATCHER, null, null);
     }
 
     @Override
@@ -118,26 +121,26 @@ public class JavaScriptDispatcher extends DestinationConnector {
         JavaScriptUtil.removeScriptFromCache(scriptId);
         
         if (debug && debugger != null) {
-        	debugger.detach();
-        	contextFactoryController.removeDebugContextFactory(getResourceIds(), getChannelId());
-        	debugger.dispose();
-        	debugger = null;
+            debugger.detach();
+            contextFactoryController.removeDebugContextFactory(getResourceIds(), getChannelId());
+            debugger.dispose();
+            debugger = null;
         }
     }
 
     @Override
     public void onStart() throws ConnectorTaskException {
-    	ignoreBreakpoints = false;
-    	if (debug && debugger != null) {
-    		debugger.enableDebugging();
-    	}
+        ignoreBreakpoints = false;
+        if (debug && debugger != null) {
+            debugger.enableDebugging();
+        }
     }
 
     @Override
     public void onStop() throws ConnectorTaskException {
-    	if (debug && debugger != null) {
-    		debugger.finishScriptExecution();
-    	}
+        if (debug && debugger != null) {
+            debugger.finishScriptExecution();
+        }
     }
 
     @Override
@@ -145,17 +148,17 @@ public class JavaScriptDispatcher extends DestinationConnector {
 
     @Override
     public void stopDebugging() throws ConnectorTaskException {
-    	ignoreBreakpoints = true;
-    	if (debug && debugger != null) {
-    		debugger.finishScriptExecution();
-    	}
+        ignoreBreakpoints = true;
+        if (debug && debugger != null) {
+            debugger.finishScriptExecution();
+        }
     }
     
     @Override
     public void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message) {}
 
     @Override
-    public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {    	
+    public Response send(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {       
         JavaScriptDispatcherProperties javaScriptDispatcherProperties = (JavaScriptDispatcherProperties) connectorProperties;
 
         try {
@@ -216,15 +219,15 @@ public class JavaScriptDispatcher extends DestinationConnector {
                     Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(getContextFactory(), scriptLogger, getChannelId(), new ImmutableConnectorMessage(message, true, JavaScriptDispatcher.this.getDestinationIdMap()));
                     
                     if (debug) {
-                    	scopeProvider.setScope(scope);
+                        scopeProvider.setScope(scope);
 
-                    	if (debugger != null && !ignoreBreakpoints) {
-                    		debugger.doBreak();
-                    		
-                    		if (!debugger.isVisible()) {
-                    			debugger.setVisible(true);
-                    		}
-                    	}
+                        if (debugger != null && !ignoreBreakpoints) {
+                            debugger.doBreak();
+                            
+                            if (!debugger.isVisible()) {
+                                debugger.setVisible(true);
+                            }
+                        }
                     }
                     
                     Object result = executeScript(compiledScript, scope);

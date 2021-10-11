@@ -21,6 +21,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.client.core.api.servlets.EngineServletInterface;
+import com.mirth.connect.donkey.server.channel.DebugOptions;
 import com.mirth.connect.server.api.CheckAuthorizedChannelId;
 import com.mirth.connect.server.api.MirthServlet;
 import com.mirth.connect.server.channel.ErrorTaskHandler;
@@ -62,7 +63,7 @@ public class EngineServlet extends MirthServlet implements EngineServletInterfac
 
     @Override
     @CheckAuthorizedChannelId
-    public void deployChannel(String channelId, boolean returnErrors, boolean debug) {
+    public void deployChannel(String channelId, boolean returnErrors, DebugOptions debug) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         engineController.deployChannels(Collections.singleton(channelId), context, handler, debug);
         if (returnErrors && handler.isErrored()) {
@@ -71,7 +72,7 @@ public class EngineServlet extends MirthServlet implements EngineServletInterfac
     }
 
     @Override
-    public void deployChannels(Set<String> channelIds, boolean returnErrors, boolean debug) {
+    public void deployChannels(Set<String> channelIds, boolean returnErrors, DebugOptions debug) {
         if (CollectionUtils.isEmpty(channelIds)) {
             channelIds = channelController.getChannelIds();
         }

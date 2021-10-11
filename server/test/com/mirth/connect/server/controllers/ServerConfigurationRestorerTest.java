@@ -46,6 +46,7 @@ import org.mockito.stubbing.Answer;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.client.core.Version;
+import com.mirth.connect.donkey.server.channel.DebugOptions;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
@@ -852,17 +853,17 @@ public class ServerConfigurationRestorerTest {
         MultiException multiException = new MultiException();
 
         restorer.deployAllChannels(deploy, multiException);
-        verify(restorer.getEngineController(), times(0)).deployChannels(any(), any(), any(), anyBoolean());
+        verify(restorer.getEngineController(), times(0)).deployChannels(any(), any(), any(), new DebugOptions());
 
         deploy = true;
         Set<String> channelIds = new HashSet<String>();
         channelIds.add("1");
         when(restorer.getChannelController().getChannelIds()).thenReturn(channelIds);
         restorer.deployAllChannels(deploy, multiException);
-        verify(restorer.getEngineController(), times(1)).deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, false);
+        verify(restorer.getEngineController(), times(1)).deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, new DebugOptions());
 
         EngineController engineController = restorer.getEngineController();
-        doThrow(ControllerException.class).when(engineController).deployChannels(any(), any(), any(), anyBoolean());
+        doThrow(ControllerException.class).when(engineController).deployChannels(any(), any(), any(), new DebugOptions());
         restorer.deployAllChannels(deploy, multiException);
         assertEquals(1, multiException.size());
     }

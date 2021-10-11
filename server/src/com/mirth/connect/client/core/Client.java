@@ -81,6 +81,7 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
+import com.mirth.connect.donkey.server.channel.DebugOptions;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
@@ -1614,7 +1615,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannel
      */
     public void deployChannel(String channelId) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannel(channelId, false, false);
+        getServlet(EngineServletInterface.class).deployChannel(channelId, false, new DebugOptions());
     }
 
     /**
@@ -1623,8 +1624,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannel
      */
     @Override
-    public void deployChannel(String channelId, boolean returnErrors, boolean debug) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannel(channelId, returnErrors, debug);
+    public void deployChannel(String channelId, boolean returnErrors, DebugOptions debugOptions) throws ClientException {
+        getServlet(EngineServletInterface.class).deployChannel(channelId, returnErrors, debugOptions);
     }
 
     /**
@@ -1633,7 +1634,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannels
      */
     public void deployChannels(Set<String> channelIds) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannels(channelIds, false, false);
+        getServlet(EngineServletInterface.class).deployChannels(channelIds, false, new DebugOptions());
     }
 
     /**
@@ -1642,8 +1643,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannels
      */
     @Override
-    public void deployChannels(Set<String> channelIds, boolean returnErrors, boolean debug) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannels(channelIds, returnErrors, debug);
+    public void deployChannels(Set<String> channelIds, boolean returnErrors, DebugOptions debugOptions) throws ClientException {
+        getServlet(EngineServletInterface.class).deployChannels(channelIds, returnErrors, debugOptions);
     }
 
     /**

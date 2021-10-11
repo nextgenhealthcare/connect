@@ -22,7 +22,7 @@ public class JavaScriptDispatcherTest {
 	public void testDebug() throws Exception {
 		// Deploy
 		TestJavaScriptDispatcher dispatcher = new TestJavaScriptDispatcher();
-		dispatcher.onDebugDeploy();
+		dispatcher.onDebugDeploy(null);
 		
 		MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
 		ContextFactoryController contextFactoryController = dispatcher.getContextFactoryController();
@@ -40,7 +40,7 @@ public class JavaScriptDispatcherTest {
 	@Test
 	public void testOnStop() throws Exception {
 		TestJavaScriptDispatcher dispatcher = new TestJavaScriptDispatcher();
-		dispatcher.onDebugDeploy();
+		dispatcher.onDebugDeploy(null);
 		
 		MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
 		dispatcher.onStop();
@@ -51,7 +51,7 @@ public class JavaScriptDispatcherTest {
 	@Test
 	public void testStopDebugging() throws Exception {
 		TestJavaScriptDispatcher dispatcher = new TestJavaScriptDispatcher();
-		dispatcher.onDebugDeploy();
+		dispatcher.onDebugDeploy(null);
 		
 		MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
 		dispatcher.stopDebugging();
@@ -62,7 +62,7 @@ public class JavaScriptDispatcherTest {
 	@Test
 	public void testOnStart() throws Exception {
 		TestJavaScriptDispatcher dispatcher = new TestJavaScriptDispatcher();
-		dispatcher.onDebugDeploy();
+		dispatcher.onDebugDeploy(null);
 		
 		MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
 		dispatcher.onStart();
