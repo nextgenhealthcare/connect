@@ -9,6 +9,13 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -27,12 +34,6 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.donkey.server.channel.DebugOptions;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path("/channels")
 @Tag(name = "Channel Deployment Operations")
@@ -46,6 +47,7 @@ public interface EngineServletInterface extends BaseServletInterface {
     @MirthOperation(name = "redeployAllChannels", display = "Redeploy all channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void redeployAllChannels(@Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
 
+ 
     @POST
     @Path("/{channelId}/_deploy")
     @Operation(summary = "Deploys (or redeploys) a single channel.")
@@ -53,9 +55,13 @@ public interface EngineServletInterface extends BaseServletInterface {
     public void deployChannel(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel to deploy.", required = true) @PathParam("channelId") String channelId,
             @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors,
-            @Param("debug") @Parameter(description = "If true, the channel will be deployed in debug mode.") @QueryParam("debug") DebugOptions debug) throws ClientException;
-    // @formatter:on
-
+            @RequestBody(description = "Debug options for the channel to deploy", content = {
+                    @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                            @ExampleObject(name = "channel_set", ref = "../apiexamples/debug_options_xml") }),
+                    @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                            @ExampleObject(name = "channel_set", ref = "../apiexamples/debug_options_json") }) }) DebugOptions debug) throws ClientException;
+    // @formatter:on     
+    
     @POST
     @Path("/_deploy")
     @Operation(summary = "Deploys (or redeploys) selected channels.")
@@ -68,8 +74,7 @@ public interface EngineServletInterface extends BaseServletInterface {
                     @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
                             @ExampleObject(name = "channel_set", ref = "../apiexamples/guid_set_json") }) })
             Set<String> channelIds,
-            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors,
-            @Param("debug") @Parameter(description = "If true, the channel will be deployed in debug mode.") @QueryParam("debug") DebugOptions debug) throws ClientException;
+            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
     // @formatter:on
 
     @POST

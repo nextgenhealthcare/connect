@@ -72,12 +72,12 @@ public class EngineServlet extends MirthServlet implements EngineServletInterfac
     }
 
     @Override
-    public void deployChannels(Set<String> channelIds, boolean returnErrors, DebugOptions debug) {
+    public void deployChannels(Set<String> channelIds, boolean returnErrors) {
         if (CollectionUtils.isEmpty(channelIds)) {
             channelIds = channelController.getChannelIds();
         }
         ErrorTaskHandler handler = new ErrorTaskHandler();
-        engineController.deployChannels(redactChannelIds(channelIds), context, handler, debug);
+        engineController.deployChannels(redactChannelIds(channelIds), context, handler, new DebugOptions());
         if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }

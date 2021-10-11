@@ -1634,7 +1634,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannels
      */
     public void deployChannels(Set<String> channelIds) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannels(channelIds, false, new DebugOptions());
+        getServlet(EngineServletInterface.class).deployChannels(channelIds, false);
     }
 
     /**
@@ -1643,8 +1643,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannels
      */
     @Override
-    public void deployChannels(Set<String> channelIds, boolean returnErrors, DebugOptions debugOptions) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannels(channelIds, returnErrors, debugOptions);
+    public void deployChannels(Set<String> channelIds, boolean returnErrors) throws ClientException {
+        getServlet(EngineServletInterface.class).deployChannels(channelIds, returnErrors);
     }
 
     /**
