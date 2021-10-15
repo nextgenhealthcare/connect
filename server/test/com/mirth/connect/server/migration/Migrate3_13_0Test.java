@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import com.mirth.connect.client.core.Version;
 
-public class Migrate3_12_1Test {
+public class Migrate3_13_0Test {
 	@Test
     public void testClientProtocols() throws Exception {
         testConfiguration("https.client.protocols", "TLSv1.3,TLSv1.2,TLSv1.1", "TLSv1.3,TLSv1.2");
@@ -28,7 +28,7 @@ public class Migrate3_12_1Test {
 
     @Test
     public void testCipherSuites() throws Exception {
-        testConfiguration("https.ciphersuites", Migrate3_12_1.OLD_DEFAULT_CIPHERSUITES,  Migrate3_12_1.NEW_DEFAULT_CIPHERSUITES);
+        testConfiguration("https.ciphersuites", Migrate3_13_0.OLD_DEFAULT_CIPHERSUITES,  Migrate3_13_0.NEW_DEFAULT_CIPHERSUITES);
     }
 
     private void testConfiguration(String key, String oldDefault, String newDefault) throws Exception {
@@ -38,7 +38,7 @@ public class Migrate3_12_1Test {
     }
 
     private void testConfiguration(String key, String oldDefault, String newDefault, Version startingVersion) throws Exception {
-    	Migrate3_12_1 migrator = new Migrate3_12_1();
+    	Migrate3_13_0 migrator = new Migrate3_13_0();
         migrator.setStartingVersion(startingVersion);
         migrator.setLogger(spy(migrator.getLogger()));
 
@@ -103,7 +103,7 @@ public class Migrate3_12_1Test {
     }
 
     private void testConfigurationVersionLatest(String key, String oldDefault, String newDefault) throws Exception {
-        Migrate3_12_1 migrator = new Migrate3_12_1();
+    	Migrate3_13_0 migrator = new Migrate3_13_0();
         migrator.setStartingVersion(Version.getLatest());
         migrator.setLogger(spy(migrator.getLogger()));
 
