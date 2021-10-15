@@ -111,6 +111,7 @@ import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
 import com.mirth.connect.client.ui.tag.SettingsPanelTags;
 import com.mirth.connect.client.ui.util.DisplayUtil;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
@@ -2733,7 +2734,7 @@ public class Frame extends JXFrame {
             userPanel.setSelectedUser(userName);
         }
     }
-    
+
     public void doDebugDeployFromChannelView() {
         String channelId = channelEditPanel.currentChannel.getId();
         if (isSaveEnabled()) {
@@ -2762,13 +2763,12 @@ public class Frame extends JXFrame {
             alertWarning(this, "The channel is disabled and will not be deployed.");
             return;
         }
-        
- 
+
         DeployInDebugModeDialog deployInDebugMode = new DeployInDebugModeDialog();
         debugOptions = deployInDebugMode.getDebugOptions();
 
         deployChannel(Collections.singleton(channelId), debugOptions);
-        
+
     }
 
     public void doDeployFromChannelView() {
@@ -2801,7 +2801,7 @@ public class Frame extends JXFrame {
             return;
         }
 
-        deployChannel(Collections.singleton(channelId), new DebugOptions());
+        deployChannel(Collections.singleton(channelId), null);
     }
 
     public void deployChannel(final Set<String> selectedChannelIds, DebugOptions debugOptions) {
@@ -2815,9 +2815,16 @@ public class Frame extends JXFrame {
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
+
                     try {
-                        //TODO once the backend changes for the deploy channels in debug mode is merged, need to add debugOptions parameter to the below method.
-                      mirthClient.deployChannels(selectedChannelIds);
+                        if (debugOptions != null) {
+                            // call deployChannel with debugOptions in case of debugDeploy
+                            mirthClient.deployChannel(selectedChannelIds.iterator().next(), true, debugOptions);
+                        } else {
+                            // call deployChannel without debugOptions in case of normal deploy
+                            mirthClient.deployChannels(selectedChannelIds);
+                        }
+
                     } catch (ClientException e) {
                         SwingUtilities.invokeLater(() -> {
                             alertThrowable(PlatformUI.MIRTH_FRAME, e);
@@ -4424,7 +4431,7 @@ public class Frame extends JXFrame {
     public void doHelp() {
         BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION);
     }
-    
+
     public void goToUserGuide() {
         BareBonesBrowserLaunch.openURL(UIConstants.USER_GUIDE_LOCATION);
     }

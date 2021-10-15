@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 import com.mirth.connect.client.ui.util.DisplayUtil;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 
 import net.miginfocom.swing.MigLayout;
 
