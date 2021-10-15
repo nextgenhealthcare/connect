@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.mirth.connect.donkey.server.channel.DebugOptions;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.server.channel.ErrorTaskHandler;

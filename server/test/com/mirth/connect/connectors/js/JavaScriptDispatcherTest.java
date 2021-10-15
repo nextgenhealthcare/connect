@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
-import com.mirth.connect.donkey.server.channel.DebugOptions;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.CompiledScriptCache;

@@ -32,6 +32,7 @@ public class DeployInDebugModeDialog extends MirthDialog {
 
     private Frame parent;
     private DebugOptions debugOptions;
+    private boolean isDebugChannel = false;
 
     public DeployInDebugModeDialog() {
         super(PlatformUI.MIRTH_FRAME);
@@ -169,6 +170,7 @@ public class DeployInDebugModeDialog extends MirthDialog {
                 if (destinationRespCheckBox.isSelected()) {
                     debugOptions.setDestinationResponseTransformer(true);
                 }
+                isDebugChannel = true;
 
                 dispose();
             }
@@ -188,6 +190,10 @@ public class DeployInDebugModeDialog extends MirthDialog {
 
     public DebugOptions getDebugOptions() {
         return this.debugOptions;
+    }
+    
+    public boolean getIsDebugChannel() {
+        return isDebugChannel;
     }
 
     public static final String NEW_CHANNELS = "Debug Channel";

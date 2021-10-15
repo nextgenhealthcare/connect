@@ -66,7 +66,7 @@ import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.ChannelProcessLock;
 import com.mirth.connect.donkey.server.channel.Connector;
-import com.mirth.connect.donkey.server.channel.DebugOptions;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.server.channel.DefaultChannelProcessLock;
 import com.mirth.connect.donkey.server.channel.DestinationChainProvider;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;

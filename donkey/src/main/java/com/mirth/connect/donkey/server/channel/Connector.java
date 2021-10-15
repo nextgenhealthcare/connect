@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.message.DataType;

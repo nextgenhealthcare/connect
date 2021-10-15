@@ -164,8 +164,8 @@ public class ChannelPanel extends AbstractFramePanel {
 
     private static final int TASK_CHANNEL_REFRESH = 0;
     private static final int TASK_CHANNEL_REDEPLOY_ALL = 1;
-    private static final int TASK_CHANNEL_DEPLOY = 2;
-    private static final int TASK_CHANNEL_DEBUG_DEPLOY= 3;
+    private static final int TASK_CHANNEL_DEBUG_DEPLOY = 2;
+    private static final int TASK_CHANNEL_DEPLOY = 3;
     private static final int TASK_CHANNEL_EDIT_GLOBAL_SCRIPTS = 4;
     private static final int TASK_CHANNEL_EDIT_CODE_TEMPLATES = 5;
     private static final int TASK_CHANNEL_NEW_CHANNEL = 6;
@@ -178,7 +178,6 @@ public class ChannelPanel extends AbstractFramePanel {
     private static final int TASK_CHANNEL_ENABLE = 13;
     private static final int TASK_CHANNEL_DISABLE = 14;
     private static final int TASK_CHANNEL_VIEW_MESSAGES = 15;
-    
 
     private static final int TASK_GROUP_SAVE = 0;
     private static final int TASK_GROUP_ASSIGN_CHANNEL = 1;
@@ -201,7 +200,7 @@ public class ChannelPanel extends AbstractFramePanel {
     private boolean tagIconModeSelected = false;
     private boolean canViewChannelGroups = AuthorizationControllerFactory.getAuthorizationController().checkTask(TaskConstants.CHANNEL_GROUP_KEY, TaskConstants.CHANNEL_GROUP_EXPORT_GROUP);
     private DebugOptions debugOptions;
-    
+
     public ChannelPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
@@ -219,8 +218,8 @@ public class ChannelPanel extends AbstractFramePanel {
 
         parent.addTask(TaskConstants.CHANNEL_REFRESH, "Refresh", "Refresh the list of channels.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_REDEPLOY_ALL, "Redeploy All", "Undeploy all channels and deploy all currently enabled channels.", "A", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_rotate_clockwise.png")), channelTasks, channelPopupMenu, this);
-        parent.addTask(TaskConstants.CHANNEL_DEPLOY, "Deploy Channel", "Deploys the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_DEPLOY_DEBUG, "Debug Channel", "Deploys the currently selected channel in debug mode.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelTasks, channelPopupMenu, this);
+        parent.addTask(TaskConstants.CHANNEL_DEPLOY, "Deploy Channel", "Deploys the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EDIT_GLOBAL_SCRIPTS, "Edit Global Scripts", "Edit scripts that are not channel specific.", "G", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/script_edit.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EDIT_CODE_TEMPLATES, "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout Mirth Connect.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_edit.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_NEW_CHANNEL, "New Channel", "Create a new channel.", "N", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_form_add.png")), channelTasks, channelPopupMenu, this);
@@ -280,7 +279,6 @@ public class ChannelPanel extends AbstractFramePanel {
         updateModel(new TableState(new ArrayList<String>(), null));
         updateTasks();
     }
-
 
     @Override
     public void switchPanel() {
@@ -853,14 +851,15 @@ public class ChannelPanel extends AbstractFramePanel {
 
         worker.execute();
     }
-
+    
     public void doDeployInDebug() {
-        
         DeployInDebugModeDialog deployInDebugMode = new DeployInDebugModeDialog();
         debugOptions = deployInDebugMode.getDebugOptions();
-        doDeployChannel();
+        if(deployInDebugMode.getIsDebugChannel()) {
+            doDeployChannel();
+        }      
     }
-    
+
     public void doDeployChannel() {
         List<Channel> selectedChannels = getSelectedChannels();
         if (selectedChannels.size() == 0) {
@@ -2907,7 +2906,7 @@ public class ChannelPanel extends AbstractFramePanel {
         if (totalChannelCount != 1) {
             builder.append('s');
         }
-        
+
         int totalEnabledChannels = 0;
         int visibleEnabledChannel = 0;
         for (Map.Entry<String, ChannelStatus> entry : channelStatuses.entrySet()) {
@@ -2918,9 +2917,9 @@ public class ChannelPanel extends AbstractFramePanel {
                 totalEnabledChannels++;
             }
         }
-        
+
         builder.append(", ");
-        
+
         if (totalEnabledChannels == visibleEnabledChannel) {
             builder.append(totalEnabledChannels);
         } else {

@@ -19,7 +19,7 @@ import com.mirth.connect.donkey.server.StartException;
 import com.mirth.connect.donkey.server.StopException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.ChannelException;
-import com.mirth.connect.donkey.server.channel.DebugOptions;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.model.ChannelStatistics;

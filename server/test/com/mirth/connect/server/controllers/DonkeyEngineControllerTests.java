@@ -15,7 +15,7 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.mirth.connect.donkey.server.channel.DebugOptions;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.model.ServerEventContext;
 
 public class DonkeyEngineControllerTests {
