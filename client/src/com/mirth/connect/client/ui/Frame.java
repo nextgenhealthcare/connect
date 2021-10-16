@@ -2819,7 +2819,7 @@ public class Frame extends JXFrame {
                     try {
                         if (debugOptions != null) {
                             // call deployChannel with debugOptions in case of debugDeploy
-                            mirthClient.deployChannel(selectedChannelIds.iterator().next(), true, debugOptions);
+                            mirthClient.deployChannel(selectedChannelIds.iterator().next(), false, debugOptions);
                         } else {
                             // call deployChannel without debugOptions in case of normal deploy
                             mirthClient.deployChannels(selectedChannelIds);
