@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.MultiException;
 
 import com.mirth.connect.client.core.ControllerException;
-import com.mirth.connect.donkey.server.channel.DebugOptions;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;

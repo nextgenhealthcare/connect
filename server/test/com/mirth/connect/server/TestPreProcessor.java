@@ -35,7 +35,7 @@ import com.mirth.connect.donkey.model.message.MessageSerializer;
 import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.channel.DebugOptions;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.plugins.datatypes.xml.XMLSerializer;

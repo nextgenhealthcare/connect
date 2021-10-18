@@ -1,4 +1,4 @@
-package com.mirth.connect.donkey.server.channel;
+package com.mirth.connect.donkey.model.channel;
 
 public class DebugOptions {
     
