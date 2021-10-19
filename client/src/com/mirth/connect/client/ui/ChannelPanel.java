@@ -200,7 +200,6 @@ public class ChannelPanel extends AbstractFramePanel {
     private boolean tagTextModeSelected = false;
     private boolean tagIconModeSelected = false;
     private boolean canViewChannelGroups = AuthorizationControllerFactory.getAuthorizationController().checkTask(TaskConstants.CHANNEL_GROUP_KEY, TaskConstants.CHANNEL_GROUP_EXPORT_GROUP);
-    private DebugOptions debugOptions;
 
     public ChannelPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -855,13 +854,17 @@ public class ChannelPanel extends AbstractFramePanel {
     
     public void doDeployInDebug() {
         DeployInDebugModeDialog deployInDebugMode = new DeployInDebugModeDialog();
-        debugOptions = deployInDebugMode.getDebugOptions();
+        DebugOptions debugOptions = deployInDebugMode.getDebugOptions();
         if(deployInDebugMode.getIsDebugChannel()) {
-            doDeployChannel();
+            doDeployChannel(debugOptions);
         }      
     }
-
+    
     public void doDeployChannel() {
+    	doDeployChannel(null);
+    }
+
+    public void doDeployChannel(DebugOptions debugOptions) {
         List<Channel> selectedChannels = getSelectedChannels();
         if (selectedChannels.size() == 0) {
             parent.alertWarning(parent, "Channel no longer exists.");
@@ -916,7 +919,7 @@ public class ChannelPanel extends AbstractFramePanel {
             e.printStackTrace();
         }
 
-        parent.deployChannel(selectedEnabledChannelIds,debugOptions);
+        parent.deployChannel(selectedEnabledChannelIds, debugOptions);
     }
 
     private void addChannelToDeploySet(String channelId, ChannelDependencyGraph channelDependencyGraph, Set<String> deployedChannelIds, Set<String> channelIdsToDeploy) {
