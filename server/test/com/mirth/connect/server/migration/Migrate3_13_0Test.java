@@ -18,26 +18,26 @@ import com.mirth.connect.client.core.Version;
 public class Migrate3_13_0Test {
 	@Test
     public void testClientProtocols() throws Exception {
-        testConfiguration("https.client.protocols", "TLSv1.3,TLSv1.2,TLSv1.1", "TLSv1.3,TLSv1.2");
+        testConfiguration("https.client.protocols", "TLSv1.3,TLSv1.2,TLSv1.1", "TLSv1.3,TLSv1.2", "TLSv1.2,TLSv1.1", "TLSv1.2");
     }
 
     @Test
     public void testServerProtocols() throws Exception {
-        testConfiguration("https.server.protocols", "TLSv1.3,TLSv1.2,TLSv1.1,SSLv2Hello", "TLSv1.3,TLSv1.2,SSLv2Hello");
+        testConfiguration("https.server.protocols", "TLSv1.3,TLSv1.2,TLSv1.1,SSLv2Hello", "TLSv1.3,TLSv1.2,SSLv2Hello", "TLSv1.3,TLSv1.2,TLSv1.1", "TLSv1.3,TLSv1.2");
     }
 
     @Test
     public void testCipherSuites() throws Exception {
-        testConfiguration("https.ciphersuites", Migrate3_13_0.OLD_DEFAULT_CIPHERSUITES,  Migrate3_13_0.NEW_DEFAULT_CIPHERSUITES);
+        testConfiguration("https.ciphersuites", Migrate3_13_0.OLD_DEFAULT_CIPHERSUITES,  Migrate3_13_0.NEW_DEFAULT_CIPHERSUITES, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_RSA_WITH_AES_256_CBC_SHA256", "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
     }
 
-    private void testConfiguration(String key, String oldDefault, String newDefault) throws Exception {
-        testConfiguration(key, oldDefault, newDefault, null);
-        testConfiguration(key, oldDefault, newDefault, Version.v3_12_0);
-        testConfigurationVersionLatest(key, oldDefault, newDefault);
+    private void testConfiguration(String key, String oldDefault, String newDefault, String customValue, String newCustomValue) throws Exception {
+        testConfiguration(key, oldDefault, newDefault, null, customValue, newCustomValue);
+        testConfiguration(key, oldDefault, newDefault, Version.v3_12_0, customValue, newCustomValue);
+        testConfigurationVersionLatest(key, oldDefault, newDefault, customValue, newCustomValue);
     }
-
-    private void testConfiguration(String key, String oldDefault, String newDefault, Version startingVersion) throws Exception {
+    
+    private void testConfiguration(String key, String oldDefault, String newDefault, Version startingVersion, String customValue, String newCustomValue) throws Exception {
     	Migrate3_13_0 migrator = new Migrate3_13_0();
         migrator.setStartingVersion(startingVersion);
         migrator.setLogger(spy(migrator.getLogger()));
@@ -65,10 +65,10 @@ public class Migrate3_13_0Test {
         // Set to something custom
         reset(migrator.getLogger());
         configuration = spy(new PropertiesConfiguration());
-        configuration.setProperty(key, "test");
+        configuration.setProperty(key, customValue);
         migrator.updateConfiguration(configuration);
-        assertEquals(newDefault, StringUtils.join(configuration.getStringArray(key), ','));
-        assertEquals("test", StringUtils.join(configuration.getStringArray(key + ".old"), ','));
+        assertEquals(newCustomValue, StringUtils.join(configuration.getStringArray(key), ','));
+        assertEquals(customValue, StringUtils.join(configuration.getStringArray(key + ".old"), ','));
         assertFalse(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
         verify(migrator.getLogger(), times(2)).error(any());
 
@@ -102,7 +102,7 @@ public class Migrate3_13_0Test {
         verify(migrator.getLogger(), times(1)).error(any());
     }
 
-    private void testConfigurationVersionLatest(String key, String oldDefault, String newDefault) throws Exception {
+    private void testConfigurationVersionLatest(String key, String oldDefault, String newDefault, String customValue, String newCustomValue) throws Exception {
     	Migrate3_13_0 migrator = new Migrate3_13_0();
         migrator.setStartingVersion(Version.getLatest());
         migrator.setLogger(spy(migrator.getLogger()));
@@ -130,9 +130,9 @@ public class Migrate3_13_0Test {
         // Set to something custom
         reset(migrator.getLogger());
         configuration = spy(new PropertiesConfiguration());
-        configuration.setProperty(key, "test");
+        configuration.setProperty(key, customValue);
         migrator.updateConfiguration(configuration);
-        assertEquals("test", StringUtils.join(configuration.getStringArray(key), ','));
+        assertEquals(customValue, StringUtils.join(configuration.getStringArray(key), ','));
         assertFalse(configuration.containsKey(key + ".old"));
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
         verify(migrator.getLogger(), times(0)).error(any());
