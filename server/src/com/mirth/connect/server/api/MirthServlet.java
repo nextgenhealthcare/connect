@@ -428,7 +428,7 @@ public abstract class MirthServlet {
     private void initChannelRestrictions() {
         if (!channelRestrictionsInitialized) {
             try {
-                userHasChannelRestrictions = authorizationController.doesUserHaveChannelRestrictions(currentUserId, operation);
+                userHasChannelRestrictions = !bypassUser && authorizationController.doesUserHaveChannelRestrictions(currentUserId, operation);
 
                 if (userHasChannelRestrictions) {
                     channelAuthorizer = authorizationController.getChannelAuthorizer(currentUserId, operation);
