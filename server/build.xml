@@ -1022,7 +1022,7 @@
 
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
-				<attribute name="Class-Path" value="server-lib/commons/commons-io-2.6.jar server-lib/commons/commons-configuration2-2.7.jar server-lib/commons/commons-lang3-3.9.jar server-lib/commons/commons-logging-1.2.jar server-lib/commons/commons-beanutils-1.9.3.jar server-lib/commons/commons-text-1.8.jar conf/" />
+				<attribute name="Class-Path" value="server-lib/commons/commons-io-2.6.jar server-lib/commons/commons-configuration2-2.7.jar server-lib/commons/commons-lang3-3.9.jar server-lib/commons/commons-logging-1.2.jar server-lib/commons/commons-beanutils-1.9.3.jar server-lib/commons/commons-collections-3.2.2.jar server-lib/commons/commons-text-1.8.jar conf/" />
 			</manifest>
 		</jar>
 		
