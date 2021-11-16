@@ -390,6 +390,7 @@ public class Mirth extends Thread {
         }
 
         configurationController.setStatus(ConfigurationController.STATUS_OK);
+        eventController.dispatchEvent(new ServerEvent(configurationController.getServerId(), "Server startup complete"));
         printSplashScreen();
 
         // Send usage stats once a day.
