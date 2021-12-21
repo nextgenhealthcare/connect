@@ -178,7 +178,6 @@
 	<classpathentry kind="lib" path="lib/swagger-annotations-2.0.10.jar"/>
 	<classpathentry kind="lib" path="lib/jcifs-ng-2.1.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-text-1.8.jar"/>
-	<classpathentry kind="lib" path="lib/rhino-1.7.12.jar"/>
 	<classpathentry kind="lib" path="lib/regions-2.15.28.jar"/>
 	<classpathentry kind="lib" path="lib/utils-2.15.28.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-annotations-2.11.3.jar"/>
@@ -200,5 +199,6 @@
 	<classpathentry kind="lib" path="lib/hapi-structures-v27-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-structures-v28-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-structures-v281-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/rhino-1.7.13.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
