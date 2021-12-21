@@ -147,7 +147,7 @@ public final class NativeJSON extends IdScriptableObject
                         }
                     } else {
                         int idx = (int) i;
-                        Object newElement = walk(cx, scope, reviver, val, idx);
+                        Object newElement = walk(cx, scope, reviver, val, Integer.valueOf(idx));
                         if (newElement == Undefined.instance) {
                             val.delete(idx);
                         } else {
@@ -185,8 +185,7 @@ public final class NativeJSON extends IdScriptableObject
 
     private static class StringifyState {
         StringifyState(Context cx, Scriptable scope, String indent, String gap,
-                       Callable replacer, List<Object> propertyList,
-                       Object space)
+                       Callable replacer, List<Object> propertyList)
         {
             this.cx = cx;
             this.scope = scope;
@@ -195,7 +194,6 @@ public final class NativeJSON extends IdScriptableObject
             this.gap = gap;
             this.replacer = replacer;
             this.propertyList = propertyList;
-            this.space = space;
         }
 
         Stack<Scriptable> stack = new Stack<Scriptable>();
@@ -203,7 +201,6 @@ public final class NativeJSON extends IdScriptableObject
         String gap;
         Callable replacer;
         List<Object> propertyList;
-        Object space;
 
         Context cx;
         Scriptable scope;
@@ -234,7 +231,7 @@ public final class NativeJSON extends IdScriptableObject
         }
 
         if (space instanceof NativeNumber) {
-            space = ScriptRuntime.toNumber(space);
+            space = Double.valueOf(ScriptRuntime.toNumber(space));
         } else if (space instanceof NativeString) {
             space = ScriptRuntime.toString(space);
         }
@@ -243,7 +240,6 @@ public final class NativeJSON extends IdScriptableObject
             int gapLength = (int) ScriptRuntime.toInteger(space);
             gapLength = Math.min(MAX_STRINGIFY_GAP_LENGTH, gapLength);
             gap = (gapLength > 0) ? repeat(' ', gapLength) : "";
-            space = gapLength;
         } else if (space instanceof String) {
             gap = (String) space;
             if (gap.length() > MAX_STRINGIFY_GAP_LENGTH) {
@@ -255,8 +251,7 @@ public final class NativeJSON extends IdScriptableObject
             indent,
             gap,
             replacerFunction,
-            propertyList,
-            space);
+            propertyList);
 
         ScriptableObject wrapper = new NativeObject();
         wrapper.setParentScope(scope);
@@ -300,7 +295,7 @@ public final class NativeJSON extends IdScriptableObject
 
 
         if (value instanceof NativeNumber) {
-            value = ScriptRuntime.toNumber(value);
+            value = Double.valueOf(ScriptRuntime.toNumber(value));
         } else if (value instanceof NativeString) {
             value = ScriptRuntime.toString(value);
         } else if (value instanceof NativeBoolean) {
@@ -343,7 +338,7 @@ public final class NativeJSON extends IdScriptableObject
         if (!iter.hasNext()) return "";
         StringBuilder builder = new StringBuilder(iter.next().toString());
         while (iter.hasNext()) {
-            builder.append(delimiter).append(iter.next().toString());
+            builder.append(delimiter).append(iter.next());
         }
         return builder.toString();
     }
@@ -413,7 +408,7 @@ public final class NativeJSON extends IdScriptableObject
             if (index > Integer.MAX_VALUE) {
                 strP = str(Long.toString(index), value, state);
             } else {
-                strP = str((int) index, value, state);
+                strP = str(Integer.valueOf((int) index), value, state);
             }
             if (strP == Undefined.instance) {
                 partial.add("null");
@@ -472,7 +467,7 @@ public final class NativeJSON extends IdScriptableObject
                 default:
                     if (c < ' ') {
                         product.append("\\u");
-                        String hex = String.format("%04x", (int) c);
+                        String hex = String.format("%04x", Integer.valueOf((int) c));
                         product.append(hex);
                     }
                     else {
