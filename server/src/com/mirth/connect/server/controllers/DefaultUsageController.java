@@ -35,6 +35,7 @@ import com.mirth.connect.server.ExtensionLoader;
 
 public class DefaultUsageController extends UsageController {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private DebugController debugController = ControllerFactory.getFactory().createDebugController();
     private Map<String, Object> lastClientStats = new HashMap<String, Object>();
 
     private static UsageController instance = null;
@@ -91,7 +92,8 @@ public class DefaultUsageController extends UsageController {
                 getScriptData(purgedDocument);
                 getAlertData(purgedDocument);
                 getUserData(purgedDocument);
-
+                getDebugData(purgedDocument);
+                
                 // Convert to JSON
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
@@ -221,4 +223,10 @@ public class DefaultUsageController extends UsageController {
         }
         purgedDocument.setConnectorMetaData(purgedConnectorMetaData);
     }
+    
+    private void getDebugData(PurgedDocument purgedDocument) throws ControllerException {
+        Map<String, Object> debugStatsMap = debugController.getDebugStatsMap();
+        purgedDocument.setDebugStatistics(debugStatsMap);
+    }
+    
 }
