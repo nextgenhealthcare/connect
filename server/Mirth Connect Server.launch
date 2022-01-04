@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-<stringAttribute key="bad_container_name" value="\Server\eclipse-runconfig"/>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/Server/src/com/mirth/connect/server/Mirth.java"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="1"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
-<listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
-<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
-</listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.mirth.connect.server.Mirth"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Server"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx512m&#10;-Djava.awt.headless=true&#10;-Dapple.awt.UIElement=true"/>
+    <stringAttribute key="bad_container_name" value="\Server\eclipse-runconfig"/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/Server/src/com/mirth/connect/server/Mirth.java"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="1"/>
+    </listAttribute>
+    <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="Dapple.awt.UIElement" value="true"/>
+        <mapEntry key="Djava.awt.headless" value="false"/>
+    </mapAttribute>
+    <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+        <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
+        <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+    </listAttribute>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.mirth.connect.server.Mirth"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="Server"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Server"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx512m&#10;-Djava.awt.headless=false&#10;-Dapple.awt.UIElement=true"/>
 </launchConfiguration>

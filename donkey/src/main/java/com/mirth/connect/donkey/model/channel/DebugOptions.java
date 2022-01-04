@@ -75,5 +75,12 @@ public class DebugOptions {
     public void setDestinationResponseTransformer(boolean destinationResponseTransformer) {
         this.destinationResponseTransformer = destinationResponseTransformer;
     }
+    public boolean isEmpty() {
+        if (!this.isAttachmentBatchScripts() && !this.isDeployUndeployPreAndPostProcessorScripts() &&
+                !this.isDestinationConnectorScripts() && !this.isDestinationFilterTransformer() &&
+                !this.isDestinationResponseTransformer() && !this.isSourceConnectorScripts() &&
+                !this.isSourceFilterTransformer()) return true;
+        else { return false;}
+    }
 
 }
