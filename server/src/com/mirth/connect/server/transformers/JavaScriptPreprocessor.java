@@ -9,10 +9,16 @@
 
 package com.mirth.connect.server.transformers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.RhinoException;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
+import com.mirth.connect.connectors.js.MirthScopeProvider;
 import com.mirth.connect.donkey.model.DonkeyException;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.Channel;
@@ -39,40 +45,59 @@ public class JavaScriptPreprocessor implements PreProcessor {
     private Channel channel;
     private String scriptId;
     private volatile String contextFactoryId;
-
-    public JavaScriptPreprocessor(Channel channel, String preProcessingScript) throws JavaScriptInitializationException {
+    private DebugOptions debugOptions;
+    private MirthScopeProvider scopeProvider = new MirthScopeProvider();
+    private MirthMain debugger;
+    private String preProcessingScript;
+    public JavaScriptPreprocessor(Channel channel, String preProcessingScript, DebugOptions debugOptions) throws JavaScriptInitializationException {
         this.channel = channel;
-
-        scriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channel.getChannelId());
-
-        try {
-            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
-            contextFactoryId = contextFactory.getId();
-            JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, preProcessingScript, ContextType.CHANNEL_PREPROCESSOR);
-        } catch (Exception e) {
-            logger.error("Error compiling preprocessor script " + scriptId + ".", e);
-
-            if (e instanceof RhinoException) {
-                e = new MirthJavascriptTransformerException((RhinoException) e, channel.getChannelId(), null, 0, ErrorEventType.PREPROCESSOR_SCRIPT.toString(), null);
-            }
-
-            logger.error(ErrorMessageBuilder.buildErrorMessage(ErrorEventType.PREPROCESSOR_SCRIPT.toString(), null, e));
-            throw new JavaScriptInitializationException("Error initializing JavaScript Preprocessor", e);
-        }
+        this.debugOptions = debugOptions;
+        this.preProcessingScript = preProcessingScript;
     }
 
     @Override
     public String doPreProcess(ConnectorMessage message) throws DonkeyException, InterruptedException {
         try {
-            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
-            if (!contextFactoryId.equals(contextFactory.getId())) {
-                synchronized (this) {
-                    contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
+            MirthContextFactory contextFactory;
+            scriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channel.getChannelId());
+
+            try {
+                Map<String, MirthContextFactory> contextFactories = new HashMap<>();
+                if (debugOptions.isDeployUndeployPreAndPostProcessorScripts()) {
+                    String preProcessingScriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channel.getChannelId());
+                    contextFactory = getContextFactory();
+                    contextFactory.setContextType(ContextType.CHANNEL_PREPROCESSOR);
+                    contextFactory.setScriptText(preProcessingScript);
+                    contextFactory.setDebugType(true);
+                    contextFactories.put(preProcessingScriptId, contextFactory);
+                    debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel);
+                    JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, preProcessingScript, ContextType.CHANNEL_PREPROCESSOR, null, null);
+    
+                } else {
+                    contextFactory = getContextFactory();
+                    contextFactoryId = contextFactory.getId();
+                    JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, preProcessingScript, ContextType.CHANNEL_PREPROCESSOR);
                     if (!contextFactoryId.equals(contextFactory.getId())) {
-                        JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
-                        contextFactoryId = contextFactory.getId();
+                        synchronized (this) {
+                            contextFactory = getContextFactory();
+                            if (!contextFactoryId.equals(contextFactory.getId())) {
+                                JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
+                                contextFactoryId = contextFactory.getId();
+                            }
+                        }
                     }
                 }
+                
+                
+            } catch (Exception e) {
+                logger.error("Error compiling preprocessor script " + scriptId + ".", e);
+    
+                if (e instanceof RhinoException) {
+                    e = new MirthJavascriptTransformerException((RhinoException) e, channel.getChannelId(), null, 0, ErrorEventType.POSTPROCESSOR_SCRIPT.toString(), null);
+                }
+    
+                logger.error(ErrorMessageBuilder.buildErrorMessage(ErrorEventType.PREPROCESSOR_SCRIPT.toString(), null, e));
+                throw new JavaScriptInitializationException("Error initializing JavaScript Preprocessor", e);
             }
 
             return JavaScriptUtil.executeJavaScriptPreProcessorTask(new JavaScriptPreProcessorTask(contextFactory, message), message.getChannelId());
@@ -89,18 +114,41 @@ public class JavaScriptPreprocessor implements PreProcessor {
         }
     }
 
+    protected MirthContextFactory getContextFactory() throws Exception {
+        if (debugOptions.isDeployUndeployPreAndPostProcessorScripts()) {
+            return contextFactoryController.getDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), scriptId);
+        } else {
+            return contextFactoryController.getContextFactory(channel.getResourceIds());
+        }
+    }
+   
     private class JavaScriptPreProcessorTask extends JavaScriptTask<Object> {
 
-        private ConnectorMessage message;
-
+        private ConnectorMessage message;;
+        private MirthScopeProvider scopeProvider;
+        
         public JavaScriptPreProcessorTask(MirthContextFactory contextFactory, ConnectorMessage message) {
             super(contextFactory, "Preprocessor", channel.getChannelId(), channel.getName());
             this.message = message;
+            this.scopeProvider = null;
+        }
+        
+        public JavaScriptPreProcessorTask(MirthContextFactory contextFactory, ConnectorMessage message, MirthScopeProvider scopeProvider) {
+            super(contextFactory, "Preprocessor", channel.getChannelId(), channel.getName());
+            this.message = message;
+            this.scopeProvider = scopeProvider;
         }
 
         @Override
         public Object doCall() throws Exception {
-            return JavaScriptUtil.executePreprocessorScripts(this, message, channel.getSourceConnector().getDestinationIdMap());
+            if (debugOptions.isDeployUndeployPreAndPostProcessorScripts() && debugger != null) {
+                debugger.doBreak();
+
+                if (!debugger.isVisible()) {
+                    debugger.setVisible(true);
+                }
+            }
+            return JavaScriptUtil.executePreprocessorScripts(this, message, channel.getSourceConnector().getDestinationIdMap(), this.scopeProvider);
         }
     }
 }

@@ -139,7 +139,7 @@ public class JavaScriptUtil {
     }
 
     /**
-     * Executes the JavaScriptTask associated with the postprocessor, if necessary.
+     * Executes the JavaScriptTask associated with the preprocessor, if necessary.
      * 
      * @param task
      * @param channelId
@@ -167,7 +167,7 @@ public class JavaScriptUtil {
      * @throws JavaScriptExecutorException
      * 
      */
-    public static String executePreprocessorScripts(JavaScriptTask<Object> task, ConnectorMessage message, Map<String, Integer> destinationIdMap) throws Exception {
+    public static String executePreprocessorScripts(JavaScriptTask<Object> task, ConnectorMessage message, Map<String, Integer> destinationIdMap, MirthScopeProvider scopeProvider) throws Exception {
         String processedMessage = null;
         String globalResult = message.getRaw().getContent();
         Logger scriptLogger = Logger.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
@@ -183,6 +183,9 @@ public class JavaScriptUtil {
 
                 try {
                     Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(globalScriptContextFactory, scriptLogger, message.getChannelId(), message.getRaw().getContent(), new ImmutableConnectorMessage(message, true, destinationIdMap));
+                    if (scopeProvider != null) {
+                        scopeProvider.setScope(scope);
+                    }
                     task.setContextFactory(globalScriptContextFactory);
                     result = JavaScriptUtil.executeScript(task, ScriptController.PREPROCESSOR_SCRIPT_KEY, scope, null, null);
                 } finally {

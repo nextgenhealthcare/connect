@@ -1158,7 +1158,7 @@ public class DonkeyEngineController implements EngineController {
         channel.setStorageSettings(storageSettings);
         channel.setMetaDataColumns(channelProperties.getMetaDataColumns());
         channel.setAttachmentHandlerProvider(createAttachmentHandlerProvider(channel, contextFactory, channelProperties.getAttachmentProperties()));
-        channel.setPreProcessor(createPreProcessor(channel, channelModel.getPreprocessingScript()));
+        channel.setPreProcessor(createPreProcessor(channel, channelModel.getPreprocessingScript(), debugOptions));
         channel.setPostProcessor(createPostProcessor(channel, channelModel.getPostprocessingScript(), debugOptions));
         channel.setSourceConnector(createSourceConnector(channel, channelModel.getSourceConnector(), storageSettings, destinationIdMap));
         channel.setResponseSelector(new ResponseSelector(channel.getSourceConnector().getInboundDataType()));
@@ -1346,8 +1346,8 @@ public class DonkeyEngineController implements EngineController {
         return attachmentHandlerProvider;
     }
 
-    private PreProcessor createPreProcessor(Channel channel, String preProcessingScript) throws JavaScriptInitializationException {
-        return new JavaScriptPreprocessor(channel, preProcessingScript);
+    private PreProcessor createPreProcessor(Channel channel, String preProcessingScript, DebugOptions debugOptions) throws JavaScriptInitializationException {
+        return new JavaScriptPreprocessor(channel, preProcessingScript, debugOptions);
     }
 
     private PostProcessor createPostProcessor(Channel channel, String postProcessingScript, DebugOptions debugOptions) throws JavaScriptInitializationException {
