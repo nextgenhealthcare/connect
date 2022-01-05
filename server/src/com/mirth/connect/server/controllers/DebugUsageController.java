@@ -15,9 +15,9 @@ import java.util.Map;
  * The ConfigurationController provides access to the Mirth configuration.
  * 
  */
-public abstract class DebugController extends Controller {
+public abstract class DebugUsageController extends Controller {
     
-    public static DebugController getInstance() {
+    public static DebugUsageController getInstance() {
         return ControllerFactory.getFactory().createDebugController();
     }
     
@@ -50,5 +50,7 @@ public abstract class DebugController extends Controller {
     public abstract Integer getDebugInvocationCount();
     
     public abstract Map<String, Object> getDebugStatsMap();
+    
+    public abstract void incrementDebuggerScript(String scriptName);
 
 }

@@ -20,7 +20,7 @@ import com.mirth.connect.server.ExtensionLoader;
  * The ConfigurationController provides access to the Mirth configuration.
  * 
  */
-public class DefaultDebugController extends DebugController {
+public class DefaultDebugUsageController extends DebugUsageController {
 
     private Logger logger = Logger.getLogger(this.getClass());
 
@@ -31,27 +31,28 @@ public class DefaultDebugController extends DebugController {
     private Integer pauseCount;
     private Integer haltCount;
     private Integer nextCount;
+    private Map<String, Integer> scriptDebugCount = new HashMap<>();
     
-    
-    // singleton pattern
-    private static DebugController instance = null;
 
-    public DefaultDebugController() {
+    // singleton pattern
+    private static DebugUsageController instance = null;
+
+    public DefaultDebugUsageController() {
 
     }
 
-    public static DebugController create() {
-        synchronized (DefaultDebugController.class) {
+    public static DebugUsageController create() {
+        synchronized (DefaultDebugUsageController.class) {
             if (instance == null) {
-                instance = ExtensionLoader.getInstance().getControllerInstance(DebugController.class);
+                instance = ExtensionLoader.getInstance().getControllerInstance(DebugUsageController.class);
                 if (instance == null) {
-                    instance = new DefaultDebugController();
-                    ((DefaultDebugController) instance).initialize();
+                    instance = new DefaultDebugUsageController();
+                    ((DefaultDebugUsageController) instance).initialize();
                 } else {
                     try {
                         instance.getClass().getMethod("initialize").invoke(instance);
                     } catch (Exception e) {
-                        Logger.getLogger(DefaultDebugController.class).error("Error calling initialize method in DefaultConfigurationController", e);
+                        Logger.getLogger(DefaultDebugUsageController.class).error("Error calling initialize method in DefaultConfigurationController", e);
                     }
                 }
             }
@@ -119,6 +120,29 @@ public class DefaultDebugController extends DebugController {
         this.nextCount = nextCount;
     }
     
+    public void incrementDebuggerScript(String scriptName) {
+        
+        //increment existing script 
+        if (scriptDebugCount.containsKey(scriptName)) {
+            Integer countForScript = scriptDebugCount.get(scriptName);
+            countForScript++;
+            scriptDebugCount.replace(scriptName, countForScript);
+        }
+        //put script and initial count in the map 
+        else {
+            scriptDebugCount.put(scriptName, 1);
+        }
+        
+    }
+    
+    public Map<String, Integer> getScriptDebugCount() {
+        return scriptDebugCount;
+    }
+
+    public void setScriptDebugCount(Map<String, Integer> scriptDebugCount) {
+        this.scriptDebugCount = scriptDebugCount;
+    }
+
     public Map<String, Object> getDebugStatsMap() {
         
         HashMap<String, Object> debugStatsMap = new HashMap<>();
@@ -127,10 +151,12 @@ public class DefaultDebugController extends DebugController {
         debugStatsMap.put("stepInCount", stepInCount);
         debugStatsMap.put("stepOutCount", stepOutCount);
         debugStatsMap.put("pauseCount", pauseCount);
-        debugStatsMap.put("debugStatsMap", debugStatsMap);
         debugStatsMap.put("haltCount", haltCount);
         debugStatsMap.put("nextCount", nextCount);
+        debugStatsMap.put("scriptDebugCount", scriptDebugCount);
         
         return debugStatsMap;
     }
+    
+    
 }

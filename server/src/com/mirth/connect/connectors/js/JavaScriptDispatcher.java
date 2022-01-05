@@ -35,6 +35,7 @@ import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.DebugUsageController;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
@@ -57,6 +58,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
     private boolean debug = false;
     private MirthMain debugger;
     private boolean ignoreBreakpoints = false;
+    private DebugUsageController debugController = ControllerFactory.getFactory().createDebugController();
     
     protected EventController getEventController() {
         return ControllerFactory.getFactory().createEventController();
@@ -77,6 +79,9 @@ public class JavaScriptDispatcher extends DestinationConnector {
     
     @Override
     public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
+        
+        debugController.incrementDebuggerScript(scriptId);
+        debugController.setDebugInvocationCount(debugController.getDebugInvocationCount() + 1);
         onDeploy(debugOptions != null && debugOptions.isDestinationConnectorScripts());
     }
     

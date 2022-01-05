@@ -71,7 +71,7 @@ public class DefaultControllerFactory extends ControllerFactory {
     }
 
     @Override
-    public DebugController createDebugController() {
+    public DebugUsageController createDebugController() {
         // TODO Auto-generated method stub
         return null;
     }

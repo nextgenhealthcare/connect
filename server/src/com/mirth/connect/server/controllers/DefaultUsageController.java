@@ -35,7 +35,7 @@ import com.mirth.connect.server.ExtensionLoader;
 
 public class DefaultUsageController extends UsageController {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    private DebugController debugController = ControllerFactory.getFactory().createDebugController();
+    private DebugUsageController debugUsageController = ControllerFactory.getFactory().createDebugController();
     private Map<String, Object> lastClientStats = new HashMap<String, Object>();
 
     private static UsageController instance = null;
@@ -225,7 +225,7 @@ public class DefaultUsageController extends UsageController {
     }
     
     private void getDebugData(PurgedDocument purgedDocument) throws ControllerException {
-        Map<String, Object> debugStatsMap = debugController.getDebugStatsMap();
+        Map<String, Object> debugStatsMap = debugUsageController.getDebugStatsMap();
         purgedDocument.setDebugStatistics(debugStatsMap);
     }
     
