@@ -149,7 +149,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
     
 
     protected MirthMain getDebugger(MirthContextFactory contextFactory) {
-        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, getChannel().getName() + "-" + getChannelId());
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, getChannel().getName() + "-" + getChannelId(), scriptId);
     }
     
     protected void compileAndAddScript(MirthContextFactory contextFactory, String scriptId) throws Exception {

@@ -39,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.provider.ftps.FtpsDataChannelProtectionLevel;
 import org.apache.log4j.Logger;
 import org.glassfish.external.statistics.impl.CountStatisticImpl;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.client.core.ControllerException;
@@ -1802,6 +1803,7 @@ public class DonkeyEngineController implements EngineController {
         private ServerEventContext context;
         private DebugOptions debugOptions;
         private MirthScopeProvider scopeProvider;
+        private MirthMain debugger;
 
         public DeployTask(String channelId, DeployedState initialState, Set<Integer> connectorsToStart, ServerEventContext context, DebugOptions debugOptions) {
             super(channelId);
@@ -1861,23 +1863,8 @@ public class DonkeyEngineController implements EngineController {
                         contextFactory.setScriptText(channelModel.getDeployScript());
                         contextFactory.setDebugType(true);
                         contextFactories.put(deployScriptId, contextFactory);
-                        JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channelModel);
-                      
-                        /*
-                         * String preprocessingScriptId =
-                         * ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY,
-                         * getChannelId()); contextFactory =
-                         * contextFactoryController.getDebugContextFactory(channelModel.
-                         * getProperties().getResourceIds().keySet(),getChannelId(),
-                         * preprocessingScriptId);
-                         * 
-                         * contextFactory.setContextType(ContextType.CHANNEL_PREPROCESSOR);
-                         * contextFactory.setScriptText(channelModel.getPreprocessingScript());
-                         * contextFactory.setDebugType(true);
-                         * contextFactories.put(preprocessingScriptId, contextFactory);
-                         * JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channelModel);
-                         */
-                        
+                        debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channelModel, deployScriptId);
+   
                     } else {
                         contextFactory = contextFactoryController.getContextFactory(channelModel.getProperties().getResourceIds().keySet());
                         contextFactory.setContextType(ContextType.CHANNEL_DEPLOY);
@@ -1995,6 +1982,7 @@ public class DonkeyEngineController implements EngineController {
         private MirthScopeProvider scopeProvider;
         private ServerEventContext context;
         private String unDeployScript;
+        private MirthMain debugger;
 
         public UndeployTask(String channelId, String unDeployScript, ServerEventContext context){
             super(channelId);
@@ -2061,8 +2049,8 @@ public class DonkeyEngineController implements EngineController {
                             contextFactory.setContextType(ContextType.CHANNEL_UNDEPLOY);
                             contextFactory.setDebugType(true);
                            
-                            JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel);
-                            JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, undeployScriptId, unDeployScript, ContextType.CHANNEL_POSTPROCESSOR, null, null);
+                            debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, undeployScriptId);
+                            JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, undeployScriptId, unDeployScript, ContextType.CHANNEL_UNDEPLOY, null, null);
 
                             
                         } else {
@@ -2094,6 +2082,7 @@ public class DonkeyEngineController implements EngineController {
 
                 // Remove channel scripts
                 scriptController.removeChannelScriptsFromCache(channelId);
+                JavaScriptUtil.removeDebuggerFromMap(channelId);
 
                 channelController.removeDeployedChannelFromCache(channelId);
             } finally {
