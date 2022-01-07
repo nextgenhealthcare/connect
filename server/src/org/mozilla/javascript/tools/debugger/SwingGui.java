@@ -1119,7 +1119,7 @@ class EvalTextArea
         doc.addDocumentListener(this);
         addKeyListener(this);
         setLineWrap(true);
-        setFont(new Font("Monospaced", 0, 12));
+        setFont(new Font("Monospaced", 0, Math.max(12, UIManager.getFont("Label.font").getSize())));
         append("% ");
         outputMark = doc.getLength();
     }
@@ -1519,7 +1519,7 @@ class FileTextArea
         popup.addPopupMenuListener(this);
         addMouseListener(this);
         addKeyListener(this);
-        setFont(new Font("Monospaced", 0, 12));
+        setFont(new Font("Monospaced", 0, Math.max(12, UIManager.getFont("Label.font").getSize())));
     }
 
     /**
@@ -2738,6 +2738,9 @@ class VariableModel implements TreeTableModel {
                 result = debugger.objectToString(getValue(node));
             } catch (RuntimeException exc) {
                 result = exc.getMessage();
+                if (result == null) {
+                    result = exc.toString();
+                }
             }
             StringBuilder buf = new StringBuilder();
             int len = result.length();
@@ -2882,6 +2885,8 @@ class MyTreeTable extends JTreeTable {
         if (tree.getRowHeight() < 1) {
             // Metal looks better like this.
             setRowHeight(18);
+        } else if (tree.getRowHeight() != getRowHeight()) {
+            tree.setRowHeight(getRowHeight());
         }
 
         // Install the tree editor renderer and editor.
