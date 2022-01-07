@@ -60,7 +60,6 @@ public class JavaScriptDispatcher extends DestinationConnector {
     private CompiledScriptCache compiledScriptCache = getCompiledScriptCache();
     private JavaScriptDispatcherProperties connectorProperties;
     private String scriptId;
-    private volatile String contextFactoryId;
     List<String> contextFactoryIdList = new ArrayList<String>();
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
     private boolean debug = false;

@@ -79,8 +79,11 @@ public class DebugOptions {
         if (!this.isAttachmentBatchScripts() && !this.isDeployUndeployPreAndPostProcessorScripts() &&
                 !this.isDestinationConnectorScripts() && !this.isDestinationFilterTransformer() &&
                 !this.isDestinationResponseTransformer() && !this.isSourceConnectorScripts() &&
-                !this.isSourceFilterTransformer()) return true;
-        else { return false;}
+                !this.isSourceFilterTransformer()) {
+            return true;
+        } else { 
+            return false;
+        }
     }
 
 }
