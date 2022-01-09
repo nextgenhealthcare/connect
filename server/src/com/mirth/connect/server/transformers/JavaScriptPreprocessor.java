@@ -18,10 +18,13 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.components.PreProcessor;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.model.DebugUsage;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.DebugUsageController;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -35,6 +38,8 @@ public class JavaScriptPreprocessor implements PreProcessor {
     private Logger logger = Logger.getLogger(getClass());
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    private DebugUsageController debugUsageController = ControllerFactory.getFactory().createDebugUsageController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     private Channel channel;
     private String scriptId;
@@ -75,6 +80,12 @@ public class JavaScriptPreprocessor implements PreProcessor {
                 }
             }
 
+            //debug usage stats
+            DebugUsage debugUsage = debugUsageController.getDebugUsage(configurationController.getServerId());
+            if (debugUsage.getServerId() != null) {
+                debugUsage.setPreprocessorCount(debugUsage.getPreprocessorCount() + 1);
+                debugUsageController.upsertDebugUsage(debugUsage);  
+            }
             return JavaScriptUtil.executeJavaScriptPreProcessorTask(new JavaScriptPreProcessorTask(contextFactory, message), message.getChannelId());
         } catch (InterruptedException e) {
             throw e;

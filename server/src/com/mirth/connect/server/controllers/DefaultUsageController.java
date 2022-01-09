@@ -236,7 +236,4 @@ public class DefaultUsageController extends UsageController {
         
         purgedDocument.setDebugStatistics(debugStatsMap);
     }
-    
-
-    
 }
