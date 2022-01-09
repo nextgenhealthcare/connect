@@ -35,7 +35,7 @@ public abstract class ControllerFactory {
 
     public abstract ConfigurationController createConfigurationController();
     
-    public abstract DebugUsageController createDebugController();
+    public abstract DebugUsageController createDebugUsageController();
 
     public abstract EngineController createEngineController();
 

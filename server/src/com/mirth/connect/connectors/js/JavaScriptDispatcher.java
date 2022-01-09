@@ -20,17 +20,19 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
+import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
-import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
+import com.mirth.connect.model.DebugUsage;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ContextFactoryController;
@@ -58,7 +60,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
     private boolean debug = false;
     private MirthMain debugger;
     private boolean ignoreBreakpoints = false;
-    private DebugUsageController debugController = ControllerFactory.getFactory().createDebugController();
+    private DebugUsageController debugUsageController = ControllerFactory.getFactory().createDebugUsageController();
     
     protected EventController getEventController() {
         return ControllerFactory.getFactory().createEventController();
@@ -79,10 +81,20 @@ public class JavaScriptDispatcher extends DestinationConnector {
     
     @Override
     public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
-        
-        debugController.incrementDebuggerScript(scriptId);
-        debugController.setDebugInvocationCount(debugController.getDebugInvocationCount() + 1);
-        onDeploy(debugOptions != null && debugOptions.isDestinationConnectorScripts());
+    
+        //TODO: dynamically retrieve serverId
+        String serverId = "";
+        try {
+            DebugUsage debugUsage = debugUsageController.getDebugUsage(serverId);
+            if (debugUsage != null) {
+                debugUsage.setInvocationCount(debugUsage.getInvocationCount() + 1);
+            }
+            onDeploy(debugOptions != null && debugOptions.isDestinationConnectorScripts());
+        }
+        catch (ControllerException ex) {
+            ex.printStackTrace();
+        }
+
     }
     
     public void onDeploy(boolean debug) throws ConnectorTaskException {

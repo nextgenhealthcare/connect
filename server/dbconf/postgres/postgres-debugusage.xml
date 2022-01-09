@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN' 'conf/dtd/mybatis-3-mapper.dtd'><mapper namespace='User'>
+   <resultMap id='get-debug-usage-result' type='com.mirth.connect.model.DebugUsage'>
+      <result property='id' column='ID' jdbcType='INTEGER'/>
+      <result property='serverId' column='SERVER_ID'/>
+      <result property='deployCount' column='DEPLOY_COUNT'/>
+      <result property='invocationCount' column='INVOCATION_COUNT'/>
+      <result property='postprocessorCount' column='POSTPROCESSOR_COUNT'/>
+      <result property='preprocessorCount' column='PREPROCESSOR_COUNT'/>
+      <result property='undeployCount' column='UNDEPLOY_COUNT'/>
+      <result property='lastSent' column='LAST_SENT'/>
+   </resultMap>
+   <insert id='insertDebugUsageStatistics' parameterType='java.util.Map'>
+		INSERT INTO 
+		DEBUGGER_USAGE(SERVER_ID, DEPLOY_COUNT, INVOCATION_COUNT, POSTPROCESSOR_COUNT, PREPROCESSOR_COUNT, UNDEPLOY_COUNT, LAST_SENT)
+			VALUES (#{serverId,jdbcType=VARCHAR}, #{deployCount, jdbcType=INTEGER}, #{invocationCount, jdbcType=INTEGER}, #{postprocessorCount, jdbcType=INTEGER},  #{preprocessorCount, jdbcType=INTEGER}, #{undeployCount, jdbcType=INTEGER}, NULL);	</insert>
+   </insert>
+
+   <update id='updateDebugUsageStatistics' parameterType='java.util.Map'>
+   	UPDATE PUBLIC.DEBUGGER_USAGE
+	SET SERVER_ID=#{serverId,jdbcType=VARCHAR}, 
+		DEPLOY_COUNT=#{deployCount, jdbcType=INTEGER}, 
+		INVOCATION_COUNT=#{invocationCount, jdbcType=INTEGER}, 
+		POSTPROCESSOR_COUNT=#{postprocessorCount, jdbcType=INTEGER}, 
+		PREPROCESSOR_COUNT=#{preprocessorCount, jdbcType=INTEGER}, 
+		UNDEPLOY_COUNT=#{undeployCount, jdbcType=INTEGER}, 
+		LAST_SENT=#{lastSent, jdbcType=TIMESTAMP}
+	WHERE ID = #{id}
+	</update>
+</mapper>

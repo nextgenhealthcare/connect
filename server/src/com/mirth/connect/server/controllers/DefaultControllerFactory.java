@@ -70,9 +70,9 @@ public class DefaultControllerFactory extends ControllerFactory {
         return DefaultContextFactoryController.create();
     }
 
+
     @Override
-    public DebugUsageController createDebugController() {
-        // TODO Auto-generated method stub
-        return null;
+    public DebugUsageController createDebugUsageController() {
+        return DefaultDebugUsageController.create();
     }
 }

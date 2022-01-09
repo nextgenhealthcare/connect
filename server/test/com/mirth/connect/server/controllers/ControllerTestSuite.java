@@ -31,6 +31,7 @@ public class ControllerTestSuite {
         suite.addTestSuite(ConfigurationControllerTests.class);
         suite.addTestSuite(ChannelControllerTests.class);
         suite.addTestSuite(StatisticsControllerTests.class);
+        suite.addTestSuite(DebugUsageControllerTests.class);
         // $JUnit-END$
         return suite;
     }

@@ -23,6 +23,7 @@ import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.DebugUsage;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.UpdateSettings;
@@ -35,11 +36,13 @@ import com.mirth.connect.server.ExtensionLoader;
 
 public class DefaultUsageController extends UsageController {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    private DebugUsageController debugUsageController = ControllerFactory.getFactory().createDebugController();
+    private DebugUsageController debugUsageController = ControllerFactory.getFactory().createDebugUsageController();
     private Map<String, Object> lastClientStats = new HashMap<String, Object>();
 
     private static UsageController instance = null;
 
+    private DebugUsage debugUsage; 
+    
     private DefaultUsageController() {}
 
     public static UsageController create() {
@@ -225,8 +228,18 @@ public class DefaultUsageController extends UsageController {
     }
     
     private void getDebugData(PurgedDocument purgedDocument) throws ControllerException {
-        Map<String, Object> debugStatsMap = debugUsageController.getDebugStatsMap();
+        Map<String, Object> debugStatsMap = debugUsageController.getDebugUsageMap(this.getDebugUsage());
         purgedDocument.setDebugStatistics(debugStatsMap);
     }
+    
+
+    public DebugUsage getDebugUsage() {
+        return debugUsage;
+    }
+
+    public void setDebugUsage(DebugUsage debugUsage) {
+        this.debugUsage = debugUsage;
+    }
+
     
 }

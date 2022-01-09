@@ -10,11 +10,14 @@
 package com.mirth.connect.server.controllers;
 
 import java.util.HashMap;
-import java.util.Map;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.model.DebugUsage;
 import com.mirth.connect.server.ExtensionLoader;
+import com.mirth.connect.server.util.SqlConfig;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.
@@ -24,15 +27,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
 
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private Integer debugInvocationCount;
-    private Integer stepOverCount;
-    private Integer stepInCount;
-    private Integer stepOutCount;
-    private Integer pauseCount;
-    private Integer haltCount;
-    private Integer nextCount;
-    private Map<String, Integer> scriptDebugCount = new HashMap<>();
-    
+    private DebugUsage debugUsage;
 
     // singleton pattern
     private static DebugUsageController instance = null;
@@ -64,99 +59,66 @@ public class DefaultDebugUsageController extends DebugUsageController {
 
     }
 
-    public Integer getDebugInvocationCount() {
-        return debugInvocationCount;
+
+    public HashMap<String, Object> getDebugUsageMap(DebugUsage debugUsage) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("serverId", debugUsage.getServerId());
+        map.put("debugInvocationCount", debugUsage.getInvocationCount());
+        map.put("postprocessorCount", debugUsage.getPostprocessorCount());
+        map.put("preprocessorCount", debugUsage.getPostprocessorCount());
+        map.put("deployCount", debugUsage.getDeployCount());
+        map.put("undeployCount", debugUsage.getUndeployCount());
+        map.put("lastSent", debugUsage.getLastSent());
+        return map;
     }
 
-    public void setDebugInvocationCount(Integer debugInvocationCount) {
-        this.debugInvocationCount = debugInvocationCount;
-    }
 
-    public Integer getStepOverCount() {
-        return stepOverCount;
-    }
+    public synchronized void insertOrUpdatePersistedDebugUsageStats(DebugUsage debugUsage) throws ControllerException {
 
-    public void setStepOverCount(Integer stepOverCount) {
-        this.stepOverCount = stepOverCount;
-    }
+//            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
+        try {
 
-    public Integer getStepInCount() {
-        return stepInCount;
-    }
+            DebugUsage persistedDebugUsage = getDebugUsage(debugUsage.getServerId());
 
-    public void setStepInCount(Integer stepInCount) {
-        this.stepInCount = stepInCount;
-    }
+            //if server id exists, update 
+            if (persistedDebugUsage.getId() != null) {
+                SqlConfig.getInstance().getSqlSessionManager().insert("DebugUsage.updateDebugUsageStatistics", getDebugUsageMap(debugUsage));
+                
+            //otherwise, insert 
+            } else {
+                logger.debug("inserting debug usage statistics for serverId" + debugUsage.getServerId());
+                SqlConfig.getInstance().getSqlSessionManager().insert("DebugUsage.insertDebugUsageStatistics", getDebugUsageMap(debugUsage));
 
-    public Integer getStepOutCount() {
-        return stepOutCount;
-    }
-
-    public void setStepOutCount(Integer stepOutCount) {
-        this.stepOutCount = stepOutCount;
-    }
-
-    public Integer getPauseCount() {
-        return pauseCount;
-    }
-
-    public void setPauseCount(Integer pauseCount) {
-        this.pauseCount = pauseCount;
-    }
-
-    public Integer getHaltCount() {
-        return haltCount;
-    }
-
-    public void setHaltCount(Integer haltCount) {
-        this.haltCount = haltCount;
-    }
-
-    public Integer getNextCount() {
-        return nextCount;
-    }
-
-    public void setNextCount(Integer nextCount) {
-        this.nextCount = nextCount;
-    }
-    
-    public void incrementDebuggerScript(String scriptName) {
-        
-        //increment existing script 
-        if (scriptDebugCount.containsKey(scriptName)) {
-            Integer countForScript = scriptDebugCount.get(scriptName);
-            countForScript++;
-            scriptDebugCount.replace(scriptName, countForScript);
+            }
+        } catch (PersistenceException e) {
+            throw new ControllerException(e);
+        } finally {
+//                StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
         }
-        //put script and initial count in the map 
-        else {
-            scriptDebugCount.put(scriptName, 1);
+    }
+
+    public DebugUsage getDebugUsage(String serverId) throws ControllerException {
+        
+        logger.debug("getting debug usage for serverId: " + serverId);
+
+        if (serverId == null) {
+            throw new ControllerException("Error getting usage for serverId: serverId cannot be null.");
         }
-        
-    }
-    
-    public Map<String, Integer> getScriptDebugCount() {
-        return scriptDebugCount;
+
+//        StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
+        try {
+            DebugUsage debugUsage = new DebugUsage();
+            debugUsage.setServerId(serverId);
+
+            return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("DebugUsage.getDebugUsage", debugUsage);
+            
+        } catch (PersistenceException e) {
+            throw new ControllerException(e);
+        } finally {
+//            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
+        }
     }
 
-    public void setScriptDebugCount(Map<String, Integer> scriptDebugCount) {
-        this.scriptDebugCount = scriptDebugCount;
-    }
 
-    public Map<String, Object> getDebugStatsMap() {
-        
-        HashMap<String, Object> debugStatsMap = new HashMap<>();
-        debugStatsMap.put("debugInvocationCount", debugInvocationCount);
-        debugStatsMap.put("stepOverCount", stepOverCount);
-        debugStatsMap.put("stepInCount", stepInCount);
-        debugStatsMap.put("stepOutCount", stepOutCount);
-        debugStatsMap.put("pauseCount", pauseCount);
-        debugStatsMap.put("haltCount", haltCount);
-        debugStatsMap.put("nextCount", nextCount);
-        debugStatsMap.put("scriptDebugCount", scriptDebugCount);
-        
-        return debugStatsMap;
-    }
-    
-    
+
 }

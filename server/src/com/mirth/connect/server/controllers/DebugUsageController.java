@@ -9,7 +9,10 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.util.Map;
+import java.util.HashMap;
+
+import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.model.DebugUsage;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.
@@ -18,39 +21,14 @@ import java.util.Map;
 public abstract class DebugUsageController extends Controller {
     
     public static DebugUsageController getInstance() {
-        return ControllerFactory.getFactory().createDebugController();
+        return ControllerFactory.getFactory().createDebugUsageController();
     }
     
-    public abstract Integer getStepOverCount();
-
-    public abstract void setStepOverCount(Integer stepOverCount);
-
-    public abstract Integer getStepInCount();
-
-    public abstract void setStepInCount(Integer stepInCount);
-
-    public abstract Integer getStepOutCount();
-
-    public abstract void setStepOutCount(Integer stepOutCount);
-
-    public abstract Integer getPauseCount();
-
-    public abstract void setPauseCount(Integer pauseCount);
-
-    public abstract Integer getHaltCount();
-
-    public abstract void setHaltCount(Integer haltCount);
-
-    public abstract Integer getNextCount();
-
-    public abstract void setNextCount(Integer nextCount);
-
-    public abstract void setDebugInvocationCount(Integer debugInvocationCount);
-
-    public abstract Integer getDebugInvocationCount();
+    public abstract HashMap<String, Object> getDebugUsageMap(DebugUsage debugUsage);
+        
+    public abstract void insertOrUpdatePersistedDebugUsageStats(DebugUsage debugUsage) throws ControllerException;
     
-    public abstract Map<String, Object> getDebugStatsMap();
+    public abstract DebugUsage getDebugUsage(String serverId) throws ControllerException;
     
-    public abstract void incrementDebuggerScript(String scriptName);
-
+    
 }
