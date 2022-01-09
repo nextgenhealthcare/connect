@@ -27,8 +27,6 @@ public class DefaultDebugUsageController extends DebugUsageController {
 
     private Logger logger = Logger.getLogger(this.getClass());
 
-    private DebugUsage debugUsage;
-
     // singleton pattern
     private static DebugUsageController instance = null;
 
@@ -59,7 +57,6 @@ public class DefaultDebugUsageController extends DebugUsageController {
 
     }
 
-
     public HashMap<String, Object> getDebugUsageMap(DebugUsage debugUsage) {
         HashMap<String, Object> map = new HashMap<>();
         map.put("serverId", debugUsage.getServerId());
@@ -72,8 +69,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
         return map;
     }
 
-
-    public synchronized void insertOrUpdatePersistedDebugUsageStats(DebugUsage debugUsage) throws ControllerException {
+    public synchronized void upsertDebugUsage(DebugUsage debugUsage) throws ControllerException {
 
 //            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
@@ -83,8 +79,8 @@ public class DefaultDebugUsageController extends DebugUsageController {
             //if server id exists, update 
             if (persistedDebugUsage.getId() != null) {
                 SqlConfig.getInstance().getSqlSessionManager().insert("DebugUsage.updateDebugUsageStatistics", getDebugUsageMap(debugUsage));
-                
-            //otherwise, insert 
+
+                //otherwise, insert 
             } else {
                 logger.debug("inserting debug usage statistics for serverId" + debugUsage.getServerId());
                 SqlConfig.getInstance().getSqlSessionManager().insert("DebugUsage.insertDebugUsageStatistics", getDebugUsageMap(debugUsage));
@@ -98,7 +94,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
     }
 
     public DebugUsage getDebugUsage(String serverId) throws ControllerException {
-        
+
         logger.debug("getting debug usage for serverId: " + serverId);
 
         if (serverId == null) {
@@ -110,8 +106,8 @@ public class DefaultDebugUsageController extends DebugUsageController {
             DebugUsage debugUsage = new DebugUsage();
             debugUsage.setServerId(serverId);
 
-            return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("DebugUsage.getDebugUsage", debugUsage);
-            
+            return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("DebugUsage.getDebugUsageStatistics", debugUsage);
+
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         } finally {
@@ -119,6 +115,26 @@ public class DefaultDebugUsageController extends DebugUsageController {
         }
     }
 
+    public void deleteDebugUsage(String serverId) throws ControllerException {
 
+        logger.debug("deleting debug usage for serverId: " + serverId);
+
+        if (serverId == null) {
+            throw new ControllerException("Error getting usage for serverId: serverId cannot be null.");
+        }
+
+//      StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
+        try {
+            DebugUsage debugUsage = new DebugUsage();
+            debugUsage.setServerId(serverId);
+
+            SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("DebugUsage.deleteDebugUsageStatistics", debugUsage);
+
+        } catch (PersistenceException e) {
+            throw new ControllerException(e);
+        } finally {
+//          StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
+        }
+    }
 
 }

@@ -9,6 +9,20 @@
       <result property='undeployCount' column='UNDEPLOY_COUNT'/>
       <result property='lastSent' column='LAST_SENT'/>
    </resultMap>
+   <select id='getDebugUsageUsageStatistics'
+           parameterType='java.lang.String'
+           resultMap='get-debug-usage-result'>
+	SELECT ID, 
+		SERVER_ID, 
+		DEPLOY_COUNT, 
+		INVOCATION_COUNT, 
+		POSTPROCESSOR_COUNT, 
+		PREPROCESSOR_COUNT, 
+		UNDEPLOY_COUNT, 
+		LAST_SENT
+	FROM PUBLIC.DEBUGGER_USAGE
+	WHERE SERVER_ID = #{value}
+	</select>
    <insert id='insertDebugUsageStatistics' parameterType='java.util.Map'>
 		INSERT INTO 
 		DEBUGGER_USAGE(SERVER_ID, DEPLOY_COUNT, INVOCATION_COUNT, POSTPROCESSOR_COUNT, PREPROCESSOR_COUNT, UNDEPLOY_COUNT, LAST_SENT)
@@ -16,7 +30,7 @@
    </insert>
 
    <update id='updateDebugUsageStatistics' parameterType='java.util.Map'>
-   	UPDATE PUBLIC.DEBUGGER_USAGE
+   	UPDATE DEBUGGER_USAGE
 	SET SERVER_ID=#{serverId,jdbcType=VARCHAR}, 
 		DEPLOY_COUNT=#{deployCount, jdbcType=INTEGER}, 
 		INVOCATION_COUNT=#{invocationCount, jdbcType=INTEGER}, 
@@ -24,6 +38,11 @@
 		PREPROCESSOR_COUNT=#{preprocessorCount, jdbcType=INTEGER}, 
 		UNDEPLOY_COUNT=#{undeployCount, jdbcType=INTEGER}, 
 		LAST_SENT=#{lastSent, jdbcType=TIMESTAMP}
-	WHERE ID = #{id}
+	WHERE SERVER_ID = #{serverId}
+	</update>
+	
+   <update id='deleteDebugUsageStatistics' parameterType='java.lang.String'>
+	DELETE FROM DEBUGGER_USAGE
+	WHERE SERVER_ID = #{value};
 	</update>
 </mapper>

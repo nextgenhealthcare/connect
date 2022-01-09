@@ -112,7 +112,7 @@ public class DebugUsageControllerTests extends TestCase {
     public void insertSampleDebugStats() throws ControllerException {
         for (Iterator iter = sampleDebugStatsList.iterator(); iter.hasNext();) {
             DebugUsage debugUsage = (DebugUsage) iter.next();
-            debugUsageController.insertOrUpdatePersistedDebugUsageStats(debugUsage);
+            debugUsageController.upsertDebugUsage(debugUsage);
 //            DebugUsage validDebugUsage = debugUsageController.getDebugUsage(debugUsage.getServerId());
         }
     }

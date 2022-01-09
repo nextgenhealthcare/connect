@@ -41,8 +41,6 @@ public class DefaultUsageController extends UsageController {
 
     private static UsageController instance = null;
 
-    private DebugUsage debugUsage; 
-    
     private DefaultUsageController() {}
 
     public static UsageController create() {
@@ -228,18 +226,17 @@ public class DefaultUsageController extends UsageController {
     }
     
     private void getDebugData(PurgedDocument purgedDocument) throws ControllerException {
-        Map<String, Object> debugStatsMap = debugUsageController.getDebugUsageMap(this.getDebugUsage());
+        
+        //retrieve debug usage stats from db 
+        DebugUsage debugUsage = debugUsageController.getDebugUsage(configurationController.getServerId());
+        Map<String, Object> debugStatsMap = debugUsageController.getDebugUsageMap(debugUsage);
+        
+        //delete debug usage stats for this serverId from db 
+        debugUsageController.deleteDebugUsage(configurationController.getServerId());
+        
         purgedDocument.setDebugStatistics(debugStatsMap);
     }
     
-
-    public DebugUsage getDebugUsage() {
-        return debugUsage;
-    }
-
-    public void setDebugUsage(DebugUsage debugUsage) {
-        this.debugUsage = debugUsage;
-    }
 
     
 }

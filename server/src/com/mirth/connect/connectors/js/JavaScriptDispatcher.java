@@ -91,7 +91,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                 debugUsage.setInvocationCount(debugUsage.getInvocationCount() + 1);
             }
             onDeploy(debugOptions != null && debugOptions.isDestinationConnectorScripts());
-            debugUsageController.insertOrUpdatePersistedDebugUsageStats(debugUsage);
+            debugUsageController.upsertDebugUsage(debugUsage);
             
         }
         catch (ControllerException ex) {
