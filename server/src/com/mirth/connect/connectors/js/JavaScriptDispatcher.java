@@ -35,6 +35,7 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.DebugUsage;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.DebugUsageController;
@@ -61,6 +62,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
     private MirthMain debugger;
     private boolean ignoreBreakpoints = false;
     private DebugUsageController debugUsageController = ControllerFactory.getFactory().createDebugUsageController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     
     protected EventController getEventController() {
         return ControllerFactory.getFactory().createEventController();
@@ -82,19 +84,19 @@ public class JavaScriptDispatcher extends DestinationConnector {
     @Override
     public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
     
-        //TODO: dynamically retrieve serverId
-        String serverId = "";
+        String serverId = configurationController.getServerId();
         try {
             DebugUsage debugUsage = debugUsageController.getDebugUsage(serverId);
             if (debugUsage != null) {
                 debugUsage.setInvocationCount(debugUsage.getInvocationCount() + 1);
             }
             onDeploy(debugOptions != null && debugOptions.isDestinationConnectorScripts());
+            debugUsageController.insertOrUpdatePersistedDebugUsageStats(debugUsage);
+            
         }
         catch (ControllerException ex) {
             ex.printStackTrace();
         }
-
     }
     
     public void onDeploy(boolean debug) throws ConnectorTaskException {
