@@ -101,7 +101,7 @@ public class TestPreProcessor {
 
     @Test
     public final void testPreProcessor() throws Exception {
-        final JavaScriptPreprocessor preprocessor = new JavaScriptPreprocessor(null, null);
+        final JavaScriptPreprocessor preprocessor = new JavaScriptPreprocessor(null, null, null);
         final String testResult = "test result";
         final int testSize = 100000;
 
@@ -161,7 +161,7 @@ public class TestPreProcessor {
 
     @Test
     public final void testPostProcessor() throws Exception {
-        final JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor(null, null);
+        final JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor(null, null, null);
         final int testSize = 100000;
         final Response expectedResult = new Response(Status.SENT, "test");
 

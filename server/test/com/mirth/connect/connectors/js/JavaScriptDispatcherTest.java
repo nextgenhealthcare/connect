@@ -36,14 +36,14 @@ public class JavaScriptDispatcherTest {
         MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
         ContextFactoryController contextFactoryController = dispatcher.getContextFactoryController();
         
-        verify(contextFactoryController, times(1)).getDebugContextFactory(any(), any());
+        verify(contextFactoryController, times(1)).getDebugContextFactory(any(), any(),any());
         
         // Undeploy
         dispatcher.onUndeploy();
         
         verify(debugger, times(1)).detach();
         verify(debugger, times(1)).dispose();
-        verify(contextFactoryController, times(1)).removeDebugContextFactory(any(), any());
+        verify(contextFactoryController, times(1)).removeDebugContextFactory(any(), any(), any());
     }
     
     @Test
@@ -95,7 +95,7 @@ public class JavaScriptDispatcherTest {
                     contextFactoryController = mock(ContextFactoryController.class);
                     MirthContextFactory mirthContextFactory = mock(MirthContextFactory.class);
                     when(mirthContextFactory.getId()).thenReturn("contextFactoryId");
-                    when(contextFactoryController.getDebugContextFactory(any(), any()))
+                    when(contextFactoryController.getDebugContextFactory(any(), any(), any()))
                         .thenReturn(mirthContextFactory);
                 }
                 

@@ -12,6 +12,7 @@ package com.mirth.connect.server.controllers;
 import java.util.Map;
 
 import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.connectors.js.MirthScopeProvider;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
@@ -119,12 +120,16 @@ public abstract class ScriptController extends Controller {
     public abstract void compileGlobalScripts(MirthContextFactory contextFactory, boolean multiServer);
 
     public abstract void compileChannelScripts(MirthContextFactory contextFactory, Channel channel) throws ScriptCompileException;
+    
+    public abstract void compileChannelScripts(Map<String, MirthContextFactory> contextFactories, Channel channel) throws ScriptCompileException;
 
     public abstract void removeChannelScriptsFromCache(String channelId);
 
     // Deploy Script Execution
 
     public abstract void executeGlobalDeployScript() throws Exception;
+    
+    public abstract void executeChannelDebugDeployScript(MirthContextFactory contextFactory, String channelId, String channelName, MirthScopeProvider scopeProvider) throws Exception;
 
     public abstract void executeChannelDeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception;
 
@@ -133,4 +138,6 @@ public abstract class ScriptController extends Controller {
     public abstract void executeGlobalUndeployScript() throws Exception;
 
     public abstract void executeChannelUndeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception;
+
+    public abstract void executeChannelDebugUndeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception;
 }

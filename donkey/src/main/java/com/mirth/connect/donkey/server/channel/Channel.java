@@ -120,6 +120,7 @@ public class Channel implements Runnable {
     private PostProcessor postProcessor;
     private List<DestinationChainProvider> destinationChainProviders = new ArrayList<DestinationChainProvider>();
     private ResponseSelector responseSelector;
+    private DebugOptions debugOptions;
 
     /*
      * Only 2 channels can remove all messages at a time since it can be a lengthy process. We don't
@@ -139,6 +140,14 @@ public class Channel implements Runnable {
 
     private Logger logger = Logger.getLogger(getClass());
 
+    public DebugOptions getDebugOptions() {
+        return debugOptions;
+    }
+
+    public void setDebugOptions(DebugOptions debugOptions) {
+        this.debugOptions = debugOptions;
+    }
+    
     public String getChannelId() {
         return channelId;
     }
@@ -215,6 +224,8 @@ public class Channel implements Runnable {
         return currentState;
     }
 
+
+    
     public void updateCurrentState(DeployedState currentState) {
         this.currentState = currentState;
         eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, name, null, null, DeployedStateEventType.getTypeFromDeployedState(currentState)));
@@ -2301,4 +2312,5 @@ public class Channel implements Runnable {
             dao.close();
         }
     }
+
 }
