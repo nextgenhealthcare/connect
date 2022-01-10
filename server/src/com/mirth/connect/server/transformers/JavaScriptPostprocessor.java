@@ -68,24 +68,24 @@ public class JavaScriptPostprocessor implements PostProcessor {
                 if (debugOptions.isDeployUndeployPreAndPostProcessorScripts()) {
                     String postProcessingScriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getChannelId());
                     contextFactory = getContextFactory();
+                    contextFactoryId = contextFactory.getId();
                     contextFactory.setContextType(ContextType.CHANNEL_POSTPROCESSOR);
                     contextFactory.setScriptText(postProcessingScript);
                     contextFactory.setDebugType(true);
                     contextFactories.put(postProcessingScriptId, contextFactory);
                     debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
                     JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, postProcessingScript, ContextType.CHANNEL_POSTPROCESSOR, null, null);
-
                 } else {
                     contextFactory = getContextFactory();
                     contextFactoryId = contextFactory.getId();
                     JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, postProcessingScript, ContextType.CHANNEL_POSTPROCESSOR);
-                    if (!contextFactoryId.equals(contextFactory.getId())) {
-                        synchronized (this) {
-                            contextFactory = getContextFactory();
-                            if (!contextFactoryId.equals(contextFactory.getId())) {
-                                JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
-                                contextFactoryId = contextFactory.getId();
-                            }
+                }
+                if (!contextFactoryId.equals(contextFactory.getId())) {
+                    synchronized (this) {
+                        contextFactory = getContextFactory();
+                        if (!contextFactoryId.equals(contextFactory.getId())) {
+                            JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
+                            contextFactoryId = contextFactory.getId();
                         }
                     }
                 }

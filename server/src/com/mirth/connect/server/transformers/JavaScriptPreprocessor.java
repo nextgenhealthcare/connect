@@ -66,6 +66,7 @@ public class JavaScriptPreprocessor implements PreProcessor {
                 if (debugOptions.isDeployUndeployPreAndPostProcessorScripts()) {
                     String preProcessingScriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, channel.getChannelId());
                     contextFactory = getContextFactory();
+                    contextFactoryId = contextFactory.getId();
                     contextFactory.setContextType(ContextType.CHANNEL_PREPROCESSOR);
                     contextFactory.setScriptText(preProcessingScript);
                     contextFactory.setDebugType(true);
@@ -77,17 +78,18 @@ public class JavaScriptPreprocessor implements PreProcessor {
                     contextFactory = getContextFactory();
                     contextFactoryId = contextFactory.getId();
                     JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, preProcessingScript, ContextType.CHANNEL_PREPROCESSOR);
-                    if (!contextFactoryId.equals(contextFactory.getId())) {
-                        synchronized (this) {
-                            contextFactory = getContextFactory();
-                            if (!contextFactoryId.equals(contextFactory.getId())) {
-                                JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
-                                contextFactoryId = contextFactory.getId();
-                            }
+                  
+                }
+                
+                if (!contextFactoryId.equals(contextFactory.getId())) {
+                    synchronized (this) {
+                        contextFactory = getContextFactory();
+                        if (!contextFactoryId.equals(contextFactory.getId())) {
+                            JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
+                            contextFactoryId = contextFactory.getId();
                         }
                     }
                 }
-                
                 
             } catch (Exception e) {
                 logger.error("Error compiling preprocessor script " + scriptId + ".", e);
