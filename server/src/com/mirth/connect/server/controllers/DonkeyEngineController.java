@@ -36,9 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.vfs2.provider.ftps.FtpsDataChannelProtectionLevel;
 import org.apache.log4j.Logger;
-import org.glassfish.external.statistics.impl.CountStatisticImpl;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.commons.encryption.Encryptor;

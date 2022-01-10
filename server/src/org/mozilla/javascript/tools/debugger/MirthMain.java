@@ -6,12 +6,6 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.tools.shell.Global;
-import org.omg.CORBA.PRIVATE_MEMBER;
-
-import com.google.inject.Key;
-
-import net.bytebuddy.implementation.bind.annotation.Super;
-import oracle.net.aso.i;
 
 public class MirthMain extends Main {
     private static Map<String, MirthMain> mainInstanceMap = new HashedMap<>();

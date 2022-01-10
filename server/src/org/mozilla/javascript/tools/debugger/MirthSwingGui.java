@@ -2,6 +2,7 @@ package org.mozilla.javascript.tools.debugger;
 
 import org.apache.log4j.Logger;
 
+@SuppressWarnings("serial")
 public class MirthSwingGui extends SwingGui {
 
 	Logger logger = Logger.getLogger(getClass());

@@ -125,16 +125,10 @@ public class JavaScriptPostprocessor implements PostProcessor {
     private class JavaScriptPostProcessorTask extends JavaScriptTask<Object> {
 
         private Message message;
-        private MirthScopeProvider scopeProvider;
 
         public JavaScriptPostProcessorTask(MirthContextFactory contextFactory, Message message) {
-            this(contextFactory, message, null);
-        }
-
-        public JavaScriptPostProcessorTask(MirthContextFactory contextFactory, Message message, MirthScopeProvider scopeProvider) {
             super(contextFactory, "Postprocessor", channel.getChannelId(), channel.getName());
             this.message = message;
-            this.scopeProvider = scopeProvider;
         }
 
         @Override

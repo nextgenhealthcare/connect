@@ -17,7 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
-import org.mozilla.javascript.tools.debugger.ScopeProvider;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.connectors.js.MirthScopeProvider;
