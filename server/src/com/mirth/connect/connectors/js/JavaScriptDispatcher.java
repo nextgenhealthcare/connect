@@ -211,7 +211,6 @@ public class JavaScriptDispatcher extends DestinationConnector {
 
                     if (!contextFactoryIdList.contains(contextFactory.getId())) {
                         JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
-                        //contextFactoryId = contextFactory.getId();
                         contextFactoryIdList.add(contextFactory.getId());
                     }
                 }
