@@ -833,17 +833,9 @@ public class JavaScriptUtil {
             String scriptIdString = item.getKey();
             MirthContextFactory factory = item.getValue();
             try {
-                if (factory.isDebug()) {
-                    //getDebugger(factory);
-                }
-                //if (factory.getContextType() == ContextType.DESTINATION_DISPATCHER) {
-                    JavaScriptUtil.compileAndAddScript(channel.getId(), factory, scriptIdString, factory.getScriptText(), factory.getContextType(), null, null);
-                //} else {
-                 ///   JavaScriptUtil.compileAndAddScript(channel.getId(), factory, scriptIdString, factory.getScriptText(), factory.getContextType());
-                //}
+                JavaScriptUtil.compileAndAddScript(channel.getId(), factory, scriptIdString, factory.getScriptText(), factory.getContextType(), null, null);
             } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.error("Error compiling channel scripts.", e);
             }
         }
         
