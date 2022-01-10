@@ -1842,7 +1842,6 @@ public class DonkeyEngineController implements EngineController {
                 throw new DeployException(e.getMessage(), e);
             }
             
-            //List<String> contextFactoryIdList = new ArrayList<String>();
             Map<String, MirthContextFactory> contextFactories = new HashMap<>();
 
             try {
@@ -1976,7 +1975,6 @@ public class DonkeyEngineController implements EngineController {
     }
 
     protected class UndeployTask extends ChannelTask {
-        private DebugOptions debugOptions;
         private MirthScopeProvider scopeProvider;
         private ServerEventContext context;
         private String unDeployScript;

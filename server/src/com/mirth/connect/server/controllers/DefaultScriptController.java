@@ -262,9 +262,7 @@ public class DefaultScriptController extends ScriptController {
 
     @Override
     public void executeChannelDebugUndeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception {
-        // TODO Auto-generated method stub
         JavaScriptUtil.executeChannelDebugUndeployScript(contextFactory, getScriptId(UNDEPLOY_SCRIPT_KEY, channelId), UNDEPLOY_SCRIPT_KEY, channelId, channelName, new MirthScopeProvider());
-
     }
 
 }
