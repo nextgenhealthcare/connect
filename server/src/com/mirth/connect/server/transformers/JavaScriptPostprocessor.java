@@ -50,6 +50,7 @@ public class JavaScriptPostprocessor implements PostProcessor {
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
     private MirthMain debugger;
     private String postProcessingScript;
+    
     public JavaScriptPostprocessor(Channel channel, String postProcessingScript, DebugOptions debugOptions) throws JavaScriptInitializationException {
         this.channel = channel;
         this.debugOptions = debugOptions;
