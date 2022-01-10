@@ -87,9 +87,11 @@ public class JavaScriptDispatcher extends DestinationConnector {
         String serverId = configurationController.getServerId();
         try {
             DebugUsage debugUsage = debugUsageController.getDebugUsage(serverId);
-            if (debugUsage != null) {
-                debugUsage.setInvocationCount(debugUsage.getInvocationCount() + 1);
+            if (debugUsage == null) {
+                debugUsage = new DebugUsage();
             }
+            
+            debugUsage.setInvocationCount(debugUsage.getInvocationCount() + 1);
             onDeploy(debugOptions != null && debugOptions.isDestinationConnectorScripts());
             debugUsageController.upsertDebugUsage(debugUsage);
             

@@ -34,6 +34,15 @@ public class DebugUsage implements Serializable {
     
     
 
+    public DebugUsage() {
+        this.id = 0;
+        this.deployCount = 0;
+        this.invocationCount = 0;
+        this.postprocessorCount = 0;
+        this.preprocessorCount = 0;
+        this.undeployCount = 0;
+    }
+
     public Integer getId() {
         return id;
     }

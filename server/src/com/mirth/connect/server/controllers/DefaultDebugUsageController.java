@@ -26,7 +26,7 @@ import com.mirth.connect.server.util.SqlConfig;
 public class DefaultDebugUsageController extends DebugUsageController {
 
     private Logger logger = Logger.getLogger(this.getClass());
-
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     // singleton pattern
     private static DebugUsageController instance = null;
 
@@ -60,7 +60,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
     public HashMap<String, Object> getDebugUsageMap(DebugUsage debugUsage) {
         HashMap<String, Object> map = new HashMap<>();
         map.put("serverId", debugUsage.getServerId());
-        map.put("debugInvocationCount", debugUsage.getInvocationCount());
+        map.put("invocationCount", debugUsage.getInvocationCount());
         map.put("postprocessorCount", debugUsage.getPostprocessorCount());
         map.put("preprocessorCount", debugUsage.getPostprocessorCount());
         map.put("deployCount", debugUsage.getDeployCount());
@@ -74,14 +74,20 @@ public class DefaultDebugUsageController extends DebugUsageController {
 //            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
 
-            DebugUsage persistedDebugUsage = getDebugUsage(debugUsage.getServerId());
+            DebugUsage persistedDebugUsage = getDebugUsage(configurationController.getServerId());
 
             //if server id exists, update 
-            if (persistedDebugUsage.getId() != null) {
-                SqlConfig.getInstance().getSqlSessionManager().insert("DebugUsage.updateDebugUsageStatistics", getDebugUsageMap(debugUsage));
+            if (persistedDebugUsage != null) {
+                logger.debug("updating debug usage statistics for serverId" + debugUsage.getServerId());
+                SqlConfig.getInstance().getSqlSessionManager().update("DebugUsage.updateDebugUsageStatistics", getDebugUsageMap(debugUsage));
 
                 //otherwise, insert 
             } else {
+                
+                debugUsage = new DebugUsage();
+                debugUsage.setServerId(configurationController.getServerId());
+                debugUsage.setInvocationCount(1);
+                
                 logger.debug("inserting debug usage statistics for serverId" + debugUsage.getServerId());
                 SqlConfig.getInstance().getSqlSessionManager().insert("DebugUsage.insertDebugUsageStatistics", getDebugUsageMap(debugUsage));
 
