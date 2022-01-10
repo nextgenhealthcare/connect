@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -117,7 +116,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                     contextFactory.setScriptText(connectorProperties.getScript());
                     contextFactory.setDebugType(true);
                     contextFactories.put(scriptId, contextFactory);
-                    getDebugger(contextFactory);
+                    debugger = getDebugger(contextFactory);
                    
                 }
                 //no check boxes checked

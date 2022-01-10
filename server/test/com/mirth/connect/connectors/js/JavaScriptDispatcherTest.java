@@ -1,6 +1,7 @@
 package com.mirth.connect.connectors.js;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -11,7 +12,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
+import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.util.CompiledScriptCache;
@@ -80,12 +84,37 @@ public class JavaScriptDispatcherTest {
     }
     
     private static class TestJavaScriptDispatcher extends JavaScriptDispatcher {
+    	private static String TEST_CHANNEL_ID = "testChannelId";
+    	
         private MirthMain debugger = mock(MirthMain.class);
         private ContextFactoryController contextFactoryController;
+        private ChannelController channelController;
+        private com.mirth.connect.model.Channel testChannel;
+        private JavaScriptDispatcherProperties connectorProperties;
+        
+        public TestJavaScriptDispatcher() {
+        	channelController = mock(ChannelController.class);
+    		testChannel = new Channel();
+    		testChannel.setId(TEST_CHANNEL_ID);
+    		when(channelController.getChannelById(anyString())).thenReturn(testChannel);
+    		
+    		connectorProperties = new JavaScriptDispatcherProperties();
+    		connectorProperties.setScript("logger.info('test script');");
+		}
         
         @Override
         protected EventController getEventController() {
             return mock(EventController.class);
+        }
+        
+        @Override
+        protected ChannelController getChannelController() {
+        	return channelController;
+        }
+        
+        @Override
+        public ConnectorProperties getConnectorProperties() {
+        	return connectorProperties;
         }
         
         @Override
