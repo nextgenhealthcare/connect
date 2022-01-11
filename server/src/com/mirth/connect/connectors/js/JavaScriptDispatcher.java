@@ -98,7 +98,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
     
     public void onDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
         this.connectorProperties = (JavaScriptDispatcherProperties) getConnectorProperties();
-        this.debug = debugOptions==null?false:true;
+        this.debug = debugOptions != null && debugOptions.isDestinationConnectorScripts();
         com.mirth.connect.model.Channel channelModel = new com.mirth.connect.model.Channel();
         channelModel = getChannelController().getChannelById(getChannelId());
         scriptId = UUID.randomUUID().toString();
@@ -109,24 +109,13 @@ public class JavaScriptDispatcher extends DestinationConnector {
             Map<String, MirthContextFactory> contextFactories = new HashMap<>();
             
             if (debug) {
-                if (debugOptions.isDestinationConnectorScripts()) {
-                    contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
-                    contextFactoryIdList.add(contextFactory.getId());
-                    contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
-                    contextFactory.setScriptText(connectorProperties.getScript());
-                    contextFactory.setDebugType(true);
-                    contextFactories.put(scriptId, contextFactory);
-                    debugger = getDebugger(contextFactory);
-                   
-                }
-                //no check boxes checked
-                if (debugOptions.isEmpty()) {
-                    contextFactory = contextFactoryController.getContextFactory(getResourceIds());
-                    contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
-                    contextFactoryIdList.add(contextFactory.getId());
-                    contextFactory.setScriptText(connectorProperties.getScript());
-                    contextFactories.put(scriptId, contextFactory);
-                }
+                contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
+                contextFactoryIdList.add(contextFactory.getId());
+                contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
+                contextFactory.setScriptText(connectorProperties.getScript());
+                contextFactory.setDebugType(true);
+                contextFactories.put(scriptId, contextFactory);
+                debugger = getDebugger(contextFactory);
             } else {
                 //default case
                 contextFactory = contextFactoryController.getContextFactory(getResourceIds());

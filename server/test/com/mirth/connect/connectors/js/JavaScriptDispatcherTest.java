@@ -18,6 +18,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
@@ -110,6 +111,11 @@ public class JavaScriptDispatcherTest {
         @Override
         protected ChannelController getChannelController() {
         	return channelController;
+        }
+        
+        @Override
+        protected ScriptController getScriptController() {
+        	return mock(ScriptController.class);
         }
         
         @Override
