@@ -363,8 +363,14 @@ public class DefaultChannelController extends ChannelController {
              * date. The client/CLI take care of this by passing in the proper revision number, but
              * the API alone does not.
              */
-            if (EqualsBuilder.reflectionEquals(channel, matchingChannel, new String[] {
-                    "lastModified", "revision" })) {
+            if (EqualsBuilder.reflectionEquals(
+            		channel,
+            		matchingChannel,
+            		true, // check transients as well
+            		Object.class, //check up-to Object class recursive
+            		true, // check recursive 
+            		new String[] {"lastModified", "revision" }
+            		)) {
                 updateChannelMetadata(channel.getId(), exportData.getMetadata());
                 updateChannelTags(channel.getId(), exportData.getChannelTags());
                 return true;
