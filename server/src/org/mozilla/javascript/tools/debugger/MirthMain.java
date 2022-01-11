@@ -1,6 +1,8 @@
 package org.mozilla.javascript.tools.debugger;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections4.map.HashedMap;
 import org.mozilla.javascript.ContextFactory;
@@ -88,16 +90,22 @@ public class MirthMain extends Main {
 		((MirthDim) dim).setStopping(false);
 	}
 
-    public static void closeDebugger(String channelId) {
-       for(String key : mainInstanceMap.keySet()) {
-           if(key.contains(channelId)) {
-               MirthMain closingMain= mainInstanceMap.get(key);
-               closingMain.finishScriptExecution();
-               closingMain.setVisible(false);
-               closingMain.dispose();
-               mainInstanceMap.remove(key);
-           }
-       }
-        
-    }
+	public static void closeDebugger(String channelId) {
+		Set<String> keysToRemove = new HashSet<>();
+		
+		for (String key : mainInstanceMap.keySet()) {
+			if (key.contains(channelId)) {
+				MirthMain closingMain = mainInstanceMap.get(key);
+				closingMain.finishScriptExecution();
+				closingMain.setVisible(false);
+				closingMain.dispose();
+				keysToRemove.add(key);
+			}
+		}
+		
+		for (String key : keysToRemove) {
+			mainInstanceMap.remove(key);
+		}
+
+	}
 }
