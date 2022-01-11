@@ -366,7 +366,7 @@ public class DefaultChannelController extends ChannelController {
             if (EqualsBuilder.reflectionEquals(
             		channel,
             		matchingChannel,
-            		true, // check transients as well
+            		false, //no need to check transient fields,since they'll not be part of serialization
             		Object.class, //check up-to Object class recursive
             		true, // check recursive 
             		new String[] {"lastModified", "revision" }
