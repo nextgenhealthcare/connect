@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
@@ -43,6 +44,11 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
 
     @Override
     public void deploy() throws ConnectorTaskException {
+        deploy(null);
+    }
+    
+    @Override
+    public void deploy(DebugOptions debugOptions) throws ConnectorTaskException {
         MirthContextFactory contextFactory;
         try {
             contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());

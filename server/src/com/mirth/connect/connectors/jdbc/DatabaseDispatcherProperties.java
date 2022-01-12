@@ -32,6 +32,15 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
     private String query;
     private Object[] parameters;
     private boolean useScript;
+    private String script;
+
+    public String getScript() {
+        return script;
+    }
+
+    public void setScript(String script) {
+        this.script = script;
+    }
 
     public static final String DRIVER_DEFAULT = "Please Select One";
 
@@ -44,6 +53,7 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
         this.password = "";
         this.query = "";
         this.useScript = false;
+        this.script = "";
     }
 
     public DatabaseDispatcherProperties(DatabaseDispatcherProperties props) {
@@ -56,6 +66,7 @@ public class DatabaseDispatcherProperties extends ConnectorProperties implements
         this.password = props.getPassword();
         this.query = props.getQuery();
         this.useScript = props.isUseScript();
+        this.script = props.getScript();
     }
 
     @Override
