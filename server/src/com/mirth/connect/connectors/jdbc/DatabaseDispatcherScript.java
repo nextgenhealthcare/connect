@@ -9,6 +9,10 @@
 
 package com.mirth.connect.connectors.jdbc;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -16,8 +20,10 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -42,20 +48,37 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private Logger scriptLogger = Logger.getLogger("db-connector");
     private Logger logger = Logger.getLogger(this.getClass());
+    List<String> contextFactoryIdList = new ArrayList<String>();
     private volatile String contextFactoryId;
+	private boolean debug = false;
+    private MirthMain debugger;
 
     public DatabaseDispatcherScript(DatabaseDispatcher connector) {
         this.connector = connector;
     }
 
     @Override
-    public void deploy() throws ConnectorTaskException {
+    public void deploy(DebugOptions debugOptions) throws ConnectorTaskException {
         DatabaseDispatcherProperties connectorProperties = (DatabaseDispatcherProperties) connector.getConnectorProperties();
+        this.debug  = debugOptions != null && debugOptions.isDestinationConnectorScripts();
         scriptId = UUID.randomUUID().toString();
 
         try {
-            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+            MirthContextFactory contextFactory = null;
+            Map<String, MirthContextFactory> contextFactories = new HashMap<>();
+            
+            if (debug) {
+                contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
+                contextFactoryIdList.add(contextFactory.getId());
+                contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
+                contextFactory.setScriptText(connectorProperties.getScript());
+                contextFactory.setDebugType(true);
+                contextFactories.put(scriptId, contextFactory);
+                debugger = JavaScriptUtil.getDebugger(contextFactory, );
+            } else {
+            contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
             contextFactoryId = contextFactory.getId();
+            }
             JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, connectorProperties.getQuery(), ContextType.DESTINATION_DISPATCHER, null, null);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling script " + scriptId + ".", e);

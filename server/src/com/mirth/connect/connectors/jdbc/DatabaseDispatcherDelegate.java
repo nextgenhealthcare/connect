@@ -9,12 +9,15 @@
 
 package com.mirth.connect.connectors.jdbc;
 
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 
 public interface DatabaseDispatcherDelegate {
     public void deploy() throws ConnectorTaskException;
+
+    public void deploy(DebugOptions debugOptions) throws ConnectorTaskException;
 
     public void undeploy() throws ConnectorTaskException;
 
