@@ -25,12 +25,12 @@ import org.mozilla.javascript.tools.debugger.MirthMain;
 import com.mirth.connect.connectors.js.MirthScopeProvider;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
-import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
+import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
@@ -60,13 +60,12 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
         this.connector = connector;
     }
 
+
     @Override
     public void deploy() throws ConnectorTaskException {
-        deploy(null);
-    }
-    
-    @Override
-    public void deploy(DebugOptions debugOptions) throws ConnectorTaskException {
+        Channel channel = connector.getChannel();
+        DebugOptions debugOptions = channel.getDebugOptions();
+        
         DatabaseDispatcherProperties connectorProperties = (DatabaseDispatcherProperties) connector.getConnectorProperties();
         this.debug  = debugOptions != null && debugOptions.isDestinationConnectorScripts();
         scriptId = UUID.randomUUID().toString();
@@ -78,7 +77,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
                 contextFactory = contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId);
                 contextFactoryIdList.add(contextFactory.getId());
                 contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
-                contextFactory.setScriptText(connectorProperties.getScript());
+                contextFactory.setScriptText(connectorProperties.getQuery());
                 contextFactory.setDebugType(true);
                 contextFactories.put(scriptId, contextFactory);
                 debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, connector.getChannel(), scriptId);
@@ -108,7 +107,6 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
 
     @Override
     public Response send(DatabaseDispatcherProperties connectorProperties, ConnectorMessage connectorMessage) throws DatabaseDispatcherException, InterruptedException {
-        // TODO Attachments will not be re-attached when using JavaScript yet.
         try {
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
 
