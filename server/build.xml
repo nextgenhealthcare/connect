@@ -1003,6 +1003,7 @@
 			<include name="com/mirth/connect/util/**" />
 			<include name="com/mirth/connect/plugins/*.class" />
 			<include name="com/mirth/connect/connectors/*.class" />
+			<include name="com/mirth/connect/connectors/js/MirthScopeProvider.class" />
 			<include name="org/**" />
 			<include name="net/sourceforge/jtds/ssl/**" />
 
