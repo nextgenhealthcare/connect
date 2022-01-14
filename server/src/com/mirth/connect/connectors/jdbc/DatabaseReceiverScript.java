@@ -10,6 +10,8 @@
 package com.mirth.connect.connectors.jdbc;
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -19,9 +21,13 @@ import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
+import com.mirth.connect.connectors.js.MirthScopeProvider;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
+import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
@@ -43,6 +49,12 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     private Logger logger = Logger.getLogger(getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private String contextFactoryId;
+    List<String> contextFactoryIdList = new ArrayList<String>();
+    private MirthMain debugger;
+    private Boolean debug;
+    private Boolean update = false;
+    private MirthScopeProvider scopeProvider = new MirthScopeProvider();
+    
 
     public DatabaseReceiverScript(DatabaseReceiver connector) {
         this.connector = connector;
@@ -50,14 +62,30 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
     @Override
     public void deploy() throws ConnectorTaskException {
+        Channel channel = connector.getChannel();
+        DebugOptions debugOptions = channel.getDebugOptions();
+
+        this.debug  = debugOptions != null && debugOptions.isSourceConnectorScripts();
         connectorProperties = (DatabaseReceiverProperties) connector.getConnectorProperties();
         selectScriptId = UUID.randomUUID().toString();
         MirthContextFactory contextFactory;
 
         try {
-            contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
-            contextFactoryId = contextFactory.getId();
-            JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, selectScriptId, connectorProperties.getSelect(), ContextType.SOURCE_RECEIVER, null, null);
+            
+        	if (debug) {
+                contextFactory = contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId);
+                contextFactory.setContextType(ContextType.SOURCE_RECEIVER);
+                contextFactory.setScriptText(connectorProperties.getSelect());
+                contextFactory.setDebugType(true);
+                debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, selectScriptId);
+        		
+        	} else {
+        		contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+        	}
+        	
+        	contextFactoryId = contextFactory.getId();
+            contextFactoryIdList.add(contextFactoryId);
+        	JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, selectScriptId, connectorProperties.getSelect(), ContextType.SOURCE_RECEIVER, null, null);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling select script " + selectScriptId + ".", e);
         }
@@ -101,6 +129,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
         while (!done && !connector.isTerminated()) {
             try {
+            	update = false;
                 Object result = JavaScriptUtil.execute(new SelectTask(getContextFactory()));
 
                 if (result instanceof NativeJavaObject) {
@@ -137,6 +166,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     public void runPostProcess(Map<String, Object> resultMap, ConnectorMessage mergedConnectorMessage) throws DatabaseReceiverException, InterruptedException {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_EACH) {
             try {
+            	update = true;
                 JavaScriptUtil.execute(new UpdateTask(getContextFactory(), resultMap, mergedConnectorMessage));
             } catch (Exception e) {
                 throw new DatabaseReceiverException(e);
@@ -147,6 +177,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     @Override
     public void runAggregatePostProcess(List<Map<String, Object>> resultsList, ConnectorMessage mergedConnectorMessage) throws DatabaseReceiverException, InterruptedException {
         try {
+        	update = true;
             JavaScriptUtil.execute(new UpdateTask(getContextFactory(), resultsList, mergedConnectorMessage));
         } catch (Exception e) {
             throw new DatabaseReceiverException(e);
@@ -157,6 +188,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     public void afterPoll() throws InterruptedException, DatabaseReceiverException {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_ONCE && !connectorProperties.isAggregateResults()) {
             try {
+            	update = true;
                 JavaScriptUtil.execute(new UpdateTask(getContextFactory(), null, null, null));
             } catch (Exception e) {
                 throw new DatabaseReceiverException(e);
@@ -227,15 +259,23 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     }
 
     private MirthContextFactory getContextFactory() throws Exception {
-        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+    	
+    	MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId) : contextFactoryController.getContextFactory(connector.getResourceIds()); 
 
-        if (!contextFactoryId.equals(contextFactory.getId())) {
-            JavaScriptUtil.recompileGeneratedScript(contextFactory, selectScriptId);
-            if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
-                JavaScriptUtil.recompileGeneratedScript(contextFactory, updateScriptId);
+        if (!contextFactoryIdList.contains(contextFactory.getId())) {
+            synchronized (this) {
+                contextFactory = debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId) : contextFactoryController.getContextFactory(connector.getResourceIds());
+
+                if (!contextFactoryIdList.contains(contextFactory.getId())) {
+                    JavaScriptUtil.recompileGeneratedScript(contextFactory, selectScriptId);
+                    if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
+                        JavaScriptUtil.recompileGeneratedScript(contextFactory, updateScriptId);
+                    }
+                    contextFactoryIdList.add(contextFactory.getId());
+                }
             }
-            contextFactoryId = contextFactory.getId();
         }
+    	
 
         return contextFactory;
     }
