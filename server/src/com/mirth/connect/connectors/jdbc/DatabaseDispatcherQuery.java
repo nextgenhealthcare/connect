@@ -19,12 +19,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 
-import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
-import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
