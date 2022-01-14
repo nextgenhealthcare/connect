@@ -80,11 +80,11 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
                 contextFactory.setScriptText(connectorProperties.getQuery());
                 contextFactory.setDebugType(true);
                 contextFactories.put(scriptId, contextFactory);
-                debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, connector.getChannel(), scriptId);
+                debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
             } else {
                 contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
-                contextFactoryId = contextFactory.getId();
             }
+            contextFactoryId = contextFactory.getId();
             JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, connectorProperties.getQuery(), ContextType.DESTINATION_DISPATCHER, null, null);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling script " + scriptId + ".", e);
@@ -108,11 +108,12 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     @Override
     public Response send(DatabaseDispatcherProperties connectorProperties, ConnectorMessage connectorMessage) throws DatabaseDispatcherException, InterruptedException {
         try {
-            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+            MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId) : contextFactoryController.getContextFactory(connector.getResourceIds()); 
+
 
             if (!contextFactoryId.equals(contextFactory.getId())) {
                 synchronized (this) {
-                    contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+                    contextFactory = debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId) : contextFactoryController.getContextFactory(connector.getResourceIds());
 
                     if (contextFactoryId.equals(contextFactory.getId())) {
                         JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
