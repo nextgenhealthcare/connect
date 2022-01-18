@@ -10,9 +10,7 @@
 package com.mirth.connect.connectors.js;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +58,6 @@ public class JavaScriptReceiver extends PollConnector {
     List<String> contextFactoryIdList = new ArrayList<String>();
     private MirthMain debugger;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
-    private JavaScriptReceiver connector;
     
     
     @Override
@@ -79,12 +76,10 @@ public class JavaScriptReceiver extends PollConnector {
         scriptId = UUID.randomUUID().toString();
 
         try {
-            Channel channel = connector.getChannel();
-            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
-            contextFactoryId = contextFactory.getId();
-            JavaScriptUtil.compileAndAddScript(getChannelId(), contextFactory, scriptId, connectorProperties.getScript(), ContextType.SOURCE_RECEIVER, null, null);
+            Channel channel = getChannel();
+            MirthContextFactory contextFactory;
 //            channelModel = getChannelController().getChannelById(getChannelId());
-            this.debug = debugOptions==null?false:true;
+            this.debug  = debugOptions != null && debugOptions.isSourceConnectorScripts();
             
             
 //            Map<String, MirthContextFactory> contextFactories = new HashMap<>();
@@ -141,7 +136,7 @@ public class JavaScriptReceiver extends PollConnector {
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.READING));
 
         try {
-            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+            MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId) : contextFactoryController.getContextFactory(getResourceIds());
             if (!contextFactoryId.equals(contextFactory.getId())) {
                 JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
                 contextFactoryId = contextFactory.getId();
