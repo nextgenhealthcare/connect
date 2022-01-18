@@ -10,7 +10,9 @@
 package com.mirth.connect.connectors.js;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +21,9 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
@@ -33,6 +37,7 @@ import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.model.codetemplates.ContextType;
+import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -41,6 +46,7 @@ import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
+import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 public class JavaScriptReceiver extends PollConnector {
     private Logger logger = Logger.getLogger(getClass());
@@ -49,9 +55,22 @@ public class JavaScriptReceiver extends PollConnector {
     private JavaScriptReceiverProperties connectorProperties;
     private String scriptId;
     private String contextFactoryId;
-
+    private boolean debug = false;
+    List<String> contextFactoryIdList = new ArrayList<String>();
+    private MirthMain debugger;
+    private MirthScopeProvider scopeProvider = new MirthScopeProvider();
+    
     @Override
     public void onDeploy() throws ConnectorTaskException {
+        this.onDeploy(null);
+        
+    }
+    
+    public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
+        onDeploy(debugOptions);
+    }
+    
+    public void onDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
         this.connectorProperties = (JavaScriptReceiverProperties) getConnectorProperties();
 
         scriptId = UUID.randomUUID().toString();
@@ -60,6 +79,29 @@ public class JavaScriptReceiver extends PollConnector {
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
             contextFactoryId = contextFactory.getId();
             JavaScriptUtil.compileAndAddScript(getChannelId(), contextFactory, scriptId, connectorProperties.getScript(), ContextType.SOURCE_RECEIVER, null, null);
+            
+            this.debug = debugOptions==null?false:true;
+            scriptId = UUID.randomUUID().toString();
+            
+            Map<String, MirthContextFactory> contextFactories = new HashMap<>();
+            if (debug) {
+                contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
+                contextFactoryIdList.add(contextFactory.getId());
+                contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
+                contextFactory.setScriptText(connectorProperties.getScript());
+                contextFactory.setDebugType(true);
+                contextFactories.put(scriptId, contextFactory);
+                debugger = getDebugger(contextFactory);
+                
+            } else {
+                //default case
+                contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+                contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
+                contextFactoryIdList.add(contextFactory.getId());
+                contextFactory.setScriptText(connectorProperties.getScript());
+                contextFactories.put(scriptId, contextFactory);
+            }
+            
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling " + connectorProperties.getName() + " script " + scriptId + ".", e);
         }
@@ -146,6 +188,10 @@ public class JavaScriptReceiver extends PollConnector {
         }
     }
 
+    protected MirthMain getDebugger(MirthContextFactory contextFactory) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, getChannel().getName() + "-" + getChannelId(), scriptId);
+    }
+    
     private class JavaScriptReceiverTask extends JavaScriptTask<Object> {
 
         public JavaScriptReceiverTask(MirthContextFactory contextFactory) {
@@ -203,6 +249,14 @@ public class JavaScriptReceiver extends PollConnector {
         return messages;
     }
 
+    protected ContextFactoryController getContextFactoryController() {
+        return ControllerFactory.getFactory().createContextFactoryController();
+    }
+    
+    protected ChannelController getChannelController() {
+        return ControllerFactory.getFactory().createChannelController();
+    }
+    
     private RawMessage convertRawMessage(Object object) {
         com.mirth.connect.server.userutil.RawMessage rawMessage = (com.mirth.connect.server.userutil.RawMessage) object;
         if (rawMessage.isBinary()) {
@@ -211,4 +265,6 @@ public class JavaScriptReceiver extends PollConnector {
             return new RawMessage(rawMessage.getRawData(), rawMessage.getDestinationMetaDataIds(), rawMessage.getSourceMap());
         }
     }
+
+
 }
