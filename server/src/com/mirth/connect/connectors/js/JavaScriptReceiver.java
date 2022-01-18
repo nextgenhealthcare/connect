@@ -36,6 +36,8 @@ import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
+//import com.mirth.connect.model.Channel;
+import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
@@ -46,7 +48,6 @@ import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
-import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 public class JavaScriptReceiver extends PollConnector {
     private Logger logger = Logger.getLogger(getClass());
@@ -59,6 +60,8 @@ public class JavaScriptReceiver extends PollConnector {
     List<String> contextFactoryIdList = new ArrayList<String>();
     private MirthMain debugger;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
+    private JavaScriptReceiver connector;
+    
     
     @Override
     public void onDeploy() throws ConnectorTaskException {
@@ -76,31 +79,35 @@ public class JavaScriptReceiver extends PollConnector {
         scriptId = UUID.randomUUID().toString();
 
         try {
+            Channel channel = connector.getChannel();
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
             contextFactoryId = contextFactory.getId();
             JavaScriptUtil.compileAndAddScript(getChannelId(), contextFactory, scriptId, connectorProperties.getScript(), ContextType.SOURCE_RECEIVER, null, null);
-            
+//            channelModel = getChannelController().getChannelById(getChannelId());
             this.debug = debugOptions==null?false:true;
-            scriptId = UUID.randomUUID().toString();
             
-            Map<String, MirthContextFactory> contextFactories = new HashMap<>();
+            
+//            Map<String, MirthContextFactory> contextFactories = new HashMap<>();
+            contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+            
             if (debug) {
                 contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
-                contextFactoryIdList.add(contextFactory.getId());
-                contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
+//                contextFactoryIdList.add(contextFactory.getId());
+                contextFactory.setContextType(ContextType.SOURCE_RECEIVER);
                 contextFactory.setScriptText(connectorProperties.getScript());
                 contextFactory.setDebugType(true);
-                contextFactories.put(scriptId, contextFactory);
-                debugger = getDebugger(contextFactory);
+//                contextFactories.put(scriptId, contextFactory);
+                debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
+//                debugger = getDebugger(contextFactory);
                 
             } else {
                 //default case
                 contextFactory = contextFactoryController.getContextFactory(getResourceIds());
-                contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
-                contextFactoryIdList.add(contextFactory.getId());
-                contextFactory.setScriptText(connectorProperties.getScript());
-                contextFactories.put(scriptId, contextFactory);
+                
             }
+            
+            contextFactoryId = contextFactory.getId();
+            JavaScriptUtil.compileAndAddScript(getChannelId(), contextFactory, scriptId, connectorProperties.getScript(), ContextType.SOURCE_RECEIVER, null, null);
             
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling " + connectorProperties.getName() + " script " + scriptId + ".", e);
