@@ -54,6 +54,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     private volatile String contextFactoryId;
 	private boolean debug = false;
     private MirthMain debugger;
+    private boolean ignoreBreakpoints = false;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
 
     public DatabaseDispatcherScript(DatabaseDispatcher connector) {
@@ -68,7 +69,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
         
         DatabaseDispatcherProperties connectorProperties = (DatabaseDispatcherProperties) connector.getConnectorProperties();
         this.debug  = debugOptions != null && debugOptions.isDestinationConnectorScripts();
-        scriptId = UUID.randomUUID().toString();
+        scriptId = UUID.randomUUID().toString() + "_Database_Writer";
         try {
             MirthContextFactory contextFactory = null;
             Map<String, MirthContextFactory> contextFactories = new HashMap<>();
@@ -94,13 +95,29 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     @Override
     public void undeploy() throws ConnectorTaskException {
         JavaScriptUtil.removeScriptFromCache(scriptId);
+        
+      if (debug && debugger != null) {
+          debugger.detach();
+          contextFactoryController.removeDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId);
+          debugger.dispose();
+          debugger = null;
+      }
     }
 
     @Override
-    public void start() throws ConnectorTaskException {}
+    public void start() throws ConnectorTaskException {
+        ignoreBreakpoints = false;
+        if (debug && debugger != null) {
+            debugger.enableDebugging();
+        }
+    }
 
     @Override
-    public void stop() throws ConnectorTaskException {}
+    public void stop() throws ConnectorTaskException {
+        if (debug && debugger != null) {
+            debugger.finishScriptExecution();
+        }
+    }
 
     @Override
     public void halt() throws ConnectorTaskException {}
@@ -146,6 +163,18 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
             try {
                 Scriptable scope = JavaScriptScopeUtil.getMessageDispatcherScope(getContextFactory(), scriptLogger, connector.getChannelId(), new ImmutableConnectorMessage(connectorMessage, true, connector.getDestinationIdMap()));
 
+                if (debug) {
+                    scopeProvider.setScope(scope);
+
+                    if (debugger != null && !ignoreBreakpoints) {
+                        debugger.doBreak();
+                        
+                        if (!debugger.isVisible()) {
+                            debugger.setVisible(true);
+                        }
+                    }
+                }
+                
                 Object result = JavaScriptUtil.executeScript(this, scriptId, scope, connector.getChannelId(), connector.getDestinationName());
 
                 if (result != null && !(result instanceof Undefined)) {

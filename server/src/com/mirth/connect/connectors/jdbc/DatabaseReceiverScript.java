@@ -53,6 +53,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     private MirthMain debugger;
     private Boolean debug;
     private Boolean update = false;
+    private boolean ignoreBreakpoints = false;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
     
 
@@ -67,7 +68,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
         this.debug  = debugOptions != null && debugOptions.isSourceConnectorScripts();
         connectorProperties = (DatabaseReceiverProperties) connector.getConnectorProperties();
-        selectScriptId = UUID.randomUUID().toString();
+        selectScriptId = UUID.randomUUID().toString() + "_Select";
         MirthContextFactory contextFactory;
 
         try {
@@ -91,7 +92,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         }
 
         if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
-            updateScriptId = UUID.randomUUID().toString();
+            updateScriptId = UUID.randomUUID().toString() + "_Update";
 
             try {
                 JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, updateScriptId, connectorProperties.getUpdate(), ContextType.SOURCE_RECEIVER, null, null);
@@ -102,17 +103,35 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     }
 
     @Override
-    public void start() throws ConnectorTaskException {}
+    public void start() throws ConnectorTaskException {
+        ignoreBreakpoints = false;
+        if (debug && debugger != null) {
+            debugger.enableDebugging();
+        }
+    }
 
     @Override
-    public void stop() throws ConnectorTaskException {}
+    public void stop() throws ConnectorTaskException {
+        if (debug && debugger != null) {
+            debugger.finishScriptExecution();
+        }
+    }
 
     @Override
     public void undeploy() {
-        JavaScriptUtil.removeScriptFromCache(selectScriptId);
-
+    	if (selectScriptId != null) {
+    		JavaScriptUtil.removeScriptFromCache(selectScriptId);
+    	}
         if (updateScriptId != null) {
             JavaScriptUtil.removeScriptFromCache(updateScriptId);
+            
+        }
+        if (debug && debugger != null) {
+            debugger.detach();
+            contextFactoryController.removeDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId);
+            contextFactoryController.removeDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), updateScriptId);
+            debugger.dispose();
+            debugger = null;
         }
     }
 
@@ -206,6 +225,19 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         public Object doCall() throws Exception {
             try {
                 Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, connector.getChannelId(), connector.getChannel().getName());
+                
+                if (debug) {
+                    scopeProvider.setScope(scope);
+
+                    if (debugger != null && !ignoreBreakpoints) {
+                        debugger.doBreak();
+                        
+                        if (!debugger.isVisible()) {
+                            debugger.setVisible(true);
+                        }
+                    }
+                }
+
                 return JavaScriptUtil.executeScript(this, selectScriptId, scope, connector.getChannelId(), "Source");
             } finally {
                 Context.exit();
@@ -249,6 +281,18 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
                 }
                 if (resultsList != null) {
                     scope.put("results", scope, Context.javaToJS(resultsList, scope));
+                }
+
+                if (debug) {
+                    scopeProvider.setScope(scope);
+
+                    if (debugger != null && !ignoreBreakpoints) {
+                        debugger.doBreak();
+                        
+                        if (!debugger.isVisible()) {
+                            debugger.setVisible(true);
+                        }
+                    }
                 }
 
                 return JavaScriptUtil.executeScript(this, updateScriptId, scope, connector.getChannelId(), "Source");
