@@ -68,7 +68,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
         this.debug  = debugOptions != null && debugOptions.isSourceConnectorScripts();
         connectorProperties = (DatabaseReceiverProperties) connector.getConnectorProperties();
-        selectScriptId = UUID.randomUUID().toString() + "_Select";
+        selectScriptId = UUID.randomUUID().toString() + "Database_Reader_Select";
         MirthContextFactory contextFactory;
 
         try {
@@ -92,7 +92,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         }
 
         if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
-            updateScriptId = UUID.randomUUID().toString() + "_Update";
+            updateScriptId = UUID.randomUUID().toString() + "Database_Reader_Update";
 
             try {
                 JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, updateScriptId, connectorProperties.getUpdate(), ContextType.SOURCE_RECEIVER, null, null);

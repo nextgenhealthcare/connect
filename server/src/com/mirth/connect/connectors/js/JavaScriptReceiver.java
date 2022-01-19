@@ -58,6 +58,7 @@ public class JavaScriptReceiver extends PollConnector {
     List<String> contextFactoryIdList = new ArrayList<String>();
     private MirthMain debugger;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
+	private boolean ignoreBreakpoints = false;
     
     
     @Override
@@ -73,27 +74,21 @@ public class JavaScriptReceiver extends PollConnector {
     public void onDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
         this.connectorProperties = (JavaScriptReceiverProperties) getConnectorProperties();
 
-        scriptId = UUID.randomUUID().toString();
+        scriptId = UUID.randomUUID().toString() + "_JavaScript_Reader";
 
         try {
             Channel channel = getChannel();
             MirthContextFactory contextFactory;
-//            channelModel = getChannelController().getChannelById(getChannelId());
             this.debug  = debugOptions != null && debugOptions.isSourceConnectorScripts();
             
-            
-//            Map<String, MirthContextFactory> contextFactories = new HashMap<>();
             contextFactory = contextFactoryController.getContextFactory(getResourceIds());
             
             if (debug) {
                 contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
-//                contextFactoryIdList.add(contextFactory.getId());
                 contextFactory.setContextType(ContextType.SOURCE_RECEIVER);
                 contextFactory.setScriptText(connectorProperties.getScript());
                 contextFactory.setDebugType(true);
-//                contextFactories.put(scriptId, contextFactory);
                 debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
-//                debugger = getDebugger(contextFactory);
                 
             } else {
                 //default case
@@ -114,13 +109,29 @@ public class JavaScriptReceiver extends PollConnector {
     @Override
     public void onUndeploy() throws ConnectorTaskException {
         JavaScriptUtil.removeScriptFromCache(scriptId);
+    
+        if (debug && debugger != null) {
+            debugger.detach();
+            contextFactoryController.removeDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
+            debugger.dispose();
+            debugger = null;
+        }
     }
 
     @Override
-    public void onStart() throws ConnectorTaskException {}
+    public void onStart() throws ConnectorTaskException {
+        ignoreBreakpoints = false;
+        if (debug && debugger != null) {
+            debugger.enableDebugging();
+        }
+    }
 
     @Override
-    public void onStop() throws ConnectorTaskException {}
+    public void onStop() throws ConnectorTaskException {
+        if (debug && debugger != null) {
+            debugger.finishScriptExecution();
+        }
+    }
 
     @Override
     public void onHalt() throws ConnectorTaskException {}
@@ -204,6 +215,19 @@ public class JavaScriptReceiver extends PollConnector {
         public Object doCall() throws Exception {
             try {
                 Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), Logger.getLogger("js-connector"), getChannelId(), getChannel().getName());
+                
+                if (debug) {
+                    scopeProvider.setScope(scope);
+
+                    if (debugger != null && !ignoreBreakpoints) {
+                        debugger.doBreak();
+                        
+                        if (!debugger.isVisible()) {
+                            debugger.setVisible(true);
+                        }
+                    }
+                }
+                
                 return JavaScriptUtil.executeScript(this, scriptId, scope, getChannelId(), "Source");
             } finally {
                 Context.exit();
