@@ -2760,12 +2760,15 @@ public class Frame extends JXFrame {
         	// Check that there are no errors in the channel before enabling the channel
         	boolean channelErrorsExist = channelEditPanel.checkAllForms(channelEditPanel.currentChannel) != null;
         	if (!channelErrorsExist && alertOption(PlatformUI.MIRTH_FRAME, "The channel is disabled. Are you sure you want to enable and deploy the channel?")) {
+        		// There are no errors in the channel, and the user chose to enable the channel
         		channelEditPanel.setChannelEnabledField(true);
     			channelEditPanel.saveChanges();
         	} else if (channelErrorsExist) {
+        		// There are errors in the channel
         		alertWarning(this, "There are errors in the channel that prevent it from being enabled and deployed.");
     			return;
         	} else {
+        		// There are no errors in the channel, but the user chose not to enable the channel
         		alertWarning(this, "The channel is disabled and will not be deployed.");
         		return;
         	}
