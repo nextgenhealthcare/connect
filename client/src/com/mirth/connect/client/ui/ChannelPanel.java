@@ -1447,6 +1447,10 @@ public class ChannelPanel extends AbstractFramePanel {
         	importChannel(contentList.get(0), true);
         } else {
         	// If multiple channels were selected, import them without showing alerts.
+        	// Whenever we import multiple channels at once (such as when importing a channel group or
+        	// importing through drap-and-drop), we don't show alerts because it's a poor user experience
+        	// to have many alerts appearing in a row. In that situation, the user is expected to fix
+        	// issues with their channels after importing them.
 	        for (String content : contentList) {
 	            importChannel(content, false);
 	        }
