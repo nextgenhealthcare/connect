@@ -1,4 +1,4 @@
-package com.mirth.connect.connectors.js;
+package com.mirth.connect.server;
 
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.tools.debugger.ScopeProvider;
