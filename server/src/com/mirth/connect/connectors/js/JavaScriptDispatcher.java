@@ -37,6 +37,7 @@ import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;

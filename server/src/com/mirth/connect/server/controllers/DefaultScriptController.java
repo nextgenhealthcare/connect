@@ -19,9 +19,9 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
-import com.mirth.connect.connectors.js.MirthScopeProvider;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.server.ExtensionLoader;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;

@@ -34,7 +34,6 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
-import com.mirth.connect.connectors.js.MirthScopeProvider;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
@@ -47,6 +46,7 @@ import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
