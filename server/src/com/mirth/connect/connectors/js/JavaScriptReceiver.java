@@ -41,6 +41,8 @@ import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
@@ -49,8 +51,14 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class JavaScriptReceiver extends PollConnector {
     private Logger logger = Logger.getLogger(getClass());
-    private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+//    private EventController eventController = ControllerFactory.getFactory().createEventController();
+//    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    
+
+    private EventController eventController = getEventController();
+    private ContextFactoryController contextFactoryController = getContextFactoryController();
+    private CompiledScriptCache compiledScriptCache = getCompiledScriptCache();
+    
     private JavaScriptReceiverProperties connectorProperties;
     private String scriptId;
     private String contextFactoryId;
@@ -60,6 +68,13 @@ public class JavaScriptReceiver extends PollConnector {
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
 	private boolean ignoreBreakpoints = false;
     
+    protected EventController getEventController() {
+        return ControllerFactory.getFactory().createEventController();
+    }
+    
+    protected ScriptController getScriptController() {
+        return ControllerFactory.getFactory().createScriptController();
+    }
     
     @Override
     public void onDeploy() throws ConnectorTaskException {
@@ -67,6 +82,7 @@ public class JavaScriptReceiver extends PollConnector {
         
     }
     
+    @Override
     public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
         onDeploy(debugOptions);
     }
@@ -77,18 +93,15 @@ public class JavaScriptReceiver extends PollConnector {
         scriptId = UUID.randomUUID().toString() + "_JavaScript_Reader";
 
         try {
-            Channel channel = getChannel();
             MirthContextFactory contextFactory;
             this.debug  = debugOptions != null && debugOptions.isSourceConnectorScripts();
-            
-            contextFactory = contextFactoryController.getContextFactory(getResourceIds());
-            
+                        
             if (debug) {
                 contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
                 contextFactory.setContextType(ContextType.SOURCE_RECEIVER);
                 contextFactory.setScriptText(connectorProperties.getScript());
                 contextFactory.setDebugType(true);
-                debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
+                debugger = getDebugger(contextFactory);
                 
             } else {
                 //default case
@@ -97,7 +110,7 @@ public class JavaScriptReceiver extends PollConnector {
             }
             
             contextFactoryId = contextFactory.getId();
-            JavaScriptUtil.compileAndAddScript(getChannelId(), contextFactory, scriptId, connectorProperties.getScript(), ContextType.SOURCE_RECEIVER, null, null);
+            compileAndAddScript(contextFactory, scriptId);
             
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling " + connectorProperties.getName() + " script " + scriptId + ".", e);
@@ -206,7 +219,6 @@ public class JavaScriptReceiver extends PollConnector {
     }
     
     private class JavaScriptReceiverTask extends JavaScriptTask<Object> {
-
         public JavaScriptReceiverTask(MirthContextFactory contextFactory) {
             super(contextFactory, JavaScriptReceiver.this);
         }
@@ -275,6 +287,7 @@ public class JavaScriptReceiver extends PollConnector {
         return messages;
     }
 
+    
     protected ContextFactoryController getContextFactoryController() {
         return ControllerFactory.getFactory().createContextFactoryController();
     }
@@ -292,5 +305,13 @@ public class JavaScriptReceiver extends PollConnector {
         }
     }
 
+	protected void compileAndAddScript(MirthContextFactory contextFactory, String scriptId) throws Exception {
+		JavaScriptUtil.compileAndAddScript(getChannelId(), contextFactory, scriptId, connectorProperties.getScript(), ContextType.SOURCE_RECEIVER, null, null);
+		
+	}
+
+	protected CompiledScriptCache getCompiledScriptCache() {
+		return CompiledScriptCache.getInstance();
+	}
 
 }
