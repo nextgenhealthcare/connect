@@ -97,7 +97,6 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
         JavaScriptUtil.removeScriptFromCache(scriptId);
         
       if (debug && debugger != null) {
-          debugger.detach();
           contextFactoryController.removeDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId);
           debugger.dispose();
           debugger = null;

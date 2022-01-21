@@ -191,31 +191,31 @@ public class DonkeyEngineController implements EngineController {
     protected ConfigurationController getConfigurationController() {
         return ControllerFactory.getFactory().createConfigurationController();
     }
-    
+
     protected ScriptController getScriptController() {
         return ControllerFactory.getFactory().createScriptController();
     }
-    
+
     protected ChannelController getChannelController() {
         return ControllerFactory.getFactory().createChannelController();
     }
-    
+
     protected EventController getEventController() {
         return ControllerFactory.getFactory().createEventController();
     }
-    
+
     protected ExtensionController getExtensionController() {
         return ControllerFactory.getFactory().createExtensionController();
     }
-    
+
     protected ContextFactoryController getContextFactoryController() {
         return ControllerFactory.getFactory().createContextFactoryController();
     }
-    
+
     protected CodeTemplateController getCodeTemplateController() {
         return ControllerFactory.getFactory().createCodeTemplateController();
     }
-    
+
     @Override
     public void startEngine() throws StartException, StopException, ControllerException, InterruptedException {
         logger.debug("starting donkey engine");
@@ -300,7 +300,7 @@ public class DonkeyEngineController implements EngineController {
         for (String channelId : unorderedIds) {
             if (isDeployed(channelId)) {
                 com.mirth.connect.model.Channel channelModel = channelController.getChannelById(channelId);
-                unorderedUndeployTasks.add(createUndeployTask(channelId, channelModel.getUndeployScript() , context));
+                unorderedUndeployTasks.add(createUndeployTask(channelId, channelModel.getUndeployScript(), context));
                 hasUndeployTasks = true;
             }
 
@@ -321,7 +321,7 @@ public class DonkeyEngineController implements EngineController {
                         hasUndeployTasks = true;
                     }
 
-                    deployTasks.add(createDeployTask(channelId, null, null, context, debugOptions));                    
+                    deployTasks.add(createDeployTask(channelId, null, null, context, debugOptions));
                     hasDeployTasks = true;
                 }
 
@@ -1827,7 +1827,7 @@ public class DonkeyEngineController implements EngineController {
             if (channelModel == null || channelModel instanceof InvalidChannel) {
                 return null;
             }
-            
+
             if (!checkEnabled(channelModel) || isDeployed(channelId)) {
                 return null;
             }
@@ -1836,12 +1836,11 @@ public class DonkeyEngineController implements EngineController {
 
             try {
                 channel = createChannelFromModel(channelModel, debugOptions);
-                
-                
+
             } catch (Exception e) {
                 throw new DeployException(e.getMessage(), e);
             }
-            
+
             Map<String, MirthContextFactory> contextFactories = new HashMap<>();
 
             try {
@@ -1854,14 +1853,14 @@ public class DonkeyEngineController implements EngineController {
                 try {
                     String deployScriptId = ScriptController.getScriptId(ScriptController.DEPLOY_SCRIPT_KEY, getChannelId());
                     if (debugOptions.isDeployUndeployPreAndPostProcessorScripts()) {
-                        contextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(),getChannelId(), deployScriptId);
-                        
+                        contextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(), getChannelId(), deployScriptId);
+
                         contextFactory.setContextType(ContextType.CHANNEL_DEPLOY);
                         contextFactory.setScriptText(channelModel.getDeployScript());
                         contextFactory.setDebugType(true);
                         contextFactories.put(deployScriptId, contextFactory);
                         debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channelModel, deployScriptId);
-   
+
                     } else {
                         contextFactory = contextFactoryController.getContextFactory(channelModel.getProperties().getResourceIds().keySet());
                         contextFactory.setContextType(ContextType.CHANNEL_DEPLOY);
@@ -1883,8 +1882,7 @@ public class DonkeyEngineController implements EngineController {
                 clearGlobalChannelMap(channelModel);
 
                 try {
-                    
-                    
+
                     scriptController.executeChannelDeployScript(contextFactory, channelId, channel.getName());
                 } catch (Exception e) {
                     Throwable t = e;
@@ -1908,11 +1906,11 @@ public class DonkeyEngineController implements EngineController {
                 donkey.getDeployedChannels().put(channelId, channel);
 
                 try {
-                	if (debugOptions != null) {
-                		channel.debugDeploy(debugOptions);
-                	} else {
-                		channel.deploy();
-                	}
+                    if (debugOptions != null) {
+                        channel.debugDeploy(debugOptions);
+                    } else {
+                        channel.deploy();
+                    }
                 } catch (DeployException e) {
                     donkey.getDeployedChannels().remove(channelId);
                     throw e;
@@ -1970,7 +1968,7 @@ public class DonkeyEngineController implements EngineController {
         }
     }
 
-    protected UndeployTask createUndeployTask(String channelId, String unDeployScript ,ServerEventContext context) {
+    protected UndeployTask createUndeployTask(String channelId, String unDeployScript, ServerEventContext context) {
         return new UndeployTask(channelId, unDeployScript, context);
     }
 
@@ -1980,19 +1978,19 @@ public class DonkeyEngineController implements EngineController {
         private String unDeployScript;
         private MirthMain debugger;
 
-        public UndeployTask(String channelId, String unDeployScript, ServerEventContext context){
+        public UndeployTask(String channelId, String unDeployScript, ServerEventContext context) {
             super(channelId);
             this.context = context;
             this.scopeProvider = new MirthScopeProvider();
             this.unDeployScript = unDeployScript;
-           
+
         }
 
         @Override
         public Void execute() throws Exception {
             // Get a reference to the deployed channel for later
             Channel channel = getDeployedChannel(channelId);
-            
+
             if (channel != null) {
                 doUndeploy(channel);
             }
@@ -2001,7 +1999,7 @@ public class DonkeyEngineController implements EngineController {
         }
 
         public void doUndeploy(Channel channel) throws Exception {
-           
+
             if (channel.isActive()) {
                 channel.stop();
             }
@@ -2035,20 +2033,19 @@ public class DonkeyEngineController implements EngineController {
                 // Execute channel undeploy script
                 String undeployScriptId = null;
                 try {
-                    
+
                     try {
                         MirthContextFactory contextFactory;
                         undeployScriptId = ScriptController.getScriptId(ScriptController.UNDEPLOY_SCRIPT_KEY, getChannelId());
-                        if(channel.getDebugOptions().isDeployUndeployPreAndPostProcessorScripts()) {
-                            
-                            contextFactory = contextFactoryController.getDebugContextFactory(channel.getResourceIds(),getChannelId(), undeployScriptId);
+                        if (channel.getDebugOptions().isDeployUndeployPreAndPostProcessorScripts()) {
+
+                            contextFactory = contextFactoryController.getDebugContextFactory(channel.getResourceIds(), getChannelId(), undeployScriptId);
                             contextFactory.setContextType(ContextType.CHANNEL_UNDEPLOY);
                             contextFactory.setDebugType(true);
-                           
+
                             debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, undeployScriptId);
                             JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, undeployScriptId, unDeployScript, ContextType.CHANNEL_UNDEPLOY, null, null);
 
-                            
                         } else {
                             contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
                             contextFactory.setContextType(ContextType.CHANNEL_UNDEPLOY);
@@ -2056,16 +2053,15 @@ public class DonkeyEngineController implements EngineController {
                             if (!channel.getContextFactoryId().equals(contextFactory.getId())) {
                                 JavaScriptUtil.recompileChannelScript(contextFactory, channelId, ScriptController.UNDEPLOY_SCRIPT_KEY);
                                 channel.setContextFactoryId(contextFactory.getId());
-                            } 
+                            }
                         }
-                        
+
                         scriptController.executeChannelUndeployScript(contextFactory, channelId, channel.getName());
 
                     } catch (Exception e) {
                         throw new DeployException("Failed to deploy channel " + channelId + ".", e);
                     }
 
-                    
                 } catch (Exception e) {
                     Throwable t = e;
                     if (e instanceof JavaScriptExecutorException) {
@@ -2078,14 +2074,13 @@ public class DonkeyEngineController implements EngineController {
 
                 // Remove channel scripts
                 scriptController.removeChannelScriptsFromCache(channelId);
-                
+
                 if (debugger != null) {
-                    debugger.detach();
                     contextFactoryController.removeDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), undeployScriptId);
                     debugger.dispose();
                     debugger = null;
                 }
-                
+
                 JavaScriptUtil.removeDebuggerFromMap(channelId);
 
                 channelController.removeDeployedChannelFromCache(channelId);
@@ -2274,10 +2269,11 @@ public class DonkeyEngineController implements EngineController {
                             if (!commitSuccess) {
                                 try {
                                     dao.rollback();
-                                } catch (Exception e) {}
+                                } catch (Exception e) {
+                                }
                             }
                             dao.close();
-                        } 
+                        }
                     }
                 }
             }
