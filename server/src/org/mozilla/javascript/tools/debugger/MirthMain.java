@@ -1,15 +1,14 @@
 package org.mozilla.javascript.tools.debugger;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.collections4.map.HashedMap;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.tools.shell.Global;
 
 public class MirthMain extends Main {
-    private static Map<String, MirthMain> mainInstanceMap = new HashedMap<>();
-    //private static String mainId;
+    private static Map<String, MirthMain> mainInstanceMap = new ConcurrentHashMap<>();
 
 	public MirthMain(String title) {
 	    //sets up dim/swingGUI then overwrites them with a "mirth" version
