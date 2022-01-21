@@ -47,7 +47,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     private String scriptId;
     private DatabaseDispatcher connector;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    private ContextFactoryController contextFactoryController = getContextFactoryController();
     private Logger scriptLogger = Logger.getLogger("db-connector");
     private Logger logger = Logger.getLogger(this.getClass());
     List<String> contextFactoryIdList = new ArrayList<String>();
@@ -81,7 +81,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
                 contextFactory.setScriptText(connectorProperties.getQuery());
                 contextFactory.setDebugType(true);
                 contextFactories.put(scriptId, contextFactory);
-                debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
+                debugger = getDebugger(channel, contextFactory);
             } else {
                 contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
             }
@@ -92,9 +92,14 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
         }
     }
 
+
+    protected MirthMain getDebugger(Channel channel, MirthContextFactory contextFactory) {
+        return JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
+    }
+
     @Override
     public void undeploy() throws ConnectorTaskException {
-        JavaScriptUtil.removeScriptFromCache(scriptId);
+        removeScriptFromCache();
         
       if (debug && debugger != null) {
           contextFactoryController.removeDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId);
@@ -142,6 +147,17 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
         } catch (Exception e) {
             throw new DatabaseDispatcherException("Error executing script " + scriptId, e);
         }
+    }
+    
+
+
+    public ContextFactoryController getContextFactoryController() {
+        return ControllerFactory.getFactory().createContextFactoryController();
+    }
+
+
+    protected void removeScriptFromCache() {
+        JavaScriptUtil.removeScriptFromCache(scriptId);
     }
 
     private class DatabaseDispatcherTask extends JavaScriptTask<Object> {
