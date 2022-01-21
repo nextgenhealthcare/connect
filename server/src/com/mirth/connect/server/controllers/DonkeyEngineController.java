@@ -2033,12 +2033,13 @@ public class DonkeyEngineController implements EngineController {
                 }
 
                 // Execute channel undeploy script
+                String undeployScriptId = null;
                 
                 try {
                     
                     try {
                         MirthContextFactory contextFactory;
-                        String undeployScriptId = ScriptController.getScriptId(ScriptController.UNDEPLOY_SCRIPT_KEY, getChannelId());
+                        undeployScriptId = ScriptController.getScriptId(ScriptController.UNDEPLOY_SCRIPT_KEY, getChannelId());
                         if(channel.getDebugOptions().isDeployUndeployPreAndPostProcessorScripts()) {
                             
                             contextFactory = contextFactoryController.getDebugContextFactory(channel.getResourceIds(),getChannelId(), undeployScriptId);
@@ -2078,6 +2079,13 @@ public class DonkeyEngineController implements EngineController {
 
                 // Remove channel scripts
                 scriptController.removeChannelScriptsFromCache(channelId);
+                
+                if (debugger != null) {
+                    contextFactoryController.removeDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), undeployScriptId);
+                    debugger.dispose();
+                    debugger = null;
+                }
+
                 JavaScriptUtil.removeDebuggerFromMap(channelId);
 
                 channelController.removeDeployedChannelFromCache(channelId);

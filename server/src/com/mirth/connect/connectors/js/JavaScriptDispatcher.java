@@ -150,7 +150,6 @@ public class JavaScriptDispatcher extends DestinationConnector {
             JavaScriptUtil.removeScriptFromCache(scriptId);
               
             if (debug && debugger != null) {
-                debugger.detach();
                 contextFactoryController.removeDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
                 debugger.dispose();
                 debugger = null;
