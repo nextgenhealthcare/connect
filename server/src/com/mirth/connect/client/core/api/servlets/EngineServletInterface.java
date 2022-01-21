@@ -12,7 +12,6 @@ package com.mirth.connect.client.core.api.servlets;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -55,9 +54,8 @@ public interface EngineServletInterface extends BaseServletInterface {
     @MirthOperation(name = "deployChannels", display = "Deploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void deployChannel(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel to deploy.", required = true) @PathParam("channelId") String channelId,
-            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") 
-            @QueryParam("returnErrors") boolean returnErrors,
-            @QueryParam("debugOptions") DebugOptions debug) throws ClientException;
+            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors, 
+            @Param("debugOptions") DebugOptions debug) throws ClientException;
    
     // @formatter:on     
     
