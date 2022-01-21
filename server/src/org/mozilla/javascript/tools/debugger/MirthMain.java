@@ -1,22 +1,20 @@
 package org.mozilla.javascript.tools.debugger;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.collections4.map.HashedMap;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.tools.shell.Global;
 
 public class MirthMain extends Main {
-    private static Map<String, MirthMain> mainInstanceMap = new HashedMap<>();
+    private static Map<String, MirthMain> mainInstanceMap = new ConcurrentHashMap<>();
 
 	public MirthMain(String title) {
-	    //sets up dim/swinggui then overwrites them with a "mirth" version
+	    //sets up dim/swingGUI then overwrites them with a "mirth" version
 		super(title);
 		dim = new MirthDim();
-        debugGui = new MirthSwingGui(dim, title);
+        debugGui = new MirthSwingGui(this, dim, title);
 	}
 	
     private static MirthMain createInstance(String title, ContextFactory factory, Object scopeProvider, String scriptId){
@@ -28,7 +26,7 @@ public class MirthMain extends Main {
         if (workingMain != null) {
             return workingMain;
         } else {
-            workingMain = new MirthMain(title);
+            workingMain = new MirthMain(key);
             workingMain.doBreak();
 
             workingMain.attachTo(factory);
@@ -73,6 +71,10 @@ public class MirthMain extends Main {
 
 	@Override
 	public void dispose() {
+	    this.finishScriptExecution();
+	    this.setVisible(false);
+	    this.detach();
+	    this.removeFromMap();
 		debugGui.dispose();
 		dim = null;
 	}
@@ -89,23 +91,18 @@ public class MirthMain extends Main {
 		((MirthSwingGui) debugGui).setStopping(false);
 		((MirthDim) dim).setStopping(false);
 	}
+	
+    private void removeFromMap() {
+        String key = debugGui.getTitle();
+        mainInstanceMap.remove(key);
+    }
 
 	public static void closeDebugger(String channelId) {
-		Set<String> keysToRemove = new HashSet<>();
-		
 		for (String key : mainInstanceMap.keySet()) {
 			if (key.contains(channelId)) {
 				MirthMain closingMain = mainInstanceMap.get(key);
-				closingMain.finishScriptExecution();
-				closingMain.setVisible(false);
 				closingMain.dispose();
-				keysToRemove.add(key);
 			}
 		}
-		
-		for (String key : keysToRemove) {
-			mainInstanceMap.remove(key);
-		}
-
 	}
 }
