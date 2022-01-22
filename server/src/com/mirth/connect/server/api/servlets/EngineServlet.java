@@ -28,6 +28,7 @@ import com.mirth.connect.server.channel.ErrorTaskHandler;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
+import com.mirth.connect.server.util.DebuggerUtil;
 
 public class EngineServlet extends MirthServlet implements EngineServletInterface {
 
@@ -63,9 +64,11 @@ public class EngineServlet extends MirthServlet implements EngineServletInterfac
 
     @Override
     @CheckAuthorizedChannelId
-    public void deployChannel(String channelId, boolean returnErrors, DebugOptions debug) {
+    public void deployChannel(String channelId, boolean returnErrors, String debug) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
-        engineController.deployChannels(Collections.singleton(channelId), context, handler, debug);
+        DebugOptions debugOptions = DebuggerUtil.parseDebugOptions(debug);
+        
+        engineController.deployChannels(Collections.singleton(channelId), context, handler, debugOptions);
         if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
