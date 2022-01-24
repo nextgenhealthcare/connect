@@ -41,7 +41,6 @@ import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.commons.encryption.Encryptor;
 import com.mirth.connect.client.core.ControllerException;
-import com.mirth.connect.connectors.js.MirthScopeProvider;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
@@ -120,6 +119,7 @@ import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.ExtensionLoader;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.attachments.MirthAttachmentHandlerProvider;
 import com.mirth.connect.server.attachments.passthru.PassthruAttachmentHandlerProvider;
 import com.mirth.connect.server.builders.JavaScriptBuilder;

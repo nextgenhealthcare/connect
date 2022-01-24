@@ -12,9 +12,9 @@ package com.mirth.connect.server.controllers;
 import java.util.Map;
 
 import com.mirth.connect.client.core.ControllerException;
-import com.mirth.connect.connectors.js.MirthScopeProvider;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.codetemplates.ContextType;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public abstract class ScriptController extends Controller {
