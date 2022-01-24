@@ -22,7 +22,7 @@ import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
-public class JavaScriptRecieverTest {
+public class JavaScriptReceiverTest {
     private static Logger logger = Logger.getLogger(JavaScriptDispatcherTest.class);
     private DebugOptions debugOptions;
     
@@ -46,7 +46,6 @@ public class JavaScriptRecieverTest {
         // Undeploy
         receiver.onUndeploy();
         
-        verify(debugger, times(1)).detach();
         verify(debugger, times(1)).dispose();
         verify(contextFactoryController, times(1)).removeDebugContextFactory(any(), any(), any());
     }
