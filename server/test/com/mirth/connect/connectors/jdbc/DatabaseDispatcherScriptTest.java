@@ -58,6 +58,7 @@ public class DatabaseDispatcherScriptTest {
     public void setup() {
         debugOptions = new DebugOptions();
         debugOptions.setDestinationConnectorScripts(true);
+       
     }
 
     @Test
@@ -71,29 +72,23 @@ public class DatabaseDispatcherScriptTest {
         String channelId = "channelId";
         ContextFactoryController contextFactoryController = dispatcher.getContextFactoryController();
         MirthContextFactory mirthContextFactory = mock(MirthContextFactory.class);
+        DatabaseDispatcherProperties databaseDispatcherProperties =  mock(DatabaseDispatcherProperties.class);
         
         when(connector.getChannel()).thenReturn(channel);
         when(channel.getDebugOptions()).thenReturn(debugOptions);
         when(channel.getResourceIds()).thenReturn(resourceIds);
         when(channel.getChannelId()).thenReturn(channelId);
         when(contextFactoryController.getDebugContextFactory(any(), any(), any())).thenReturn(mirthContextFactory);
-        boolean exceptionCaught =false;
+        when(connector.getConnectorProperties()).thenReturn(databaseDispatcherProperties);
+        when(databaseDispatcherProperties.getQuery()).thenReturn("testScript");
 
-        try {
-
-            dispatcher.deploy();
-        } catch (Exception e) {
-            exceptionCaught = true;
-
-        }
-        assertTrue(exceptionCaught);
+        dispatcher.deploy();
         verify(contextFactoryController, times(1)).getDebugContextFactory(any(), any(), any());
         verify(contextFactoryController, times(0)).getContextFactory(any());
-        MirthMain debugger = dispatcher.getDebugger(channel, null);
         
+        //verify unDeploy method
         dispatcher.undeploy();
-        verify(debugger, times(1)).detach();
-        verify(debugger, times(1)).dispose();
+        verify(contextFactoryController, times(1)).removeDebugContextFactory(any(),any(),any());
     }
 
     @Test
@@ -115,16 +110,15 @@ public class DatabaseDispatcherScriptTest {
         when(channel.getResourceIds()).thenReturn(resourceIds);
         when(channel.getChannelId()).thenReturn(channelId);
         when(contextFactoryController.getDebugContextFactory(any(), any(), any())).thenReturn(mirthContextFactory);
-        boolean exceptionCaught =false;
-        try {
 
-            dispatcher.deploy();
-        } catch (Exception e) {
-            exceptionCaught = true;
-        }
-        assertTrue(exceptionCaught);
+        dispatcher.deploy();
+    
         verify(contextFactoryController, times(0)).getDebugContextFactory(any(), any(), any());
         verify(contextFactoryController, times(1)).getContextFactory(any());
+        
+        //verify unDeploy method
+        dispatcher.undeploy();
+        verify(contextFactoryController, times(0)).removeDebugContextFactory(any(),any(),any());
 
     }
 
@@ -137,6 +131,7 @@ public class DatabaseDispatcherScriptTest {
         Channel channel = mock(Channel.class);
         // Deploy
         TestDatabaseDispatcherScript dispatcher = new TestDatabaseDispatcherScript(connector);
+        
        MirthMain debugger = dispatcher.getDebugger(channel, null);
 
         dispatcher.undeploy();
@@ -154,7 +149,7 @@ public class DatabaseDispatcherScriptTest {
 
         public TestDatabaseDispatcherScript(DatabaseDispatcher connector) {
             super(connector);
-
+                
         }
 
         @Override
@@ -178,7 +173,7 @@ public class DatabaseDispatcherScriptTest {
         
         @Override 
         protected void removeScriptFromCache() {
-            //donothing
+            //doNothing
         }
         
         @Override
@@ -186,6 +181,12 @@ public class DatabaseDispatcherScriptTest {
             MirthMain mirthMain = mock(MirthMain.class);
             return mirthMain;
         }
+        
+        @Override
+        protected void compileAndAddScript(DatabaseDispatcherProperties connectorProperties, MirthContextFactory contextFactory) throws Exception {
+           //doNothing
+        }
+
 
     }
 

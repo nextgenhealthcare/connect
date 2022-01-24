@@ -86,10 +86,15 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
                 contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
             }
             contextFactoryId = contextFactory.getId();
-            JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, connectorProperties.getQuery(), ContextType.DESTINATION_DISPATCHER, null, null);
+            compileAndAddScript(connectorProperties, contextFactory);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling script " + scriptId + ".", e);
         }
+    }
+
+
+    protected void compileAndAddScript(DatabaseDispatcherProperties connectorProperties, MirthContextFactory contextFactory) throws Exception {
+        JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, connectorProperties.getQuery(), ContextType.DESTINATION_DISPATCHER, null, null);
     }
 
 
