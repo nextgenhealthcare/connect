@@ -34,9 +34,9 @@ import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
-//import com.mirth.connect.model.Channel;
-import com.mirth.connect.donkey.server.channel.Channel;
+
 import com.mirth.connect.model.codetemplates.ContextType;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -50,10 +50,7 @@ import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class JavaScriptReceiver extends PollConnector {
-    private Logger logger = Logger.getLogger(getClass());
-//    private EventController eventController = ControllerFactory.getFactory().createEventController();
-//    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
-    
+    private Logger logger = Logger.getLogger(getClass()); 
 
     private EventController eventController = getEventController();
     private ContextFactoryController contextFactoryController = getContextFactoryController();
@@ -63,7 +60,7 @@ public class JavaScriptReceiver extends PollConnector {
     private String scriptId;
     private String contextFactoryId;
     private boolean debug = false;
-    List<String> contextFactoryIdList = new ArrayList<String>();
+    private List<String> contextFactoryIdList = new ArrayList<String>();
     private MirthMain debugger;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
 	private boolean ignoreBreakpoints = false;

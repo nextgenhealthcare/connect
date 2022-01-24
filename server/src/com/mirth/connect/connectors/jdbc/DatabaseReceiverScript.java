@@ -11,7 +11,6 @@ package com.mirth.connect.connectors.jdbc;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,12 +22,12 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
-import com.mirth.connect.connectors.js.MirthScopeProvider;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.model.codetemplates.ContextType;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -49,7 +48,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     private Logger logger = Logger.getLogger(getClass());
     private ContextFactoryController contextFactoryController = getContextFactoryController();
     private String contextFactoryId;
-    List<String> contextFactoryIdList = new ArrayList<String>();
+    private List<String> contextFactoryIdList = new ArrayList<String>();
     private MirthMain debugger;
     private Boolean debug;
     private Boolean update = false;

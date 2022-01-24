@@ -22,7 +22,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
-import com.mirth.connect.connectors.js.MirthScopeProvider;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
