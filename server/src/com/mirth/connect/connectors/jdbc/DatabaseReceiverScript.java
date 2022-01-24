@@ -47,7 +47,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
     private Logger scriptLogger = Logger.getLogger("db-connector");
     private Logger logger = Logger.getLogger(getClass());
-    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    private ContextFactoryController contextFactoryController = getContextFactoryController();
     private String contextFactoryId;
     List<String> contextFactoryIdList = new ArrayList<String>();
     private MirthMain debugger;
@@ -78,7 +78,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
                 contextFactory.setContextType(ContextType.SOURCE_RECEIVER);
                 contextFactory.setScriptText(connectorProperties.getSelect());
                 contextFactory.setDebugType(true);
-                debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, selectScriptId);
+                debugger = getDebugger(channel, contextFactory);
         		
         	} else {
         		contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
@@ -86,7 +86,8 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         	
         	contextFactoryId = contextFactory.getId();
             contextFactoryIdList.add(contextFactoryId);
-        	JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, selectScriptId, connectorProperties.getSelect(), ContextType.SOURCE_RECEIVER, null, null);
+            
+        	compileAndAddScript(connector.getChannelId(), contextFactory, selectScriptId, connectorProperties.getSelect(), ContextType.SOURCE_RECEIVER);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling select script " + selectScriptId + ".", e);
         }
@@ -95,13 +96,14 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
             updateScriptId = UUID.randomUUID().toString() + "Database_Reader_Update";
 
             try {
-                JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, updateScriptId, connectorProperties.getUpdate(), ContextType.SOURCE_RECEIVER, null, null);
+                compileAndAddScript(connector.getChannelId(), contextFactory, updateScriptId, connectorProperties.getUpdate(), ContextType.SOURCE_RECEIVER);
             } catch (Exception e) {
                 throw new ConnectorTaskException("Error compiling update script " + updateScriptId + ".", e);
             }
         }
     }
 
+    
     @Override
     public void start() throws ConnectorTaskException {
         ignoreBreakpoints = false;
@@ -120,11 +122,10 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     @Override
     public void undeploy() {
     	if (selectScriptId != null) {
-    		JavaScriptUtil.removeScriptFromCache(selectScriptId);
+    		removeScriptFromCache(selectScriptId);
     	}
         if (updateScriptId != null) {
-            JavaScriptUtil.removeScriptFromCache(updateScriptId);
-            
+            removeScriptFromCache(updateScriptId);            
         }
         if (debug && debugger != null) {
             debugger.detach();
@@ -133,6 +134,26 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
             debugger.dispose();
             debugger = null;
         }
+    }
+
+    
+    protected ContextFactoryController getContextFactoryController() {
+        return ControllerFactory.getFactory().createContextFactoryController();
+    }
+    
+
+    protected MirthMain getDebugger(Channel channel, MirthContextFactory contextFactory) {
+        return JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, selectScriptId);
+    }
+    
+
+    protected void compileAndAddScript(String channelId, MirthContextFactory contextFactory, String scriptId, String selectOrUpdate, ContextType contextType) throws Exception {
+   
+        JavaScriptUtil.compileAndAddScript(channelId, contextFactory, scriptId, selectOrUpdate, contextType, null, null);      
+    }
+    
+    protected void removeScriptFromCache(String scriptId) {
+        JavaScriptUtil.removeScriptFromCache(scriptId);
     }
 
     @SuppressWarnings("unchecked")

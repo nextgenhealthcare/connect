@@ -93,15 +93,6 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     }
 
 
-    protected void compileAndAddScript(DatabaseDispatcherProperties connectorProperties, MirthContextFactory contextFactory) throws Exception {
-        JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, connectorProperties.getQuery(), ContextType.DESTINATION_DISPATCHER, null, null);
-    }
-
-
-    protected MirthMain getDebugger(Channel channel, MirthContextFactory contextFactory) {
-        return JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
-    }
-
     @Override
     public void undeploy() throws ConnectorTaskException {
         removeScriptFromCache();
@@ -131,6 +122,27 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     @Override
     public void halt() throws ConnectorTaskException {}
 
+    
+
+    protected void compileAndAddScript(DatabaseDispatcherProperties connectorProperties, MirthContextFactory contextFactory) throws Exception {
+        JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, connectorProperties.getQuery(), ContextType.DESTINATION_DISPATCHER, null, null);
+    }
+
+
+    protected MirthMain getDebugger(Channel channel, MirthContextFactory contextFactory) {
+        return JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
+    }
+
+
+    public ContextFactoryController getContextFactoryController() {
+        return ControllerFactory.getFactory().createContextFactoryController();
+    }
+
+
+    protected void removeScriptFromCache() {
+        JavaScriptUtil.removeScriptFromCache(scriptId);
+    }
+
     @Override
     public Response send(DatabaseDispatcherProperties connectorProperties, ConnectorMessage connectorMessage) throws DatabaseDispatcherException, InterruptedException {
         try {
@@ -154,16 +166,6 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
         }
     }
     
-
-
-    public ContextFactoryController getContextFactoryController() {
-        return ControllerFactory.getFactory().createContextFactoryController();
-    }
-
-
-    protected void removeScriptFromCache() {
-        JavaScriptUtil.removeScriptFromCache(scriptId);
-    }
 
     private class DatabaseDispatcherTask extends JavaScriptTask<Object> {
         private ConnectorMessage connectorMessage;
