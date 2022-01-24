@@ -1,7 +1,5 @@
 package com.mirth.connect.server.util;
 
-import java.lang.reflect.Constructor;
-
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 
 public class DebuggerUtil {
@@ -16,38 +14,38 @@ public class DebuggerUtil {
                 params[i] = false;
             }
         }
-        Object debugOptions = null;
-
-        try {
-            Constructor<?> c = Class.forName("com.mirth.connect.donkey.model.channel.DebugOptions").getDeclaredConstructors()[0];
-            debugOptions = c.newInstance(params);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-//        List<String> debugOptionsList = Arrays.asList(debugOptionsString.split(","));
-
-//        debugOptionsList.forEach(option -> {
-//        });
-//        Object debugOptions = null;
-//        
-//        try {
-//            Class clazz = Class.forName("com.mirth.connect.donkey.model.channel.DebugOptions");
-//            java.lang.reflect.Constructor constructor = clazz.getConstructor(new Class[] { DebugOptions.class });
-//            debugOptions = constructor.newInstance(new Object[] { true, true, true, true, true, true, true  });
-//            
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
-//        Class arguments[] = new Class[] {};
-//        java.lang.reflect.Method objMethod = clazz.getMethod(methodName, arguments);
-//        Object result = objMethod.invoke(invoker, (Object[]) arguments);
-//        System.out.println(result);
-
-//        DebugOptions debugOptions = new DebugOptions();
+        
+        DebugOptions debugOptions = new DebugOptions((Boolean) params[0],
+                                            (Boolean) params[1], 
+                                            (Boolean) params[2], 
+                                            (Boolean) params[3], 
+                                            (Boolean) params[4], 
+                                            (Boolean) params[5], 
+                                            (Boolean) params[6] );
 
         return (DebugOptions) debugOptions;
+    }
+    
+    public static String parseDebugOptions(DebugOptions debugOptions) {
+        
+        String isAttachmentBatchScripts = debugOptions.isAttachmentBatchScripts() ? "t": "f";
+        String isDeployUndeployPreAndPostProcessorScripts = debugOptions.isDeployUndeployPreAndPostProcessorScripts() ? "t": "f";
+        String isDestinationConnectorScripts = debugOptions.isDestinationConnectorScripts() ? "t": "f";
+        String isDestinationFilterTransformer = debugOptions.isDestinationFilterTransformer() ? "t": "f";
+        String isDestinationResponseTransformer = debugOptions.isDestinationResponseTransformer() ? "t": "f";
+        String isSourceConnectorScripts = debugOptions.isSourceConnectorScripts() ? "t": "f";
+        String isSourceFilterTransformer = debugOptions.isSourceFilterTransformer() ? "t": "f";
+        
+        String debug = new String();
+        debug += isDeployUndeployPreAndPostProcessorScripts + ",";
+        debug += isAttachmentBatchScripts + ",";
+        debug += isSourceConnectorScripts + ",";
+        debug += isDestinationFilterTransformer + ",";
+        debug += isSourceFilterTransformer+ ",";
+        debug += isDestinationConnectorScripts + ",";
+        debug += isDestinationResponseTransformer;
+        
+        return debug;
     }
 
 }

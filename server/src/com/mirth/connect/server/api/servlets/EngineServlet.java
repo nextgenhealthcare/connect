@@ -67,7 +67,7 @@ public class EngineServlet extends MirthServlet implements EngineServletInterfac
     public void deployChannel(String channelId, boolean returnErrors, String debug) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
         DebugOptions debugOptions = DebuggerUtil.parseDebugOptions(debug);
-        
+
         engineController.deployChannels(Collections.singleton(channelId), context, handler, debugOptions);
         if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
