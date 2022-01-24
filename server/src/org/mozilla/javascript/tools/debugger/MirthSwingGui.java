@@ -11,19 +11,19 @@ public class MirthSwingGui extends SwingGui {
 
 	public MirthSwingGui(MirthMain parent, Dim dim, String title) {
 		super(dim, title);
-	    this.parent = parent;
+		this.parent = parent;
 	}
-	
+
 	public void setStopping(boolean stopping) {
 		this.stopping = stopping;
 	}
-	
+
 	@Override
 	protected void exit() {
 		stopping = true;
-		MirthMain meDim = this.parent;
-		meDim.finishScriptExecution();		
-		meDim.setVisible(false);
+        MirthMain meDim = this.parent;
+        meDim.finishScriptExecution();
+        meDim.setVisible(false);
     }
 
 	@Override

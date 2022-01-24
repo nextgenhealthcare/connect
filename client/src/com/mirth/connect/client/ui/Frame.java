@@ -51,8 +51,6 @@ import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javafx.application.Platform;
-
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -149,6 +147,7 @@ import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.DirectedAcyclicGraphNode;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.MigrationUtil;
+import javafx.application.Platform;
 
 /**
  * The main content frame for the Mirth Client Application. Extends JXFrame and sets up all content.
@@ -232,7 +231,7 @@ public class Frame extends JXFrame {
     private KeyEventDispatcher keyEventDispatcher = null;
     private int deployedChannelCount;
     private DebugOptions debugOptions;
-
+    
     private static final int REFRESH_BLOCK_SIZE = 100;
 
     public Frame() {
@@ -3210,6 +3209,24 @@ public class Frame extends JXFrame {
     public boolean doExportChannel() {
         return channelPanel.doExportChannel();
     }
+    
+    /**
+     * Import multiple files with the default defined file filter type.
+     * 
+     * @return
+     */
+    public List<String> browseForMultipleFileStrings(String fileExtension) {
+    	List<String> fileStrings = new ArrayList<>();
+    	
+    	File[] files = browseForFiles(fileExtension);
+    	for (File file : files) {
+    		if (file != null) {
+    			fileStrings.add(readFileToString(file));
+    		}
+    	}
+    
+    	return fileStrings;
+    }
 
     /**
      * Import a file with the default defined file filter type.
@@ -3277,6 +3294,28 @@ public class Frame extends JXFrame {
         if (importFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
             return importFileChooser.getSelectedFile();
+        }
+
+        return null;
+    }
+    
+    public File[] browseForFiles(String fileExtension) {
+    	JFileChooser importFileChooser = new JFileChooser();
+        importFileChooser.setMultiSelectionEnabled(true);
+
+        if (fileExtension != null) {
+            importFileChooser.setFileFilter(new MirthFileFilter(fileExtension));
+        }
+
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+
+        if (currentDir.exists()) {
+            importFileChooser.setCurrentDirectory(currentDir);
+        }
+
+        if (importFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
+            return importFileChooser.getSelectedFiles();
         }
 
         return null;

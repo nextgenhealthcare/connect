@@ -1455,10 +1455,20 @@ public class ChannelPanel extends AbstractFramePanel {
             return;
         }
 
-        String content = parent.browseForFileString("XML");
+        List<String> contentList = parent.browseForMultipleFileStrings("XML");
 
-        if (content != null) {
-            importChannel(content, true);
+        // If only one channel was selected, import it as usual.
+        if (contentList.size() == 1) {
+        	importChannel(contentList.get(0), true);
+        } else {
+        	// If multiple channels were selected, import them without showing alerts.
+        	// Whenever we import multiple channels at once (such as when importing a channel group or
+        	// importing through drap-and-drop), we don't show alerts because it's a poor user experience
+        	// to have many alerts appearing in a row. In that situation, the user is expected to fix
+        	// issues with their channels after importing them.
+	        for (String content : contentList) {
+	            importChannel(content, false);
+	        }
         }
     }
 
