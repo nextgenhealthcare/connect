@@ -22,29 +22,29 @@ import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
-public class JavaScriptDispatcherTest {
+public class JavaScriptReceiverTest {
     private static Logger logger = Logger.getLogger(JavaScriptDispatcherTest.class);
     private DebugOptions debugOptions;
     
     @Before
     public void setup() {
         debugOptions = new DebugOptions();
-        debugOptions.setDestinationConnectorScripts(true);
+        debugOptions.setSourceConnectorScripts(true);
     }
     
     @Test
     public void testDebug() throws Exception {
         // Deploy
-        TestJavaScriptDispatcher dispatcher = new TestJavaScriptDispatcher();
-        dispatcher.onDebugDeploy(debugOptions);
+        TestJavaScriptReceiver receiver = new TestJavaScriptReceiver();
+        receiver.onDebugDeploy(debugOptions);
         
-        MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
-        ContextFactoryController contextFactoryController = dispatcher.getContextFactoryController();
+        MirthMain debugger = receiver.getDebugger(mock(MirthContextFactory.class));
+        ContextFactoryController contextFactoryController = receiver.getContextFactoryController();
         
         verify(contextFactoryController, times(1)).getDebugContextFactory(any(), any(),any());
         
         // Undeploy
-        dispatcher.onUndeploy();
+        receiver.onUndeploy();
         
         verify(debugger, times(1)).dispose();
         verify(contextFactoryController, times(1)).removeDebugContextFactory(any(), any(), any());
@@ -52,53 +52,42 @@ public class JavaScriptDispatcherTest {
     
     @Test
     public void testOnStop() throws Exception {
-        TestJavaScriptDispatcher dispatcher = new TestJavaScriptDispatcher();
-        dispatcher.onDebugDeploy(debugOptions);
+    	TestJavaScriptReceiver receiver = new TestJavaScriptReceiver();
+    	receiver.onDebugDeploy(debugOptions);
         
-        MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
-        dispatcher.onStop();
-        
-        verify(debugger, times(1)).finishScriptExecution();
-    }
-    
-    @Test
-    public void testStopDebugging() throws Exception {
-        TestJavaScriptDispatcher dispatcher = new TestJavaScriptDispatcher();
-        dispatcher.onDebugDeploy(debugOptions);
-        
-        MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
-        dispatcher.stopDebugging();
+        MirthMain debugger = receiver.getDebugger(mock(MirthContextFactory.class));
+        receiver.onStop();
         
         verify(debugger, times(1)).finishScriptExecution();
     }
     
     @Test
     public void testOnStart() throws Exception {
-        TestJavaScriptDispatcher dispatcher = new TestJavaScriptDispatcher();
-        dispatcher.onDebugDeploy(debugOptions);
+    	TestJavaScriptReceiver receiver = new TestJavaScriptReceiver();
+    	receiver.onDebugDeploy(debugOptions);
         
-        MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class));
-        dispatcher.onStart();
+        MirthMain debugger = receiver.getDebugger(mock(MirthContextFactory.class));
+        receiver.onStart();
         
         verify(debugger, times(1)).enableDebugging();
     }
     
-    private static class TestJavaScriptDispatcher extends JavaScriptDispatcher {
+    private static class TestJavaScriptReceiver extends JavaScriptReceiver {
     	private static String TEST_CHANNEL_ID = "testChannelId";
     	
         private MirthMain debugger = mock(MirthMain.class);
         private ContextFactoryController contextFactoryController;
         private ChannelController channelController;
         private com.mirth.connect.model.Channel testChannel;
-        private JavaScriptDispatcherProperties connectorProperties;
+        private JavaScriptReceiverProperties connectorProperties;
         
-        public TestJavaScriptDispatcher() {
+        public TestJavaScriptReceiver() {
         	channelController = mock(ChannelController.class);
     		testChannel = new Channel();
     		testChannel.setId(TEST_CHANNEL_ID);
     		when(channelController.getChannelById(anyString())).thenReturn(testChannel);
     		
-    		connectorProperties = new JavaScriptDispatcherProperties();
+    		connectorProperties = new JavaScriptReceiverProperties();
     		connectorProperties.setScript("logger.info('test script');");
 		}
         

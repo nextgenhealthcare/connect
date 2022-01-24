@@ -16,14 +16,15 @@ public class MirthMain extends Main {
 		dim = new MirthDim();
         debugGui = new MirthSwingGui(this, dim, title);
 	}
-	
+
     private static MirthMain createInstance(String title, ContextFactory factory, Object scopeProvider, String scriptId){
         MirthMain workingMain = null;
         String key = (scriptId!=null)?scriptId:title;
-        
+
         workingMain = mainInstanceMap.get(key); //get instance
-        
+
         if (workingMain != null) {
+            if (workingMain.dim ==null) workingMain.dim = new MirthDim();
             return workingMain;
         } else {
             workingMain = new MirthMain(key);
@@ -52,13 +53,13 @@ public class MirthMain extends Main {
 			title = "Rhino JavaScript Debugger (embedded usage)";
 		}
 		MirthMain embeddedMain = createInstance(title, factory, scopeProvider, scriptId);
-		
+
 		embeddedMain.pack();
 		embeddedMain.setSize(600, 460);
 		embeddedMain.setVisible(true);
 		return embeddedMain;
 	}
-	
+
 	@Override
 	public void setVisible(boolean flag) {
 		if (flag) {
@@ -78,20 +79,20 @@ public class MirthMain extends Main {
 		debugGui.dispose();
 		dim = null;
 	}
-	
+
 	public void finishScriptExecution() {
 		((MirthSwingGui) debugGui).setStopping(true);
 		((MirthDim) dim).setStopping(true);
 		dim.clearAllBreakpoints();
 		dim.go();
 	}
-	
+
 	public void enableDebugging() {
 		doBreak();
 		((MirthSwingGui) debugGui).setStopping(false);
 		((MirthDim) dim).setStopping(false);
 	}
-	
+
     private void removeFromMap() {
         String key = debugGui.getTitle();
         mainInstanceMap.remove(key);

@@ -13,16 +13,16 @@ public class MirthSwingGui extends SwingGui {
 		super(dim, title);
 		this.parent = parent;
 	}
-	
+
 	public void setStopping(boolean stopping) {
 		this.stopping = stopping;
 	}
-	
+
 	@Override
 	protected void exit() {
 		stopping = true;
         MirthMain meDim = this.parent;
-        meDim.finishScriptExecution();      
+        meDim.finishScriptExecution();
         meDim.setVisible(false);
     }
 
