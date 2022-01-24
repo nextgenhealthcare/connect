@@ -50,7 +50,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     private ContextFactoryController contextFactoryController = getContextFactoryController();
     private Logger scriptLogger = Logger.getLogger("db-connector");
     private Logger logger = Logger.getLogger(this.getClass());
-    List<String> contextFactoryIdList = new ArrayList<String>();
+    private List<String> contextFactoryIdList = new ArrayList<String>();
     private volatile String contextFactoryId;
 	private boolean debug = false;
     private MirthMain debugger;

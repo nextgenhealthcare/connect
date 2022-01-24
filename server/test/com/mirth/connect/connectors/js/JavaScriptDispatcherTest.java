@@ -46,7 +46,6 @@ public class JavaScriptDispatcherTest {
         // Undeploy
         dispatcher.onUndeploy();
         
-//        verify(debugger, times(1)).detach();
         verify(debugger, times(1)).dispose();
         verify(contextFactoryController, times(1)).removeDebugContextFactory(any(), any(), any());
     }
