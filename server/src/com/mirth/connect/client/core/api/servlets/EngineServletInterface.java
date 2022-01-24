@@ -54,7 +54,7 @@ public interface EngineServletInterface extends BaseServletInterface {
     public void deployChannel(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel to deploy.", required = true) @PathParam("channelId") String channelId,
             @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors, 
-            @Param("debugOptions") @Parameter(description = "If present, the channel will deploy in debug mode and use these options. Example: \"f,f,f,f,f,f,f\")")  @QueryParam("debugOptions") String debug) throws ClientException;
+            @Param("debugOptions") @Parameter(description = "If present, the channel will deploy in debug mode and use these options. Example: \"f,f,f,f,f,f,f\")", example="f,f,f,f,f,f,f")  @QueryParam("debugOptions") String debug) throws ClientException;
    
     // @formatter:on     
     
