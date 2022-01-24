@@ -122,24 +122,6 @@ public class DatabaseDispatcherScriptTest {
 
     }
 
-    @Test
-    public void testUnDeploy() throws ConnectorTaskException {
-
-
-        debugOptions.setDestinationConnectorScripts(false);
-        DatabaseDispatcher connector = mock(DatabaseDispatcher.class);
-        Channel channel = mock(Channel.class);
-        // Deploy
-        TestDatabaseDispatcherScript dispatcher = new TestDatabaseDispatcherScript(connector);
-        
-       MirthMain debugger = dispatcher.getDebugger(channel, null);
-
-        dispatcher.undeploy();
-        verify(debugger, times(1)).detach();
-        verify(debugger, times(1)).dispose();
-//        verify(contextFactoryController, times(1)).removeDebugContextFactory(any(), any(), any());
-
-    }
 
     private static class TestDatabaseDispatcherScript extends DatabaseDispatcherScript {
         private static String TEST_CHANNEL_ID = "testChannelId";
