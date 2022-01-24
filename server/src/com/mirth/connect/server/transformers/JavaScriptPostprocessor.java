@@ -16,7 +16,6 @@ import org.apache.log4j.Logger;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
-import com.mirth.connect.connectors.js.MirthScopeProvider;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
@@ -27,6 +26,7 @@ import com.mirth.connect.donkey.server.channel.components.PostProcessor;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
