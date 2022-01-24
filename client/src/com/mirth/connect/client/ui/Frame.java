@@ -3197,6 +3197,24 @@ public class Frame extends JXFrame {
     public boolean doExportChannel() {
         return channelPanel.doExportChannel();
     }
+    
+    /**
+     * Import multiple files with the default defined file filter type.
+     * 
+     * @return
+     */
+    public List<String> browseForMultipleFileStrings(String fileExtension) {
+    	List<String> fileStrings = new ArrayList<>();
+    	
+    	File[] files = browseForFiles(fileExtension);
+    	for (File file : files) {
+    		if (file != null) {
+    			fileStrings.add(readFileToString(file));
+    		}
+    	}
+    
+    	return fileStrings;
+    }
 
     /**
      * Import a file with the default defined file filter type.
@@ -3264,6 +3282,28 @@ public class Frame extends JXFrame {
         if (importFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
             return importFileChooser.getSelectedFile();
+        }
+
+        return null;
+    }
+    
+    public File[] browseForFiles(String fileExtension) {
+    	JFileChooser importFileChooser = new JFileChooser();
+        importFileChooser.setMultiSelectionEnabled(true);
+
+        if (fileExtension != null) {
+            importFileChooser.setFileFilter(new MirthFileFilter(fileExtension));
+        }
+
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+
+        if (currentDir.exists()) {
+            importFileChooser.setCurrentDirectory(currentDir);
+        }
+
+        if (importFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
+            return importFileChooser.getSelectedFiles();
         }
 
         return null;
