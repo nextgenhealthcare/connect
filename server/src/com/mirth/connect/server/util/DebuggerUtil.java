@@ -3,9 +3,19 @@ package com.mirth.connect.server.util;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 
 public class DebuggerUtil {
+	
+	private static final int OPTIONS_COUNT = 7;
 
     public static DebugOptions parseDebugOptions(String debugOptionsString) {
+    	if (debugOptionsString == null) {
+    		return new DebugOptions();
+    	}
+    	
         String[] options = debugOptionsString.split(",");
+        if (options.length != OPTIONS_COUNT) {
+        	return new DebugOptions();
+        }
+        
         Object[] params = new Object[options.length];
         for (int i = 0; i < options.length; i++) {
             if (options[i].equals("t")) {
@@ -27,6 +37,9 @@ public class DebuggerUtil {
     }
     
     public static String parseDebugOptions(DebugOptions debugOptions) {
+    	if (debugOptions == null) {
+    		return "f,f,f,f,f,f,f";
+    	}
         
         String isAttachmentBatchScripts = debugOptions.isAttachmentBatchScripts() ? "t": "f";
         String isDeployUndeployPreAndPostProcessorScripts = debugOptions.isDeployUndeployPreAndPostProcessorScripts() ? "t": "f";
