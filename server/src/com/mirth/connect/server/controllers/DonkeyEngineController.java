@@ -2084,9 +2084,8 @@ public class DonkeyEngineController implements EngineController {
                                 JavaScriptUtil.recompileChannelScript(contextFactory, channelId, ScriptController.UNDEPLOY_SCRIPT_KEY);
                                 channel.setContextFactoryId(contextFactory.getId());
                             }
-
-                        scriptController.executeChannelUndeployScript(contextFactory, channelId, channel.getName());
                         }
+                        scriptController.executeChannelUndeployScript(contextFactory, channelId, channel.getName());
 
                     } catch (Exception e) {
                         throw new DeployException("Failed to deploy channel " + channelId + ".", e);
