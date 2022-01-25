@@ -114,6 +114,7 @@
 			<include name="com/mirth/connect/userutil/**" />
 			<include name="com/mirth/connect/util/**" />
 			<include name="com/mirth/connect/server/util/ResourceUtil.class" />
+			<include name="com/mirth/connect/server/util/DebuggerUtil.class" />
 			<include name="org/mozilla/**" />
 			<include name="org/glassfish/jersey/**" />
 			<include name="de/**" />
