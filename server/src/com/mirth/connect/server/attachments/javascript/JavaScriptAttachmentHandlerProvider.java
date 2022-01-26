@@ -13,11 +13,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.model.codetemplates.ContextType;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.attachments.MirthAttachmentHandlerProvider;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -33,14 +35,17 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
     private String scriptId;
     private Set<String> resourceIds;
     private volatile String contextFactoryId;
+    private boolean debug = false;
+    private MirthMain debugger;
+    private MirthScopeProvider scopeProvider = new MirthScopeProvider();
 
     public JavaScriptAttachmentHandlerProvider(MessageController messageController) {
         super(messageController);
     }
 
-    MirthContextFactory getContextFactory() throws Exception {
-        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(resourceIds);
-
+    MirthContextFactory getContextFactory(Channel channel) throws Exception {
+        MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), scriptId) : contextFactoryController.getContextFactory(resourceIds);
+        
         if (!contextFactoryId.equals(contextFactory.getId())) {
             synchronized (this) {
                 contextFactory = contextFactoryController.getContextFactory(resourceIds);
@@ -60,13 +65,27 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
         String attachmentScript = attachmentProperties.getProperties().get("javascript.script");
 
         if (attachmentScript != null) {
-            scriptId = ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channel.getChannelId());
+            scriptId = ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channel.getChannelId()) + "_Attachment";
 
             try {
+                MirthContextFactory contextFactory;
+                this.debug = channel.getDebugOptions() != null && channel.getDebugOptions().isAttachmentBatchScripts();
+                
                 Set<String> scriptOptions = new HashSet<String>();
                 scriptOptions.add("useAttachmentList");
                 resourceIds = channel.getResourceIds();
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(resourceIds);
+                
+                if (debug) {
+                    contextFactory = contextFactoryController.getDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), scriptId);
+                    contextFactory.setContextType(ContextType.CHANNEL_ATTACHMENT);
+                    contextFactory.setScriptText(attachmentScript);
+                    contextFactory.setDebugType(true);
+                    debugger = getDebugger(contextFactory, channel);
+                } else {
+                    // default case
+                    contextFactory = contextFactoryController.getContextFactory(resourceIds);
+                }
+                
                 contextFactoryId = contextFactory.getId();
                 JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, attachmentScript, ContextType.CHANNEL_ATTACHMENT, scriptOptions);
             } catch (Exception e) {
@@ -88,5 +107,9 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
     @Override
     public AttachmentHandler getHandler() {
         return new JavaScriptAttachmentHandler(this);
+    }
+    
+    protected MirthMain getDebugger(MirthContextFactory contextFactory, Channel channel) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, channel.getName() + "-" + channel.getChannelId(), scriptId);
     }
 }
