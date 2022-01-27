@@ -72,12 +72,12 @@ public class MirthMain extends Main {
 
 	@Override
 	public void dispose() {
-       this.finishScriptExecution();
-       this.setVisible(false);
-       this.detach();
-       this.removeFromMap();
-       debugGui.dispose();
-       dim = null;
+	    this.finishScriptExecution();
+	    this.setVisible(false);
+	    this.detach();
+        this.removeFromMap();
+        debugGui.dispose();
+        dim = null;
 	}
 
 	public void finishScriptExecution() {
