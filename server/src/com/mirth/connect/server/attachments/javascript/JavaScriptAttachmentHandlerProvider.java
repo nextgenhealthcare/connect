@@ -65,7 +65,7 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
         String attachmentScript = attachmentProperties.getProperties().get("javascript.script");
 
         if (attachmentScript != null) {
-            scriptId = ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channel.getChannelId()) + "_Attachment";
+            scriptId = ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channel.getChannelId());
 
             try {
                 MirthContextFactory contextFactory;
@@ -110,6 +110,22 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
     }
     
     protected MirthMain getDebugger(MirthContextFactory contextFactory, Channel channel) {
-        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, channel.getName() + "-" + channel.getChannelId(), scriptId);
+        if (debug) {
+            return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, channel.getName() + "-" + channel.getChannelId(), scriptId);
+        } else {
+            return null;
+        }
+    }
+    
+    protected void showDebugger() {
+        if (debug) {
+            if (debugger != null) {
+                debugger.doBreak();
+
+                if (!debugger.isVisible()) {
+                    debugger.setVisible(true);
+                }
+            }
+        }
     }
 }

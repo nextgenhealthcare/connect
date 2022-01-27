@@ -74,10 +74,15 @@ public class MirthMain extends Main {
 	public void dispose() {
 	    this.finishScriptExecution();
 	    this.setVisible(false);
-	    this.detach();
-	    this.removeFromMap();
-		debugGui.dispose();
-		dim = null;
+	}
+	
+	public void destroy() {
+       this.finishScriptExecution();
+       this.setVisible(false);
+       this.detach();
+       this.removeFromMap();
+       debugGui.dispose();
+       dim = null;
 	}
 
 	public void finishScriptExecution() {
@@ -102,7 +107,7 @@ public class MirthMain extends Main {
 		for (String key : mainInstanceMap.keySet()) {
 			if (key.contains(channelId)) {
 				MirthMain closingMain = mainInstanceMap.get(key);
-				closingMain.dispose();
+				closingMain.destroy();
 			}
 		}
 	}

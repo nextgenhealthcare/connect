@@ -36,6 +36,7 @@ public class JavaScriptAttachmentHandler implements AttachmentHandler {
         index = 0;
         attachments = new ArrayList<com.mirth.connect.server.userutil.Attachment>();
         try {
+            provider.showDebugger();
             newMessage = JavaScriptUtil.executeAttachmentScript(provider.getContextFactory(channel), message, channel.getChannelId(), channel.getName(), attachments);
         } catch (Throwable t) {
             if (t instanceof JavaScriptExecutorException) {
