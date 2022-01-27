@@ -13,7 +13,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
@@ -67,7 +66,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
         this.debug  = debugOptions != null && debugOptions.isSourceConnectorScripts();
         connectorProperties = (DatabaseReceiverProperties) connector.getConnectorProperties();
-        selectScriptId = UUID.randomUUID().toString() + "Database_Reader_Select";
+        selectScriptId = connector.getChannelId() + "_Database_Reader_Select";
         MirthContextFactory contextFactory;
 
         try {
@@ -92,7 +91,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         }
 
         if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
-            updateScriptId = UUID.randomUUID().toString() + "Database_Reader_Update";
+            updateScriptId = connector.getChannelId() + "_Database_Reader_Update";
 
             try {
                 compileAndAddScript(connector.getChannelId(), contextFactory, updateScriptId, connectorProperties.getUpdate(), ContextType.SOURCE_RECEIVER);

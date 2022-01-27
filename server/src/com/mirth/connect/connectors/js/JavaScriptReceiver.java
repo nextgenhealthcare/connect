@@ -11,7 +11,6 @@ package com.mirth.connect.connectors.js;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -87,7 +86,7 @@ public class JavaScriptReceiver extends PollConnector {
     public void onDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
         this.connectorProperties = (JavaScriptReceiverProperties) getConnectorProperties();
 
-        scriptId = UUID.randomUUID().toString() + "_JavaScript_Reader";
+        scriptId = getChannelId() + "_JavaScript_Reader";
 
         try {
             MirthContextFactory contextFactory;

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -69,7 +68,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
         
         DatabaseDispatcherProperties connectorProperties = (DatabaseDispatcherProperties) connector.getConnectorProperties();
         this.debug  = debugOptions != null && debugOptions.isDestinationConnectorScripts();
-        scriptId = UUID.randomUUID().toString() + "_Database_Writer";
+        scriptId = connector.getChannelId() + "_Database_Writer";
         try {
             MirthContextFactory contextFactory = null;
             Map<String, MirthContextFactory> contextFactories = new HashMap<>();
