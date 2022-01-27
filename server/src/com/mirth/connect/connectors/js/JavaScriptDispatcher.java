@@ -101,8 +101,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
         this.debug = debugOptions != null && debugOptions.isDestinationConnectorScripts();
         com.mirth.connect.model.Channel channelModel = new com.mirth.connect.model.Channel();
         channelModel = getChannelController().getChannelById(getChannelId());
-        scriptId = getChannelId() + "_JavaScript_Writer";
-        
+        scriptId = ScriptController.getScriptId("JavaScript_Writer", getChannelId());
 
         try {
             MirthContextFactory contextFactory = null;

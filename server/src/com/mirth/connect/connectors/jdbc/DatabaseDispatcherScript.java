@@ -35,6 +35,7 @@ import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
@@ -68,7 +69,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
         
         DatabaseDispatcherProperties connectorProperties = (DatabaseDispatcherProperties) connector.getConnectorProperties();
         this.debug  = debugOptions != null && debugOptions.isDestinationConnectorScripts();
-        scriptId = connector.getChannelId() + "_Database_Writer";
+        scriptId = ScriptController.getScriptId("Database_Writer", connector.getChannelId());
         try {
             MirthContextFactory contextFactory = null;
             Map<String, MirthContextFactory> contextFactories = new HashMap<>();

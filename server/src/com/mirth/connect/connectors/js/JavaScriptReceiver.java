@@ -85,8 +85,7 @@ public class JavaScriptReceiver extends PollConnector {
 
     public void onDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
         this.connectorProperties = (JavaScriptReceiverProperties) getConnectorProperties();
-
-        scriptId = getChannelId() + "_JavaScript_Reader";
+        scriptId = ScriptController.getScriptId("JavaScript_Reader", getChannelId());
 
         try {
             MirthContextFactory contextFactory;

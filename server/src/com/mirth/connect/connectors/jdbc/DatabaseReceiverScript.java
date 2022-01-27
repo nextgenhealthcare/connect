@@ -30,6 +30,7 @@ import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
@@ -66,7 +67,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
         this.debug  = debugOptions != null && debugOptions.isSourceConnectorScripts();
         connectorProperties = (DatabaseReceiverProperties) connector.getConnectorProperties();
-        selectScriptId = connector.getChannelId() + "_Database_Reader_Select";
+        selectScriptId = ScriptController.getScriptId("Database_Reader_Select", connector.getChannelId());
         MirthContextFactory contextFactory;
 
         try {
@@ -91,7 +92,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         }
 
         if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
-            updateScriptId = connector.getChannelId() + "_Database_Reader_Update";
+            updateScriptId = ScriptController.getScriptId("Database_Reader_Update", connector.getChannelId());
 
             try {
                 compileAndAddScript(connector.getChannelId(), contextFactory, updateScriptId, connectorProperties.getUpdate(), ContextType.SOURCE_RECEIVER);
