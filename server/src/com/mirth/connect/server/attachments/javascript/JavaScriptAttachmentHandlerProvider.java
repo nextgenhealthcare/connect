@@ -39,6 +39,10 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
     private MirthMain debugger;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
 
+    public JavaScriptAttachmentHandlerProvider() {
+        // default constructor
+    }
+    
     public JavaScriptAttachmentHandlerProvider(MessageController messageController) {
         super(messageController);
     }
