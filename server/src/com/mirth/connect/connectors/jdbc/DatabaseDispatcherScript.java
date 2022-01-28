@@ -69,7 +69,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
         
         DatabaseDispatcherProperties connectorProperties = (DatabaseDispatcherProperties) connector.getConnectorProperties();
         this.debug  = debugOptions != null && debugOptions.isDestinationConnectorScripts();
-        scriptId = ScriptController.getScriptId("Database_Writer", connector.getChannelId());
+        scriptId = ScriptController.getScriptId("Database_Writer_" + connector.getMetaDataId(), connector.getChannelId());
         try {
             MirthContextFactory contextFactory = null;
             Map<String, MirthContextFactory> contextFactories = new HashMap<>();
