@@ -31,7 +31,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerProvider {
 
     private Logger logger = Logger.getLogger(getClass());
-    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    private ContextFactoryController contextFactoryController = getContextFactoryController();
     private String scriptId;
     private Set<String> resourceIds;
     private volatile String contextFactoryId;
@@ -91,7 +91,7 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
                 }
                 
                 contextFactoryId = contextFactory.getId();
-                JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, attachmentScript, ContextType.CHANNEL_ATTACHMENT, scriptOptions);
+                compileAndAddScript(channel, contextFactory, scriptId, attachmentScript, scriptOptions);
             } catch (Exception e) {
                 logger.error("Error compiling attachment handler script " + scriptId + ".", e);
             }
@@ -132,4 +132,13 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
             }
         }
     }
+
+    protected ContextFactoryController getContextFactoryController() {
+        return ControllerFactory.getFactory().createContextFactoryController();
+    }
+
+    protected void compileAndAddScript(Channel channel, MirthContextFactory contextFactory, String scriptId, String attachmentScript, Set<String> scriptOptions) throws Exception {
+        JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, attachmentScript, ContextType.CHANNEL_ATTACHMENT, scriptOptions);
+    }
+
 }

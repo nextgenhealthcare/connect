@@ -1,11 +1,12 @@
 package com.mirth.connect.server.attachments.javascript;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.junit.Before;
@@ -13,13 +14,10 @@ import org.junit.Test;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.channel.DebugOptions;
+import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.server.controllers.ChannelController;
+import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.server.controllers.ContextFactoryController;
-import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.controllers.ScriptController;
-import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class JavaScriptAttachmentHandlerProviderTest {
@@ -30,45 +28,76 @@ public class JavaScriptAttachmentHandlerProviderTest {
     @Before
     public void setup() {
         debugOptions = new DebugOptions();
-        debugOptions.setDestinationConnectorScripts(true);
+        debugOptions.setAttachmentBatchScripts(true);
         attachmentProperties = new AttachmentHandlerProperties(null, null);
+        attachmentProperties.getProperties().put("javascript.script", "I am a string");
     }
     
     @Test
     public void testDebug() throws Exception {
-        // Deploy
-        TestJavaScriptAttachmentHandleProvider dispatcher = new TestJavaScriptAttachmentHandleProvider();
+        Channel testChannel;
+        String TEST_CHANNEL_ID = "testChannelId";
+        // Deploying debugger
+        TestJavaScriptAttachmentHandlerProvider attachmentHandlerProvider = new TestJavaScriptAttachmentHandlerProvider();
+
+        testChannel = new Channel();
+        testChannel.setChannelId(TEST_CHANNEL_ID);
+        testChannel.setDebugOptions(debugOptions);
+        // 
+        testChannel.setAttachmentHandlerProvider(attachmentHandlerProvider);
+        ContextFactoryController contextFactoryController = attachmentHandlerProvider.getContextFactoryController();
         
-        MirthMain debugger = dispatcher.getDebugger(mock(MirthContextFactory.class), null);
-        ContextFactoryController contextFactoryController = dispatcher.getContextFactoryController();
+        attachmentHandlerProvider.setProperties(testChannel, attachmentProperties);
+        MirthMain debugger = attachmentHandlerProvider.getDebugger(mock(MirthContextFactory.class), null);
         
         verify(contextFactoryController, times(1)).getDebugContextFactory(any(), any(),any());
+
+        // Undeploying debugger
         
-        dispatcher.setProperties(null, null);
+        // find the event that runs the scripts and creates the provider.
+        // the channel.undeploy() has many threads of events to mock the channel. This is the initial
+        // attempt to test the undeploy, but quickly knew that it would be very difficult to mock.
         
-        verify(debugger, times(1)).dispose();
-        verify(contextFactoryController, times(1)).removeDebugContextFactory(any(), any(), any());
+//        testChannel.setInitialState(DeployedState.STOPPED);
+//        testChannel.undeploy();
+//        
+//        verify(debugger, times(1)).dispose();
+//        verify(contextFactoryController, times(1)).removeDebugContextFactory(any(), any(), any());
     }
     
-    private static class TestJavaScriptAttachmentHandleProvider extends JavaScriptAttachmentHandlerProvider {
-        private static String TEST_CHANNEL_ID = "testChannelId";
+    private static class TestJavaScriptAttachmentHandlerProvider extends JavaScriptAttachmentHandlerProvider {
         
         private MirthMain debugger = mock(MirthMain.class);
         private ContextFactoryController contextFactoryController;
-        private ChannelController channelController;
-        private com.mirth.connect.model.Channel testChannel;
-        
-        public TestJavaScriptAttachmentHandleProvider() {
-            channelController = mock(ChannelController.class);
-            testChannel = new Channel();
-            testChannel.setId(TEST_CHANNEL_ID);
-            when(channelController.getChannelById(anyString())).thenReturn(testChannel);
+        public TestJavaScriptAttachmentHandlerProvider() {
         }
-
+        
+        @Override
         public ContextFactoryController getContextFactoryController() {
-            // TODO Auto-generated method stub
+            try {
+                if (contextFactoryController == null) {
+                    contextFactoryController = mock(ContextFactoryController.class);
+                    MirthContextFactory mirthContextFactory = mock(MirthContextFactory.class);
+                    when(mirthContextFactory.getId()).thenReturn("contextFactoryId");
+                    when(contextFactoryController.getDebugContextFactory(any(), any(), any()))
+                        .thenReturn(mirthContextFactory);
+                }
+                
+                return contextFactoryController;
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }        
             return null;
         }
         
+        @Override
+        protected MirthMain getDebugger(MirthContextFactory contextFactory, Channel channel) {
+            return debugger;
+        }
+        
+        @Override
+        protected void compileAndAddScript(Channel channel, MirthContextFactory contextFactory, String scriptId, String attachmentScript, Set<String> scriptOptions) throws Exception {
+            // Do nothing
+        }
     }
 }
