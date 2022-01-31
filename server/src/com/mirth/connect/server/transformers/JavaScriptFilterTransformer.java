@@ -9,16 +9,22 @@
 
 package com.mirth.connect.server.transformers;
 
+import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.Connector;
+import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.FilterTransformerResult;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
@@ -26,9 +32,11 @@ import com.mirth.connect.donkey.server.channel.components.FilterTransformerExcep
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -50,25 +58,61 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
     private String template;
     private String scriptId;
     private volatile String contextFactoryId;
+    private Boolean debug = false;
+    private MirthMain debugger;
+    private MirthScopeProvider scopeProvider = new MirthScopeProvider();
+    private boolean ignoreBreakpoints = false;
 
-    public JavaScriptFilterTransformer(Connector connector, String connectorName, String script, String template) throws JavaScriptInitializationException {
+
+
+    public JavaScriptFilterTransformer(Connector connector, String connectorName, String script, String template,DebugOptions debugOptions) throws JavaScriptInitializationException {
         this.connector = connector;
         this.connectorName = connectorName;
         this.template = template;
-        initialize(script);
+        initialize(script, debugOptions);
     }
 
-    private void initialize(String script) throws JavaScriptInitializationException {
+    private void initialize(String script, DebugOptions debugOptions) throws JavaScriptInitializationException {
+        
+        Channel channel = connector.getChannel();
+        ContextType Context_Type = null;
+//        DebugOptions debugOptions = channel.getDebugOptions();
+
+  
+        scriptId = ScriptController.getScriptId("JavaScript_Filter_Transformer_"+ connector.getMetaDataId(), connector.getChannelId());
+        MirthContextFactory contextFactory  ;
+        if(connector instanceof SourceConnector) {
+                if(debugOptions != null && debugOptions.isSourceFilterTransformer()){
+                    this.debug = true;
+                }
+            Context_Type = ContextType.SOURCE_FILTER_TRANSFORMER;
+        } else if(connector instanceof DestinationConnector) {
+            if(debugOptions != null && debugOptions.isDestinationFilterTransformer()){
+                this.debug = true;
+            }
+            Context_Type = ContextType.DESTINATION_FILTER_TRANSFORMER;
+        }
         try {
             /*
              * Scripts are not compiled if they are blank or do not exist in the database. Note that
              * in Oracle, a blank script is the same as a NULL script.
              */
             if (StringUtils.isNotBlank(script)) {
+                
                 logger.debug("compiling filter/transformer scripts");
-                scriptId = ServerUUIDGenerator.getUUID();
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
-                contextFactoryId = contextFactory.getId();
+                
+                if (debug) {
+                    contextFactory = contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId);
+                    contextFactory.setContextType(Context_Type);
+                    contextFactory.setScriptText(script);
+                    contextFactory.setDebugType(true);
+                    debugger = getDebugger(channel, contextFactory);
+                    
+                } else {
+                    contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+                            
+                }
+                contextFactoryId = contextFactory.getId();   
                 JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, script, connector instanceof SourceConnector ? ContextType.SOURCE_FILTER_TRANSFORMER : ContextType.DESTINATION_FILTER_TRANSFORMER, null, null);
             }
         } catch (Exception e) {
@@ -84,11 +128,13 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
     @Override
     public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException, InterruptedException {
         try {
-            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+  
+            MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId) : contextFactoryController.getContextFactory(connector.getResourceIds());
 
             if (!contextFactoryId.equals(contextFactory.getId())) {
                 synchronized (this) {
-                    contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+                     contextFactory = debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId) : contextFactoryController.getContextFactory(connector.getResourceIds());
+
 
                     if (!contextFactoryId.equals(contextFactory.getId())) {
                         JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
@@ -114,8 +160,19 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
     @Override
     public void dispose() {
         JavaScriptUtil.removeScriptFromCache(scriptId);
+        
+        if (debug && debugger != null) {
+            contextFactoryController.removeDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId);
+            debugger.dispose();
+            debugger = null;
+        }
+        
     }
 
+    protected MirthMain getDebugger(Channel channel, MirthContextFactory contextFactory) {
+        return JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
+    }
+    
     private class FilterTransformerTask extends JavaScriptTask<FilterTransformerResult> {
         private ConnectorMessage message;
 
@@ -140,6 +197,19 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
                 try {
                     // TODO: Get rid of template and phase
                     Scriptable scope = JavaScriptScopeUtil.getFilterTransformerScope(getContextFactory(), scriptLogger, new ImmutableConnectorMessage(message, true, connector.getDestinationIdMap()), template, phase);
+                   
+                    if (debug) {
+                        scopeProvider.setScope(scope);
+
+                        if (debugger != null && !ignoreBreakpoints) {
+                            debugger.doBreak();
+                            
+                            if (!debugger.isVisible()) {
+                                debugger.setVisible(true);
+                            }
+                        }
+                    }
+                    
                     Object result = executeScript(compiledScript, scope);
 
                     String transformedData = JavaScriptScopeUtil.getTransformedDataFromScope(scope, StringUtils.isNotBlank(template));
