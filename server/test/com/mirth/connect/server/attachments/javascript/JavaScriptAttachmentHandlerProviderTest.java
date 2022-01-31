@@ -43,7 +43,6 @@ public class JavaScriptAttachmentHandlerProviderTest {
         testChannel = new Channel();
         testChannel.setChannelId(TEST_CHANNEL_ID);
         testChannel.setDebugOptions(debugOptions);
-        // 
         testChannel.setAttachmentHandlerProvider(attachmentHandlerProvider);
         ContextFactoryController contextFactoryController = attachmentHandlerProvider.getContextFactoryController();
         
@@ -51,18 +50,6 @@ public class JavaScriptAttachmentHandlerProviderTest {
         MirthMain debugger = attachmentHandlerProvider.getDebugger(mock(MirthContextFactory.class), null);
         
         verify(contextFactoryController, times(1)).getDebugContextFactory(any(), any(),any());
-
-        // Undeploying debugger
-        
-        // find the event that runs the scripts and creates the provider.
-        // the channel.undeploy() has many threads of events to mock the channel. This is the initial
-        // attempt to test the undeploy, but quickly knew that it would be very difficult to mock.
-        
-//        testChannel.setInitialState(DeployedState.STOPPED);
-//        testChannel.undeploy();
-//        
-//        verify(debugger, times(1)).dispose();
-//        verify(contextFactoryController, times(1)).removeDebugContextFactory(any(), any(), any());
     }
     
     private static class TestJavaScriptAttachmentHandlerProvider extends JavaScriptAttachmentHandlerProvider {
