@@ -10,8 +10,10 @@
 package com.mirth.connect.plugins.datatypes.delimited;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
@@ -19,6 +21,7 @@ import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
@@ -30,6 +33,10 @@ public class DelimitedBatchAdaptorFactory extends BatchAdaptorFactory {
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private DelimitedSerializationProperties serializationProperties;
     private DelimitedBatchProperties batchProperties;
+    private boolean debug = false;
+    private MirthMain debugger;
+    private MirthScopeProvider scopeProvider = null;
+    private String batchScriptId;
 
     public DelimitedBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
         super(sourceConnector);
@@ -48,24 +55,51 @@ public class DelimitedBatchAdaptorFactory extends BatchAdaptorFactory {
 
         return batchAdaptor;
     }
-
+    
     @Override
     public void onDeploy() throws DeployException {
         String batchScript = batchProperties.getBatchScript();
-
+        debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
+        
         if (StringUtils.isNotEmpty(batchScript)) {
-            String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-
+        	batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
             try {
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
+                MirthContextFactory contextFactory = JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, batchScript, ContextType.CHANNEL_BATCH);
                 setContextFactoryId(contextFactory.getId());
-                JavaScriptUtil.compileAndAddScript(sourceConnector.getChannelId(), contextFactory, batchScriptId, batchScript.toString(), ContextType.CHANNEL_BATCH);
+                debugger = debug ? getDebugger(contextFactory) : null;
+                
             } catch (Exception e) {
                 throw new DeployException("Error compiling " + sourceConnector.getConnectorProperties().getName() + " script " + batchScriptId + ".", e);
             }
         }
     }
 
+    protected MirthMain getDebugger(MirthContextFactory contextFactory) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, sourceConnector.getConnectorProperties().getName() + "-" + sourceConnector.getChannel(), batchScriptId);
+    }
+    
     @Override
-    public void onUndeploy() throws UndeployException {}
+    public void onUndeploy() throws UndeployException {
+        if (debug && debugger != null) {
+            contextFactoryController.removeDebugContextFactory(sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId);
+            debugger.dispose();
+            debugger = null;
+        }
+    }
+    
+    @Override
+    public void start() throws ConnectorTaskException, InterruptedException {
+        super.start();
+        if (debug && debugger != null) {
+            debugger.enableDebugging();
+        }
+    }
+    
+    @Override
+    public void stop() throws ConnectorTaskException, InterruptedException {
+    	super.stop();
+        if (debug && debugger != null) {
+            debugger.finishScriptExecution();
+        }
+    }
 }

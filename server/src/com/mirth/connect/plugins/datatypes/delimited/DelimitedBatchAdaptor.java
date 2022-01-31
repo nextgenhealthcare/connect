@@ -30,6 +30,7 @@ import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -53,6 +54,8 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
     private boolean skipHeader;
     private Integer groupingColumnIndex;
     private String batchMessageDelimiter = null;
+    private boolean debugger;
+    private String batchScriptId;
 
     public DelimitedBatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
@@ -236,7 +239,7 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
                 final int batchSkipRecords = batchProperties.getBatchSkipRecords();
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
 
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
+                MirthContextFactory contextFactory = JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, batchScript, ContextType.CHANNEL_BATCH);
                 if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
                     synchronized (factory) {
                         contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
