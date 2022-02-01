@@ -56,6 +56,7 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
     private String batchMessageDelimiter = null;
     private boolean debugger;
     private String batchScriptId;
+    private boolean debug = false;
 
     public DelimitedBatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
@@ -238,8 +239,17 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
             try {
                 final int batchSkipRecords = batchProperties.getBatchSkipRecords();
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
+                debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
+                
+                String batchScript = batchProperties.getBatchScript();
 
                 MirthContextFactory contextFactory = JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, batchScript, ContextType.CHANNEL_BATCH);
+                // TTD: revert DelimitedBatchAdaptorFactory.java
+                // TTD: move code changes from DelimitedBatchAdaptorFactory.java to here
+                // TTD: add a getter/setter to factory to get the debugger
+                // debugger = debug ? getDebugger(contextFactory) : null;
+                // factory.debugger.setVisible(true);
+                
                 if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
                     synchronized (factory) {
                         contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
