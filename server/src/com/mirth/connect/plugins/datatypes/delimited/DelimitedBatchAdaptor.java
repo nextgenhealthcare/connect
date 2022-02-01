@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
@@ -244,11 +245,6 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
                 String batchScript = batchProperties.getBatchScript();
 
                 MirthContextFactory contextFactory = JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, batchScript, ContextType.CHANNEL_BATCH);
-                // TTD: revert DelimitedBatchAdaptorFactory.java
-                // TTD: move code changes from DelimitedBatchAdaptorFactory.java to here
-                // TTD: add a getter/setter to factory to get the debugger
-                // debugger = debug ? getDebugger(contextFactory) : null;
-                // factory.debugger.setVisible(true);
                 
                 if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
                     synchronized (factory) {
@@ -260,6 +256,11 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
                     }
                 }
 
+                if (debug) {
+                	MirthMain debugger = (MirthMain)factory.getDebugger();
+                	debugger.setVisible(true);
+                }
+                
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "Delimited Batch Adaptor", sourceConnector) {
                     @Override
                     public String doCall() throws Exception {

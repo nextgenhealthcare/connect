@@ -10,6 +10,7 @@
 package com.mirth.connect.plugins.datatypes.edi;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.DeployException;
@@ -29,8 +30,18 @@ public class EDIBatchAdaptorFactory extends BatchAdaptorFactory {
 
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private EDIBatchProperties batchProperties;
+    private MirthMain debugger;
 
-    public EDIBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
+    @Override
+    public MirthMain getDebugger() {
+		return debugger;
+	}
+
+	public void setDebugger(MirthMain debugger) {
+		this.debugger = debugger;
+	}
+
+	public EDIBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
         super(sourceConnector);
 
         batchProperties = (EDIBatchProperties) serializerProperties.getBatchProperties();
@@ -44,7 +55,7 @@ public class EDIBatchAdaptorFactory extends BatchAdaptorFactory {
 
         return batchAdaptor;
     }
-
+	
     @Override
     public void onDeploy() throws DeployException {
         String batchScript = batchProperties.getBatchScript();

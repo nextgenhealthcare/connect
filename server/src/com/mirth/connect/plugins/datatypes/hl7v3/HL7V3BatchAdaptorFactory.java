@@ -10,6 +10,7 @@
 package com.mirth.connect.plugins.datatypes.hl7v3;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.DeployException;
@@ -28,7 +29,17 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 public class HL7V3BatchAdaptorFactory extends BatchAdaptorFactory {
 
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
-    private HL7V3BatchProperties batchProperties;
+    private HL7V3BatchProperties batchProperties;    
+    private MirthMain debugger;
+
+    @Override
+    public MirthMain getDebugger() {
+		return debugger;
+	}
+
+	public void setDebugger(MirthMain debugger) {
+		this.debugger = debugger;
+	}
 
     public HL7V3BatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
         super(sourceConnector);

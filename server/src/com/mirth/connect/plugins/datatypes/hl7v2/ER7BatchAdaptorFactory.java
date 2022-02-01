@@ -12,6 +12,7 @@ package com.mirth.connect.plugins.datatypes.hl7v2;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.DeployException;
@@ -34,7 +35,17 @@ public class ER7BatchAdaptorFactory extends BatchAdaptorFactory {
     private HL7v2BatchProperties batchProperties;
     private Pattern lineBreakPattern;
     private String segmentDelimiter;
+    private MirthMain debugger;
 
+    @Override
+    public MirthMain getDebugger() {
+		return debugger;
+	}
+
+	public void setDebugger(MirthMain debugger) {
+		this.debugger = debugger;
+	}
+	
     public ER7BatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
         super(sourceConnector);
 

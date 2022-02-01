@@ -10,6 +10,7 @@
 package com.mirth.connect.plugins.datatypes.xml;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.DeployException;
@@ -29,7 +30,17 @@ public class XMLBatchAdaptorFactory extends BatchAdaptorFactory {
 
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private XMLBatchProperties batchProperties;
+    private MirthMain debugger;
 
+    @Override
+    public MirthMain getDebugger() {
+		return debugger;
+	}
+
+	public void setDebugger(MirthMain debugger) {
+		this.debugger = debugger;
+	}
+	
     public XMLBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
         super(sourceConnector);
 

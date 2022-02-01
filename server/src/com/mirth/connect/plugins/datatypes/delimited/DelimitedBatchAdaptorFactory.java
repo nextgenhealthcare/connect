@@ -35,7 +35,8 @@ public class DelimitedBatchAdaptorFactory extends BatchAdaptorFactory {
     private DelimitedBatchProperties batchProperties;
     private boolean debug = false;
     private MirthMain debugger;
-    private MirthScopeProvider scopeProvider = new MirthScopeProvider();
+
+	private MirthScopeProvider scopeProvider = new MirthScopeProvider();
     private String batchScriptId;
 
     public DelimitedBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
@@ -57,6 +58,19 @@ public class DelimitedBatchAdaptorFactory extends BatchAdaptorFactory {
     }
     
     @Override
+    public MirthMain getDebugger() {
+		return debugger;
+	}
+
+    protected MirthMain getDebugger(MirthContextFactory contextFactory) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, sourceConnector.getChannel().getName() + "-" + sourceConnector.getChannelId(), batchScriptId);
+    }
+    
+	public void setDebugger(MirthMain debugger) {
+		this.debugger = debugger;
+	}
+	
+    @Override
     public void onDeploy() throws DeployException {
         String batchScript = batchProperties.getBatchScript();
         debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
@@ -66,18 +80,16 @@ public class DelimitedBatchAdaptorFactory extends BatchAdaptorFactory {
             try {
                 MirthContextFactory contextFactory = JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, batchScript, ContextType.CHANNEL_BATCH);
                 setContextFactoryId(contextFactory.getId());
-                debugger = debug ? getDebugger(contextFactory) : null;
-                debugger.setVisible(false);
+                if (debug) {
+                	setDebugger(getDebugger(contextFactory));
+                    debugger.setVisible(false);
+                }
             } catch (Exception e) {
                 throw new DeployException("Error compiling " + sourceConnector.getConnectorProperties().getName() + " script " + batchScriptId + ".", e);
             }
         }
     }
 
-    protected MirthMain getDebugger(MirthContextFactory contextFactory) {
-        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, sourceConnector.getChannel().getName() + "-" + sourceConnector.getChannelId(), batchScriptId);
-    }
-    
     @Override
     public void onUndeploy() throws UndeployException {
         if (debug && debugger != null) {

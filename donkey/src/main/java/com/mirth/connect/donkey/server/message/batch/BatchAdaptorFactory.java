@@ -84,4 +84,6 @@ public abstract class BatchAdaptorFactory {
 
     public abstract void onUndeploy() throws UndeployException;
 
+	public abstract Object getDebugger();
+
 }
