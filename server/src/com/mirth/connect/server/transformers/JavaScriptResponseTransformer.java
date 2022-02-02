@@ -1,5 +1,5 @@
 /*
- * MY * Copyright (c) Mirth Corporation. All rights reserved.
+ * Copyright (c) Mirth Corporation. All rights reserved.
  * 
  * http://www.mirthcorp.com
  * 
@@ -11,7 +11,6 @@ package com.mirth.connect.server.transformers;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -21,7 +20,6 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
-import com.mirth.connect.connectors.js.JavaScriptDispatcher;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -38,7 +36,6 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
-import com.mirth.connect.server.util.ServerUUIDGenerator;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
@@ -83,25 +80,22 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
 
             MirthContextFactory contextFactory;
 
-            if ((debugOptions != null) && this.debugOptions.isDestinationResponseTransformer()) {
-                String responseTransformerScriptId = ScriptController.getScriptId(ScriptController.RESPONSE_TRANSFORMER, connector.getChannel().getChannelId());
-                scriptId = responseTransformerScriptId;
+            if (StringUtils.isNotBlank(script)) {
+                
+                String responseTransformerScriptId = ScriptController.getScriptId(ScriptController.RESPONSE_TRANSFORMER + "_" + connector.getMetaDataId(), connector.getChannel().getChannelId());
                 contextFactory = getContextFactory();
                 contextFactory.setContextType(ContextType.DESTINATION_RESPONSE_TRANSFORMER);
                 contextFactory.setScriptText(script);
-                contextFactory.setDebugType(true);
-                contextFactories.put(responseTransformerScriptId, contextFactory);
-                debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, connector.getChannel(), responseTransformerScriptId);
+                
+                if ((debugOptions != null) && this.debugOptions.isDestinationResponseTransformer()) {
+                    contextFactory.setDebugType(true);
+                    contextFactories.put(responseTransformerScriptId, contextFactory);
+                    debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, connector.getChannel(), responseTransformerScriptId);
+                    contextFactoryId = contextFactory.getId();
+                }
+
+                scriptId = responseTransformerScriptId;
                 contextFactoryId = contextFactory.getId();
-            } else {
-
-                scriptId = UUID.randomUUID().toString() + "_JavaScript_Response_Transformer";
-                contextFactory = getContextFactory();
-            }
-
-            contextFactoryId = contextFactory.getId();
-
-            if (StringUtils.isNotBlank(script)) {
                 JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, script, ContextType.DESTINATION_RESPONSE_TRANSFORMER, null, null);
             }
 
@@ -123,7 +117,9 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
 
             if (!contextFactoryId.equals(contextFactory.getId())) {
                 synchronized (this) {
+                    contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
                     JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
+                    contextFactoryId = contextFactory.getId();
                 }
             }
 
@@ -185,16 +181,19 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                     com.mirth.connect.userutil.Response userResponse = new com.mirth.connect.userutil.Response(response);
                     Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(getContextFactory(), scriptLogger, userResponse, new ImmutableConnectorMessage(connectorMessage, true, connector.getDestinationIdMap()), template);
 
-                    if (debugOptions.isDestinationResponseTransformer()) {
+                    if (debugOptions != null) {
 
-                        scopeProvider.setScope(scope);
-
-                        if (debugger != null) {
-                            debugger.enableDebugging();
-                            debugger.doBreak();
-
-                            if (!debugger.isVisible()) {
-                                debugger.setVisible(true);
+                        if (debugOptions.isDestinationResponseTransformer()) {
+    
+                            scopeProvider.setScope(scope);
+    
+                            if (debugger != null) {
+                                debugger.enableDebugging();
+                                debugger.doBreak();
+    
+                                if (!debugger.isVisible()) {
+                                    debugger.setVisible(true);
+                                }
                             }
                         }
                     }
