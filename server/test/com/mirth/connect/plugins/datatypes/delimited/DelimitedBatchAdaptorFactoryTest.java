@@ -21,8 +21,8 @@ import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
-public class DelimitedBatchAdaptorFactoryTests {
-    private static Logger logger = Logger.getLogger(DelimitedBatchAdaptorFactoryTests.class);
+public class DelimitedBatchAdaptorFactoryTest {
+    private static Logger logger = Logger.getLogger(DelimitedBatchAdaptorFactoryTest.class);
     private DebugOptions debugOptions;
 
     @Before
