@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
@@ -30,6 +31,7 @@ import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2BatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -50,9 +52,9 @@ public class ER7BatchAdaptor extends BatchAdaptor {
     private Pattern lineBreakPattern;
     private String segmentDelimiter;
     private BufferedReader bufferedReader;
-
     private Scanner scanner;
     private String previousLine;
+    private boolean debug = false;
 
     public ER7BatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
@@ -184,8 +186,10 @@ public class ER7BatchAdaptor extends BatchAdaptor {
 
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
+                debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
+                String batchScript = batchProperties.getBatchScript();
+                
+                MirthContextFactory contextFactory = JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, batchScript, ContextType.CHANNEL_BATCH);
                 if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
                     synchronized (factory) {
                         contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
@@ -194,6 +198,11 @@ public class ER7BatchAdaptor extends BatchAdaptor {
                             factory.setContextFactoryId(contextFactory.getId());
                         }
                     }
+                }
+                
+                if (debug) {
+                	MirthMain debugger = (MirthMain)factory.getDebugger();
+                	debugger.setVisible(true);
                 }
 
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "HL7 v2.x Batch Adaptor", sourceConnector) {
