@@ -117,9 +117,12 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
 
             if (!contextFactoryId.equals(contextFactory.getId())) {
                 synchronized (this) {
-                    contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
-                    JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
-                    contextFactoryId = contextFactory.getId();
+                    contextFactory = getContextFactory();
+
+                    if (!contextFactoryId.equals(contextFactory.getId())) {
+                        JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
+                        contextFactoryId = contextFactory.getId();
+                    }
                 }
             }
 
