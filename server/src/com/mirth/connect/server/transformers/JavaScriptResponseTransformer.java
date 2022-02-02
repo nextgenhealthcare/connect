@@ -9,13 +9,18 @@
 
 package com.mirth.connect.server.transformers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -25,11 +30,12 @@ import com.mirth.connect.donkey.server.channel.components.ResponseTransformerExc
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
-import com.mirth.connect.server.util.ServerUUIDGenerator;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
@@ -48,12 +54,18 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
     private String connectorName;
     private String scriptId;
     private String template;
+    private String script;
+    private MirthMain debugger;
+    private MirthScopeProvider scopeProvider = new MirthScopeProvider();
+    private DebugOptions debugOptions;
     private volatile String contextFactoryId;
 
-    public JavaScriptResponseTransformer(Connector connector, String connectorName, String script, String template) throws JavaScriptInitializationException {
+    public JavaScriptResponseTransformer(Connector connector, String connectorName, String script, String template, DebugOptions debugOptions) throws JavaScriptInitializationException {
         this.connector = connector;
         this.connectorName = connectorName;
         this.template = template;
+        this.debugOptions = debugOptions;
+        this.script = script;
         initialize(script);
     }
 
@@ -63,13 +75,30 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
              * Scripts are not compiled if they are blank or do not exist in the database. Note that
              * in Oracle, a blank script is the same as a NULL script.
              */
+
+            Map<String, MirthContextFactory> contextFactories = new HashMap<>();
+
+            MirthContextFactory contextFactory;
+
             if (StringUtils.isNotBlank(script)) {
-                logger.debug("compiling response transformer script");
-                scriptId = ServerUUIDGenerator.getUUID();
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+                
+                String responseTransformerScriptId = ScriptController.getScriptId(ScriptController.RESPONSE_TRANSFORMER + "_" + connector.getMetaDataId(), connector.getChannel().getChannelId());
+                contextFactory = getContextFactory();
+                contextFactory.setContextType(ContextType.DESTINATION_RESPONSE_TRANSFORMER);
+                contextFactory.setScriptText(script);
+                
+                if ((debugOptions != null) && this.debugOptions.isDestinationResponseTransformer()) {
+                    contextFactory.setDebugType(true);
+                    contextFactories.put(responseTransformerScriptId, contextFactory);
+                    debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, connector.getChannel(), responseTransformerScriptId);
+                    contextFactoryId = contextFactory.getId();
+                }
+
+                scriptId = responseTransformerScriptId;
                 contextFactoryId = contextFactory.getId();
                 JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, script, ContextType.DESTINATION_RESPONSE_TRANSFORMER, null, null);
             }
+
         } catch (Exception e) {
             if (e instanceof RhinoException) {
                 e = new MirthJavascriptTransformerException((RhinoException) e, connector.getChannelId(), connectorName, 0, "response", null);
@@ -83,11 +112,12 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
     @Override
     public String doTransform(Response response, ConnectorMessage connectorMessage) throws ResponseTransformerException, InterruptedException {
         try {
-            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+
+            MirthContextFactory contextFactory = getContextFactory();
 
             if (!contextFactoryId.equals(contextFactory.getId())) {
                 synchronized (this) {
-                    contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+                    contextFactory = getContextFactory();
 
                     if (!contextFactoryId.equals(contextFactory.getId())) {
                         JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
@@ -96,7 +126,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 }
             }
 
-            return JavaScriptUtil.execute(new ResponseTransformerTask(contextFactory, response, connectorMessage, scriptId, template));
+            return JavaScriptUtil.execute(new ResponseTransformerTask(contextFactory, response, connectorMessage, scriptId, template, debugOptions));
         } catch (JavaScriptExecutorException e) {
             Throwable cause = e.getCause();
 
@@ -110,6 +140,14 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
         }
     }
 
+    protected MirthContextFactory getContextFactory() throws Exception {
+        if (debugOptions.isDestinationResponseTransformer()) {
+            return contextFactoryController.getDebugContextFactory(connector.getChannel().getResourceIds(), connector.getChannel().getChannelId(), scriptId);
+        } else {
+            return contextFactoryController.getContextFactory(connector.getChannel().getResourceIds());
+        }
+    }
+
     @Override
     public void dispose() {
         JavaScriptUtil.removeScriptFromCache(scriptId);
@@ -120,13 +158,15 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
         private ConnectorMessage connectorMessage;
         private String scriptId;
         private String template;
+        private DebugOptions debugOptions;
 
-        public ResponseTransformerTask(MirthContextFactory contextFactory, Response response, ConnectorMessage connectorMessage, String scriptId, String template) {
+        public ResponseTransformerTask(MirthContextFactory contextFactory, Response response, ConnectorMessage connectorMessage, String scriptId, String template, DebugOptions debugOptions) {
             super(contextFactory, "Response Transformer", connector);
             this.response = response;
             this.connectorMessage = connectorMessage;
             this.scriptId = scriptId;
             this.template = template;
+            this.debugOptions = debugOptions;
         }
 
         @Override
@@ -143,6 +183,24 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 try {
                     com.mirth.connect.userutil.Response userResponse = new com.mirth.connect.userutil.Response(response);
                     Scriptable scope = JavaScriptScopeUtil.getResponseTransformerScope(getContextFactory(), scriptLogger, userResponse, new ImmutableConnectorMessage(connectorMessage, true, connector.getDestinationIdMap()), template);
+
+                    if (debugOptions != null) {
+
+                        if (debugOptions.isDestinationResponseTransformer()) {
+    
+                            scopeProvider.setScope(scope);
+    
+                            if (debugger != null) {
+                                debugger.enableDebugging();
+                                debugger.doBreak();
+    
+                                if (!debugger.isVisible()) {
+                                    debugger.setVisible(true);
+                                }
+                            }
+                        }
+                    }
+
                     // Execute the script
                     executeScript(compiledScript, scope);
 
@@ -170,5 +228,6 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 }
             }
         }
+
     }
 }

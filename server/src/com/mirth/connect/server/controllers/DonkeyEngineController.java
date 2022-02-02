@@ -1206,7 +1206,7 @@ public class DonkeyEngineController implements EngineController {
                     connectorModel.setMetaDataId(metaDataId);
                 }
 
-                chain.addDestination(connectorModel.getMetaDataId(), createDestinationConnector(channel, channelModel, connectorModel, storageSettings, destinationIdMap));
+                chain.addDestination(connectorModel.getMetaDataId(), createDestinationConnector(channel, channelModel, connectorModel, storageSettings, destinationIdMap, debugOptions));
             }
         }
 
@@ -1447,7 +1447,7 @@ public class DonkeyEngineController implements EngineController {
         return filterTransformerExecutor;
     }
 
-    private ResponseTransformerExecutor createResponseTransformerExecutor(Connector connector, com.mirth.connect.model.Connector connectorModel, Map<String, Integer> destinationIdMap) throws Exception {
+    private ResponseTransformerExecutor createResponseTransformerExecutor(Connector connector, com.mirth.connect.model.Connector connectorModel, Map<String, Integer> destinationIdMap, DebugOptions debugOptions) throws Exception {
         boolean runResponseTransformer = false;
         String template = null;
         Transformer transformer = connectorModel.getResponseTransformer();
@@ -1502,7 +1502,7 @@ public class DonkeyEngineController implements EngineController {
 
         if (runResponseTransformer) {
             String script = JavaScriptBuilder.generateResponseTransformerScript(transformer);
-            responseTransformerExecutor.setResponseTransformer(new JavaScriptResponseTransformer(connector, connectorModel.getName(), script, template));
+            responseTransformerExecutor.setResponseTransformer(new JavaScriptResponseTransformer(connector, connectorModel.getName(), script, template, debugOptions));
         }
 
         return responseTransformerExecutor;
@@ -1514,7 +1514,7 @@ public class DonkeyEngineController implements EngineController {
         return chain;
     }
 
-    private DestinationConnector createDestinationConnector(Channel channel, com.mirth.connect.model.Channel channelModel, com.mirth.connect.model.Connector connectorModel, StorageSettings storageSettings, Map<String, Integer> destinationIdMap) throws Exception {
+    private DestinationConnector createDestinationConnector(Channel channel, com.mirth.connect.model.Channel channelModel, com.mirth.connect.model.Connector connectorModel, StorageSettings storageSettings, Map<String, Integer> destinationIdMap, DebugOptions debugOptions) throws Exception {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
         ConnectorProperties connectorProperties = connectorModel.getProperties();
         ConnectorMetaData connectorMetaData = extensionController.getConnectorMetaData().get(connectorProperties.getName());
@@ -1542,7 +1542,7 @@ public class DonkeyEngineController implements EngineController {
             responseValidator = new DefaultResponseValidator();
         }
         destinationConnector.setResponseValidator(responseValidator);
-        destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(destinationConnector, connectorModel, destinationIdMap));
+        destinationConnector.setResponseTransformerExecutor(createResponseTransformerExecutor(destinationConnector, connectorModel, destinationIdMap, debugOptions));
 
         DestinationQueue queue = getDestinationQueue(channelModel, connectorModel, destinationConnector, destinationConnectorProperties);
         queue.setRotate(destinationConnector.isQueueRotate());
