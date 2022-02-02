@@ -55,8 +55,6 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
     private boolean skipHeader;
     private Integer groupingColumnIndex;
     private String batchMessageDelimiter = null;
-    private boolean debugger;
-    private String batchScriptId;
     private boolean debug = false;
 
     public DelimitedBatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
