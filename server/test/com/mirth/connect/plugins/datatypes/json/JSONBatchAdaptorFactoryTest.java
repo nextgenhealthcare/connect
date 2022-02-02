@@ -21,7 +21,6 @@ import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
-
 public class JSONBatchAdaptorFactoryTest {
     private static Logger logger = Logger.getLogger(JSONBatchAdaptorFactoryTest.class);
     private DebugOptions debugOptions;
