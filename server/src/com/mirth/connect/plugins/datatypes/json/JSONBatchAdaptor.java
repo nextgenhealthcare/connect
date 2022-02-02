@@ -64,7 +64,6 @@ public class JSONBatchAdaptor extends BatchAdaptor {
     @Override
     public void cleanup() throws BatchMessageException {}
 
-    // TTA: What's the difference between BatchMessageReader and BatchMessageReceiver?
     @Override
     protected String getNextMessage(int batchSequenceId) throws Exception {
         if (batchRawMessage.getBatchMessageSource() instanceof BatchMessageReader) {
