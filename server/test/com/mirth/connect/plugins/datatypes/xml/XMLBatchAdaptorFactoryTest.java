@@ -1,4 +1,4 @@
-package com.mirth.connect.plugins.datatypes.json;
+package com.mirth.connect.plugins.datatypes.xml;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -21,8 +21,8 @@ import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
-public class JSONBatchAdaptorFactoryTest {
-    private static Logger logger = Logger.getLogger(JSONBatchAdaptorFactoryTest.class);
+public class XMLBatchAdaptorFactoryTest {
+    private static Logger logger = Logger.getLogger(XMLBatchAdaptorFactoryTest.class);
     private DebugOptions debugOptions;
 
     @Before
@@ -35,15 +35,15 @@ public class JSONBatchAdaptorFactoryTest {
     public void testDebug() throws Exception {
         SourceConnector sourceConnector = mock(SourceConnector.class);
         SerializerProperties serializerProperties = mock(SerializerProperties.class);
-        JSONBatchProperties batchProperties = new JSONBatchProperties();
-        batchProperties.setBatchScript("[{\"firstName\": \"John\",\"lastName\": \"Doe\",\"age\": 21},{\"firstName\": \"Jane\",\"lastName\": \"Doe\",\"age\": 21}]");
+        XMLBatchProperties batchProperties = new XMLBatchProperties();
+        batchProperties.setBatchScript("<breakfast_menu><food><name>Belgian Waffles</name><price>$5.95</price><description>Two of our famous Belgian Waffles with plenty of real maple syrup</description><calories>650</calories></food><food><name>French Toast</name><price>$4.50</price><description>Thick slices made from our homemade sourdough bread</description><calories>600</calories></food></breakfast_menu>");
         DebugOptions debugOptions = new DebugOptions(false, true, false, false, false, false, false);
         Channel channel = mock(Channel.class);
         
         when(sourceConnector.getChannel()).thenReturn(channel);
         when(channel.getDebugOptions()).thenReturn(debugOptions);
         when(serializerProperties.getBatchProperties()).thenReturn(batchProperties);
-        TestJSONBatchAdaptorFactory batchAdaptorFactory = spy(new TestJSONBatchAdaptorFactory(sourceConnector, serializerProperties));
+        TestXMLBatchAdaptorFactory batchAdaptorFactory = spy(new TestXMLBatchAdaptorFactory(sourceConnector, serializerProperties));
         
         batchAdaptorFactory.onDeploy();
         verify(batchAdaptorFactory, times(1)).setDebugger(any());
@@ -62,10 +62,10 @@ public class JSONBatchAdaptorFactoryTest {
         verify(debugger, times(1)).dispose();
     }
     
-    private static class TestJSONBatchAdaptorFactory extends JSONBatchAdaptorFactory {
+    private static class TestXMLBatchAdaptorFactory extends XMLBatchAdaptorFactory {
         private ContextFactoryController contextFactoryController;
 
-        public TestJSONBatchAdaptorFactory(SourceConnector connector, SerializerProperties serializerProperties) {
+        public TestXMLBatchAdaptorFactory(SourceConnector connector, SerializerProperties serializerProperties) {
             super(connector, serializerProperties);
             debugger = mock(MirthMain.class);
         }
@@ -99,5 +99,4 @@ public class JSONBatchAdaptorFactoryTest {
             return mirthContextFactory;
         }
     }
-
 }
