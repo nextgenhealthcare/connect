@@ -103,6 +103,8 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
 
                 } else {
                     contextFactory = getContextFactory();
+                    contextFactory.setContextType(contextType);
+                    contextFactory.setScriptText(script);
 
                 }
 

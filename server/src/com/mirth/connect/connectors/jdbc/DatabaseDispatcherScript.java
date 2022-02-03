@@ -85,6 +85,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
             } else {
                 contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
             }
+            
             contextFactoryId = contextFactory.getId();
             compileAndAddScript(connectorProperties, contextFactory);
         } catch (Exception e) {
