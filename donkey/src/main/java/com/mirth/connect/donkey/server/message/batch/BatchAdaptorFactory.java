@@ -24,6 +24,7 @@ public abstract class BatchAdaptorFactory {
     private AtomicBoolean finished = new AtomicBoolean();
     private boolean useFirstReponse = false;
     private volatile String contextFactoryId;
+    protected boolean ignoreBreakpoints = false;
 
     public BatchAdaptorFactory(SourceConnector sourceConnector) {
         this.sourceConnector = sourceConnector;
@@ -85,5 +86,9 @@ public abstract class BatchAdaptorFactory {
     public abstract void onUndeploy() throws UndeployException;
 
 	public abstract Object getDebugger();
+	
+	public boolean isIgnoreBreakpoints() {
+	    return ignoreBreakpoints;
+	}
 
 }
