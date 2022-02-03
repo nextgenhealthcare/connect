@@ -92,20 +92,20 @@ public class XMLBatchAdaptorFactory extends BatchAdaptorFactory {
     
     @Override
     public void start() throws ConnectorTaskException, InterruptedException {
-        super.start();
         ignoreBreakpoints = false;
         if (debug && debugger != null) {
             debugger.enableDebugging();
         }
+        super.start();
     }
     
     @Override
     public void stop() throws ConnectorTaskException, InterruptedException {
-        super.stop();
         ignoreBreakpoints = true;
         if (debug && debugger != null) {
             debugger.finishScriptExecution();
         }
+        super.stop();
     }
     
     protected MirthMain getDebugger(MirthContextFactory contextFactory, boolean showDebugger) {

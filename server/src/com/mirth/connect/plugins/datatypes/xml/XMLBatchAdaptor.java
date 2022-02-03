@@ -156,7 +156,7 @@ public class XMLBatchAdaptor extends BatchAdaptor {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
                 final String batchScript = batchProperties.getBatchScript();
                 debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
-
+                
                 MirthContextFactory contextFactory = JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, batchScript, ContextType.CHANNEL_BATCH);
                 if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
                     synchronized (factory) {
