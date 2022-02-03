@@ -66,6 +66,7 @@ public class XMLBatchAdaptor extends BatchAdaptor {
     private XMLBatchProperties batchProperties;
     private NodeList nodeList;
     private int currentNode = 0;
+    private boolean debug = false;
 
     public XMLBatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
@@ -154,7 +155,7 @@ public class XMLBatchAdaptor extends BatchAdaptor {
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
                 final String batchScript = batchProperties.getBatchScript();
-                final boolean debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
+                debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
 
                 MirthContextFactory contextFactory = JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, batchScript, ContextType.CHANNEL_BATCH);
                 if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
@@ -169,7 +170,12 @@ public class XMLBatchAdaptor extends BatchAdaptor {
                 
                 if (debug) {
                     MirthMain debugger = (MirthMain)factory.getDebugger();
-                    debugger.setVisible(true);
+                    if (debugger != null && !factory.isIgnoreBreakpoints()) {
+                        debugger.doBreak();
+                        if (!debugger.isVisible()) {
+                            debugger.setVisible(true);
+                        }
+                    }
                 }
 
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "XML Batch Adaptor", sourceConnector) {

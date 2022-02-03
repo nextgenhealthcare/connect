@@ -238,10 +238,8 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
             try {
                 final int batchSkipRecords = batchProperties.getBatchSkipRecords();
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
+                final String batchScript = batchProperties.getBatchScript();
                 debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
-                
-                String batchScript = batchProperties.getBatchScript();
-
                 MirthContextFactory contextFactory = JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, batchScript, ContextType.CHANNEL_BATCH);
                 
                 if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
@@ -256,7 +254,12 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
 
                 if (debug) {
                 	MirthMain debugger = (MirthMain)factory.getDebugger();
-                	debugger.setVisible(true);
+                    if (debugger != null && !factory.isIgnoreBreakpoints()) {
+                        debugger.doBreak();
+                        if (!debugger.isVisible()) {
+                            debugger.setVisible(true);
+                        }
+                    }
                 }
                 
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "Delimited Batch Adaptor", sourceConnector) {
