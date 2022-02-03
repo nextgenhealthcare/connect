@@ -17,13 +17,12 @@ import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.model.datatype.SerializerProperties;
-import com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchAdaptorFactoryTests;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class RawBatchAdaptorFactoryTest {
 
-    private static Logger logger = Logger.getLogger(DelimitedBatchAdaptorFactoryTests.class);
+    private static Logger logger = Logger.getLogger(RawBatchAdaptorFactoryTest.class);
 
     
     @Test

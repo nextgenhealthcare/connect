@@ -122,9 +122,13 @@ public class EDIBatchAdaptor extends BatchAdaptor {
                 }
                 if (debug) {
                     MirthMain debugger = (MirthMain)factory.getDebugger();
-                    debugger.setVisible(true);
+                    if (debugger != null && !factory.isIgnoreBreakpoints()) {
+                        debugger.doBreak();
+                        if (!debugger.isVisible()) {
+                            debugger.setVisible(true);
+                        }
+                    }
                 }
-
 
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "EDI/X12 Batch Adaptor", sourceConnector) {
                     @Override
