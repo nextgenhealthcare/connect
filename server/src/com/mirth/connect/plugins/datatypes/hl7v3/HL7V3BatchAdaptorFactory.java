@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
@@ -20,6 +21,7 @@ import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
@@ -28,18 +30,12 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class HL7V3BatchAdaptorFactory extends BatchAdaptorFactory {
 
-    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private HL7V3BatchProperties batchProperties;    
-    private MirthMain debugger;
-
-    @Override
-    public MirthMain getDebugger() {
-		return debugger;
-	}
-
-	public void setDebugger(MirthMain debugger) {
-		this.debugger = debugger;
-	}
+    protected MirthMain debugger;
+    private boolean debug = false;
+    private String batchScriptId;
+    private ContextFactoryController contextFactoryController = getContextFactoryController();
+	private MirthScopeProvider scopeProvider = new MirthScopeProvider();
 
     public HL7V3BatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
         super(sourceConnector);
@@ -55,24 +51,71 @@ public class HL7V3BatchAdaptorFactory extends BatchAdaptorFactory {
 
         return batchAdaptor;
     }
+    
+    protected ContextFactoryController getContextFactoryController() {
+        return ControllerFactory.getFactory().createContextFactoryController();
+    }
+
+    @Override
+    public MirthMain getDebugger() {
+		return debugger;
+	}
+    
+    protected MirthMain getDebugger(MirthContextFactory contextFactory, boolean showDebugger) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, sourceConnector.getChannel().getName() + "-" + sourceConnector.getChannelId(), batchScriptId, showDebugger);
+    }
+
+	public void setDebugger(MirthMain debugger) {
+		this.debugger = debugger;
+	}
 
     @Override
     public void onDeploy() throws DeployException {
         String batchScript = batchProperties.getBatchScript();
+        debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
 
         if (StringUtils.isNotEmpty(batchScript)) {
-            String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
+            batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
 
             try {
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
+                MirthContextFactory contextFactory = generateContextFactory(debug, batchScript);
                 setContextFactoryId(contextFactory.getId());
-                JavaScriptUtil.compileAndAddScript(sourceConnector.getChannelId(), contextFactory, batchScriptId, batchScript.toString(), ContextType.CHANNEL_BATCH);
+                if (debug) {
+                	setDebugger(getDebugger(contextFactory, false));
+                }
             } catch (Exception e) {
                 throw new DeployException("Error compiling " + sourceConnector.getConnectorProperties().getName() + " script " + batchScriptId + ".", e);
             }
         }
     }
 
-    @Override
-    public void onUndeploy() throws UndeployException {}
+	@Override
+    public void onUndeploy() throws UndeployException {        
+		if (debug && debugger != null) {
+        contextFactoryController.removeDebugContextFactory(sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId);
+        debugger.dispose();
+        debugger = null;
+	    }
+	}
+	
+	@Override
+	public void start() throws ConnectorTaskException, InterruptedException {
+	    super.start();
+	    if (debug && debugger != null) {
+	        debugger.enableDebugging();
+	    }
+	}
+	
+	@Override
+	public void stop() throws ConnectorTaskException, InterruptedException {
+		super.stop();
+	    if (debug && debugger != null) {
+	        debugger.finishScriptExecution();
+	    }
+	}
+
+	protected MirthContextFactory generateContextFactory(boolean debug, String script) throws ConnectorTaskException {
+	    return JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, script, ContextType.CHANNEL_BATCH);
+	}
+	
 }
