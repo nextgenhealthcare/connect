@@ -1159,7 +1159,7 @@ public class DonkeyEngineController implements EngineController {
         channel.setAttachmentHandlerProvider(createAttachmentHandlerProvider(channel, contextFactory, channelProperties.getAttachmentProperties()));
         channel.setPreProcessor(createPreProcessor(channel, channelModel.getPreprocessingScript(), debugOptions));
         channel.setPostProcessor(createPostProcessor(channel, channelModel.getPostprocessingScript(), debugOptions));
-        channel.setSourceConnector(createSourceConnector(channel, channelModel.getSourceConnector(), storageSettings, destinationIdMap));
+        channel.setSourceConnector(createSourceConnector(channel, channelModel.getSourceConnector(), storageSettings, destinationIdMap, debugOptions));
         channel.setResponseSelector(new ResponseSelector(channel.getSourceConnector().getInboundDataType()));
         channel.setMessageMaps(new MirthMessageMaps(channelId));
 
@@ -1353,7 +1353,7 @@ public class DonkeyEngineController implements EngineController {
         return new JavaScriptPostprocessor(channel, postProcessingScript, debugOptions);
     }
 
-    private SourceConnector createSourceConnector(Channel channel, com.mirth.connect.model.Connector connectorModel, StorageSettings storageSettings, Map<String, Integer> destinationIdMap) throws Exception {
+    private SourceConnector createSourceConnector(Channel channel, com.mirth.connect.model.Connector connectorModel, StorageSettings storageSettings, Map<String, Integer> destinationIdMap, DebugOptions debugOptions) throws Exception {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
         ConnectorProperties connectorProperties = connectorModel.getProperties();
         ConnectorMetaData connectorMetaData = extensionController.getConnectorMetaData().get(connectorProperties.getName());
@@ -1380,12 +1380,12 @@ public class DonkeyEngineController implements EngineController {
             sourceConnector.setBatchAdaptorFactory(batchAdaptorFactory);
         }
 
-        sourceConnector.setFilterTransformerExecutor(createFilterTransformerExecutor(sourceConnector, connectorModel, destinationIdMap));
+        sourceConnector.setFilterTransformerExecutor(createFilterTransformerExecutor(sourceConnector, connectorModel, destinationIdMap, debugOptions));
 
         return sourceConnector;
     }
 
-    private FilterTransformerExecutor createFilterTransformerExecutor(Connector connector, com.mirth.connect.model.Connector connectorModel, Map<String, Integer> destinationIdMap) throws Exception {
+    private FilterTransformerExecutor createFilterTransformerExecutor(Connector connector, com.mirth.connect.model.Connector connectorModel, Map<String, Integer> destinationIdMap, DebugOptions debugOptions) throws Exception {
         boolean runFilterTransformer = false;
         String template = null;
         Transformer transformer = connectorModel.getTransformer();
@@ -1441,7 +1441,7 @@ public class DonkeyEngineController implements EngineController {
 
         if (runFilterTransformer) {
             String script = JavaScriptBuilder.generateFilterTransformerScript(filter, transformer);
-            filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(connector, connectorModel.getName(), script, template));
+            filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(connector, connectorModel.getName(), script, template,   debugOptions));
         }
 
         return filterTransformerExecutor;
@@ -1527,7 +1527,7 @@ public class DonkeyEngineController implements EngineController {
         DestinationConnectorProperties destinationConnectorProperties = ((DestinationConnectorPropertiesInterface) connectorProperties).getDestinationConnectorProperties();
 
         destinationConnector.setResourceIds(destinationConnectorProperties.getResourceIds().keySet());
-        destinationConnector.setFilterTransformerExecutor(createFilterTransformerExecutor(destinationConnector, connectorModel, destinationIdMap));
+        destinationConnector.setFilterTransformerExecutor(createFilterTransformerExecutor(destinationConnector, connectorModel, destinationIdMap,debugOptions));
 
         destinationConnector.setDestinationName(connectorModel.getName());
         destinationConnector.setMetaDataReplacer(channel.getSourceConnector().getMetaDataReplacer());

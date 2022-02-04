@@ -41,20 +41,21 @@ public class DebuggerUtil {
     		return "f,f,f,f,f,f,f";
     	}
         
-        String isAttachmentBatchScripts = debugOptions.isAttachmentBatchScripts() ? "t": "f";
         String isDeployUndeployPreAndPostProcessorScripts = debugOptions.isDeployUndeployPreAndPostProcessorScripts() ? "t": "f";
-        String isDestinationConnectorScripts = debugOptions.isDestinationConnectorScripts() ? "t": "f";
-        String isDestinationFilterTransformer = debugOptions.isDestinationFilterTransformer() ? "t": "f";
-        String isDestinationResponseTransformer = debugOptions.isDestinationResponseTransformer() ? "t": "f";
+        String isAttachmentBatchScripts = debugOptions.isAttachmentBatchScripts() ? "t": "f";
         String isSourceConnectorScripts = debugOptions.isSourceConnectorScripts() ? "t": "f";
         String isSourceFilterTransformer = debugOptions.isSourceFilterTransformer() ? "t": "f";
+        String isDestinationFilterTransformer = debugOptions.isDestinationFilterTransformer() ? "t": "f";
+        String isDestinationConnectorScripts = debugOptions.isDestinationConnectorScripts() ? "t": "f";
+        String isDestinationResponseTransformer = debugOptions.isDestinationResponseTransformer() ? "t": "f";
+
         
         String debug = new String();
         debug += isDeployUndeployPreAndPostProcessorScripts + ",";
         debug += isAttachmentBatchScripts + ",";
         debug += isSourceConnectorScripts + ",";
-        debug += isDestinationFilterTransformer + ",";
         debug += isSourceFilterTransformer+ ",";
+        debug += isDestinationFilterTransformer + ",";
         debug += isDestinationConnectorScripts + ",";
         debug += isDestinationResponseTransformer;
         
