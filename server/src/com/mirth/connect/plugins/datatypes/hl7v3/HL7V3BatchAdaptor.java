@@ -120,8 +120,13 @@ public class HL7V3BatchAdaptor extends BatchAdaptor {
                 }
                 
                 if (debug) {
-                	MirthMain debugger = (MirthMain)factory.getDebugger();
-                	debugger.setVisible(true);
+                    MirthMain debugger = (MirthMain)factory.getDebugger();
+                    if (debugger != null && !factory.isIgnoreBreakpoints()) {
+                        debugger.doBreak();
+                        if (!debugger.isVisible()) {
+                            debugger.setVisible(true);
+                        }
+                    }
                 }
                 
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "HL7 v3 Batch Adaptor", sourceConnector) {

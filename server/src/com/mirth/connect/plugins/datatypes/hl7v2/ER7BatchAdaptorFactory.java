@@ -120,21 +120,23 @@ public class ER7BatchAdaptorFactory extends BatchAdaptorFactory {
 	    }
 	}
 	
-	@Override
-	public void start() throws ConnectorTaskException, InterruptedException {
-	    super.start();
-	    if (debug && debugger != null) {
-	        debugger.enableDebugging();
-	    }
-	}
-	
-	@Override
-	public void stop() throws ConnectorTaskException, InterruptedException {
-		super.stop();
-	    if (debug && debugger != null) {
-	        debugger.finishScriptExecution();
-	    }
-	}
+    @Override
+    public void start() throws ConnectorTaskException, InterruptedException {
+        ignoreBreakpoints = false;
+        if (debug && debugger != null) {
+            debugger.enableDebugging();
+        }
+        super.start();
+    }
+    
+    @Override
+    public void stop() throws ConnectorTaskException, InterruptedException {
+        ignoreBreakpoints = true;
+        if (debug && debugger != null) {
+            debugger.finishScriptExecution();
+        }
+        super.stop();
+    }
 
 	protected MirthContextFactory generateContextFactory(boolean debug, String script) throws ConnectorTaskException {
 	    return JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, script, ContextType.CHANNEL_BATCH);
