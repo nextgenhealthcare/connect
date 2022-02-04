@@ -52,10 +52,10 @@ public class JavaScriptFilterTransformerTest {
 
         when(connector.getChannel()).thenReturn(channel);
 
-        TestJavaScriptFilterTransformer JavaScriptFilterTransformer2 = new TestJavaScriptFilterTransformer(connector, CONNECTOR_NAME, TEST_SCRIPT_ID, null, debugOptions);
+        TestJavaScriptFilterTransformer javaScriptFilterTransformer2 = new TestJavaScriptFilterTransformer(connector, CONNECTOR_NAME, TEST_SCRIPT_ID, null, debugOptions);
 
-        assertEquals(0 , JavaScriptFilterTransformer2.debuggerCallCount);
-        JavaScriptFilterTransformer2.resetCount();
+        assertEquals(0 , TestJavaScriptFilterTransformer.debuggerCallCount);
+        javaScriptFilterTransformer2.resetCount();
 
     }
     
@@ -64,7 +64,7 @@ public class JavaScriptFilterTransformerTest {
     public void testTransformerDestination() throws Exception {
         DestinationConnector connector = mock(DestinationConnector.class);
         Channel channel = mock(Channel.class);
-        debugOptions.setSourceFilterTransformer(false);
+        debugOptions.setDestinationFilterTransformer(false);
         Set<String> resourceIds = new HashSet<String>();
         resourceIds.add("resourceId");
         String channelId = "channelId";
@@ -76,10 +76,10 @@ public class JavaScriptFilterTransformerTest {
 
         when(connector.getChannel()).thenReturn(channel);
 
-        TestJavaScriptFilterTransformer JavaScriptFilterTransformer2 = new TestJavaScriptFilterTransformer(connector, CONNECTOR_NAME, TEST_SCRIPT_ID, null, debugOptions);
+        TestJavaScriptFilterTransformer javaScriptFilterTransformer2 = new TestJavaScriptFilterTransformer(connector, CONNECTOR_NAME, TEST_SCRIPT_ID, null, debugOptions);
 
-        assertEquals(0 , JavaScriptFilterTransformer2.debuggerCallCount);
-        JavaScriptFilterTransformer2.resetCount();
+        assertEquals(0 , TestJavaScriptFilterTransformer.debuggerCallCount);
+        javaScriptFilterTransformer2.resetCount();
 
     }
     
@@ -98,11 +98,10 @@ public class JavaScriptFilterTransformerTest {
         when(channel.getChannelId()).thenReturn(channelId);
         when(connector.getChannel()).thenReturn(channel);
 
-        TestJavaScriptFilterTransformer JavaScriptFilterTransformer = new TestJavaScriptFilterTransformer(connector, CONNECTOR_NAME, TEST_SCRIPT_ID, null, debugOptions);
+        TestJavaScriptFilterTransformer javaScriptFilterTransformer = new TestJavaScriptFilterTransformer(connector, CONNECTOR_NAME, TEST_SCRIPT_ID, null, debugOptions);
 
-        assertEquals(1, JavaScriptFilterTransformer.debuggerCallCount);
-        JavaScriptFilterTransformer.debuggerCallCount = 0;
-        JavaScriptFilterTransformer.resetCount();
+        assertEquals(1, TestJavaScriptFilterTransformer.debuggerCallCount);
+        javaScriptFilterTransformer.resetCount();
 
 
     }
@@ -121,11 +120,10 @@ public class JavaScriptFilterTransformerTest {
         when(channel.getChannelId()).thenReturn(channelId);
         when(connector.getChannel()).thenReturn(channel);
 
-        TestJavaScriptFilterTransformer JavaScriptFilterTransformer1 = new TestJavaScriptFilterTransformer(connector, CONNECTOR_NAME, TEST_SCRIPT_ID, null, debugOptions);
+        TestJavaScriptFilterTransformer javaScriptFilterTransformer1 = new TestJavaScriptFilterTransformer(connector, CONNECTOR_NAME, TEST_SCRIPT_ID, null, debugOptions);
 
-        assertEquals(1 , JavaScriptFilterTransformer1.debuggerCallCount);
-        JavaScriptFilterTransformer1.debuggerCallCount = 0;
-        JavaScriptFilterTransformer1.resetCount();
+        assertEquals(1 , TestJavaScriptFilterTransformer.debuggerCallCount);
+        javaScriptFilterTransformer1.resetCount();
 
     }
 
@@ -159,7 +157,7 @@ public class JavaScriptFilterTransformerTest {
 
         @Override
         protected MirthMain getDebugger(Channel channel, MirthContextFactory contextFactory) {
-            this.debuggerCallCount = debuggerCallCount + 1;
+            debuggerCallCount = debuggerCallCount + 1;
             MirthMain mirthMain = mock(MirthMain.class);
             return mirthMain;
 
