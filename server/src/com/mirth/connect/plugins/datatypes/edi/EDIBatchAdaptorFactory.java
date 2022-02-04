@@ -102,6 +102,7 @@ public class EDIBatchAdaptorFactory extends BatchAdaptorFactory {
     @Override
     public void start() throws ConnectorTaskException, InterruptedException {
         super.start();
+        ignoreBreakpoints=false;
         if (debug && debugger != null) {
             debugger.enableDebugging();
         }
@@ -109,7 +110,8 @@ public class EDIBatchAdaptorFactory extends BatchAdaptorFactory {
     
     @Override
     public void stop() throws ConnectorTaskException, InterruptedException {
-       super.stop();
+        super.stop();
+        ignoreBreakpoints=true;
         if (debug && debugger != null) {
             debugger.finishScriptExecution();
         }
