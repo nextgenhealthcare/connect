@@ -21,7 +21,7 @@ import com.mirth.connect.donkey.server.channel.components.ResponseTransformerExc
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 
-public class JavaScriptResponseTransformerTests {
+public class JavaScriptResponseTransformerTest {
 
     public String connectorName = "Destination 1";
     

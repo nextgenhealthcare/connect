@@ -55,6 +55,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
     private String scriptId;
     private String template;
     private String script;
+    boolean debug;
     private MirthMain debugger;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
     private DebugOptions debugOptions;
@@ -81,21 +82,19 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
             MirthContextFactory contextFactory;
 
             if (StringUtils.isNotBlank(script)) {
-                
-                String responseTransformerScriptId = ScriptController.getScriptId(ScriptController.RESPONSE_TRANSFORMER + "_" + connector.getMetaDataId(), connector.getChannel().getChannelId());
+                scriptId = ScriptController.getScriptId(ScriptController.RESPONSE_TRANSFORMER + "_" + connector.getMetaDataId(), connector.getChannel().getChannelId());
                 contextFactory = getContextFactory();
                 contextFactory.setContextType(ContextType.DESTINATION_RESPONSE_TRANSFORMER);
                 contextFactory.setScriptText(script);
                 if ((debugOptions != null) && this.debugOptions.isDestinationResponseTransformer()) {
+                    debug = true;
                     contextFactory.setDebugType(true);
-                    contextFactories.put(responseTransformerScriptId, contextFactory);
-                    debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, connector.getChannel(), responseTransformerScriptId);
-                    contextFactoryId = contextFactory.getId();
+                    contextFactories.put(scriptId, contextFactory);
+                    debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, connector.getChannel(), scriptId);
                 }
 
-                scriptId = responseTransformerScriptId;
                 contextFactoryId = contextFactory.getId();
-                
+
                 compileAndAddScript(contextFactory);
             }
 
@@ -138,11 +137,11 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
             throw new ResponseTransformerException(e.getMessage(), e, ErrorMessageBuilder.buildErrorMessage("Filter/Transformer", null, e));
         }
     }
-    
+
     protected String execute(MirthContextFactory contextFactory, Response response, ConnectorMessage connectorMessage) throws JavaScriptExecutorException, InterruptedException {
         return JavaScriptUtil.execute(new ResponseTransformerTask(contextFactory, response, connectorMessage, scriptId, template, debugOptions));
     }
-    
+
     protected void compileAndAddScript(MirthContextFactory contextFactory) throws Exception {
         JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, script, ContextType.DESTINATION_RESPONSE_TRANSFORMER, null, null);
     }
@@ -158,6 +157,12 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
     @Override
     public void dispose() {
         JavaScriptUtil.removeScriptFromCache(scriptId);
+        if (debug && debugger != null) {
+            contextFactoryController.removeDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId);
+            debugger.dispose();
+            debugger = null;
+        }
+
     }
 
     private class ResponseTransformerTask extends JavaScriptTask<String> {
@@ -194,13 +199,13 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                     if (debugOptions != null) {
 
                         if (debugOptions.isDestinationResponseTransformer()) {
-    
+
                             scopeProvider.setScope(scope);
-    
+
                             if (debugger != null) {
                                 debugger.enableDebugging();
                                 debugger.doBreak();
-    
+
                                 if (!debugger.isVisible()) {
                                     debugger.setVisible(true);
                                 }
