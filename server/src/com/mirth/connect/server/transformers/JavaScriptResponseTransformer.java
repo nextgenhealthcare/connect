@@ -77,7 +77,6 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
              * in Oracle, a blank script is the same as a NULL script.
              */
 
-            Map<String, MirthContextFactory> contextFactories = new HashMap<>();
 
             MirthContextFactory contextFactory;
 
@@ -89,7 +88,6 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 if ((debugOptions != null) && this.debugOptions.isDestinationResponseTransformer()) {
                     debug = true;
                     contextFactory.setDebugType(true);
-                    contextFactories.put(scriptId, contextFactory);
                     debugger = getDebugger(contextFactory);
                 }
 
