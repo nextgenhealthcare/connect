@@ -17,9 +17,7 @@ import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptorFactory;
 
 public class XMLBatchAdaptorFactory extends DebuggableBatchAdaptorFactory  {
     public XMLBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
-        super(sourceConnector);
-
-        batchProperties = (XMLBatchProperties) serializerProperties.getBatchProperties();
+        super(sourceConnector, serializerProperties);
     }
 
     @Override

@@ -11,33 +11,23 @@ package com.mirth.connect.plugins.datatypes.hl7v2;
 
 import java.util.regex.Pattern;
 
-import org.mozilla.javascript.tools.debugger.MirthMain;
-
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptorFactory;
-import com.mirth.connect.server.MirthScopeProvider;
-import com.mirth.connect.server.controllers.ContextFactoryController;
-import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.util.StringUtil;
 
 public class ER7BatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
 
-    private HL7v2BatchProperties batchProperties;
     private Pattern lineBreakPattern;
     private String segmentDelimiter;
-    protected MirthMain debugger;
-    private String batchScriptId;
-	private MirthScopeProvider scopeProvider = new MirthScopeProvider();
 	
     public ER7BatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
-        super(sourceConnector);
+        super(sourceConnector, serializerProperties);
 
         HL7v2SerializationProperties serializationProperties = (HL7v2SerializationProperties) serializerProperties.getSerializationProperties();
-        batchProperties = (HL7v2BatchProperties) serializerProperties.getBatchProperties();
+    
         segmentDelimiter = StringUtil.unescape(serializationProperties.getSegmentDelimiter());
 
         String pattern;
@@ -65,21 +55,5 @@ public class ER7BatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
         return batchAdaptor;
     }
     
-    protected ContextFactoryController getContextFactoryController() {
-        return ControllerFactory.getFactory().createContextFactoryController();
-    }
-    
-    @Override
-    public MirthMain getDebugger() {
-		return debugger;
-	}
-
-    protected MirthMain getDebugger(MirthContextFactory contextFactory, boolean showDebugger) {
-        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, sourceConnector.getChannel().getName() + "-" + sourceConnector.getChannelId(), batchScriptId, showDebugger);
-    }
-    
-	public void setDebugger(MirthMain debugger) {
-		this.debugger = debugger;
-	}
     
 }

@@ -31,16 +31,16 @@ public class EDISerializerTests {
 
     @Test
     public void testToXml() throws Exception {
-        String input = FileUtils.readFileToString(new File("tests/test-edi-input.txt"));
-        String output = FileUtils.readFileToString(new File("tests/test-edi-output.xml"));
+        String input = FileUtils.readFileToString(new File("tests/test-edi-input.txt"), "UTF-8");
+        String output = FileUtils.readFileToString(new File("tests/test-edi-output.xml"), "UTF-8");
         EDISerializer serializer = new EDISerializer(new EDIDataTypeProperties().getSerializerProperties());
         Assert.assertEquals(output, serializer.toXML(input));
     }
 
     @Test
     public void testFromXml() throws Exception {
-        String input = FileUtils.readFileToString(new File("tests/test-edi-output.xml"));
-        String output = FileUtils.readFileToString(new File("tests/test-edi-input.txt"));
+        String input = FileUtils.readFileToString(new File("tests/test-edi-output.xml"), "UTF-8");
+        String output = FileUtils.readFileToString(new File("tests/test-edi-input.txt"), "UTF-8");
         EDISerializer serializer = new EDISerializer(new EDIDataTypeProperties().getSerializerProperties());
         Assert.assertEquals(output, serializer.fromXML(input));
     }
@@ -50,16 +50,16 @@ public class EDISerializerTests {
      */
     @Test
     public void testIssue1597fromXML() throws Exception {
-        String input = FileUtils.readFileToString(new File("tests/test-1597-input-missing-elements.xml"));
-        String output = FileUtils.readFileToString(new File("tests/test-1597-output.txt"));
+        String input = FileUtils.readFileToString(new File("tests/test-1597-input-missing-elements.xml"), "UTF-8");
+        String output = FileUtils.readFileToString(new File("tests/test-1597-output.txt"), "UTF-8");
         EDISerializer serializer = new EDISerializer(new EDIDataTypeProperties().getSerializerProperties());
         Assert.assertEquals(output, serializer.fromXML(input));
     }
 
     @Test
     public void testIssue1597toXML() throws Exception {
-        String input = FileUtils.readFileToString(new File("tests/test-1597-output.txt"));
-        String output = FileUtils.readFileToString(new File("tests/test-1597-input.xml"));
+        String input = FileUtils.readFileToString(new File("tests/test-1597-output.txt"), "UTF-8");
+        String output = FileUtils.readFileToString(new File("tests/test-1597-input.xml"), "UTF-8");
         EDISerializer serializer = new EDISerializer(new EDIDataTypeProperties().getSerializerProperties());
         Assert.assertEquals(output, serializer.toXML(input));
     }

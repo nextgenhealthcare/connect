@@ -17,9 +17,7 @@ import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptorFactory;
 
 public class JSONBatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
     public JSONBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
-        super(sourceConnector);
-
-        batchProperties = (JSONBatchProperties) serializerProperties.getBatchProperties();
+        super(sourceConnector, serializerProperties);
     }
 
     @Override

@@ -235,10 +235,8 @@ public class DelimitedBatchAdaptor extends DebuggableBatchAdaptor {
             try {
                 final int batchSkipRecords = batchProperties.getBatchSkipRecords();
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-                final String batchScript = batchProperties.getBatchScript();
-                final boolean debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
-                
-                MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchScript);
+                final boolean debug = factory.isDebug();
+                MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchProperties.getBatchScript());
 
                 triggerDebug(debug);
                 

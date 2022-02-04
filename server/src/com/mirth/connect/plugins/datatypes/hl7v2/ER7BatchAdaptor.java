@@ -52,7 +52,6 @@ public class ER7BatchAdaptor extends DebuggableBatchAdaptor {
     private BufferedReader bufferedReader;
     private Scanner scanner;
     private String previousLine;
-    private boolean debug = false;
 
     public ER7BatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
@@ -184,10 +183,8 @@ public class ER7BatchAdaptor extends DebuggableBatchAdaptor {
 
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-                debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
-                String batchScript = batchProperties.getBatchScript();
-                
-                MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchScript);
+                final Boolean debug = factory.isDebug();
+                MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchProperties.getBatchScript());
                 
                 triggerDebug(debug);
 

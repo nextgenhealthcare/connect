@@ -102,10 +102,8 @@ public class HL7V3BatchAdaptor extends DebuggableBatchAdaptor {
 
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-                final boolean debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
-                final String batchScript = batchProperties.getBatchScript();
-                
-                MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchScript);
+                final Boolean debug = factory.isDebug();
+                MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId,  batchProperties.getBatchScript());
                 
                 triggerDebug(debug);
                 

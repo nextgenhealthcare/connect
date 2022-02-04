@@ -12,6 +12,7 @@ import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.datatype.BatchProperties;
+import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -19,19 +20,21 @@ import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
+
 public class DebuggableBatchAdaptorFactory extends BatchAdaptorFactory {
     protected ContextFactoryController contextFactoryController = getContextFactoryController();
     protected BatchProperties batchProperties;
     protected boolean debug = false;
+
     protected MirthMain debugger;
     protected MirthScopeProvider scopeProvider = new MirthScopeProvider();
     protected String batchScriptId;
     protected boolean ignoreBreakpoints = false;
     private volatile String contextFactoryId;
 
-    public DebuggableBatchAdaptorFactory(SourceConnector sourceConnector) {
+    public DebuggableBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
         super(sourceConnector);
-        // TODO Auto-generated constructor stub
+        batchProperties = serializerProperties.getBatchProperties();
     }
     
     public MirthMain getDebugger() {
@@ -40,6 +43,10 @@ public class DebuggableBatchAdaptorFactory extends BatchAdaptorFactory {
     
     public void setDebugger(MirthMain debugger) {
         this.debugger = debugger;
+    }
+    
+    public boolean isDebug() {
+        return debug;
     }
     
     public boolean isIgnoreBreakpoints() {

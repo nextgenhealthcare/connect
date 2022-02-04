@@ -17,9 +17,7 @@ import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptorFactory;
 
 public class NCPDPBatchAdaptorFactory extends DebuggableBatchAdaptorFactory  {
     public NCPDPBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
-        super(sourceConnector);
-
-        batchProperties = (NCPDPBatchProperties) serializerProperties.getBatchProperties();
+        super(sourceConnector, serializerProperties);
     }
 
     @Override
