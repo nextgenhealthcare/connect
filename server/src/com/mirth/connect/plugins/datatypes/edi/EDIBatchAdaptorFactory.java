@@ -29,5 +29,4 @@ public class EDIBatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
 
         return batchAdaptor;
     }
-   
 }

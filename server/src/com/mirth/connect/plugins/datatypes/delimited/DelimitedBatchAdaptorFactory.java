@@ -21,7 +21,6 @@ public class DelimitedBatchAdaptorFactory extends DebuggableBatchAdaptorFactory 
     public DelimitedBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
         super(sourceConnector, serializerProperties);
         serializationProperties = (DelimitedSerializationProperties) serializerProperties.getSerializationProperties();
-       
     }
 
     @Override

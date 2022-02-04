@@ -16,7 +16,6 @@ import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptorFactory;
 
 public class HL7V3BatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
-
     public HL7V3BatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
         super(sourceConnector, serializerProperties);
     }
@@ -29,6 +28,4 @@ public class HL7V3BatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
 
         return batchAdaptor;
     }
-    
-	
 }

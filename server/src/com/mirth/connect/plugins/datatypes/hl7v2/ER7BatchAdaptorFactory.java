@@ -19,7 +19,6 @@ import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptorFactory;
 import com.mirth.connect.util.StringUtil;
 
 public class ER7BatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
-
     private Pattern lineBreakPattern;
     private String segmentDelimiter;
 	
@@ -54,6 +53,4 @@ public class ER7BatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
 
         return batchAdaptor;
     }
-    
-    
 }

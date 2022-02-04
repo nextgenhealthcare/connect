@@ -152,7 +152,6 @@ public class XMLBatchAdaptor extends DebuggableBatchAdaptor  {
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
                 final Boolean debug = factory.isDebug();
-                
                 MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchProperties.getBatchScript());
                 
                 triggerDebug(debug);
