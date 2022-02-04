@@ -20,16 +20,14 @@ import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
-import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
-import com.mirth.connect.model.codetemplates.ContextType;
+import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptor;
 import com.mirth.connect.plugins.datatypes.hl7v3.HL7V3BatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -42,12 +40,11 @@ import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
-public class HL7V3BatchAdaptor extends BatchAdaptor {
+public class HL7V3BatchAdaptor extends DebuggableBatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private HL7V3BatchProperties batchProperties;
     private BufferedReader bufferedReader;
-    private boolean debug = false;
 
     public HL7V3BatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
@@ -105,29 +102,12 @@ public class HL7V3BatchAdaptor extends BatchAdaptor {
 
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-                debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
-                String batchScript = batchProperties.getBatchScript();
+                final boolean debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
+                final String batchScript = batchProperties.getBatchScript();
                 
-                MirthContextFactory contextFactory = JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, batchScript, ContextType.CHANNEL_BATCH);
-                if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
-                    synchronized (factory) {
-                        contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
-                        if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
-                            JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
-                            factory.setContextFactoryId(contextFactory.getId());
-                        }
-                    }
-                }
+                MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchScript);
                 
-                if (debug) {
-                    MirthMain debugger = (MirthMain)factory.getDebugger();
-                    if (debugger != null && !factory.isIgnoreBreakpoints()) {
-                        debugger.doBreak();
-                        if (!debugger.isVisible()) {
-                            debugger.setVisible(true);
-                        }
-                    }
-                }
+                triggerDebug(debug);
                 
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "HL7 v3 Batch Adaptor", sourceConnector) {
                     @Override
