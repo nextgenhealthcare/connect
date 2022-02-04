@@ -86,7 +86,6 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 contextFactory = getContextFactory();
                 contextFactory.setContextType(ContextType.DESTINATION_RESPONSE_TRANSFORMER);
                 contextFactory.setScriptText(script);
-                
                 if ((debugOptions != null) && this.debugOptions.isDestinationResponseTransformer()) {
                     contextFactory.setDebugType(true);
                     contextFactories.put(responseTransformerScriptId, contextFactory);
@@ -96,7 +95,8 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
 
                 scriptId = responseTransformerScriptId;
                 contextFactoryId = contextFactory.getId();
-                JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, script, ContextType.DESTINATION_RESPONSE_TRANSFORMER, null, null);
+                
+                compileAndAddScript(contextFactory);
             }
 
         } catch (Exception e) {
@@ -114,7 +114,6 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
         try {
 
             MirthContextFactory contextFactory = getContextFactory();
-
             if (!contextFactoryId.equals(contextFactory.getId())) {
                 synchronized (this) {
                     contextFactory = getContextFactory();
@@ -126,7 +125,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                 }
             }
 
-            return JavaScriptUtil.execute(new ResponseTransformerTask(contextFactory, response, connectorMessage, scriptId, template, debugOptions));
+            return execute(contextFactory, response, connectorMessage);
         } catch (JavaScriptExecutorException e) {
             Throwable cause = e.getCause();
 
@@ -138,6 +137,14 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
         } catch (Exception e) {
             throw new ResponseTransformerException(e.getMessage(), e, ErrorMessageBuilder.buildErrorMessage("Filter/Transformer", null, e));
         }
+    }
+    
+    protected String execute(MirthContextFactory contextFactory, Response response, ConnectorMessage connectorMessage) throws JavaScriptExecutorException, InterruptedException {
+        return JavaScriptUtil.execute(new ResponseTransformerTask(contextFactory, response, connectorMessage, scriptId, template, debugOptions));
+    }
+    
+    protected void compileAndAddScript(MirthContextFactory contextFactory) throws Exception {
+        JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, script, ContextType.DESTINATION_RESPONSE_TRANSFORMER, null, null);
     }
 
     protected MirthContextFactory getContextFactory() throws Exception {
