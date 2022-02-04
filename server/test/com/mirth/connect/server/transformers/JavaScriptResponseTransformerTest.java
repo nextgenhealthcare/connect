@@ -1,5 +1,6 @@
 package com.mirth.connect.server.transformers;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -11,23 +12,25 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import org.junit.Test;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.Connector;
-import com.mirth.connect.donkey.server.channel.components.ResponseTransformerException;
+import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 
 public class JavaScriptResponseTransformerTest {
 
     public String connectorName = "Destination 1";
-    
+    private int countCompileAndAddScript = 0; 
+    private int countGetDebugger = 0;
     
     @Test
-    public void testDoTransform() throws JavaScriptInitializationException, ResponseTransformerException, InterruptedException {
+    public void testDoTransform() throws Exception {
         
         Response mockResponse = mock(Response.class);
         ConnectorMessage mockConnectorMessage = mock(ConnectorMessage.class);
@@ -52,6 +55,8 @@ public class JavaScriptResponseTransformerTest {
         spyTransformer.doTransform(mockResponse, mockConnectorMessage);
         
         verify(spyTransformer, times(1)).execute(any(), any(), any());
+        assertEquals(countCompileAndAddScript, 1);
+        assertEquals(countGetDebugger, 1);
     }
     
     private class TestJavaScriptResponseTransformer extends JavaScriptResponseTransformer {
@@ -61,8 +66,14 @@ public class JavaScriptResponseTransformerTest {
         }
         
         protected void compileAndAddScript(MirthContextFactory contextFactory) throws Exception {
+            countCompileAndAddScript++;
         }
         
+        protected MirthMain getDebugger(MirthContextFactory contextFactory) {
+            countGetDebugger++;
+            return null;         
+        }
+   
         protected String execute(MirthContextFactory contextFactory, Response response, ConnectorMessage connectorMessage) {
             return null;
         }

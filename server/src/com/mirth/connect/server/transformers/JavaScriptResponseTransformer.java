@@ -90,7 +90,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
                     debug = true;
                     contextFactory.setDebugType(true);
                     contextFactories.put(scriptId, contextFactory);
-                    debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, connector.getChannel(), scriptId);
+                    debugger = getDebugger(contextFactory);
                 }
 
                 contextFactoryId = contextFactory.getId();
@@ -136,6 +136,11 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
         } catch (Exception e) {
             throw new ResponseTransformerException(e.getMessage(), e, ErrorMessageBuilder.buildErrorMessage("Filter/Transformer", null, e));
         }
+    }
+    
+    protected MirthMain getDebugger(MirthContextFactory contextFactory) {
+        return JavaScriptUtil.getDebugger(contextFactory, scopeProvider, connector.getChannel(), scriptId);
+        
     }
 
     protected String execute(MirthContextFactory contextFactory, Response response, ConnectorMessage connectorMessage) throws JavaScriptExecutorException, InterruptedException {
