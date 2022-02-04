@@ -23,8 +23,6 @@ public abstract class BatchAdaptorFactory {
     private AtomicInteger batches = new AtomicInteger();
     private AtomicBoolean finished = new AtomicBoolean();
     private boolean useFirstReponse = false;
-    private volatile String contextFactoryId;
-    protected boolean ignoreBreakpoints = false;
 
     public BatchAdaptorFactory(SourceConnector sourceConnector) {
         this.sourceConnector = sourceConnector;
@@ -71,24 +69,9 @@ public abstract class BatchAdaptorFactory {
         this.useFirstReponse = useFirstReponse;
     }
 
-    public String getContextFactoryId() {
-        return contextFactoryId;
-    }
-
-    public void setContextFactoryId(String contextFactoryId) {
-        this.contextFactoryId = contextFactoryId;
-    }
-
     public abstract BatchAdaptor createBatchAdaptor(BatchRawMessage batchRawMessage);
 
     public abstract void onDeploy() throws DeployException;
 
     public abstract void onUndeploy() throws UndeployException;
-
-	public abstract Object getDebugger();
-	
-	public boolean isIgnoreBreakpoints() {
-	    return ignoreBreakpoints;
-	}
-
 }
