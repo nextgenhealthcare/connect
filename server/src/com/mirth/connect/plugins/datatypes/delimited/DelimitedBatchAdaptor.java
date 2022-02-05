@@ -30,6 +30,7 @@ import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
 import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptor;
+import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptorFactory;
 import com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -47,7 +48,6 @@ public class DelimitedBatchAdaptor extends DebuggableBatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private DelimitedSerializationProperties serializationProperties;
-    private DelimitedBatchProperties batchProperties;
     private DelimitedReader delimitedReader = null;
     private BufferedReader bufferedReader;
     private boolean skipHeader;
@@ -64,14 +64,6 @@ public class DelimitedBatchAdaptor extends DebuggableBatchAdaptor {
 
     public void setSerializationProperties(DelimitedSerializationProperties serializationProperties) {
         this.serializationProperties = serializationProperties;
-    }
-
-    public DelimitedBatchProperties getBatchProperties() {
-        return batchProperties;
-    }
-
-    public void setBatchProperties(DelimitedBatchProperties batchProperties) {
-        this.batchProperties = batchProperties;
     }
 
     public DelimitedReader getDelimitedReader() {
@@ -127,6 +119,7 @@ public class DelimitedBatchAdaptor extends DebuggableBatchAdaptor {
         String recDelim = delimitedReader.getRecordDelimiter();
         int ch;
         String lookAhead = "";
+        DelimitedBatchProperties batchProperties = (DelimitedBatchProperties) getBatchProperties();
         // If skipping the header, and the option is configured, consume all the skip records,
         // including the record delimiters
         if (skipHeader && batchProperties.getBatchSkipRecords() > 0) {
@@ -235,7 +228,7 @@ public class DelimitedBatchAdaptor extends DebuggableBatchAdaptor {
             try {
                 final int batchSkipRecords = batchProperties.getBatchSkipRecords();
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-                final Boolean debug = factory.isDebug();
+                final Boolean debug = ((DebuggableBatchAdaptorFactory) getFactory()).isDebug();
                 MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchProperties.getBatchScript());
 
                 triggerDebug(debug);

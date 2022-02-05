@@ -16,7 +16,6 @@ import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptorFactory;
 
 public class EDIBatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
-
 	public EDIBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
         super(sourceConnector, serializerProperties);
     }

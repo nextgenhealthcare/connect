@@ -28,6 +28,7 @@ import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
 import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptor;
+import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptorFactory;
 import com.mirth.connect.plugins.datatypes.json.JSONBatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -43,20 +44,10 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 public class JSONBatchAdaptor extends DebuggableBatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
-
-    private JSONBatchProperties batchProperties;
     private BufferedReader bufferedReader;
 
     public JSONBatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
-    }
-
-    public JSONBatchProperties getBatchProperties() {
-        return batchProperties;
-    }
-
-    public void setBatchProperties(JSONBatchProperties batchProperties) {
-        this.batchProperties = batchProperties;
     }
 
     @Override
@@ -95,6 +86,7 @@ public class JSONBatchAdaptor extends DebuggableBatchAdaptor {
     }
 
     private String getMessageFromReader() throws Exception {
+        JSONBatchProperties batchProperties = (JSONBatchProperties) getBatchProperties();
         SplitType splitType = batchProperties.getSplitType();
         if (splitType == SplitType.JavaScript) {
             if (StringUtils.isEmpty(batchProperties.getBatchScript())) {
@@ -103,7 +95,7 @@ public class JSONBatchAdaptor extends DebuggableBatchAdaptor {
 
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-                final Boolean debug = factory.isDebug();
+                final Boolean debug = ((DebuggableBatchAdaptorFactory) getFactory()).isDebug();
                 MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchProperties.getBatchScript());                
                 
                 triggerDebug(debug);

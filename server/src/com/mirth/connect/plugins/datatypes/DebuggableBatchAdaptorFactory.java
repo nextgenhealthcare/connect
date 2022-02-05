@@ -3,12 +3,10 @@ package com.mirth.connect.plugins.datatypes;
 import org.apache.commons.lang3.StringUtils;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
-import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
-import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.datatype.BatchProperties;
@@ -20,8 +18,7 @@ import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
-
-public class DebuggableBatchAdaptorFactory extends BatchAdaptorFactory {
+public abstract class DebuggableBatchAdaptorFactory extends BatchAdaptorFactory {
     protected ContextFactoryController contextFactoryController = getContextFactoryController();
     protected BatchProperties batchProperties;
     protected boolean debug = false;
@@ -59,12 +56,6 @@ public class DebuggableBatchAdaptorFactory extends BatchAdaptorFactory {
 
     public void setContextFactoryId(String contextFactoryId) {
         this.contextFactoryId = contextFactoryId;
-    }
-
-    @Override
-    public BatchAdaptor createBatchAdaptor(BatchRawMessage batchRawMessage) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     @Override

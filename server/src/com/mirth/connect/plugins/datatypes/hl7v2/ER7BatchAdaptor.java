@@ -30,6 +30,7 @@ import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
 import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptor;
+import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptorFactory;
 import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2BatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -45,8 +46,6 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 public class ER7BatchAdaptor extends DebuggableBatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
-
-    private HL7v2BatchProperties batchProperties;
     private Pattern lineBreakPattern;
     private String segmentDelimiter;
     private BufferedReader bufferedReader;
@@ -55,14 +54,6 @@ public class ER7BatchAdaptor extends DebuggableBatchAdaptor {
 
     public ER7BatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
-    }
-
-    public HL7v2BatchProperties getBatchProperties() {
-        return batchProperties;
-    }
-
-    public void setBatchProperties(HL7v2BatchProperties batchProperties) {
-        this.batchProperties = batchProperties;
     }
 
     public Pattern getLineBreakPattern() {
@@ -126,6 +117,7 @@ public class ER7BatchAdaptor extends DebuggableBatchAdaptor {
     }
 
     private String getMessageFromReader() throws Exception {
+        HL7v2BatchProperties batchProperties = (HL7v2BatchProperties) getBatchProperties();
         SplitType splitType = batchProperties.getSplitType();
 
         if (splitType == SplitType.MSH_Segment) {
@@ -183,7 +175,7 @@ public class ER7BatchAdaptor extends DebuggableBatchAdaptor {
 
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-                final Boolean debug = factory.isDebug();
+                final Boolean debug = ((DebuggableBatchAdaptorFactory) getFactory()).isDebug();
                 MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchProperties.getBatchScript());
                 
                 triggerDebug(debug);
