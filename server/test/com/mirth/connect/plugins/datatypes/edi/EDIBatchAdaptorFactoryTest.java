@@ -127,7 +127,6 @@ public class EDIBatchAdaptorFactoryTest {
     
     private static class TestEDIBatchAdaptorFactory extends EDIBatchAdaptorFactory {
         private ContextFactoryController contextFactoryController;
-        private MirthMain debugger;
 
         public TestEDIBatchAdaptorFactory(SourceConnector connector, SerializerProperties serializerProperties) {
             super(connector, serializerProperties);

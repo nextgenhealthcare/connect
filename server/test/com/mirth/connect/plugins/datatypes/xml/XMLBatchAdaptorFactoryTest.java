@@ -9,34 +9,26 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.apache.log4j.Logger;
-import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.Channel;
+import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
-import com.mirth.connect.donkey.server.channel.SourceConnector;
 
 public class XMLBatchAdaptorFactoryTest {
     private static Logger logger = Logger.getLogger(XMLBatchAdaptorFactoryTest.class);
-    private DebugOptions debugOptions;
-
-    @Before
-    public void setup() {
-        debugOptions = new DebugOptions();
-        debugOptions.setSourceConnectorScripts(true);
-    }
     
     @Test
     public void testDebug() throws Exception {
         SourceConnector sourceConnector = mock(SourceConnector.class);
         SerializerProperties serializerProperties = mock(SerializerProperties.class);
         XMLBatchProperties batchProperties = new XMLBatchProperties();
-        batchProperties.setBatchScript("<breakfast_menu><food><name>Belgian Waffles</name><price>$5.95</price><description>Two of our famous Belgian Waffles with plenty of real maple syrup</description><calories>650</calories></food><food><name>French Toast</name><price>$4.50</price><description>Thick slices made from our homemade sourdough bread</description><calories>600</calories></food></breakfast_menu>");
+        batchProperties.setBatchScript("XMLBatchScript");
         DebugOptions debugOptions = new DebugOptions(false, true, false, false, false, false, false);
         Channel channel = mock(Channel.class);
         

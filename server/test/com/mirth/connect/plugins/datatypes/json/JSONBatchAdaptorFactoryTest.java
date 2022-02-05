@@ -9,34 +9,26 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.apache.log4j.Logger;
-import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.Channel;
+import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.model.datatype.SerializerProperties;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
-import com.mirth.connect.donkey.server.channel.SourceConnector;
 
 public class JSONBatchAdaptorFactoryTest {
     private static Logger logger = Logger.getLogger(JSONBatchAdaptorFactoryTest.class);
-    private DebugOptions debugOptions;
-
-    @Before
-    public void setup() {
-        debugOptions = new DebugOptions();
-        debugOptions.setSourceConnectorScripts(true);
-    }
     
     @Test
     public void testDebug() throws Exception {
         SourceConnector sourceConnector = mock(SourceConnector.class);
         SerializerProperties serializerProperties = mock(SerializerProperties.class);
         JSONBatchProperties batchProperties = new JSONBatchProperties();
-        batchProperties.setBatchScript("[{\"firstName\": \"John\",\"lastName\": \"Doe\",\"age\": 21},{\"firstName\": \"Jane\",\"lastName\": \"Doe\",\"age\": 21}]");
+        batchProperties.setBatchScript("JSONBatchScript");
         DebugOptions debugOptions = new DebugOptions(false, true, false, false, false, false, false);
         Channel channel = mock(Channel.class);
         

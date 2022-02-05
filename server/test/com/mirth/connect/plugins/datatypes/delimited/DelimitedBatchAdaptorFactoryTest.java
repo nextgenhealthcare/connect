@@ -23,20 +23,13 @@ import com.mirth.connect.donkey.server.channel.SourceConnector;
 
 public class DelimitedBatchAdaptorFactoryTest {
     private static Logger logger = Logger.getLogger(DelimitedBatchAdaptorFactoryTest.class);
-    private DebugOptions debugOptions;
-
-    @Before
-    public void setup() {
-        debugOptions = new DebugOptions();
-        debugOptions.setSourceConnectorScripts(true);
-    }
     
     @Test
     public void testDebug() throws Exception {
         SourceConnector sourceConnector = mock(SourceConnector.class);
         SerializerProperties serializerProperties = mock(SerializerProperties.class);
         DelimitedBatchProperties batchProperties = new DelimitedBatchProperties();
-        batchProperties.setBatchScript("value1,value2");
+        batchProperties.setBatchScript("DelimitedBatchScript");
         DebugOptions debugOptions = new DebugOptions(false, true, false, false, false, false, false);
         Channel channel = mock(Channel.class);
         
