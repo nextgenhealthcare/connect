@@ -1,4 +1,4 @@
-package com.mirth.connect.plugins.datatypes;
+package com.mirth.connect.server.message;
 
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
