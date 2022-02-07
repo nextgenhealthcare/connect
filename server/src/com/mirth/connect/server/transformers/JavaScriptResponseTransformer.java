@@ -147,7 +147,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
     }
 
     protected MirthContextFactory getContextFactory() throws Exception {
-        if (debugOptions.isDestinationResponseTransformer()) {
+        if ((debugOptions!=null) && (debugOptions.isDestinationResponseTransformer())) {
             return contextFactoryController.getDebugContextFactory(connector.getChannel().getResourceIds(), connector.getChannel().getChannelId(), scriptId);
         } else {
             return contextFactoryController.getContextFactory(connector.getChannel().getResourceIds());
