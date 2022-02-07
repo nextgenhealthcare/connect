@@ -9,9 +9,6 @@
 
 package com.mirth.connect.server.transformers;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -55,7 +52,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
     private String scriptId;
     private String template;
     private String script;
-    boolean debug;
+    private boolean debug = false;
     private MirthMain debugger;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
     private DebugOptions debugOptions;
