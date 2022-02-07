@@ -13,7 +13,7 @@ import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.model.datatype.SerializerProperties;
-import com.mirth.connect.plugins.datatypes.DebuggableBatchAdaptorFactory;
+import com.mirth.connect.server.message.DebuggableBatchAdaptorFactory;
 
 public class HL7V3BatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
     public HL7V3BatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
