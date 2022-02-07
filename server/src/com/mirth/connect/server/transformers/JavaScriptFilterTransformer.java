@@ -107,7 +107,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
                     contextFactory.setScriptText(script);
 
                 }
-
+                contextFactoryId = contextFactory.getId();
                 compileAndAddScript(script, contextFactory);
             }
         } catch (Exception e) {
