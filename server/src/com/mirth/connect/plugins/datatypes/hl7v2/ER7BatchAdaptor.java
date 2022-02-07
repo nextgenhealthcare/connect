@@ -25,7 +25,6 @@ import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
-import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
@@ -34,6 +33,8 @@ import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2BatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.message.DebuggableBatchAdaptor;
+import com.mirth.connect.server.message.DebuggableBatchAdaptorFactory;
 import com.mirth.connect.server.userutil.SourceMap;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -42,28 +43,17 @@ import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
-public class ER7BatchAdaptor extends BatchAdaptor {
+public class ER7BatchAdaptor extends DebuggableBatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
-
-    private HL7v2BatchProperties batchProperties;
     private Pattern lineBreakPattern;
     private String segmentDelimiter;
     private BufferedReader bufferedReader;
-
     private Scanner scanner;
     private String previousLine;
 
     public ER7BatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
-    }
-
-    public HL7v2BatchProperties getBatchProperties() {
-        return batchProperties;
-    }
-
-    public void setBatchProperties(HL7v2BatchProperties batchProperties) {
-        this.batchProperties = batchProperties;
     }
 
     public Pattern getLineBreakPattern() {
@@ -127,6 +117,7 @@ public class ER7BatchAdaptor extends BatchAdaptor {
     }
 
     private String getMessageFromReader() throws Exception {
+        HL7v2BatchProperties batchProperties = (HL7v2BatchProperties) getBatchProperties();
         SplitType splitType = batchProperties.getSplitType();
 
         if (splitType == SplitType.MSH_Segment) {
@@ -184,17 +175,10 @@ public class ER7BatchAdaptor extends BatchAdaptor {
 
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
-                if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
-                    synchronized (factory) {
-                        contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
-                        if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
-                            JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
-                            factory.setContextFactoryId(contextFactory.getId());
-                        }
-                    }
-                }
+                final Boolean debug = ((DebuggableBatchAdaptorFactory) getFactory()).isDebug();
+                MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchProperties.getBatchScript());
+                
+                triggerDebug(debug);
 
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "HL7 v2.x Batch Adaptor", sourceConnector) {
                     @Override

@@ -132,7 +132,8 @@ public class TestPreProcessor {
     @Test
     public final void testFilterTransformer() throws Exception {
         final String scriptId = "testScriptId";
-        final JavaScriptFilterTransformer filterTransformer = new JavaScriptFilterTransformer(null, "test connector", scriptId, null);
+        DebugOptions  debugOptions = new DebugOptions();
+        final JavaScriptFilterTransformer filterTransformer = new JavaScriptFilterTransformer(null, "test connector", scriptId, null,debugOptions);
         final int testSize = 100000;
 
         StringBuilder script = new StringBuilder();

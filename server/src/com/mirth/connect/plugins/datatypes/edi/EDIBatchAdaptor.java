@@ -23,7 +23,6 @@ import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
-import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
@@ -32,6 +31,8 @@ import com.mirth.connect.plugins.datatypes.edi.EDIBatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.message.DebuggableBatchAdaptor;
+import com.mirth.connect.server.message.DebuggableBatchAdaptorFactory;
 import com.mirth.connect.server.userutil.SourceMap;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -40,23 +41,13 @@ import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
-public class EDIBatchAdaptor extends BatchAdaptor {
+public class EDIBatchAdaptor extends DebuggableBatchAdaptor {
     private Logger logger = Logger.getLogger(this.getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
-
-    private EDIBatchProperties batchProperties;
     private BufferedReader bufferedReader;
 
     public EDIBatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
-    }
-
-    public EDIBatchProperties getBatchProperties() {
-        return batchProperties;
-    }
-
-    public void setBatchProperties(EDIBatchProperties batchProperties) {
-        this.batchProperties = batchProperties;
     }
 
     @Override
@@ -95,26 +86,20 @@ public class EDIBatchAdaptor extends BatchAdaptor {
     }
 
     private String getMessageFromReader() throws Exception {
+        EDIBatchProperties batchProperties = (EDIBatchProperties) getBatchProperties();
         SplitType splitType = batchProperties.getSplitType();
-
         if (splitType == SplitType.JavaScript) {
             if (StringUtils.isEmpty(batchProperties.getBatchScript())) {
                 throw new BatchMessageException("No batch script was set.");
             }
+           
 
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
+                final Boolean debug = ((DebuggableBatchAdaptorFactory) getFactory()).isDebug();
+                MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchProperties.getBatchScript());
 
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
-                if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
-                    synchronized (factory) {
-                        contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
-                        if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
-                            JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
-                            factory.setContextFactoryId(contextFactory.getId());
-                        }
-                    }
-                }
+                triggerDebug(debug);
 
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "EDI/X12 Batch Adaptor", sourceConnector) {
                     @Override

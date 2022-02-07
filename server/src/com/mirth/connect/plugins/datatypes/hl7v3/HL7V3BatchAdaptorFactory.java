@@ -9,31 +9,15 @@
 
 package com.mirth.connect.plugins.datatypes.hl7v3;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
-import com.mirth.connect.donkey.server.DeployException;
-import com.mirth.connect.donkey.server.UndeployException;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
-import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
-import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.datatype.SerializerProperties;
-import com.mirth.connect.server.controllers.ContextFactoryController;
-import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.ScriptController;
-import com.mirth.connect.server.util.javascript.JavaScriptUtil;
-import com.mirth.connect.server.util.javascript.MirthContextFactory;
+import com.mirth.connect.server.message.DebuggableBatchAdaptorFactory;
 
-public class HL7V3BatchAdaptorFactory extends BatchAdaptorFactory {
-
-    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
-    private HL7V3BatchProperties batchProperties;
-
+public class HL7V3BatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
     public HL7V3BatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties serializerProperties) {
-        super(sourceConnector);
-
-        batchProperties = (HL7V3BatchProperties) serializerProperties.getBatchProperties();
+        super(sourceConnector, serializerProperties);
     }
 
     @Override
@@ -44,24 +28,4 @@ public class HL7V3BatchAdaptorFactory extends BatchAdaptorFactory {
 
         return batchAdaptor;
     }
-
-    @Override
-    public void onDeploy() throws DeployException {
-        String batchScript = batchProperties.getBatchScript();
-
-        if (StringUtils.isNotEmpty(batchScript)) {
-            String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-
-            try {
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
-                setContextFactoryId(contextFactory.getId());
-                JavaScriptUtil.compileAndAddScript(sourceConnector.getChannelId(), contextFactory, batchScriptId, batchScript.toString(), ContextType.CHANNEL_BATCH);
-            } catch (Exception e) {
-                throw new DeployException("Error compiling " + sourceConnector.getConnectorProperties().getName() + " script " + batchScriptId + ".", e);
-            }
-        }
-    }
-
-    @Override
-    public void onUndeploy() throws UndeployException {}
 }

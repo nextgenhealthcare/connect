@@ -38,7 +38,6 @@ import org.xml.sax.InputSource;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
-import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
@@ -47,6 +46,8 @@ import com.mirth.connect.plugins.datatypes.xml.XMLBatchProperties.SplitType;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.message.DebuggableBatchAdaptor;
+import com.mirth.connect.server.message.DebuggableBatchAdaptorFactory;
 import com.mirth.connect.server.userutil.SourceMap;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -55,28 +56,19 @@ import com.mirth.connect.server.util.javascript.JavaScriptTask;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
-public class XMLBatchAdaptor extends BatchAdaptor {
+public class XMLBatchAdaptor extends DebuggableBatchAdaptor  {
     private Logger logger = Logger.getLogger(this.getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
 
     private BufferedReader bufferedReader;
     private XPathFactory xPathFactory = XPathFactory.newInstance();
-    private XMLBatchProperties batchProperties;
     private NodeList nodeList;
     private int currentNode = 0;
 
     public XMLBatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
     }
-
-    public XMLBatchProperties getBatchProperties() {
-        return batchProperties;
-    }
-
-    public void setBatchProperties(XMLBatchProperties batchProperties) {
-        this.batchProperties = batchProperties;
-    }
-
+    
     @Override
     public void cleanup() throws BatchMessageException {}
 
@@ -113,6 +105,7 @@ public class XMLBatchAdaptor extends BatchAdaptor {
     }
 
     private String getMessageFromReader() throws Exception {
+        XMLBatchProperties batchProperties = (XMLBatchProperties) getBatchProperties();
         SplitType splitType = batchProperties.getSplitType();
 
         if (splitType == SplitType.Element_Name || splitType == SplitType.Level || splitType == SplitType.XPath_Query) {
@@ -151,17 +144,10 @@ public class XMLBatchAdaptor extends BatchAdaptor {
 
             try {
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
-
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
-                if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
-                    synchronized (factory) {
-                        contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
-                        if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
-                            JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
-                            factory.setContextFactoryId(contextFactory.getId());
-                        }
-                    }
-                }
+                final Boolean debug = ((DebuggableBatchAdaptorFactory) getFactory()).isDebug();
+                MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchProperties.getBatchScript());
+                
+                triggerDebug(debug);
 
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "XML Batch Adaptor", sourceConnector) {
                     @Override

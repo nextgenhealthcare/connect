@@ -20,6 +20,7 @@ import java.util.concurrent.Future;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -82,8 +83,9 @@ public class TestFilterTransformer {
     }
 
     private static void initJavaScriptFilterTransformer() throws Exception {
-        filterTransformer = new JavaScriptFilterTransformer(null, CONNECTOR_NAME, TEST_SCRIPT_ID, null);
-        filterTransformerPerformance = new JavaScriptFilterTransformer(null, CONNECTOR_NAME, PERFORMANCE_SCRIPT_ID, null);
+        DebugOptions  debugOptions = new DebugOptions();
+        filterTransformer = new JavaScriptFilterTransformer(null, CONNECTOR_NAME, TEST_SCRIPT_ID, null,debugOptions);
+        filterTransformerPerformance = new JavaScriptFilterTransformer(null, CONNECTOR_NAME, PERFORMANCE_SCRIPT_ID, null,debugOptions);
     }
 
     @Test

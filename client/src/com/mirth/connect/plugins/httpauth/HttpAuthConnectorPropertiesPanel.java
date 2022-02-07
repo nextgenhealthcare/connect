@@ -61,6 +61,7 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthButton;
 import com.mirth.connect.client.ui.components.MirthCheckBox;
 import com.mirth.connect.client.ui.components.MirthComboBox;
+import com.mirth.connect.client.ui.components.MirthPasswordField;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTextField;
@@ -439,7 +440,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         CredentialsTableCellEditor basicCredentialsTableCellEditor = new CredentialsTableCellEditor(basicCredentialsTable);
         basicCredentialsTable.getColumnExt(0).setCellEditor(basicCredentialsTableCellEditor);
         basicCredentialsTable.getColumnExt(1).setCellRenderer(new PasswordCellRenderer());
-        basicCredentialsTable.getColumnExt(1).setCellEditor(new DefaultCellEditor(new JPasswordField()));
+        basicCredentialsTable.getColumnExt(1).setCellEditor(new DefaultCellEditor(new MirthPasswordField()));
 
         basicCredentialsTableScrollPane = new JScrollPane(basicCredentialsTable);
 
@@ -570,7 +571,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
         CredentialsTableCellEditor digestCredentialsTableCellEditor = new CredentialsTableCellEditor(digestCredentialsTable);
         digestCredentialsTable.getColumnExt(0).setCellEditor(digestCredentialsTableCellEditor);
         digestCredentialsTable.getColumnExt(1).setCellRenderer(new PasswordCellRenderer());
-        digestCredentialsTable.getColumnExt(1).setCellEditor(new DefaultCellEditor(new JPasswordField()));
+        digestCredentialsTable.getColumnExt(1).setCellEditor(new DefaultCellEditor(new MirthPasswordField()));
 
         digestCredentialsTableScrollPane = new JScrollPane(digestCredentialsTable);
 
