@@ -85,7 +85,8 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
     public FilterTransformerResult doFilterTransform(ConnectorMessage message) throws FilterTransformerException, InterruptedException {
         try {
             MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
-
+            contextFactoryId = contextFactory.getId();
+            
             if (!contextFactoryId.equals(contextFactory.getId())) {
                 synchronized (this) {
                     contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());

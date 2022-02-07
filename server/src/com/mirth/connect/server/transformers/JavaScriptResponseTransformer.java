@@ -108,7 +108,6 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
         try {
 
             MirthContextFactory contextFactory = getContextFactory();
-            contextFactoryId = contextFactory.getId();
             if (!contextFactoryId.equals(contextFactory.getId())) {
                 synchronized (this) {
                     contextFactory = getContextFactory();
