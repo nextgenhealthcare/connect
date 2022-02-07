@@ -13,7 +13,7 @@ import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
 public abstract class BatchAdaptor {
-    protected BatchAdaptorFactory factory;
+    private BatchAdaptorFactory factory;
     protected SourceConnector sourceConnector;
     protected BatchRawMessage batchRawMessage;
     private int batchSequenceId;
@@ -24,6 +24,10 @@ public abstract class BatchAdaptor {
         this.factory = factory;
         this.sourceConnector = sourceConnector;
         this.batchRawMessage = batchRawMessage;
+    }
+    
+    public BatchAdaptorFactory getFactory() {
+        return factory;
     }
 
     public String getMessage() throws BatchMessageException {

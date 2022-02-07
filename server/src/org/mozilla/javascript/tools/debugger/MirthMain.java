@@ -48,7 +48,7 @@ public class MirthMain extends Main {
         return workingMain;
     }
 
-	public static MirthMain mirthMainEmbedded(ContextFactory factory, Object scopeProvider, String title, String scriptId) {
+	public static MirthMain mirthMainEmbedded(ContextFactory factory, Object scopeProvider, String title, String scriptId, boolean showWindow) {
 		if (title == null) {
 			title = "Rhino JavaScript Debugger (embedded usage)";
 		}
@@ -56,9 +56,13 @@ public class MirthMain extends Main {
 
 		embeddedMain.pack();
 		embeddedMain.setSize(600, 460);
-		embeddedMain.setVisible(true);
+		embeddedMain.setVisible(showWindow);
 		return embeddedMain;
 	}
+	
+	   public static MirthMain mirthMainEmbedded(ContextFactory factory, Object scopeProvider, String title, String scriptId) {
+	        return mirthMainEmbedded(factory, scopeProvider, title, scriptId, true);
+	    }
 
 	@Override
 	public void setVisible(boolean flag) {
