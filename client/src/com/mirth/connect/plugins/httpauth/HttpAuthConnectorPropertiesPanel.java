@@ -109,6 +109,12 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
 
             props.setRealm(basicRealmField.getText());
 
+            // Fix for table showing ghost data
+            if (basicCredentialsTable.isEditing()) {
+                basicCredentialsTable.getCellEditor().stopCellEditing();
+                basicCredentialsTable.clearSelection();
+            }
+            
             for (int row = 0; row < basicCredentialsTable.getModel().getRowCount(); row++) {
                 props.getCredentialsMap().put((String) basicCredentialsTable.getModel().getValueAt(row, 0), (String) basicCredentialsTable.getModel().getValueAt(row, 1));
             }
@@ -143,6 +149,12 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
 
             props.setOpaque(digestOpaqueField.getText());
 
+            // Fix for table showing ghost data
+            if (digestCredentialsTable.isEditing()) {
+                digestCredentialsTable.getCellEditor().stopCellEditing();
+                digestCredentialsTable.clearSelection();
+            }
+            
             for (int row = 0; row < digestCredentialsTable.getModel().getRowCount(); row++) {
                 props.getCredentialsMap().put((String) digestCredentialsTable.getModel().getValueAt(row, 0), (String) digestCredentialsTable.getModel().getValueAt(row, 1));
             }
@@ -162,6 +174,12 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
 
             props.setAuthenticatorClass(customClassNameField.getText());
 
+            // Fix for table showing ghost data
+            if (customPropertiesTable.isEditing()) {
+                customPropertiesTable.getCellEditor().stopCellEditing();
+                customPropertiesTable.clearSelection();
+            }
+            
             for (int row = 0; row < customPropertiesTable.getModel().getRowCount(); row++) {
                 props.getProperties().put((String) customPropertiesTable.getModel().getValueAt(row, 0), (String) customPropertiesTable.getModel().getValueAt(row, 1));
             }
@@ -690,6 +708,7 @@ public class HttpAuthConnectorPropertiesPanel extends AbstractConnectorPropertie
 
         CredentialsTableCellEditor customPropertiesTableCellEditor = new CredentialsTableCellEditor(customPropertiesTable);
         customPropertiesTable.getColumnExt(0).setCellEditor(customPropertiesTableCellEditor);
+        customPropertiesTable.getColumnExt(1).setCellEditor(customPropertiesTableCellEditor);
 
         customPropertiesTableScrollPane = new JScrollPane(customPropertiesTable);
 
