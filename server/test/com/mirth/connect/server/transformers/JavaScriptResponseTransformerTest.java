@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.util.HashSet;
 import java.util.UUID;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
@@ -19,15 +20,20 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.Connector;
-import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 
 public class JavaScriptResponseTransformerTest {
 
-    public String connectorName = "Destination 1";
-    private int countCompileAndAddScript = 0; 
-    private int countGetDebugger = 0;
+    private static final String CONNECTOR_NAME = "Destination 1";
+    private int countCompileAndAddScript; 
+    private int countGetDebugger;
+    
+    @Before
+    public void setup() {
+    	countCompileAndAddScript = 0; 
+        countGetDebugger = 0;
+    }
     
     @Test
     public void testDoTransform() throws Exception {
@@ -50,7 +56,7 @@ public class JavaScriptResponseTransformerTest {
         resourceIds.add("Default Resource");
         when(mockChannel.getResourceIds()).thenReturn(resourceIds);
         
-        TestJavaScriptResponseTransformer spyTransformer = spy(new TestJavaScriptResponseTransformer(mockConnector, connectorName, script, template, debugOptions));
+        TestJavaScriptResponseTransformer spyTransformer = spy(new TestJavaScriptResponseTransformer(mockConnector, CONNECTOR_NAME, script, template, debugOptions));
 
         spyTransformer.doTransform(mockResponse, mockConnectorMessage);
         
@@ -60,20 +66,35 @@ public class JavaScriptResponseTransformerTest {
     }
     
     private class TestJavaScriptResponseTransformer extends JavaScriptResponseTransformer {
+    	
+    	private static final String CONTEXT_FACTORY_ID = "testContextFactoryId";
+    	private MirthContextFactory contextFactory;
 
         public TestJavaScriptResponseTransformer(Connector connector, String connectorName, String script, String template, DebugOptions debugOptions) throws JavaScriptInitializationException {
             super(connector, connectorName, script, template, debugOptions);
         }
         
+        @Override
         protected void compileAndAddScript(MirthContextFactory contextFactory) throws Exception {
             countCompileAndAddScript++;
         }
+
+        @Override
+        protected MirthContextFactory getContextFactory() throws Exception {
+        	if (contextFactory == null) {
+        		contextFactory = mock(MirthContextFactory.class);
+        		when(contextFactory.getId()).thenReturn(CONTEXT_FACTORY_ID);
+        	}
+        	return contextFactory;
+        }
         
+        @Override
         protected MirthMain getDebugger(MirthContextFactory contextFactory) {
             countGetDebugger++;
             return null;         
         }
    
+        @Override
         protected String execute(MirthContextFactory contextFactory, Response response, ConnectorMessage connectorMessage) {
             return null;
         }
