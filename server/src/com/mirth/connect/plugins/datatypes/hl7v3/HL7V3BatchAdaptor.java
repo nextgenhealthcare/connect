@@ -23,7 +23,6 @@ import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
-import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
@@ -46,7 +45,7 @@ public class HL7V3BatchAdaptor extends DebuggableBatchAdaptor {
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private BufferedReader bufferedReader;
 
-    public HL7V3BatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
+    public HL7V3BatchAdaptor(DebuggableBatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
     }
 
