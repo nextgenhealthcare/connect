@@ -2765,9 +2765,10 @@ public class Frame extends JXFrame {
 
         DeployInDebugModeDialog deployInDebugMode = new DeployInDebugModeDialog();
         debugOptions = deployInDebugMode.getDebugOptions();
-
-        deployChannel(Collections.singleton(channelId), debugOptions);
-
+        
+        if (deployInDebugMode.getIsDebugChannel()) {
+            deployChannel(Collections.singleton(channelId), debugOptions);
+        } 
     }
 
     public void doDeployFromChannelView() {
