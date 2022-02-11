@@ -146,7 +146,10 @@ public class MirthWebServer extends Server {
 
         if (usingHttp) {
             // add HTTP listener
-            connector = new ServerConnector(this);
+            HttpConfiguration config = new HttpConfiguration();
+            config.setSendServerVersion(false);
+            config.setSendXPoweredBy(false);
+            connector = new ServerConnector(this, new HttpConnectionFactory(config));
             connector.setName(CONNECTOR);
             connector.setHost(mirthProperties.getString("http.host", "0.0.0.0"));
             connector.setPort(mirthProperties.getInt("http.port"));
@@ -394,6 +397,8 @@ public class MirthWebServer extends Server {
         config.setSecureScheme("https");
         config.setSecurePort(mirthProperties.getInt("https.port"));
         config.addCustomizer(new SecureRequestCustomizer());
+        config.setSendServerVersion(false);
+        config.setSendXPoweredBy(false);
 
         ServerConnector sslConnector = new ServerConnector(this, new SslConnectionFactory(contextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(config));
 
