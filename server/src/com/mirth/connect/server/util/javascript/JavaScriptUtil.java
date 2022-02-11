@@ -40,6 +40,7 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ServerEvent;
@@ -850,5 +851,23 @@ public class JavaScriptUtil {
     public static void removeDebuggerFromMap(String channelId) {
         MirthMain.closeDebugger(channelId);
         
+    }
+    
+    public static MirthContextFactory generateContextFactory(boolean debug, Set<String> libraryResourceIds, String channelId, String scriptId, String script, ContextType contextType) throws ConnectorTaskException {
+        MirthContextFactory contextFactory;
+		try {
+			if (debug) {
+				contextFactory = contextFactoryController.getDebugContextFactory(libraryResourceIds, channelId, scriptId);
+				contextFactory.setContextType(contextType);
+				contextFactory.setScriptText(script);
+				contextFactory.setDebugType(debug);
+			} else {
+	            contextFactory = contextFactoryController.getContextFactory(libraryResourceIds);
+	        }
+            JavaScriptUtil.compileAndAddScript(channelId, contextFactory, scriptId, script, contextType);
+            return contextFactory;
+	    } catch (Exception e) {
+	    	throw new ConnectorTaskException("Error compiling generating context factory.", e);
+	    }
     }
 }

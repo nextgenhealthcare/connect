@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -102,8 +101,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
         this.debug = debugOptions != null && debugOptions.isDestinationConnectorScripts();
         com.mirth.connect.model.Channel channelModel = new com.mirth.connect.model.Channel();
         channelModel = getChannelController().getChannelById(getChannelId());
-        scriptId = UUID.randomUUID().toString() + "_JavaScript_Writer";
-        
+        scriptId = ScriptController.getScriptId("JavaScript_Writer_" + getMetaDataId(), getChannelId());
 
         try {
             MirthContextFactory contextFactory = null;

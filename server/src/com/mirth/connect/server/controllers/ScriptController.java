@@ -28,6 +28,7 @@ public abstract class ScriptController extends Controller {
     public static final String PREPROCESSOR_SCRIPT_KEY = "Preprocessor";
     public static final String UNDEPLOY_SCRIPT_KEY = "Undeploy";
     public static final String DEPLOY_SCRIPT_KEY = "Deploy";
+    public static final String RESPONSE_TRANSFORMER = "Response_Transformer";
 
     public static final String DELIMITER = "_";
 

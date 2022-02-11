@@ -2737,7 +2737,7 @@ public class Frame extends JXFrame {
     public void doDebugDeployFromChannelView() {
         String channelId = channelEditPanel.currentChannel.getId();
         if (isSaveEnabled()) {
-            if (alertOption(PlatformUI.MIRTH_FRAME, "<html>This channel will be saved before it is deployed in debug mode.<br/>Are you sure you want to save and deploy this channel?</html>")) {
+            if (alertOption(PlatformUI.MIRTH_FRAME, "<html>This channel will be saved before it is deployed in debug mode.<br/>Are you sure you want to save and debug this channel?</html>")) {
                 if (channelEditPanel.saveChanges()) {
                     setSaveEnabled(false);
                 } else {
@@ -2747,7 +2747,7 @@ public class Frame extends JXFrame {
                 return;
             }
         } else {
-            if (!alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you want to deploy this channel?")) {
+            if (!alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you want to debug this channel?")) {
                 return;
             }
         }
@@ -2765,9 +2765,10 @@ public class Frame extends JXFrame {
 
         DeployInDebugModeDialog deployInDebugMode = new DeployInDebugModeDialog();
         debugOptions = deployInDebugMode.getDebugOptions();
-
-        deployChannel(Collections.singleton(channelId), debugOptions);
-
+        
+        if (deployInDebugMode.getIsDebugChannel()) {
+            deployChannel(Collections.singleton(channelId), debugOptions);
+        } 
     }
 
     public void doDeployFromChannelView() {

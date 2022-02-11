@@ -48,7 +48,7 @@ public class MirthMain extends Main {
         return workingMain;
     }
 
-	public static MirthMain mirthMainEmbedded(ContextFactory factory, Object scopeProvider, String title, String scriptId) {
+	public static MirthMain mirthMainEmbedded(ContextFactory factory, Object scopeProvider, String title, String scriptId, boolean showWindow) {
 		if (title == null) {
 			title = "Rhino JavaScript Debugger (embedded usage)";
 		}
@@ -56,16 +56,24 @@ public class MirthMain extends Main {
 
 		embeddedMain.pack();
 		embeddedMain.setSize(600, 460);
-		embeddedMain.setVisible(true);
+		embeddedMain.setVisible(showWindow);
 		return embeddedMain;
 	}
+	
+	   public static MirthMain mirthMainEmbedded(ContextFactory factory, Object scopeProvider, String title, String scriptId) {
+	        return mirthMainEmbedded(factory, scopeProvider, title, scriptId, true);
+	    }
 
 	@Override
 	public void setVisible(boolean flag) {
 		if (flag) {
-			MirthSwingGui mirthDebugGui = (MirthSwingGui)debugGui;
-			mirthDebugGui.setStopping(!flag);
-			((MirthDim)dim).setStopping(!flag);
+			if (debugGui != null) {
+				MirthSwingGui mirthDebugGui = (MirthSwingGui)debugGui;
+				mirthDebugGui.setStopping(!flag);
+			}
+			if (dim != null) {
+				((MirthDim)dim).setStopping(!flag);
+			}
 		}
 		super.setVisible(flag);
 	}
@@ -74,28 +82,42 @@ public class MirthMain extends Main {
 	public void dispose() {
 	    this.finishScriptExecution();
 	    this.setVisible(false);
-	    this.detach();
+	    if (dim != null) {
+	    	this.detach();
+	    }
 	    this.removeFromMap();
-		debugGui.dispose();
+	    if (debugGui != null) {
+	    	debugGui.dispose();
+	    }
 		dim = null;
 	}
 
 	public void finishScriptExecution() {
-		((MirthSwingGui) debugGui).setStopping(true);
-		((MirthDim) dim).setStopping(true);
-		dim.clearAllBreakpoints();
-		dim.go();
+		if (debugGui != null) {
+			((MirthSwingGui) debugGui).setStopping(true);
+		}
+		if (dim != null) {
+			((MirthDim) dim).setStopping(true);
+			dim.clearAllBreakpoints();
+			dim.go();
+		}
 	}
 
 	public void enableDebugging() {
 		doBreak();
-		((MirthSwingGui) debugGui).setStopping(false);
-		((MirthDim) dim).setStopping(false);
+		if (debugGui != null) {
+			((MirthSwingGui) debugGui).setStopping(false);
+		}
+		if (dim != null) {
+			((MirthDim) dim).setStopping(false);
+		}
 	}
 
     private void removeFromMap() {
-        String key = debugGui.getTitle();
-        mainInstanceMap.remove(key);
+    	if (debugGui != null) {
+    		String key = debugGui.getTitle();
+        	mainInstanceMap.remove(key);
+    	}
     }
 
 	public static void closeDebugger(String channelId) {
