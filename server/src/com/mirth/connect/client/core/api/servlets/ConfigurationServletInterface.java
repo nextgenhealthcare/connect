@@ -48,6 +48,7 @@ import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.LicenseInfo;
 import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
@@ -187,6 +188,16 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
                     @ExampleObject(name = "serverSettings", ref = "../apiexamples/server_settings_xml") }),
             @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
                     @ExampleObject(name = "serverSettings", ref = "../apiexamples/server_settings_json") }) }) ServerSettings settings) throws ClientException;
+    
+    @GET
+    @Path("/publicSettings")
+    @Operation(summary = "Returns a PublicServerSettings object with all public server settings.")
+    @ApiResponse(content = { @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+            @ExampleObject(name = "publicServerSettings", ref = "../apiexamples/public_server_settings_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "publicServerSettings", ref = "../apiexamples/public_server_settings_json") }) })
+    @MirthOperation(name = "getPublicServerSettings", display = "Get public server settings", auditable = false)
+    public PublicServerSettings getPublicServerSettings() throws ClientException;
 
     @GET
     @Path("/encryption")
