@@ -62,6 +62,9 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     private Boolean smtpAuth;
     private String smtpUsername;
     private String smtpPassword;
+    
+    // Notification
+    private Boolean requireNotification;
 
     public ServerSettings() {
 
@@ -248,6 +251,14 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     @Override
     public String toAuditString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
+    }
+    
+    public Boolean getRequireNotification() {
+        return requireNotification;
+    }
+
+    public void setRequireNotification(Boolean requireNotification) {
+        this.requireNotification = requireNotification;
     }
 
     @Override
