@@ -35,6 +35,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 
@@ -51,6 +52,7 @@ import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthPasswordField;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTextField;
+import com.mirth.connect.client.ui.components.MirthTextPane;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.model.Channel;
@@ -227,7 +229,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         return true;
     }
 
-    /** Loads the current server settings into the Settings form */
     public void setServerSettings(ServerSettings serverSettings) {
         if (serverSettings.getEnvironmentName() != null) {
             environmentNameField.setText(serverSettings.getEnvironmentName());
@@ -321,6 +322,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             passwordField.setText(serverSettings.getSmtpPassword());
         } else {
             passwordField.setText("");
+        }
+        
+        if (serverSettings.getRequireNotification() != null && !serverSettings.getRequireNotification()) {
+        	requireNotificationNoRadio.setSelected(true);
+        } else {
+        	requireNotificationYesRadio.setSelected(true);
         }
         resetInvalidSettings();
     }
@@ -754,6 +761,30 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         passwordLabel = new JLabel("Password:");
         passwordField = new MirthPasswordField();
         passwordField.setToolTipText("Password for global SMTP settings.");
+        
+        notificationPanel = new JPanel();
+        notificationPanel.setBackground(getBackground());
+        notificationPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Notification", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
+
+        requireNotificationLabel = new JLabel("Require User Notification and Consent:");
+        requireNotificationButtonGroup = new ButtonGroup();
+
+        requireNotificationYesRadio = new MirthRadioButton("Yes");
+        requireNotificationYesRadio.setBackground(getBackground());
+        requireNotificationYesRadio.setSelected(true);
+        requireNotificationYesRadio.setToolTipText("Toggles requiring user notification on login.");
+        requireNotificationButtonGroup.add(requireNotificationYesRadio);
+
+        requireNotificationNoRadio = new MirthRadioButton("No");
+        requireNotificationNoRadio.setBackground(getBackground());
+        requireNotificationNoRadio.setToolTipText("Toggles requiring user notification on login.");
+        requireNotificationButtonGroup.add(requireNotificationNoRadio);
+        
+        notificationLabel = new JLabel("Notification:");
+        notificationTextPane = new MirthTextPane();
+        notificationScrollPane = new JScrollPane(notificationTextPane);
+
+
     }
 
     private void initLayout() {
@@ -806,6 +837,15 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         emailPanel.add(passwordLabel, "newline, right");
         emailPanel.add(passwordField, "w 117!");
         add(emailPanel, "newline, growx");
+        
+        notificationPanel.setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gap 6", "[]12[][grow]", ""));
+        notificationPanel.add(requireNotificationLabel, "right");
+        notificationPanel.add(requireNotificationYesRadio, "split 2");
+        notificationPanel.add(requireNotificationNoRadio);
+        notificationPanel.add(notificationLabel, "newline, top, right");
+        notificationPanel.add(notificationScrollPane, "grow, sx, push, h 100%");
+        add(notificationPanel, "newline, growx");
+
     }
 
     private void provideUsageStatsMoreInfoLabelMouseClicked(MouseEvent evt) {
@@ -972,4 +1012,13 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     private MirthTextField usernameField;
     private JLabel passwordLabel;
     private MirthPasswordField passwordField;
+    
+    private JPanel notificationPanel;
+    private JLabel requireNotificationLabel;
+    private ButtonGroup requireNotificationButtonGroup;
+    private MirthRadioButton requireNotificationYesRadio;
+    private MirthRadioButton requireNotificationNoRadio;
+    private JLabel notificationLabel;
+    private MirthTextPane notificationTextPane;
+    private JScrollPane notificationScrollPane;
 }
