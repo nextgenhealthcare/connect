@@ -31,6 +31,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class ServerSettings extends AbstractSettings implements Serializable, Auditable, Purgable {
 
     public static final Color DEFAULT_COLOR = new Color(0x9EB1C9);
+    public static final String DEFAULT_LOGIN_NOTIFICATION_ENABLED_VALUE = "0";
+    public static final String DEFAULT_LOGIN_NOTIFICATION_MESSAGE_VALUE = "";
 
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
     private static final String QUEUE_BUFFER_SIZE = "server.queuebuffersize";
@@ -143,8 +145,8 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         setSmtpAuth(intToBooleanObject(properties.getProperty(SMTP_AUTH)));
         setSmtpUsername(properties.getProperty(SMTP_USERNAME));
         setSmtpPassword(properties.getProperty(SMTP_PASSWORD));
-        setLoginNotificationEnabled(intToBooleanObject(properties.getProperty(LOGIN_NOTIFICATION_ENABLED)));
-        setLoginNotificationMessage(properties.getProperty(LOGIN_NOTIFICATION_MESSAGE));
+        setLoginNotificationEnabled(intToBooleanObject(properties.getProperty(LOGIN_NOTIFICATION_ENABLED, DEFAULT_LOGIN_NOTIFICATION_ENABLED_VALUE)));
+        setLoginNotificationMessage(properties.getProperty(LOGIN_NOTIFICATION_MESSAGE, DEFAULT_LOGIN_NOTIFICATION_MESSAGE_VALUE));
     }
 
     public String getEnvironmentName() {
