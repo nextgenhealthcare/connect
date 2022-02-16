@@ -412,6 +412,8 @@ public class LoginPanel extends javax.swing.JFrame {
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_loginButtonActionPerformed
     {// GEN-HEADEREND:event_loginButtonActionPerformed
         errorPane.setVisible(false);
+        
+        CustomBannerPanelDialog customBannerPanelDialog = new CustomBannerPanelDialog();
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
