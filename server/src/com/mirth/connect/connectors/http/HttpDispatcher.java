@@ -547,11 +547,19 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         // set the headers
+        boolean userAgentFound = false;
         for (Entry<String, List<String>> headerEntry : headers.entrySet()) {
             for (String value : headerEntry.getValue()) {
                 logger.debug("setting method header: [" + headerEntry.getKey() + ", " + value + "]");
-                httpMethod.addHeader(headerEntry.getKey(), value);
+                String key = headerEntry.getKey();
+                httpMethod.addHeader(key, value);
+                if (key.equalsIgnoreCase("user-agent")) {
+                	userAgentFound = true;
+                }
             }
+        }
+        if (!userAgentFound) {
+            httpMethod.addHeader("user-agent", "Mirth Connect");
         }
 
         // Only set the Content-Type for entity-enclosing methods, but not if multipart is used
