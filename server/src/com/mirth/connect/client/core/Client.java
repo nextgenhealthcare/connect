@@ -102,6 +102,7 @@ import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
@@ -638,6 +639,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     @Override
     public synchronized void setServerSettings(ServerSettings settings) throws ClientException {
         getServlet(ConfigurationServletInterface.class).setServerSettings(settings);
+    }
+    
+    /**
+     * Returns a PublicServerSettings object with all public server settings.
+     * 
+     * @see ConfigurationServletInterface#getPublicServerSettings
+     */
+    @Override
+    public PublicServerSettings getPublicServerSettings() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getPublicServerSettings();
     }
 
     public Encryptor getEncryptor() {
