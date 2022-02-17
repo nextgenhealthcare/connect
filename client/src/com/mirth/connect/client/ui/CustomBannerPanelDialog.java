@@ -32,31 +32,33 @@ import net.miginfocom.swing.MigLayout;
 
 public class CustomBannerPanelDialog extends JDialog {
 
-    
     public CustomBannerPanelDialog(JFrame parent, String title, String text) {
 
         this.notificationText = text;
+        this.title = title;
         
-        Dimension dlgSize = getPreferredSize();
-        Dimension frmSize = parent.getSize();
-        Point loc = parent.getLocation();
-        if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
-            setLocationRelativeTo(null);
-        } else {
-            setLocation(loc.x,  loc.y);
-        }
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         DisplayUtil.setResizable(this, false);
         setPreferredSize(new Dimension(800,600));
         setModal(true);
+        
+        Dimension dlgSize = getPreferredSize();
+        Dimension frmSize = parent.getSize();
+        Point loc = parent.getLocation();
 
+        if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
+            setLocationRelativeTo(null);
+        } else {
+            setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        }
+        
         initComponents();
         setVisible(true);
     }
     
     private void initComponents() {
         setLayout(new MigLayout("insets 12", "[]", "[fill][]"));
-        setTitle("Notification");
+        setTitle(title);
 
         JPanel outerPane = new JPanel();
         Box box = Box.createVerticalBox();
@@ -109,6 +111,7 @@ public class CustomBannerPanelDialog extends JDialog {
     }
     
     private String notificationText; 
+    private String title; 
     protected JTextArea textArea;
     protected JButton btnAccept, btnCancel;
 }
