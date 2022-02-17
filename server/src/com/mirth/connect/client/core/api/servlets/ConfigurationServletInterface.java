@@ -191,7 +191,7 @@ public interface ConfigurationServletInterface extends BaseServletInterface {
     
     @GET
     @Path("/publicSettings")
-    @Operation(summary = "Returns a PublicServerSettings object with all public server settings.")
+    @Operation(summary = "Returns a PublicServerSettings object containing server settings available to all users.")
     @ApiResponse(content = { @Content(mediaType = MediaType.APPLICATION_XML, examples = {
             @ExampleObject(name = "publicServerSettings", ref = "../apiexamples/public_server_settings_xml") }),
             @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
