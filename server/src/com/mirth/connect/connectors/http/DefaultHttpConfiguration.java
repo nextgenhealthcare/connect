@@ -19,6 +19,7 @@ import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.ssl.SSLContexts;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.ServerConnector;
 
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
@@ -43,7 +44,11 @@ public class DefaultHttpConfiguration implements HttpConfiguration {
 
     @Override
     public void configureReceiver(HttpReceiver connector) throws Exception {
-        ServerConnector listener = new ServerConnector(connector.getServer());
+        org.eclipse.jetty.server.HttpConfiguration httpConfig = new org.eclipse.jetty.server.HttpConfiguration();
+        httpConfig.setSendServerVersion(false);
+        httpConfig.setSendXPoweredBy(false);
+        
+        ServerConnector listener = new ServerConnector(connector.getServer(), new HttpConnectionFactory(httpConfig));
         listener.setHost(connector.getHost());
         listener.setPort(connector.getPort());
         listener.setIdleTimeout(connector.getTimeout());

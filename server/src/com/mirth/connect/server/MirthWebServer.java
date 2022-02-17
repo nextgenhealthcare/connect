@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -146,7 +147,10 @@ public class MirthWebServer extends Server {
 
         if (usingHttp) {
             // add HTTP listener
-            connector = new ServerConnector(this);
+            HttpConfiguration config = new HttpConfiguration();
+            config.setSendServerVersion(false);
+            config.setSendXPoweredBy(false);
+            connector = new ServerConnector(this, new HttpConnectionFactory(config));
             connector.setName(CONNECTOR);
             connector.setHost(mirthProperties.getString("http.host", "0.0.0.0"));
             connector.setPort(mirthProperties.getInt("http.port"));
@@ -203,7 +207,7 @@ public class MirthWebServer extends Server {
         String clientLibPath = null;
 
         if (ClassPathResource.getResourceURI("client-lib") != null) {
-            clientLibPath = ClassPathResource.getResourceURI("client-lib").getPath() + File.separator;
+            clientLibPath = Paths.get(ClassPathResource.getResourceURI("client-lib")).toString() + File.separator;
         } else {
             clientLibPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "client-lib" + File.separator;
         }
@@ -394,6 +398,8 @@ public class MirthWebServer extends Server {
         config.setSecureScheme("https");
         config.setSecurePort(mirthProperties.getInt("https.port"));
         config.addCustomizer(new SecureRequestCustomizer());
+        config.setSendServerVersion(false);
+        config.setSendXPoweredBy(false);
 
         ServerConnector sslConnector = new ServerConnector(this, new SslConnectionFactory(contextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(config));
 
