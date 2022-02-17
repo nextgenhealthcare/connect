@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -203,7 +204,7 @@ public class MirthWebServer extends Server {
         String clientLibPath = null;
 
         if (ClassPathResource.getResourceURI("client-lib") != null) {
-            clientLibPath = ClassPathResource.getResourceURI("client-lib").getPath() + File.separator;
+            clientLibPath = Paths.get(ClassPathResource.getResourceURI("client-lib")).toString() + File.separator;
         } else {
             clientLibPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "client-lib" + File.separator;
         }
