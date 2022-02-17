@@ -10,6 +10,7 @@
 package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -19,6 +20,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -30,15 +32,25 @@ import net.miginfocom.swing.MigLayout;
 
 public class CustomBannerPanelDialog extends JDialog {
 
-    public CustomBannerPanelDialog() {
+    
+    public CustomBannerPanelDialog(JFrame parent, String title, String text) {
 
+        this.notificationText = text;
+        
+        Dimension dlgSize = getPreferredSize();
+        Dimension frmSize = parent.getSize();
+        Point loc = parent.getLocation();
+        if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
+            setLocationRelativeTo(null);
+        } else {
+            setLocation(loc.x,  loc.y);
+        }
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         DisplayUtil.setResizable(this, false);
-        setPreferredSize(new Dimension(400, 300));
+        setPreferredSize(new Dimension(800,600));
         setModal(true);
 
         initComponents();
-        pack();
         setVisible(true);
     }
     
@@ -49,8 +61,10 @@ public class CustomBannerPanelDialog extends JDialog {
         JPanel outerPane = new JPanel();
         Box box = Box.createVerticalBox();
         outerPane.setLayout(new BoxLayout(outerPane, BoxLayout.PAGE_AXIS));
-        textArea = new JTextArea(20, 50);
+        textArea = new JTextArea(35, 85);
+        textArea.setBackground(UIConstants.BACKGROUND_COLOR);
         textArea.setEditable(false);
+        textArea.setText(notificationText);
 
         JScrollPane scrollPane = new JScrollPane(textArea);
 
@@ -94,6 +108,7 @@ public class CustomBannerPanelDialog extends JDialog {
         pack();
     }
     
+    private String notificationText; 
     protected JTextArea textArea;
     protected JButton btnAccept, btnCancel;
 }

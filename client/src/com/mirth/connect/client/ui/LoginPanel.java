@@ -412,8 +412,6 @@ public class LoginPanel extends javax.swing.JFrame {
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_loginButtonActionPerformed
     {// GEN-HEADEREND:event_loginButtonActionPerformed
         errorPane.setVisible(false);
-        
-        CustomBannerPanelDialog customBannerPanelDialog = new CustomBannerPanelDialog();
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -494,6 +492,8 @@ public class LoginPanel extends javax.swing.JFrame {
                 try {
                     ServerSettings serverSettings = client.getServerSettings();
 
+                    CustomBannerPanelDialog customBannerPanelDialog = new CustomBannerPanelDialog(LoginPanel.getInstance(), "Custom Notification", "Sample text.");
+                    
                     String environmentName = serverSettings.getEnvironmentName();
                     if (!StringUtils.isBlank(environmentName)) {
                         PlatformUI.ENVIRONMENT_NAME = environmentName;
