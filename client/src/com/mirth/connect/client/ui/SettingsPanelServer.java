@@ -229,6 +229,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         return true;
     }
 
+    /** Loads the current server settings into the Settings form */
     public void setServerSettings(ServerSettings serverSettings) {
         if (serverSettings.getEnvironmentName() != null) {
             environmentNameField.setText(serverSettings.getEnvironmentName());
