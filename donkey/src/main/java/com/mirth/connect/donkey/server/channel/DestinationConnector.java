@@ -67,6 +67,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private String destinationName;
     private boolean enabled;
     private AtomicBoolean forceQueue = new AtomicBoolean(false);
+    private AtomicBoolean stopQueue = new AtomicBoolean(false);
     private MetaDataReplacer metaDataReplacer;
     private List<MetaDataColumn> metaDataColumns;
     private ResponseValidator responseValidator;
@@ -297,6 +298,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     public void startQueue() {
+        stopQueue.set(false);
+
         if (isQueueEnabled() && (channel.getQueueHandler() == null || channel.getQueueHandler().canStartDestinationQueue(this))) {
             // Remove any items in the queue's buffer because they may be outdated and refresh the queue size
             queue.invalidate(true, true);
@@ -311,6 +314,8 @@ public abstract class DestinationConnector extends Connector implements Runnable
     }
 
     public void stopQueue() throws InterruptedException {
+        stopQueue.set(true);
+
         if (MapUtils.isNotEmpty(queueThreads)) {
             try {
                 for (DestinationQueueThread thread : queueThreads.values()) {
@@ -332,6 +337,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     public void stop() throws ConnectorTaskException, InterruptedException {
         updateCurrentState(DeployedState.STOPPING);
+        stopQueue.set(true);
 
         stopQueue();
 
@@ -363,6 +369,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
     public void halt() throws ConnectorTaskException, InterruptedException {
         updateCurrentState(DeployedState.STOPPING);
+        stopQueue.set(true);
 
         if (MapUtils.isNotEmpty(queueThreads)) {
             for (Thread thread : queueThreads.values()) {
@@ -882,7 +889,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
                     statusUpdateLock = null;
                 }
             }
-        } while (getCurrentState() == DeployedState.STARTED || getCurrentState() == DeployedState.STARTING);
+        } while ((getCurrentState() == DeployedState.STARTED || getCurrentState() == DeployedState.STARTING) && !stopQueue.get());
     }
 
     private Response handleSend(ConnectorProperties connectorProperties, ConnectorMessage message) throws InterruptedException {
