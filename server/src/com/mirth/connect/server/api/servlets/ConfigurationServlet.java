@@ -42,6 +42,7 @@ import com.mirth.connect.model.LibraryProperties;
 import com.mirth.connect.model.LicenseInfo;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.ServerConfiguration;
@@ -213,6 +214,15 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
         }
     }
 
+    @Override
+    public PublicServerSettings getPublicServerSettings() {
+        try {
+            return configurationController.getPublicServerSettings();
+        } catch (ControllerException e) {
+            throw new MirthApiException(e);
+        }
+    }
+    
     @Override
     public EncryptionSettings getEncryptionSettings() {
         try {

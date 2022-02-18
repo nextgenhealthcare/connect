@@ -82,6 +82,7 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginClass;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
@@ -341,6 +342,8 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getServerLogItemListExample();
         } else if (exampleRequested.equals("server_settings")) {
             requestedObject = getServerSettingsExample();
+        } else if (exampleRequested.equals("public_server_settings")) {
+            requestedObject = getPublicServerSettingsExample();
         } else if (exampleRequested.equals("smtp_dispatcher_properties")) {
             requestedObject = getSmtpDispatcherPropertiesExample("none");
         } else if (exampleRequested.equals("smtp_dispatcher_properties_ssl")) {
@@ -1315,7 +1318,13 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    serverSettings.setSmtpFrom("");
 	    serverSettings.setSmtpUsername("");
 	    serverSettings.setSmtpPassword("");
+	    serverSettings.setLoginNotificationEnabled(false);
+	    serverSettings.setLoginNotificationMessage("");
 	    return serverSettings;
+	}
+	
+	private PublicServerSettings getPublicServerSettingsExample() {
+	    return new PublicServerSettings(getServerSettingsExample());
 	}
 	
 	private SystemInfo getSystemInfoExample() {
