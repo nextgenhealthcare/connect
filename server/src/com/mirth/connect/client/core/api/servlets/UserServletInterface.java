@@ -208,7 +208,7 @@ public interface UserServletInterface extends BaseServletInterface {
     // @formatter:on
     
     @POST
-    @Path("/{userId}/notificationacknowledged")
+    @Path("/{userId}/notificationAcknowledged")
     @Operation(summary = "User notification has been acknowledged.")
     @MirthOperation(name = "userNotificationAcknowledged", display = "Acknowledge user notification")
     public void setUserNotificationAcknowledged(// @formatter:off
