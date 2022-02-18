@@ -128,9 +128,9 @@ public class Channel implements Runnable {
     // A cached thread pool executor that executes recovery tasks and destination chain tasks
     private ExecutorService channelExecutor;
     private Set<Thread> dispatchThreads = new HashSet<Thread>();
-    private boolean shuttingDown = false;
+    private volatile boolean shuttingDown = false;
 
-    private boolean stopSourceQueue = false;
+    private volatile boolean stopSourceQueue = false;
     private ChannelProcessLock processLock;
     private Lock removeContentLock = new ReentrantLock(true);
 
@@ -1922,7 +1922,7 @@ public class Channel implements Runnable {
         try {
             do {
                 processSourceQueue(Constants.SOURCE_QUEUE_POLL_TIMEOUT_MILLIS);
-            } while (isActive());
+            } while (isActive() && !stopSourceQueue);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
