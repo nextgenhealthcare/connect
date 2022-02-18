@@ -326,8 +326,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         
         if (serverSettings.getLoginNotificationEnabled()) {
         	requireNotificationYesRadio.setSelected(true);
+            notificationLabel.setEnabled(true);
+            notificationTextPane.setEnabled(true);
         } else {
         	requireNotificationNoRadio.setSelected(true);
+            notificationLabel.setEnabled(false);
+            notificationTextPane.setEnabled(false);
         }
 
         if (serverSettings.getLoginNotificationMessage() != null) {
@@ -788,11 +792,21 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         requireNotificationYesRadio.setBackground(getBackground());
         requireNotificationYesRadio.setSelected(true);
         requireNotificationYesRadio.setToolTipText("Toggles requiring user notification on login.");
+        requireNotificationYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                requireNotificationYesRadioActionPerformed(evt);
+            }
+        });
         requireNotificationButtonGroup.add(requireNotificationYesRadio);
 
         requireNotificationNoRadio = new MirthRadioButton("No");
         requireNotificationNoRadio.setBackground(getBackground());
         requireNotificationNoRadio.setToolTipText("Toggles requiring user notification on login.");
+        requireNotificationNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                requireNotificationNoRadioActionPerformed(evt);
+            }
+        });
         requireNotificationButtonGroup.add(requireNotificationNoRadio);
         
         notificationLabel = new JLabel("Notification:");
@@ -880,6 +894,17 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         usernameLabel.setEnabled(true);
         passwordLabel.setEnabled(true);
     }
+
+    private void requireNotificationNoRadioActionPerformed(ActionEvent evt) {
+        notificationLabel.setEnabled(false);
+        notificationTextPane.setEnabled(false);
+    }
+
+    private void requireNotificationYesRadioActionPerformed(ActionEvent evt) {
+    	notificationLabel.setEnabled(true);
+        notificationTextPane.setEnabled(true);
+    }
+
 
     private void testEmailButtonActionPerformed(ActionEvent evt) {
         resetInvalidSettings();
