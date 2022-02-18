@@ -324,11 +324,18 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             passwordField.setText("");
         }
         
-        if (serverSettings.getRequireNotification() != null && !serverSettings.getRequireNotification()) {
-        	requireNotificationNoRadio.setSelected(true);
-        } else {
+        if (serverSettings.getLoginNotificationEnabled()) {
         	requireNotificationYesRadio.setSelected(true);
+        } else {
+        	requireNotificationNoRadio.setSelected(true);
         }
+
+        if (serverSettings.getLoginNotificationMessage() != null) {
+        	notificationTextPane.setText(serverSettings.getLoginNotificationMessage());
+        } else {
+        	notificationTextPane.setText("");
+        }        
+        
         resetInvalidSettings();
     }
 
@@ -410,6 +417,14 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             serverSettings.setSmtpUsername("");
             serverSettings.setSmtpPassword("");
         }
+
+        if (requireNotificationYesRadio.isSelected()) {
+            serverSettings.setLoginNotificationEnabled(true);
+        } else {
+            serverSettings.setLoginNotificationEnabled(false);
+        }
+      
+        serverSettings.setLoginNotificationMessage(notificationTextPane.getText().toString());
 
         return serverSettings;
     }

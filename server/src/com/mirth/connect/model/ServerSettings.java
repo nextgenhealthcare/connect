@@ -284,14 +284,6 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     public String toAuditString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
     }
-    
-    public Boolean getRequireNotification() {
-        return requireNotification;
-    }
-
-    public void setRequireNotification(Boolean requireNotification) {
-        this.requireNotification = requireNotification;
-    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {
