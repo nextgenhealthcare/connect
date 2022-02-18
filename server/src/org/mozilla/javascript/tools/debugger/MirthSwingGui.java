@@ -2,25 +2,28 @@ package org.mozilla.javascript.tools.debugger;
 
 import org.apache.log4j.Logger;
 
+@SuppressWarnings("serial")
 public class MirthSwingGui extends SwingGui {
 
 	Logger logger = Logger.getLogger(getClass());
 	private boolean stopping = false;
+	private MirthMain parent;
 
-	public MirthSwingGui(Dim dim, String title) {
+	public MirthSwingGui(MirthMain parent, Dim dim, String title) {
 		super(dim, title);
+		this.parent = parent;
 	}
-	
+
 	public void setStopping(boolean stopping) {
 		this.stopping = stopping;
 	}
-	
+
 	@Override
 	protected void exit() {
 		stopping = true;
-		((MirthDim)dim).setStopping(true);
-        dim.clearAllBreakpoints();
-        dim.go();
+        MirthMain meDim = this.parent;
+        meDim.finishScriptExecution();
+        meDim.setVisible(false);
     }
 
 	@Override

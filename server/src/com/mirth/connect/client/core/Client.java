@@ -73,6 +73,7 @@ import com.mirth.connect.client.core.api.servlets.MessageServletInterface;
 import com.mirth.connect.client.core.api.servlets.UsageServletInterface;
 import com.mirth.connect.client.core.api.servlets.UserServletInterface;
 import com.mirth.connect.client.core.api.util.OperationUtil;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -101,6 +102,7 @@ import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
@@ -118,6 +120,7 @@ import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult;
 import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.server.util.DebuggerUtil;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
 import com.mirth.connect.util.MirthSSLUtil;
@@ -636,6 +639,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     @Override
     public synchronized void setServerSettings(ServerSettings settings) throws ClientException {
         getServlet(ConfigurationServletInterface.class).setServerSettings(settings);
+    }
+    
+    /**
+     * Returns a PublicServerSettings object with all public server settings.
+     * 
+     * @see ConfigurationServletInterface#getPublicServerSettings
+     */
+    @Override
+    public PublicServerSettings getPublicServerSettings() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getPublicServerSettings();
     }
 
     public Encryptor getEncryptor() {
@@ -1614,7 +1627,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannel
      */
     public void deployChannel(String channelId) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannel(channelId, false, false);
+        getServlet(EngineServletInterface.class).deployChannel(channelId, false, new String());
     }
 
     /**
@@ -1623,17 +1636,23 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannel
      */
     @Override
-    public void deployChannel(String channelId, boolean returnErrors, boolean debug) throws ClientException {
+    public void deployChannel(String channelId, boolean returnErrors, String debug) throws ClientException {
         getServlet(EngineServletInterface.class).deployChannel(channelId, returnErrors, debug);
     }
-
+    
+    
+    public void deployChannel(String channelId, boolean returnErrors, DebugOptions debugOptions) throws ClientException {
+        String debug = DebuggerUtil.parseDebugOptions(debugOptions);
+        getServlet(EngineServletInterface.class).deployChannel(channelId, returnErrors, debug);
+    }
+    
     /**
      * Deploys (or redeploys) selected channels.
      * 
      * @see EngineServletInterface#deployChannels
      */
     public void deployChannels(Set<String> channelIds) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannels(channelIds, false, false);
+        getServlet(EngineServletInterface.class).deployChannels(channelIds, false);
     }
 
     /**
@@ -1642,8 +1661,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannels
      */
     @Override
-    public void deployChannels(Set<String> channelIds, boolean returnErrors, boolean debug) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannels(channelIds, returnErrors, debug);
+    public void deployChannels(Set<String> channelIds, boolean returnErrors) throws ClientException {
+        getServlet(EngineServletInterface.class).deployChannels(channelIds, returnErrors);
     }
 
     /**

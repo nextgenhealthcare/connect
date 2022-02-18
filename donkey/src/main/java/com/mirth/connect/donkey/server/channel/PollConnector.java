@@ -23,7 +23,6 @@ import com.mirth.connect.donkey.util.PollConnectorJobHandler;
 public abstract class PollConnector extends SourceConnector {
     private PollConnectorJobHandler handler;
     private AtomicBoolean terminated = new AtomicBoolean(true);
-
     private JobDetail job;
     private Scheduler scheduler;
 

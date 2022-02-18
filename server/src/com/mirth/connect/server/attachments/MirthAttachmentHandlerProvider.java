@@ -46,6 +46,10 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
 
     private Logger logger = Logger.getLogger(getClass());
     private MessageController messageController;
+    
+    public MirthAttachmentHandlerProvider() {
+        // default constructor
+    }
 
     public MirthAttachmentHandlerProvider(MessageController messageController) {
         this.messageController = messageController;

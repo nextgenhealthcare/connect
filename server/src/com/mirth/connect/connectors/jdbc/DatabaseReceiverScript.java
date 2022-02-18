@@ -10,22 +10,27 @@
 package com.mirth.connect.connectors.jdbc;
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
+import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.model.codetemplates.ContextType;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
@@ -41,8 +46,15 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
     private Logger scriptLogger = Logger.getLogger("db-connector");
     private Logger logger = Logger.getLogger(getClass());
-    private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
+    private ContextFactoryController contextFactoryController = getContextFactoryController();
     private String contextFactoryId;
+    private List<String> contextFactoryIdList = new ArrayList<String>();
+    private MirthMain debugger;
+    private Boolean debug;
+    private Boolean update = false;
+    private boolean ignoreBreakpoints = false;
+    private MirthScopeProvider scopeProvider = new MirthScopeProvider();
+    
 
     public DatabaseReceiverScript(DatabaseReceiver connector) {
         this.connector = connector;
@@ -50,42 +62,97 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
     @Override
     public void deploy() throws ConnectorTaskException {
+        Channel channel = connector.getChannel();
+        DebugOptions debugOptions = channel.getDebugOptions();
+
+        this.debug  = debugOptions != null && debugOptions.isSourceConnectorScripts();
         connectorProperties = (DatabaseReceiverProperties) connector.getConnectorProperties();
-        selectScriptId = UUID.randomUUID().toString();
+        selectScriptId = ScriptController.getScriptId("Database_Reader_Select", connector.getChannelId());
         MirthContextFactory contextFactory;
 
         try {
-            contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
-            contextFactoryId = contextFactory.getId();
-            JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, selectScriptId, connectorProperties.getSelect(), ContextType.SOURCE_RECEIVER, null, null);
+            
+        	if (debug) {
+                contextFactory = contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId);
+                contextFactory.setContextType(ContextType.SOURCE_RECEIVER);
+                contextFactory.setScriptText(connectorProperties.getSelect());
+                contextFactory.setDebugType(true);
+                debugger = getDebugger(channel, contextFactory);
+        		
+        	} else {
+        		contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+        	}
+        	
+        	contextFactoryId = contextFactory.getId();
+            contextFactoryIdList.add(contextFactoryId);
+            
+        	compileAndAddScript(connector.getChannelId(), contextFactory, selectScriptId, connectorProperties.getSelect(), ContextType.SOURCE_RECEIVER);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling select script " + selectScriptId + ".", e);
         }
 
         if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
-            updateScriptId = UUID.randomUUID().toString();
+            updateScriptId = ScriptController.getScriptId("Database_Reader_Update", connector.getChannelId());
 
             try {
-                JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, updateScriptId, connectorProperties.getUpdate(), ContextType.SOURCE_RECEIVER, null, null);
+                compileAndAddScript(connector.getChannelId(), contextFactory, updateScriptId, connectorProperties.getUpdate(), ContextType.SOURCE_RECEIVER);
             } catch (Exception e) {
                 throw new ConnectorTaskException("Error compiling update script " + updateScriptId + ".", e);
             }
         }
     }
 
+    
     @Override
-    public void start() throws ConnectorTaskException {}
+    public void start() throws ConnectorTaskException {
+        ignoreBreakpoints = false;
+        if (debug && debugger != null) {
+            debugger.enableDebugging();
+        }
+    }
 
     @Override
-    public void stop() throws ConnectorTaskException {}
+    public void stop() throws ConnectorTaskException {
+        if (debug && debugger != null) {
+            debugger.finishScriptExecution();
+        }
+    }
 
     @Override
     public void undeploy() {
-        JavaScriptUtil.removeScriptFromCache(selectScriptId);
-
+    	if (selectScriptId != null) {
+    		removeScriptFromCache(selectScriptId);
+    	}
         if (updateScriptId != null) {
-            JavaScriptUtil.removeScriptFromCache(updateScriptId);
+            removeScriptFromCache(updateScriptId);            
         }
+        if (debug && debugger != null) {
+            debugger.detach();
+            contextFactoryController.removeDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId);
+            contextFactoryController.removeDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), updateScriptId);
+            debugger.dispose();
+            debugger = null;
+        }
+    }
+
+    
+    protected ContextFactoryController getContextFactoryController() {
+        return ControllerFactory.getFactory().createContextFactoryController();
+    }
+    
+
+    protected MirthMain getDebugger(Channel channel, MirthContextFactory contextFactory) {
+        return JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, selectScriptId);
+    }
+    
+
+    protected void compileAndAddScript(String channelId, MirthContextFactory contextFactory, String scriptId, String selectOrUpdate, ContextType contextType) throws Exception {
+   
+        JavaScriptUtil.compileAndAddScript(channelId, contextFactory, scriptId, selectOrUpdate, contextType, null, null);      
+    }
+    
+    protected void removeScriptFromCache(String scriptId) {
+        JavaScriptUtil.removeScriptFromCache(scriptId);
     }
 
     @SuppressWarnings("unchecked")
@@ -101,6 +168,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
         while (!done && !connector.isTerminated()) {
             try {
+            	update = false;
                 Object result = JavaScriptUtil.execute(new SelectTask(getContextFactory()));
 
                 if (result instanceof NativeJavaObject) {
@@ -137,6 +205,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     public void runPostProcess(Map<String, Object> resultMap, ConnectorMessage mergedConnectorMessage) throws DatabaseReceiverException, InterruptedException {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_EACH) {
             try {
+            	update = true;
                 JavaScriptUtil.execute(new UpdateTask(getContextFactory(), resultMap, mergedConnectorMessage));
             } catch (Exception e) {
                 throw new DatabaseReceiverException(e);
@@ -147,6 +216,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     @Override
     public void runAggregatePostProcess(List<Map<String, Object>> resultsList, ConnectorMessage mergedConnectorMessage) throws DatabaseReceiverException, InterruptedException {
         try {
+        	update = true;
             JavaScriptUtil.execute(new UpdateTask(getContextFactory(), resultsList, mergedConnectorMessage));
         } catch (Exception e) {
             throw new DatabaseReceiverException(e);
@@ -157,6 +227,7 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     public void afterPoll() throws InterruptedException, DatabaseReceiverException {
         if (connectorProperties.getUpdateMode() == DatabaseReceiverProperties.UPDATE_ONCE && !connectorProperties.isAggregateResults()) {
             try {
+            	update = true;
                 JavaScriptUtil.execute(new UpdateTask(getContextFactory(), null, null, null));
             } catch (Exception e) {
                 throw new DatabaseReceiverException(e);
@@ -174,6 +245,19 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         public Object doCall() throws Exception {
             try {
                 Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), scriptLogger, connector.getChannelId(), connector.getChannel().getName());
+                
+                if (debug) {
+                    scopeProvider.setScope(scope);
+
+                    if (debugger != null && !ignoreBreakpoints) {
+                        debugger.doBreak();
+                        
+                        if (!debugger.isVisible()) {
+                            debugger.setVisible(true);
+                        }
+                    }
+                }
+
                 return JavaScriptUtil.executeScript(this, selectScriptId, scope, connector.getChannelId(), "Source");
             } finally {
                 Context.exit();
@@ -219,6 +303,18 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
                     scope.put("results", scope, Context.javaToJS(resultsList, scope));
                 }
 
+                if (debug) {
+                    scopeProvider.setScope(scope);
+
+                    if (debugger != null && !ignoreBreakpoints) {
+                        debugger.doBreak();
+                        
+                        if (!debugger.isVisible()) {
+                            debugger.setVisible(true);
+                        }
+                    }
+                }
+
                 return JavaScriptUtil.executeScript(this, updateScriptId, scope, connector.getChannelId(), "Source");
             } finally {
                 Context.exit();
@@ -227,15 +323,23 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     }
 
     private MirthContextFactory getContextFactory() throws Exception {
-        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+    	
+    	MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId) : contextFactoryController.getContextFactory(connector.getResourceIds()); 
 
-        if (!contextFactoryId.equals(contextFactory.getId())) {
-            JavaScriptUtil.recompileGeneratedScript(contextFactory, selectScriptId);
-            if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
-                JavaScriptUtil.recompileGeneratedScript(contextFactory, updateScriptId);
+        if (!contextFactoryIdList.contains(contextFactory.getId())) {
+            synchronized (this) {
+                contextFactory = debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId) : contextFactoryController.getContextFactory(connector.getResourceIds());
+
+                if (!contextFactoryIdList.contains(contextFactory.getId())) {
+                    JavaScriptUtil.recompileGeneratedScript(contextFactory, selectScriptId);
+                    if (connectorProperties.getUpdateMode() != DatabaseReceiverProperties.UPDATE_NEVER) {
+                        JavaScriptUtil.recompileGeneratedScript(contextFactory, updateScriptId);
+                    }
+                    contextFactoryIdList.add(contextFactory.getId());
+                }
             }
-            contextFactoryId = contextFactory.getId();
         }
+    	
 
         return contextFactory;
     }

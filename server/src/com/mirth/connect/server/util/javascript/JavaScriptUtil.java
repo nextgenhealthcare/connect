@@ -32,6 +32,7 @@ import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
@@ -39,12 +40,14 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -137,7 +140,7 @@ public class JavaScriptUtil {
     }
 
     /**
-     * Executes the JavaScriptTask associated with the postprocessor, if necessary.
+     * Executes the JavaScriptTask associated with the preprocessor, if necessary.
      * 
      * @param task
      * @param channelId
@@ -165,7 +168,7 @@ public class JavaScriptUtil {
      * @throws JavaScriptExecutorException
      * 
      */
-    public static String executePreprocessorScripts(JavaScriptTask<Object> task, ConnectorMessage message, Map<String, Integer> destinationIdMap) throws Exception {
+    public static String executePreprocessorScripts(JavaScriptTask<Object> task, ConnectorMessage message, Map<String, Integer> destinationIdMap, MirthScopeProvider scopeProvider) throws Exception {
         String processedMessage = null;
         String globalResult = message.getRaw().getContent();
         Logger scriptLogger = Logger.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
@@ -181,6 +184,9 @@ public class JavaScriptUtil {
 
                 try {
                     Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(globalScriptContextFactory, scriptLogger, message.getChannelId(), message.getRaw().getContent(), new ImmutableConnectorMessage(message, true, destinationIdMap));
+                    if (scopeProvider != null) {
+                        scopeProvider.setScope(scope);
+                    }
                     task.setContextFactory(globalScriptContextFactory);
                     result = JavaScriptUtil.executeScript(task, ScriptController.PREPROCESSOR_SCRIPT_KEY, scope, null, null);
                 } finally {
@@ -358,6 +364,39 @@ public class JavaScriptUtil {
                 return null;
         }
     }
+    
+    /**
+     * Executes channel level deploy scripts.
+     * 
+     * @param scriptId
+     * @param scriptType
+     * @param channelId
+     * @param channelName
+     * @param scopeProvider
+     * @throws InterruptedException
+     * @throws JavaScriptExecutorException
+     */
+    public static void executeChannelDebugDeployScript(MirthContextFactory contextFactory, final String scriptId, final String scriptType, final String channelId, final String channelName, MirthScopeProvider scopeProvider) throws InterruptedException, JavaScriptExecutorException {
+        try {
+            execute(new JavaScriptTask<Object>(contextFactory, scriptType, channelId, channelName) {
+                @Override
+                public Object doCall() throws Exception {
+                    Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
+                    try {
+                        Scriptable scope = JavaScriptScopeUtil.getDeployScope(getContextFactory(), scriptLogger, channelId, channelName);
+                        scopeProvider.setScope(scope);
+                        JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
+                        return null;
+                    } finally {
+                        Context.exit();
+                    }
+                }
+            });
+        } catch (JavaScriptExecutorException e) {
+            logScriptError(scriptId, channelId, e.getCause());
+            throw e;
+        }
+    }
 
     /**
      * Executes channel level deploy scripts.
@@ -406,6 +445,39 @@ public class JavaScriptUtil {
                     Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getUndeployScope(getContextFactory(), scriptLogger, channelId, channelName);
+                        JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
+                        return null;
+                    } finally {
+                        Context.exit();
+                    }
+                }
+            });
+        } catch (JavaScriptExecutorException e) {
+            logScriptError(scriptId, channelId, e.getCause());
+            throw e;
+        }
+    }
+    
+    /**
+     * Executes channel level undeploy scripts.
+     * 
+     * @param scriptId
+     * @param scriptType
+     * @param channelId
+     * @param channelName
+     * @param scopeProvider
+     * @throws InterruptedException
+     * @throws JavaScriptExecutorException
+     */
+    public static void executeChannelDebugUndeployScript(MirthContextFactory contextFactory, final String scriptId, final String scriptType, final String channelId, final String channelName, MirthScopeProvider scopeProvider) throws InterruptedException, JavaScriptExecutorException {
+        try {
+            execute(new JavaScriptTask<Object>(contextFactory, scriptType, channelId, channelName) {
+                @Override
+                public Object doCall() throws Exception {
+                    Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
+                    try {
+                        Scriptable scope = JavaScriptScopeUtil.getUndeployScope(getContextFactory(), scriptLogger, channelId, channelName);
+                        scopeProvider.setScope(scope);
                         JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
                         return null;
                     } finally {
@@ -757,4 +829,45 @@ public class JavaScriptUtil {
         return source.toString();
     }
 
+    public static void compileChannelScripts(Map<String, MirthContextFactory> contextFactories, com.mirth.connect.model.Channel channel) {
+        for (Entry<String, MirthContextFactory> item : contextFactories.entrySet()){
+            String scriptIdString = item.getKey();
+            MirthContextFactory factory = item.getValue();
+            try {
+                JavaScriptUtil.compileAndAddScript(channel.getId(), factory, scriptIdString, factory.getScriptText(), factory.getContextType(), null, null);
+            } catch (Exception e) {
+                logger.error("Error compiling channel scripts.", e);
+            }
+        }
+        
+    }
+    public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.model.Channel channel, String scriptId) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, channel.getName() + "-" + channel.getId(), scriptId);
+    }
+    public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.donkey.server.channel.Channel donkeychannel, String scriptId) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, donkeychannel.getName() + "-" + donkeychannel.getChannelId(), scriptId);
+    }
+
+    public static void removeDebuggerFromMap(String channelId) {
+        MirthMain.closeDebugger(channelId);
+        
+    }
+    
+    public static MirthContextFactory generateContextFactory(boolean debug, Set<String> libraryResourceIds, String channelId, String scriptId, String script, ContextType contextType) throws ConnectorTaskException {
+        MirthContextFactory contextFactory;
+		try {
+			if (debug) {
+				contextFactory = contextFactoryController.getDebugContextFactory(libraryResourceIds, channelId, scriptId);
+				contextFactory.setContextType(contextType);
+				contextFactory.setScriptText(script);
+				contextFactory.setDebugType(debug);
+			} else {
+	            contextFactory = contextFactoryController.getContextFactory(libraryResourceIds);
+	        }
+            JavaScriptUtil.compileAndAddScript(channelId, contextFactory, scriptId, script, contextType);
+            return contextFactory;
+	    } catch (Exception e) {
+	    	throw new ConnectorTaskException("Error compiling generating context factory.", e);
+	    }
+    }
 }

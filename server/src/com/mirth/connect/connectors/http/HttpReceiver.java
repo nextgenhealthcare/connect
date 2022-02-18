@@ -518,7 +518,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     }
 
     protected void sendErrorResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult, Throwable t) throws IOException {
-        String responseError = ExceptionUtils.getStackTrace(t);
+        String responseError = ExceptionUtils.getRootCauseMessage(t);
         logger.error("Error receiving message (" + getConnectorProperties().getName() + " \"Source\" on channel " + getChannelId() + ").", t);
         eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), dispatchResult == null ? null : dispatchResult.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), getConnectorProperties().getName(), "Error receiving message", t));
 

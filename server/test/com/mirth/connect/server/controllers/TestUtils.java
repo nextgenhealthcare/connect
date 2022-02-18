@@ -50,6 +50,7 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Channel;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.server.channel.DestinationChainProvider;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
@@ -296,7 +297,7 @@ public class TestUtils {
         com.mirth.connect.server.controllers.ChannelController.getInstance().updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
         Set<String> channelIds = new LinkedHashSet<String>();
         channelIds.add(channel.getId());
-        ControllerFactory.getFactory().createEngineController().deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, false);
+        ControllerFactory.getFactory().createEngineController().deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, new DebugOptions());
     }
 
     public static Properties getSqlProperties() {

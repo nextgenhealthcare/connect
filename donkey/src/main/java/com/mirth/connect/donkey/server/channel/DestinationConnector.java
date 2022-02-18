@@ -56,6 +56,7 @@ import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public abstract class DestinationConnector extends Connector implements Runnable {
+ 
     private final static String QUEUED_RESPONSE = "Message queued successfully";
 
     private Integer orderId;

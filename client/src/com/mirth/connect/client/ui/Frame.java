@@ -51,8 +51,6 @@ import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javafx.application.Platform;
-
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -111,6 +109,7 @@ import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
 import com.mirth.connect.client.ui.tag.SettingsPanelTags;
 import com.mirth.connect.client.ui.util.DisplayUtil;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
@@ -148,6 +147,7 @@ import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.DirectedAcyclicGraphNode;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.MigrationUtil;
+import javafx.application.Platform;
 
 /**
  * The main content frame for the Mirth Client Application. Extends JXFrame and sets up all content.
@@ -231,7 +231,7 @@ public class Frame extends JXFrame {
     private KeyEventDispatcher keyEventDispatcher = null;
     private int deployedChannelCount;
     private DebugOptions debugOptions;
-
+    
     private static final int REFRESH_BLOCK_SIZE = 100;
 
     public Frame() {
@@ -950,8 +950,8 @@ public class Frame extends JXFrame {
         addTask(TaskConstants.CHANNEL_EDIT_EXPORT_CONNECTOR, "Export Connector", "Export the currently displayed connector to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelEditTasks, channelEditPopupMenu);
         addTask(TaskConstants.CHANNEL_EDIT_EXPORT, "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), channelEditTasks, channelEditPopupMenu);
         addTask(TaskConstants.CHANNEL_EDIT_VALIDATE_SCRIPT, "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
-        addTask(TaskConstants.CHANNEL_EDIT_DEPLOY, "Deploy Channel", "Deploy the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelEditTasks, channelEditPopupMenu);
         addTask(TaskConstants.CHANNEL_EDIT_DEBUG_DEPLOY, "Debug Channel", "Deploy the currently selected channel in Debug mode.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelEditTasks, channelEditPopupMenu);
+        addTask(TaskConstants.CHANNEL_EDIT_DEPLOY, "Deploy Channel", "Deploy the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelEditTasks, channelEditPopupMenu);
 
         setNonFocusable(channelEditTasks);
         taskPaneContainer.add(channelEditTasks);
@@ -2733,11 +2733,11 @@ public class Frame extends JXFrame {
             userPanel.setSelectedUser(userName);
         }
     }
-    
+
     public void doDebugDeployFromChannelView() {
         String channelId = channelEditPanel.currentChannel.getId();
         if (isSaveEnabled()) {
-            if (alertOption(PlatformUI.MIRTH_FRAME, "<html>This channel will be saved before it is deployed in debug mode.<br/>Are you sure you want to save and deploy this channel?</html>")) {
+            if (alertOption(PlatformUI.MIRTH_FRAME, "<html>This channel will be saved before it is deployed in debug mode.<br/>Are you sure you want to save and debug this channel?</html>")) {
                 if (channelEditPanel.saveChanges()) {
                     setSaveEnabled(false);
                 } else {
@@ -2747,7 +2747,7 @@ public class Frame extends JXFrame {
                 return;
             }
         } else {
-            if (!alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you want to deploy this channel?")) {
+            if (!alertOption(PlatformUI.MIRTH_FRAME, "Are you sure you want to debug this channel?")) {
                 return;
             }
         }
@@ -2762,13 +2762,13 @@ public class Frame extends JXFrame {
             alertWarning(this, "The channel is disabled and will not be deployed.");
             return;
         }
-        
- 
+
         DeployInDebugModeDialog deployInDebugMode = new DeployInDebugModeDialog();
         debugOptions = deployInDebugMode.getDebugOptions();
-
-        deployChannel(Collections.singleton(channelId), debugOptions);
         
+        if (deployInDebugMode.getIsDebugChannel()) {
+            deployChannel(Collections.singleton(channelId), debugOptions);
+        } 
     }
 
     public void doDeployFromChannelView() {
@@ -2797,11 +2797,24 @@ public class Frame extends JXFrame {
         }
 
         if (!channelStatus.getChannel().getExportData().getMetadata().isEnabled()) {
-            alertWarning(this, "The channel is disabled and will not be deployed.");
-            return;
+        	// Check that there are no errors in the channel before enabling the channel
+        	boolean channelErrorsExist = channelEditPanel.checkAllForms(channelEditPanel.currentChannel) != null;
+        	if (!channelErrorsExist && alertOption(PlatformUI.MIRTH_FRAME, "The channel is disabled. Are you sure you want to enable and deploy the channel?")) {
+        		// There are no errors in the channel, and the user chose to enable the channel
+        		channelEditPanel.setChannelEnabledField(true);
+    			channelEditPanel.saveChanges();
+        	} else if (channelErrorsExist) {
+        		// There are errors in the channel
+        		alertWarning(this, "There are errors in the channel that prevent it from being enabled and deployed.");
+    			return;
+        	} else {
+        		// There are no errors in the channel, but the user chose not to enable the channel
+        		alertWarning(this, "The channel is disabled and will not be deployed.");
+        		return;
+        	}
         }
 
-        deployChannel(Collections.singleton(channelId), new DebugOptions());
+        deployChannel(Collections.singleton(channelId), null);
     }
 
     public void deployChannel(final Set<String> selectedChannelIds, DebugOptions debugOptions) {
@@ -2815,9 +2828,16 @@ public class Frame extends JXFrame {
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
+
                     try {
-                        //TODO once the backend changes for the deploy channels in debug mode is merged, need to add debugOptions parameter to the below method.
-                      mirthClient.deployChannels(selectedChannelIds);
+                        if (debugOptions != null) {
+                            // call deployChannel with debugOptions in case of debugDeploy
+                            mirthClient.deployChannel(selectedChannelIds.iterator().next(), false, debugOptions);
+                        } else {
+                            // call deployChannel without debugOptions in case of normal deploy
+                            mirthClient.deployChannels(selectedChannelIds);
+                        }
+
                     } catch (ClientException e) {
                         SwingUtilities.invokeLater(() -> {
                             alertThrowable(PlatformUI.MIRTH_FRAME, e);
@@ -3190,6 +3210,24 @@ public class Frame extends JXFrame {
     public boolean doExportChannel() {
         return channelPanel.doExportChannel();
     }
+    
+    /**
+     * Import multiple files with the default defined file filter type.
+     * 
+     * @return
+     */
+    public List<String> browseForMultipleFileStrings(String fileExtension) {
+    	List<String> fileStrings = new ArrayList<>();
+    	
+    	File[] files = browseForFiles(fileExtension);
+    	for (File file : files) {
+    		if (file != null) {
+    			fileStrings.add(readFileToString(file));
+    		}
+    	}
+    
+    	return fileStrings;
+    }
 
     /**
      * Import a file with the default defined file filter type.
@@ -3257,6 +3295,28 @@ public class Frame extends JXFrame {
         if (importFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
             return importFileChooser.getSelectedFile();
+        }
+
+        return null;
+    }
+    
+    public File[] browseForFiles(String fileExtension) {
+    	JFileChooser importFileChooser = new JFileChooser();
+        importFileChooser.setMultiSelectionEnabled(true);
+
+        if (fileExtension != null) {
+            importFileChooser.setFileFilter(new MirthFileFilter(fileExtension));
+        }
+
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+
+        if (currentDir.exists()) {
+            importFileChooser.setCurrentDirectory(currentDir);
+        }
+
+        if (importFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
+            return importFileChooser.getSelectedFiles();
         }
 
         return null;
@@ -4424,7 +4484,7 @@ public class Frame extends JXFrame {
     public void doHelp() {
         BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION);
     }
-    
+
     public void goToUserGuide() {
         BareBonesBrowserLaunch.openURL(UIConstants.USER_GUIDE_LOCATION);
     }

@@ -102,6 +102,6 @@ In 2019, Oracle significantly changed licensing for official Oracle Java release
 
 <a name="license"></a>
 ## 7. License
-Mirth Connect is released under the [Mozilla Public License version 1.1](https://www.mozilla.org/en-US/MPL/1.1/ "Mozilla Public License version 1.1"). You can find a copy of the license in `server/docs/LICENSE.txt`.
+Mirth Connect is released under the [Mozilla Public License version 2.0](https://www.mozilla.org/en-US/MPL/2.0/ "Mozilla Public License version 2.0"). You can find a copy of the license in `server/docs/LICENSE.txt`.
 
 All licensing information regarding third-party libraries is located in the `server/docs/thirdparty` folder.

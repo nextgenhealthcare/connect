@@ -139,6 +139,17 @@ public class WebServiceReceiver extends SourceConnector {
         java.util.logging.Logger.getLogger("javax.enterprise.resource.webservices.jaxws.server").setLevel(java.util.logging.Level.OFF);
 
         try {
+            try {
+                if (System.getProperty("sun.net.httpserver.maxReqTime") == null) {
+                    System.setProperty("sun.net.httpserver.maxReqTime", "60");
+                }
+            
+                if (System.getProperty("sun.net.httpserver.maxRspTime") == null) {
+                    System.setProperty("sun.net.httpserver.maxRspTime", "60");
+                }
+            } catch (Exception e) {
+                logger.error("Failed to set properties sun.net.httpserver.maxReqTime and sun.net.httpserver.maxRspTime", e);
+            }
             configuration.configureReceiver(this);
             server.bind(new InetSocketAddress(host, port), DEFAULT_BACKLOG);
         } catch (Exception e) {

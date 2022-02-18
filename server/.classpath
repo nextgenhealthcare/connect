@@ -98,6 +98,7 @@
 	<classpathentry kind="lib" path="lib/jersey/jersey-media-multipart-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-proxy-client-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-collections4-4.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-collections-3.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/swagger/ext/reflections-0.9.10.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-guava-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.26.0-GA.jar"/>
@@ -108,24 +109,24 @@
 	<classpathentry kind="lib" path="lib/javax/javax.json-api-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.mail-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.ws.rs-api-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-annotations-9.4.21.v20190926.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-continuation-9.4.21.v20190926.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-http-9.4.21.v20190926.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-io-9.4.21.v20190926.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-plus-9.4.21.v20190926.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-rewrite-9.4.21.v20190926.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-security-9.4.21.v20190926.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-server-9.4.21.v20190926.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-servlet-9.4.21.v20190926.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-util-9.4.21.v20190926.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-webapp-9.4.21.v20190926.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-xml-9.4.21.v20190926.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jsp/org.eclipse.jetty.apache-jsp-9.4.21.v20190926.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-annotations-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-continuation-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-http-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-io-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-plus-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-rewrite-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-security-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-server-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-servlet-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-util-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-webapp-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-xml-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/org.eclipse.jetty.apache-jsp-9.4.44.v20210927.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.apache.taglibs.taglibs-standard-impl-1.2.5.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.apache.taglibs.taglibs-standard-spec-1.2.5.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jsp/org.mortbay.jasper.apache-el-8.5.40.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jsp/org.mortbay.jasper.apache-jsp-8.5.40.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jsp/org.eclipse.jdt.ecj-3.17.0.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/org.mortbay.jasper.apache-el-8.5.70.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/org.mortbay.jasper.apache-jsp-8.5.70.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/org.eclipse.jdt.ecj-3.19.0.jar"/>
 	<classpathentry kind="lib" path="testlib/byte-buddy-1.8.8.jar"/>
 	<classpathentry kind="lib" path="testlib/byte-buddy-agent-1.8.8.jar"/>
 	<classpathentry kind="lib" path="testlib/junit-4.8.1.jar"/>
@@ -190,7 +191,6 @@
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
-	<classpathentry kind="lib" path="lib/rhino-1.7.12.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-vfs2-2.1.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/proper/commons-vfs/apidocs"/>
@@ -259,5 +259,6 @@
 	<classpathentry kind="lib" path="lib/hapi/hapi-structures-v27-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/hapi/hapi-structures-v28-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/hapi/hapi-structures-v281-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/rhino-1.7.13.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

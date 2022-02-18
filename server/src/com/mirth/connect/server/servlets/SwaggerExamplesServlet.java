@@ -70,6 +70,7 @@ import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.model.DatabaseTask;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.ExtensionLibrary;
@@ -81,6 +82,7 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginClass;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
@@ -254,7 +256,9 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getDatabaseTaskExample();
 		} else if (exampleRequested.equals("database_task_map")) {
 		    requestedObject = getDatabaseTaskMapExample();
-		} else if (exampleRequested.equals("definition_service_map")) {
+		} else if (exampleRequested.equals("debug_options")) {
+            requestedObject = getDebugOptionsExample();  
+        } else if (exampleRequested.equals("definition_service_map")) {
 		    requestedObject = getDefinitionServiceMapExample();
 		} else if (exampleRequested.equals("driver_info_list")) {
             requestedObject = getDriverInfoListExample();
@@ -338,6 +342,8 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getServerLogItemListExample();
         } else if (exampleRequested.equals("server_settings")) {
             requestedObject = getServerSettingsExample();
+        } else if (exampleRequested.equals("public_server_settings")) {
+            requestedObject = getPublicServerSettingsExample();
         } else if (exampleRequested.equals("smtp_dispatcher_properties")) {
             requestedObject = getSmtpDispatcherPropertiesExample("none");
         } else if (exampleRequested.equals("smtp_dispatcher_properties_ssl")) {
@@ -361,7 +367,6 @@ public class SwaggerExamplesServlet extends HttpServlet {
         } else if (exampleRequested.equals("ws_dispatcher_properties")) {
             requestedObject = getWsDispatcherPropertiesExample();
         }
-		
 		resp.setContentType("application/json");
 		if (req.getPathInfo().endsWith("_json")) {
 	        String serializedObject = jsonSerialize(requestedObject);
@@ -886,6 +891,19 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return taskMap;
 	}
 	
+	private DebugOptions getDebugOptionsExample() {
+	    DebugOptions debugOptions=new DebugOptions();
+        debugOptions.setAttachmentBatchScripts(false);
+        debugOptions.setDeployUndeployPreAndPostProcessorScripts(false);
+        debugOptions.setDestinationConnectorScripts(false);
+        debugOptions.setDestinationFilterTransformer(false);
+        debugOptions.setDestinationResponseTransformer(false);
+        debugOptions.setDestinationResponseTransformer(false);
+        debugOptions.setSourceConnectorScripts(false);
+        debugOptions.setSourceFilterTransformer(false);
+        return debugOptions;
+    }
+	
 	private DefinitionServiceMap getDefinitionServiceMapExample() {
 	    DefinitionServiceMap definitionMap = new DefinitionServiceMap();
 	    Map<String, DefinitionPortMap> portMap = definitionMap.getMap();
@@ -1300,7 +1318,13 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    serverSettings.setSmtpFrom("");
 	    serverSettings.setSmtpUsername("");
 	    serverSettings.setSmtpPassword("");
+	    serverSettings.setLoginNotificationEnabled(false);
+	    serverSettings.setLoginNotificationMessage("");
 	    return serverSettings;
+	}
+	
+	private PublicServerSettings getPublicServerSettingsExample() {
+	    return new PublicServerSettings(getServerSettingsExample());
 	}
 	
 	private SystemInfo getSystemInfoExample() {

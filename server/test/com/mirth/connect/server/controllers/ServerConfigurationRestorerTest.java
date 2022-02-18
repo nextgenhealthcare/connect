@@ -18,6 +18,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -852,17 +853,17 @@ public class ServerConfigurationRestorerTest {
         MultiException multiException = new MultiException();
 
         restorer.deployAllChannels(deploy, multiException);
-        verify(restorer.getEngineController(), times(0)).deployChannels(any(), any(), any(), anyBoolean());
+        verify(restorer.getEngineController(), times(0)).deployChannels(any(), any(), any(), any());
 
         deploy = true;
         Set<String> channelIds = new HashSet<String>();
         channelIds.add("1");
         when(restorer.getChannelController().getChannelIds()).thenReturn(channelIds);
         restorer.deployAllChannels(deploy, multiException);
-        verify(restorer.getEngineController(), times(1)).deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, false);
+        verify(restorer.getEngineController(), times(1)).deployChannels(eq(channelIds), eq(ServerEventContext.SYSTEM_USER_EVENT_CONTEXT), isNull(), any());
 
         EngineController engineController = restorer.getEngineController();
-        doThrow(ControllerException.class).when(engineController).deployChannels(any(), any(), any(), anyBoolean());
+        doThrow(ControllerException.class).when(engineController).deployChannels(any(), any(), any(), any());
         restorer.deployAllChannels(deploy, multiException);
         assertEquals(1, multiException.size());
     }

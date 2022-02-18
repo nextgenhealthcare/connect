@@ -40,6 +40,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.donkey.model.DonkeyException;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
@@ -119,6 +120,7 @@ public class Channel implements Runnable {
     private PostProcessor postProcessor;
     private List<DestinationChainProvider> destinationChainProviders = new ArrayList<DestinationChainProvider>();
     private ResponseSelector responseSelector;
+    private DebugOptions debugOptions;
 
     /*
      * Only 2 channels can remove all messages at a time since it can be a lengthy process. We don't
@@ -138,6 +140,14 @@ public class Channel implements Runnable {
 
     private Logger logger = Logger.getLogger(getClass());
 
+    public DebugOptions getDebugOptions() {
+        return debugOptions;
+    }
+
+    public void setDebugOptions(DebugOptions debugOptions) {
+        this.debugOptions = debugOptions;
+    }
+    
     public String getChannelId() {
         return channelId;
     }
@@ -214,6 +224,8 @@ public class Channel implements Runnable {
         return currentState;
     }
 
+
+    
     public void updateCurrentState(DeployedState currentState) {
         this.currentState = currentState;
         eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, name, null, null, DeployedStateEventType.getTypeFromDeployedState(currentState)));
@@ -450,14 +462,14 @@ public class Channel implements Runnable {
     }
 
     public synchronized void deploy() throws DeployException {
-        deploy(false);
+        deploy(null);
     }
     
-    public synchronized void debugDeploy() throws DeployException {
-    	deploy(true);
+    public synchronized void debugDeploy(DebugOptions debugOptions) throws DeployException {
+    	deploy(debugOptions);
     }
     
-    public synchronized void deploy(boolean debug) throws DeployException {
+    public synchronized void deploy(DebugOptions debugOptions) throws DeployException {
     	if (!isConfigurationValid()) {
             throw new DeployException("Failed to deploy channel. The channel configuration is incomplete.");
         }
@@ -508,8 +520,8 @@ public class Channel implements Runnable {
 
             deployedMetaDataIds.add(0);
             
-            if (debug) {
-            	sourceConnector.onDebugDeploy();
+            if (debugOptions != null) {
+            	sourceConnector.onDebugDeploy(debugOptions);
             } else {
             	sourceConnector.onDeploy();
             }
@@ -539,8 +551,8 @@ public class Channel implements Runnable {
 
                     deployedMetaDataIds.add(metaDataId);
                     
-                    if (debug) {
-                    	destinationConnector.onDebugDeploy();
+                    if (debugOptions != null) {
+                    	destinationConnector.onDebugDeploy(debugOptions);
                     } else {
                     	destinationConnector.onDeploy();
                     }
@@ -2300,4 +2312,5 @@ public class Channel implements Runnable {
             dao.close();
         }
     }
+
 }
