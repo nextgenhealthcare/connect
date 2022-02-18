@@ -455,6 +455,11 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
         return getServlet(UserServletInterface.class).isUserLoggedIn(userId);
     }
 
+    @Override
+    public synchronized void setUserNotificationAcknowledged(Integer userId) throws ClientException {
+        getServlet(UserServletInterface.class).setUserNotificationAcknowledged(userId);
+    }
+
     /**
      * Returns a Map of user preferences, optionally filtered by a set of property names.
      * 
