@@ -105,6 +105,7 @@ import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.ServerConfiguration;
@@ -501,6 +502,11 @@ public class DefaultConfigurationController extends ConfigurationController {
         serverName = getProperty(PROPERTIES_CORE + "." + serverId, "server.name");
         Properties serverSettings = getPropertiesForGroup(PROPERTIES_CORE);
         return new ServerSettings(environmentName, serverName, serverSettings);
+    }
+    
+    @Override
+    public PublicServerSettings getPublicServerSettings() throws ControllerException {
+        return new PublicServerSettings(getServerSettings());
     }
 
     @Override
