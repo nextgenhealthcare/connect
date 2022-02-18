@@ -662,7 +662,7 @@ public class Channel implements Runnable {
         stopSourceQueue = true;
 
         if (MapUtils.isNotEmpty(queueThreads)) {
-            for (Thread queueThread : queueThreads.values()) {
+            for (Thread queueThread : queueThreads.values().toArray(new Thread[queueThreads.size()])) {
                 queueThread.join();
             }
             queueThreads.clear();
@@ -671,7 +671,7 @@ public class Channel implements Runnable {
 
     public void haltSourceQueue() {
         if (MapUtils.isNotEmpty(queueThreads)) {
-            for (Thread queueThread : queueThreads.values()) {
+            for (Thread queueThread : queueThreads.values().toArray(new Thread[queueThreads.size()])) {
                 queueThread.interrupt();
             }
         }

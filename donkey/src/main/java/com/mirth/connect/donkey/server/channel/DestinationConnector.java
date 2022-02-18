@@ -12,6 +12,7 @@ package com.mirth.connect.donkey.server.channel;
 import java.util.Calendar;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -318,11 +319,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
         if (MapUtils.isNotEmpty(queueThreads)) {
             try {
-                for (DestinationQueueThread thread : queueThreads.values()) {
+                for (DestinationQueueThread thread : queueThreads.values().toArray(new DestinationQueueThread[queueThreads.size()])) {
                     thread.interruptIfWaitingRetryInterval();
                 }
 
-                for (Thread thread : queueThreads.values()) {
+                for (Thread thread : queueThreads.values().toArray(new Thread[queueThreads.size()])) {
                     thread.join();
                 }
 
@@ -372,7 +373,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         stopQueue.set(true);
 
         if (MapUtils.isNotEmpty(queueThreads)) {
-            for (Thread thread : queueThreads.values()) {
+            for (Thread thread : queueThreads.values().toArray(new Thread[queueThreads.size()])) {
                 thread.interrupt();
             }
         }
@@ -382,7 +383,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         } finally {
             if (MapUtils.isNotEmpty(queueThreads)) {
                 try {
-                    for (Thread thread : queueThreads.values()) {
+                    for (Thread thread : queueThreads.values().toArray(new Thread[queueThreads.size()])) {
                         thread.join();
                     }
 
