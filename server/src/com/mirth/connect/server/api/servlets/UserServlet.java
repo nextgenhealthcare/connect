@@ -343,6 +343,7 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
     }
 
     @Override
+    @CheckAuthorizedUserId(auditCurrentUser = false)
     public void setUserNotificationAcknowledged(Integer userId) throws ClientException {
 
         operation.setDisplayName("User notification acknowledgement");

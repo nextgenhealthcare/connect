@@ -456,6 +456,11 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
         return getServlet(UserServletInterface.class).isUserLoggedIn(userId);
     }
 
+    /**
+     * Records acknowledgement of custom user notification dialog displayed before login.
+     * 
+     * @see UserServletInterface#getUserPreferences
+     */
     @Override
     public synchronized void setUserNotificationAcknowledged(Integer userId) throws ClientException {
         getServlet(UserServletInterface.class).setUserNotificationAcknowledged(userId);
