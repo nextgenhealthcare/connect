@@ -459,7 +459,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     /**
      * Records acknowledgement of custom user notification dialog displayed before login.
      * 
-     * @see UserServletInterface#getUserPreferences
+     * @see UserServletInterface#setUserNotificationAcknowledged
      */
     @Override
     public synchronized void setUserNotificationAcknowledged(Integer userId) throws ClientException {
