@@ -206,6 +206,14 @@ public interface UserServletInterface extends BaseServletInterface {
 							@ExampleObject(name = "properties", ref = "../apiexamples/properties_json") }) }) Properties properties)
 			throws ClientException;
     // @formatter:on
+    
+    @POST
+    @Path("/{userId}/notificationAcknowledged")
+    @Operation(summary = "User notification has been acknowledged.")
+    @MirthOperation(name = "userNotificationAcknowledged", display = "Acknowledge user notification")
+    public void setUserNotificationAcknowledged(// @formatter:off
+            @Param("userId") @Parameter(description = "The unique ID of the user.", required = true) @PathParam("userId") Integer userId) throws ClientException;
+    // @formatter:on
 
     @PUT
     @Path("/{userId}/preferences/{name}")
