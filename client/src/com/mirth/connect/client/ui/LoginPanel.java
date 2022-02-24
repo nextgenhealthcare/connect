@@ -491,8 +491,10 @@ public class LoginPanel extends javax.swing.JFrame {
             private void handleSuccess(LoginStatus loginStatus) throws ClientException {
                 try {
                     PublicServerSettings publicServerSettings = client.getPublicServerSettings();
-
-                    CustomBannerPanelDialog customBannerPanelDialog = new CustomBannerPanelDialog(LoginPanel.getInstance(), "Login Notification", publicServerSettings.getLoginNotificationMessage());
+                    
+                    if (publicServerSettings.getLoginNotificationEnabled() == true) {
+                    	CustomBannerPanelDialog customBannerPanelDialog = new CustomBannerPanelDialog(LoginPanel.getInstance(), "Login Notification", publicServerSettings.getLoginNotificationMessage());
+                    }
                     
                     client.setUserNotificationAcknowledged(client.getCurrentUser().getId());
                     

@@ -67,9 +67,6 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     private String smtpUsername;
     private String smtpPassword;
     
-    // Notification
-    private Boolean requireNotification;
-
     // Login Notification
     private Boolean loginNotificationEnabled;
     private String loginNotificationMessage;
