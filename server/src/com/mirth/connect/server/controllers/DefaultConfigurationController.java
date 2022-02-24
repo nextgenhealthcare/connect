@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
@@ -521,6 +523,26 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public void setServerSettings(ServerSettings settings) throws ControllerException {
+        Pattern pattern;
+        final String NUMERIC_PATTERN = "^[1-5][0-9]?$|^60$";
+        
+        Properties properties = settings.getProperties();
+        try {
+            for (Object name : properties.keySet()) {
+                if (name.toString().equals("administratorautologoutinterval.field")) {
+                    pattern = Pattern.compile(NUMERIC_PATTERN);
+                    
+                    Matcher matcher = pattern.matcher((String) properties.get(name));
+
+                    if (!matcher.find()) {
+                        throw new ControllerException("Invalid auto logout interval, the value should be between 1 and 60.");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+        
         String environmentName = settings.getEnvironmentName();
         if (environmentName != null) {
             saveProperty(PROPERTIES_CORE, "environment.name", environmentName);
@@ -532,7 +554,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             this.serverName = serverName;
         }
 
-        Properties properties = settings.getProperties();
+
         for (Object name : properties.keySet()) {
             saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));
         }
