@@ -786,13 +786,13 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         notificationPanel.setBackground(getBackground());
         notificationPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Notification", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
 
-        requireNotificationLabel = new JLabel("Require User Notification and Consent:");
+        requireNotificationLabel = new JLabel("Require Login Notification and Consent:");
         requireNotificationButtonGroup = new ButtonGroup();
 
         requireNotificationYesRadio = new MirthRadioButton("Yes");
         requireNotificationYesRadio.setBackground(getBackground());
         requireNotificationYesRadio.setSelected(true);
-        requireNotificationYesRadio.setToolTipText("Toggles requiring user notification on login.");
+        requireNotificationYesRadio.setToolTipText("Require login notification.");
         requireNotificationYesRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 requireNotificationYesRadioActionPerformed(evt);
@@ -802,7 +802,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         requireNotificationNoRadio = new MirthRadioButton("No");
         requireNotificationNoRadio.setBackground(getBackground());
-        requireNotificationNoRadio.setToolTipText("Toggles requiring user notification on login.");
+        requireNotificationNoRadio.setToolTipText("Do not require login notification.");
         requireNotificationNoRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 requireNotificationNoRadioActionPerformed(evt);
@@ -810,7 +810,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         });
         requireNotificationButtonGroup.add(requireNotificationNoRadio);
         
-        notificationLabel = new JLabel("Notification:");
+        notificationLabel = new JLabel("Login Notification:");
         notificationTextPane = new MirthTextPane();
         notificationScrollPane = new JScrollPane(notificationTextPane);
 
