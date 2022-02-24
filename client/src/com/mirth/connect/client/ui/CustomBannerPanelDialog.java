@@ -65,8 +65,7 @@ public class CustomBannerPanelDialog extends JDialog {
     }
     
     private void initComponents() {
-    	// layout sets 12 pixel border
-        setLayout(new MigLayout("insets 12", "[]", "[fill][]"));
+    	setLayout(new MigLayout("insets 12"));								// layout sets 12 pixel border
         setTitle(title);
         getContentPane().setBackground(UIConstants.BACKGROUND_COLOR);		// set dialog box to background color
         setBackground(UIConstants.BACKGROUND_COLOR);						// get all other backgrounds for each piece
