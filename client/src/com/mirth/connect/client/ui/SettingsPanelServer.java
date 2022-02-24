@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.prefs.Preferences;
 
 import javax.mail.internet.InternetAddress;
 import javax.swing.BorderFactory;
@@ -71,8 +70,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     public static final String TAB_NAME = "Server";
 
     private List<MetaDataColumn> defaultMetaDataColumns;
-    
-    private static Preferences userPreferences;
 
     public SettingsPanelServer(String tabName) {
         super(tabName);
@@ -88,7 +85,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         provideUsageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         queueBufferSizeField.setDocument(new MirthFieldConstraints(8, false, false, true));
         smtpTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, false));
-
+        administratorAutoLogoutIntervalField.setDocument(new MirthFieldConstraints(2, false, false, true));
+        
         defaultMetaDataColumns = new ArrayList<MetaDataColumn>();
     }
 
@@ -96,11 +94,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         if (PlatformUI.MIRTH_FRAME.alertRefresh()) {
             return;
         }
-        
-        administratorAutoLogoutIntervalField.setDocument(new MirthFieldConstraints(3, false, false, true));
-        userPreferences = Preferences.userNodeForPackage(Mirth.class);
-        int interval = userPreferences.getInt("intervalTime", 5);
-        administratorAutoLogoutIntervalField.setText(interval + "");
 
         final String workingId = getFrame().startWorking("Loading " + getTabName() + " settings...");
 
@@ -138,19 +131,18 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         final ServerSettings serverSettings = getServerSettings();
         final UpdateSettings updateSettings = getUpdateSettings();
         
-        if (administratorAutoLogoutIntervalField.getText().length() == 0) {
-            getFrame().alertWarning(this, "Please enter a valid interval time.");
-            return false;
-        }
+        if (administratorAutoLogoutIntervalYesRadio.isSelected()) {
+            if (serverSettings.getAdministratorAutoLogoutIntervalField() == null) {
+                getFrame().alertWarning(this, "Please enter a valid auto logout interval time.");
+                return false;
+            }
+            
+            int autoLogoutInterval = serverSettings.getAdministratorAutoLogoutIntervalField();
         
-        int interval = Integer.parseInt(administratorAutoLogoutIntervalField.getText());
-
-        if (interval <= 0) {
-            getFrame().alertWarning(this, "Please enter an interval time that is larger than 0.");
-        } else if (interval >= 61) {
-            getFrame().alertWarning(this, "Please enter an interval time that is less than 61.");
-        } else {
-            userPreferences.putInt("intervalTime", interval);
+            if (autoLogoutInterval <= 0 || autoLogoutInterval >= 61) {
+                getFrame().alertWarning(this, "Please enter an auto logout interval time that is between 1 and 60.");
+                return false;
+            }
         }
         
         // Integer queueBufferSize will be null if it was invalid
@@ -363,7 +355,23 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         	notificationTextPane.setText(serverSettings.getLoginNotificationMessage());
         } else {
         	notificationTextPane.setText("");
-        }        
+        }
+        
+        if (serverSettings.getAdministratorAutoLogoutIntervalEnabled()) {
+            administratorAutoLogoutIntervalYesRadio.setSelected(true);
+            administratorAutoLogoutIntervalTimeLabel.setEnabled(true);
+            administratorAutoLogoutIntervalField.setEnabled(true);
+        } else {
+            administratorAutoLogoutIntervalNoRadio.setSelected(true);
+            administratorAutoLogoutIntervalTimeLabel.setEnabled(false);
+            administratorAutoLogoutIntervalField.setEnabled(false);
+        }
+        
+        if (serverSettings.getAdministratorAutoLogoutIntervalField() != null) {
+            administratorAutoLogoutIntervalField.setText(serverSettings.getAdministratorAutoLogoutIntervalField().toString());
+        } else {
+            administratorAutoLogoutIntervalField.setText("");
+        }
         
         resetInvalidSettings();
     }
@@ -454,6 +462,14 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         }
       
         serverSettings.setLoginNotificationMessage(notificationTextPane.getText().toString());
+
+        if (administratorAutoLogoutIntervalYesRadio.isSelected()) {
+            serverSettings.setAdministratorAutoLogoutIntervalEnabled(true);
+        } else {
+            serverSettings.setAdministratorAutoLogoutIntervalEnabled(false);
+        }
+        
+        serverSettings.setAdministratorAutoLogoutIntervalField(new Integer(administratorAutoLogoutIntervalField.getText().toString()));
 
         return serverSettings;
     }
@@ -698,11 +714,21 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         administratorAutoLogoutIntervalYesRadio = new MirthRadioButton("Yes");
         administratorAutoLogoutIntervalYesRadio.setBackground(getBackground());
         administratorAutoLogoutIntervalYesRadio.setToolTipText("<html>Toggles automatically logging out the user due to inactivity.</html>");
+        administratorAutoLogoutIntervalYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                requireAdministratorAutoLogoutIntervalYesRadioActionPerformed(evt);
+            }
+        });
         administratorAutoLogoutIntervalButtonGroup.add(administratorAutoLogoutIntervalYesRadio);
 
         administratorAutoLogoutIntervalNoRadio = new MirthRadioButton("No");
         administratorAutoLogoutIntervalNoRadio.setBackground(getBackground());
         administratorAutoLogoutIntervalNoRadio.setToolTipText("<html>Toggles automatically logging out the user due to inactivity.</html>");
+        administratorAutoLogoutIntervalNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                requireAdministratorAutoLogoutIntervalNoRadioActionPerformed(evt);
+            }
+        });
         administratorAutoLogoutIntervalButtonGroup.add(administratorAutoLogoutIntervalNoRadio);
         
         administratorAutoLogoutIntervalTimeLabel = new JLabel("Time (minutes):");
@@ -854,8 +880,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         notificationLabel = new JLabel("Notification:");
         notificationTextPane = new MirthTextPane();
         notificationScrollPane = new JScrollPane(notificationTextPane);
-
-
     }
 
     private void initLayout() {
@@ -951,7 +975,16 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     	notificationLabel.setEnabled(true);
         notificationTextPane.setEnabled(true);
     }
+    
+    private void requireAdministratorAutoLogoutIntervalNoRadioActionPerformed(ActionEvent evt) {
+        administratorAutoLogoutIntervalTimeLabel.setEnabled(false);
+        administratorAutoLogoutIntervalField.setEnabled(false);
+    }
 
+    private void requireAdministratorAutoLogoutIntervalYesRadioActionPerformed(ActionEvent evt) {
+        administratorAutoLogoutIntervalTimeLabel.setEnabled(true);
+        administratorAutoLogoutIntervalField.setEnabled(true);
+    }
 
     private void testEmailButtonActionPerformed(ActionEvent evt) {
         resetInvalidSettings();
