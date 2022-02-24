@@ -457,6 +457,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
+     * Records acknowledgement of custom user notification dialog displayed before login.
+     * 
+     * @see UserServletInterface#setUserNotificationAcknowledged
+     */
+    @Override
+    public synchronized void setUserNotificationAcknowledged(Integer userId) throws ClientException {
+        getServlet(UserServletInterface.class).setUserNotificationAcknowledged(userId);
+    }
+
+    /**
      * Returns a Map of user preferences, optionally filtered by a set of property names.
      * 
      * @see UserServletInterface#getUserPreferences
