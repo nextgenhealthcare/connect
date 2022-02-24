@@ -494,6 +494,8 @@ public class LoginPanel extends javax.swing.JFrame {
 
                     CustomBannerPanelDialog customBannerPanelDialog = new CustomBannerPanelDialog(LoginPanel.getInstance(), "Custom Notification", "Sample text.");
                     
+                    client.setUserNotificationAcknowledged(client.getCurrentUser().getId());
+                    
                     String environmentName = serverSettings.getEnvironmentName();
                     if (!StringUtils.isBlank(environmentName)) {
                         PlatformUI.ENVIRONMENT_NAME = environmentName;
