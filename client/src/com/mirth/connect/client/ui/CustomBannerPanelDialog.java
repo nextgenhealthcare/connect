@@ -33,22 +33,14 @@ import net.miginfocom.swing.MigLayout;
 public class CustomBannerPanelDialog extends JDialog {
 
     public CustomBannerPanelDialog(JFrame parent, String title, String text) {
-        
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e)
-            {
-              System.exit(0);
-            }
-        });
-        
         this.notificationText = text;
         this.title = title;
-        
+
         DisplayUtil.setResizable(this, true);
         setPreferredSize(new Dimension(800,600));
         setModal(true);
         this.setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
-        
+
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
         Point loc = parent.getLocation();
@@ -58,38 +50,38 @@ public class CustomBannerPanelDialog extends JDialog {
         } else {
             setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
-        
+
         initComponents();
         setVisible(true);
-  
     }
-    
+
     private void initComponents() {
-    	setLayout(new MigLayout("insets 12"));								// layout sets 12 pixel border
+        setLayout(new MigLayout("insets 12")); // layout sets 12 pixel border
         setTitle(title);
-        getContentPane().setBackground(UIConstants.BACKGROUND_COLOR);		// set dialog box to background color
-        setBackground(UIConstants.BACKGROUND_COLOR);						// get all other backgrounds for each piece
+        getContentPane().setBackground(UIConstants.BACKGROUND_COLOR); // set dialog box to background color
+        setBackground(UIConstants.BACKGROUND_COLOR); // get all other backgrounds for each piece
 
         textArea = new JTextArea();
         textArea.setBackground(getBackground());
         textArea.setEditable(false);
         textArea.setText(notificationText);
-        textArea.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));	// add 8 pixels padding to text
-        
+        textArea.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8)); // add 8 pixels padding to text
+
         JScrollPane scrollPane = new JScrollPane(textArea);
         scrollPane.setBackground(getBackground());
-        
+
         btnAccept = new JButton("Accept");
         btnAccept.setVerticalTextPosition(AbstractButton.BOTTOM);
-        btnAccept.setHorizontalTextPosition(AbstractButton.LEFT); 			// LEFT, for left-to-right locale
+        btnAccept.setHorizontalTextPosition(AbstractButton.LEFT); // LEFT, for left-to-right locale
         btnAccept.setActionCommand("accept");
         btnAccept.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
+                isAccepted = true;
                 dispose();
             }
         });
-        
+
         btnCancel = new JButton("Cancel");
         btnCancel.setVerticalTextPosition(AbstractButton.BOTTOM);
         btnCancel.setHorizontalTextPosition(AbstractButton.RIGHT);
@@ -97,20 +89,31 @@ public class CustomBannerPanelDialog extends JDialog {
         btnCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                System.exit(0);
+                isAccepted = false;
+                dispose();
             }
         });
 
-        add(scrollPane, "grow, sx, push, h 100%");				// fill the screen with the scrollPane
-        add(new JSeparator(), "grow, span, gap 0 0 4 4");		// set gap on top and bottom 4 pixels
-        add(btnAccept, "newline, right, split 2");				// put buttons on bottom right of dialog
+        add(scrollPane, "grow, sx, push, h 100%"); // fill the screen with the scrollPane
+        add(new JSeparator(), "grow, span, gap 0 0 4 4"); // set gap on top and bottom 4 pixels
+        add(btnAccept, "newline, right, split 2"); // put buttons on bottom right of dialog
         add(btnCancel);
 
         pack();
     }
+
+    public boolean isAccepted() {
+        return isAccepted;
+    }
+
+    public void setAccepted(boolean isAccepted) {
+        this.isAccepted = isAccepted;
+    }
     
-    private String notificationText; 
-    private String title; 
+    
+    private boolean isAccepted = false;
+    private String notificationText;
+    private String title;
     protected JTextArea textArea;
     protected JButton btnAccept, btnCancel;
 }
