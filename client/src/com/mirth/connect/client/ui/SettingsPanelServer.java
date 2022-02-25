@@ -137,7 +137,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 return false;
             }
             
-            int autoLogoutInterval = serverSettings.getAdministratorAutoLogoutIntervalField();
+            int autoLogoutInterval = Integer.parseInt(serverSettings.getAdministratorAutoLogoutIntervalField());
         
             if (autoLogoutInterval <= 0 || autoLogoutInterval >= 61) {
                 getFrame().alertWarning(this, "Please enter an auto logout interval time that is between 1 and 60.");
@@ -469,7 +469,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             serverSettings.setAdministratorAutoLogoutIntervalEnabled(false);
         }
         
-        serverSettings.setAdministratorAutoLogoutIntervalField(new Integer(administratorAutoLogoutIntervalField.getText().toString()));
+        serverSettings.setAdministratorAutoLogoutIntervalField(administratorAutoLogoutIntervalField.getText().toString());
 
         return serverSettings;
     }

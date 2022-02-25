@@ -17,6 +17,6 @@ public class PublicServerSettings extends ServerSettings {
         setLoginNotificationEnabled(intToBooleanObject(properties.getProperty(LOGIN_NOTIFICATION_ENABLED)));
         setLoginNotificationMessage(properties.getProperty(LOGIN_NOTIFICATION_MESSAGE));
         setAdministratorAutoLogoutIntervalEnabled(intToBooleanObject(properties.getProperty(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED)));
-        setAdministratorAutoLogoutIntervalField(toIntegerObject(properties.getProperty(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD)));
+        setAdministratorAutoLogoutIntervalField(properties.getProperty(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD));
     }
 }

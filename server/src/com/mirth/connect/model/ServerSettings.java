@@ -77,7 +77,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     
     // Auto Logout
     private Boolean administratorAutoLogoutIntervalEnabled;
-    private Integer administratorAutoLogoutIntervalField;
+    private String administratorAutoLogoutIntervalField;
     
     public ServerSettings() {
 
@@ -162,7 +162,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         setLoginNotificationEnabled(intToBooleanObject(properties.getProperty(LOGIN_NOTIFICATION_ENABLED, DEFAULT_LOGIN_NOTIFICATION_ENABLED_VALUE)));
         setLoginNotificationMessage(properties.getProperty(LOGIN_NOTIFICATION_MESSAGE, DEFAULT_LOGIN_NOTIFICATION_MESSAGE_VALUE));
         setAdministratorAutoLogoutIntervalEnabled(intToBooleanObject(properties.getProperty(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED, DEFAULT_ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED_VALUE)));
-        setAdministratorAutoLogoutIntervalField(toIntegerObject(properties.getProperty(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD, DEFAULT_ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD_VALUE)));
+        setAdministratorAutoLogoutIntervalField(properties.getProperty(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD, DEFAULT_ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD_VALUE));
     }
 
     public String getEnvironmentName() {
@@ -301,11 +301,11 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         this.administratorAutoLogoutIntervalEnabled = administratorAutoLogoutIntervalEnabled;
     }
     
-    public Integer getAdministratorAutoLogoutIntervalField() {
+    public String getAdministratorAutoLogoutIntervalField() {
         return administratorAutoLogoutIntervalField;
     }
     
-    public void setAdministratorAutoLogoutIntervalField(Integer administratorAutoLogoutIntervalField) {
+    public void setAdministratorAutoLogoutIntervalField(String administratorAutoLogoutIntervalField) {
         this.administratorAutoLogoutIntervalField = administratorAutoLogoutIntervalField;
     }
     

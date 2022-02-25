@@ -65,6 +65,7 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -525,18 +526,38 @@ public class DefaultConfigurationController extends ConfigurationController {
     public void setServerSettings(ServerSettings settings) throws ControllerException {
         Pattern pattern;
         final String NUMERIC_PATTERN = "^[1-5][0-9]?$|^60$";
+        final String NON_NUMERIC_PATTERN = "[^0-9]";
         
         Properties properties = settings.getProperties();
         try {
-            for (Object name : properties.keySet()) {
-                if (name.toString().equals("administratorautologoutinterval.field")) {
-                    pattern = Pattern.compile(NUMERIC_PATTERN);
-                    
-                    Matcher matcher = pattern.matcher((String) properties.get(name));
+            Boolean enabledInput = false;
+            String fieldInput = "";
 
-                    if (!matcher.find()) {
-                        throw new ControllerException("Invalid auto logout interval, the value should be between 1 and 60.");
-                    }
+            for (Object name : properties.keySet()) {
+                if (name.toString().equals("administratorautologoutinterval.enabled")) {
+                    enabledInput = intToBooleanObject((String) properties.get(name), false);
+                }
+                
+                if (name.toString().equals("administratorautologoutinterval.field")) {
+                    fieldInput = (String) properties.get(name);
+                }
+            }
+            
+            if (enabledInput == true) {
+                pattern = Pattern.compile(NUMERIC_PATTERN);
+                
+                Matcher matcher = pattern.matcher(fieldInput);
+
+                if (!matcher.find()) {
+                    throw new ControllerException("Invalid auto logout interval, the value should be between 1 and 60.");
+                }
+            } else {
+                pattern = Pattern.compile(NON_NUMERIC_PATTERN);
+                
+                Matcher matcher = pattern.matcher(fieldInput);
+
+                if (matcher.find()) {
+                    throw new ControllerException("Invalid auto logout interval, the value should be numeric integer.");
                 }
             }
         } catch (Exception e) {
@@ -557,6 +578,29 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         for (Object name : properties.keySet()) {
             saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));
+        }
+    }
+    
+    /**
+     * Takes a String and returns a Boolean Object. "1" = true "0" = false null or not a number =
+     * defaultValue
+     * 
+     * @param str
+     * @param defaultValue
+     * @return
+     */
+    protected Boolean intToBooleanObject(String str, Boolean defaultValue) {
+        int i = NumberUtils.toInt(str, -1);
+
+        if (i == -1) {
+            // Must return null explicitly to avoid Java NPE due to autoboxing
+            if (defaultValue == null) {
+                return null;
+            } else {
+                return defaultValue;
+            }
+        } else {
+            return BooleanUtils.toBooleanObject(i);
         }
     }
 
