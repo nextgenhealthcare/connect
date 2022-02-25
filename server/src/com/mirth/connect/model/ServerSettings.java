@@ -25,6 +25,7 @@ import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.DefaultMetaData;
+import com.mysql.cj.util.StringUtils;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverSettings")
@@ -306,7 +307,11 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     }
     
     public void setAdministratorAutoLogoutIntervalField(String administratorAutoLogoutIntervalField) {
-        this.administratorAutoLogoutIntervalField = administratorAutoLogoutIntervalField;
+        if (StringUtils.isNullOrEmpty(administratorAutoLogoutIntervalField)) {
+            this.administratorAutoLogoutIntervalField = "5";
+        } else {
+            this.administratorAutoLogoutIntervalField = administratorAutoLogoutIntervalField;
+        }
     }
     
     @Override

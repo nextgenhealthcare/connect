@@ -523,46 +523,10 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     @Override
-    public void setServerSettings(ServerSettings settings) throws ControllerException {
-        Pattern pattern;
-        final String NUMERIC_PATTERN = "^[1-5][0-9]?$|^60$";
-        final String NON_NUMERIC_PATTERN = "[^0-9]";
-        
+    public void setServerSettings(ServerSettings settings) throws ControllerException {        
         Properties properties = settings.getProperties();
-        try {
-            Boolean enabledInput = false;
-            String fieldInput = "";
 
-            for (Object name : properties.keySet()) {
-                if (name.toString().equals("administratorautologoutinterval.enabled")) {
-                    enabledInput = intToBooleanObject((String) properties.get(name), false);
-                }
-                
-                if (name.toString().equals("administratorautologoutinterval.field")) {
-                    fieldInput = (String) properties.get(name);
-                }
-            }
-            
-            if (enabledInput == true) {
-                pattern = Pattern.compile(NUMERIC_PATTERN);
-                
-                Matcher matcher = pattern.matcher(fieldInput);
-
-                if (!matcher.find()) {
-                    throw new ControllerException("Invalid auto logout interval, the value should be between 1 and 60.");
-                }
-            } else {
-                pattern = Pattern.compile(NON_NUMERIC_PATTERN);
-                
-                Matcher matcher = pattern.matcher(fieldInput);
-
-                if (matcher.find()) {
-                    throw new ControllerException("Invalid auto logout interval, the value should be numeric integer.");
-                }
-            }
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
+        validateServerSettings(properties);
         
         String environmentName = settings.getEnvironmentName();
         if (environmentName != null) {
@@ -578,6 +542,45 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         for (Object name : properties.keySet()) {
             saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));
+        }
+    }
+    
+    public void validateServerSettings(Properties properties) throws ControllerException {
+        Pattern pattern;
+        final String NUMERIC_PATTERN = "^[1-5][0-9]?$|^60$";
+        final String NON_NUMERIC_PATTERN = "[^0-9]";
+        
+        try {
+            Boolean autoLogoutEnabled = false;
+            String autoLogoutTime = "";
+            
+            if (properties.getProperty("administratorautologoutinterval.enabled") != null) {
+                autoLogoutEnabled = intToBooleanObject(properties.getProperty("administratorautologoutinterval.enabled"), false);
+            }
+            
+            if (properties.getProperty("administratorautologoutinterval.field") != null) {
+                autoLogoutTime = properties.getProperty("administratorautologoutinterval.field");
+            }
+            
+            if (autoLogoutEnabled == true) {
+                pattern = Pattern.compile(NUMERIC_PATTERN);
+                
+                Matcher matcher = pattern.matcher(autoLogoutTime);
+
+                if (!matcher.find()) {
+                    throw new ControllerException("Invalid auto logout interval, the value should be between 1 and 60.");
+                }
+            } else {
+                pattern = Pattern.compile(NON_NUMERIC_PATTERN);
+                
+                Matcher matcher = pattern.matcher(autoLogoutTime);
+
+                if (matcher.find()) {
+                    throw new ControllerException("Invalid auto logout interval, the value should be numeric integer.");
+                }
+            }
+        } catch (Exception e) {
+            throw new ControllerException(e);
         }
     }
     
