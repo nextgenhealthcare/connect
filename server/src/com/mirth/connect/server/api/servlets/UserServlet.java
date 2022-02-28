@@ -24,6 +24,7 @@ import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.client.core.api.servlets.UserServletInterface;
@@ -339,5 +340,20 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }
+    }
+
+    @Override
+    @CheckAuthorizedUserId(auditCurrentUser = false)
+    public void setUserNotificationAcknowledged(Integer userId) throws ClientException {
+
+        operation.setDisplayName("User notification acknowledgement");
+        ServerEvent event = new ServerEvent(configurationController.getServerId(), operation.getDisplayName());
+        event.setUserId(userId);
+        event.setIpAddress(getRequestIpAddress());
+        event.setLevel(Level.INFORMATION);
+        event.setOutcome(Outcome.SUCCESS);
+
+        eventController.dispatchEvent(event);
+
     }
 }

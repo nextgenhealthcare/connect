@@ -29,7 +29,7 @@ import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.ExtendedLoginStatus;
 import com.mirth.connect.model.LoginStatus;
-import com.mirth.connect.model.ServerSettings;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.MultiFactorAuthenticationClientPlugin;
@@ -490,23 +490,27 @@ public class LoginPanel extends javax.swing.JFrame {
 
             private void handleSuccess(LoginStatus loginStatus) throws ClientException {
                 try {
-                    ServerSettings serverSettings = client.getServerSettings();
-
-                    CustomBannerPanelDialog customBannerPanelDialog = new CustomBannerPanelDialog(LoginPanel.getInstance(), "Custom Notification", "Sample text.");
+                    PublicServerSettings publicServerSettings = client.getPublicServerSettings();
                     
-                    String environmentName = serverSettings.getEnvironmentName();
+                    if (publicServerSettings.getLoginNotificationEnabled() == true) {
+                    	CustomBannerPanelDialog customBannerPanelDialog = new CustomBannerPanelDialog(LoginPanel.getInstance(), "Login Notification", publicServerSettings.getLoginNotificationMessage());
+                    }
+                    
+                    client.setUserNotificationAcknowledged(client.getCurrentUser().getId());
+                    
+                    String environmentName = publicServerSettings.getEnvironmentName();
                     if (!StringUtils.isBlank(environmentName)) {
                         PlatformUI.ENVIRONMENT_NAME = environmentName;
                     }
 
-                    String serverName = serverSettings.getServerName();
+                    String serverName = publicServerSettings.getServerName();
                     if (!StringUtils.isBlank(serverName)) {
                         PlatformUI.SERVER_NAME = serverName;
                     } else {
                         PlatformUI.SERVER_NAME = null;
                     }
 
-                    Color defaultBackgroundColor = serverSettings.getDefaultAdministratorBackgroundColor();
+                    Color defaultBackgroundColor = publicServerSettings.getDefaultAdministratorBackgroundColor();
                     if (defaultBackgroundColor != null) {
                         PlatformUI.DEFAULT_BACKGROUND_COLOR = defaultBackgroundColor;
                     }

@@ -18,12 +18,10 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
@@ -46,9 +44,10 @@ public class CustomBannerPanelDialog extends JDialog {
         this.notificationText = text;
         this.title = title;
         
-        DisplayUtil.setResizable(this, false);
+        DisplayUtil.setResizable(this, true);
         setPreferredSize(new Dimension(800,600));
         setModal(true);
+        this.setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
         
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
@@ -62,27 +61,27 @@ public class CustomBannerPanelDialog extends JDialog {
         
         initComponents();
         setVisible(true);
-        
-
+  
     }
     
     private void initComponents() {
-        setLayout(new MigLayout("insets 12", "[]", "[fill][]"));
+    	setLayout(new MigLayout("insets 12"));								// layout sets 12 pixel border
         setTitle(title);
+        getContentPane().setBackground(UIConstants.BACKGROUND_COLOR);		// set dialog box to background color
+        setBackground(UIConstants.BACKGROUND_COLOR);						// get all other backgrounds for each piece
 
-        JPanel outerPane = new JPanel();
-        Box box = Box.createVerticalBox();
-        outerPane.setLayout(new BoxLayout(outerPane, BoxLayout.PAGE_AXIS));
-        textArea = new JTextArea(35, 85);
-        textArea.setBackground(UIConstants.BACKGROUND_COLOR);
+        textArea = new JTextArea();
+        textArea.setBackground(getBackground());
         textArea.setEditable(false);
         textArea.setText(notificationText);
-
+        textArea.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));	// add 8 pixels padding to text
+        
         JScrollPane scrollPane = new JScrollPane(textArea);
-
+        scrollPane.setBackground(getBackground());
+        
         btnAccept = new JButton("Accept");
         btnAccept.setVerticalTextPosition(AbstractButton.BOTTOM);
-        btnAccept.setHorizontalTextPosition(AbstractButton.LEFT); //aka LEFT, for left-to-right locales
+        btnAccept.setHorizontalTextPosition(AbstractButton.LEFT); 			// LEFT, for left-to-right locale
         btnAccept.setActionCommand("accept");
         btnAccept.addActionListener(new ActionListener() {
             @Override
@@ -102,25 +101,14 @@ public class CustomBannerPanelDialog extends JDialog {
             }
         });
 
-        box.add(scrollPane);
-
-        JPanel buttonPane = new JPanel();
-        buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
-        buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-        buttonPane.add(btnAccept);
-        buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
-        buttonPane.add(btnCancel);
-
-        box.add(new JSeparator(), "grow, gaptop 4, span");
-        
-        box.add(buttonPane);
-
-        add(box);
+        add(scrollPane, "grow, sx, push, h 100%");				// fill the screen with the scrollPane
+        add(new JSeparator(), "grow, span, gap 0 0 4 4");		// set gap on top and bottom 4 pixels
+        add(btnAccept, "newline, right, split 2");				// put buttons on bottom right of dialog
+        add(btnCancel);
 
         pack();
     }
     
-
     private String notificationText; 
     private String title; 
     protected JTextArea textArea;

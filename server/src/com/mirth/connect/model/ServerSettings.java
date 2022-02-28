@@ -25,7 +25,6 @@ import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.DefaultMetaData;
-import com.mysql.cj.util.StringUtils;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverSettings")
@@ -34,8 +33,6 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     public static final Color DEFAULT_COLOR = new Color(0x9EB1C9);
     public static final String DEFAULT_LOGIN_NOTIFICATION_ENABLED_VALUE = "0";
     public static final String DEFAULT_LOGIN_NOTIFICATION_MESSAGE_VALUE = "";
-    public static final String DEFAULT_ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED_VALUE =  "0";
-    public static final String DEFAULT_ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD_VALUE =  "5";
 
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
     private static final String QUEUE_BUFFER_SIZE = "server.queuebuffersize";
@@ -51,9 +48,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     private static final String SMTP_PASSWORD = "smtp.password";
     protected static final String LOGIN_NOTIFICATION_ENABLED = "loginnotification.enabled";
     protected static final String LOGIN_NOTIFICATION_MESSAGE = "loginnotification.message";
-    protected static final String ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED = "administratorautologoutinterval.enabled";
-    protected static final String ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD = "administratorautologoutinterval.field";
-    
+
     // General
     private String environmentName;
     private String serverName;
@@ -71,14 +66,10 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     private Boolean smtpAuth;
     private String smtpUsername;
     private String smtpPassword;
-
+    
     // Login Notification
     private Boolean loginNotificationEnabled;
     private String loginNotificationMessage;
-    
-    // Auto Logout
-    private Boolean administratorAutoLogoutIntervalEnabled;
-    private String administratorAutoLogoutIntervalField;
     
     public ServerSettings() {
 
@@ -136,12 +127,6 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         if (getLoginNotificationMessage() != null) {
             properties.put(LOGIN_NOTIFICATION_MESSAGE, getLoginNotificationMessage());
         }
-        if (getAdministratorAutoLogoutIntervalEnabled() != null) {
-            properties.put(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED, BooleanUtils.toIntegerObject(getAdministratorAutoLogoutIntervalEnabled()).toString());
-        }
-        if (getAdministratorAutoLogoutIntervalField() != null) {
-            properties.put(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD, getAdministratorAutoLogoutIntervalField().toString());
-        }
 
         return properties;
     }
@@ -162,8 +147,6 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         setSmtpPassword(properties.getProperty(SMTP_PASSWORD));
         setLoginNotificationEnabled(intToBooleanObject(properties.getProperty(LOGIN_NOTIFICATION_ENABLED, DEFAULT_LOGIN_NOTIFICATION_ENABLED_VALUE)));
         setLoginNotificationMessage(properties.getProperty(LOGIN_NOTIFICATION_MESSAGE, DEFAULT_LOGIN_NOTIFICATION_MESSAGE_VALUE));
-        setAdministratorAutoLogoutIntervalEnabled(intToBooleanObject(properties.getProperty(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED, DEFAULT_ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED_VALUE)));
-        setAdministratorAutoLogoutIntervalField(properties.getProperty(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD, DEFAULT_ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD_VALUE));
     }
 
     public String getEnvironmentName() {
@@ -292,26 +275,6 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     
     public void setLoginNotificationMessage(String loginNotificationMessage) {
         this.loginNotificationMessage = loginNotificationMessage;
-    }
-    
-    public Boolean getAdministratorAutoLogoutIntervalEnabled() {
-        return administratorAutoLogoutIntervalEnabled;
-    }
-    
-    public void setAdministratorAutoLogoutIntervalEnabled(Boolean administratorAutoLogoutIntervalEnabled) {
-        this.administratorAutoLogoutIntervalEnabled = administratorAutoLogoutIntervalEnabled;
-    }
-    
-    public String getAdministratorAutoLogoutIntervalField() {
-        return administratorAutoLogoutIntervalField;
-    }
-    
-    public void setAdministratorAutoLogoutIntervalField(String administratorAutoLogoutIntervalField) {
-        if (StringUtils.isNullOrEmpty(administratorAutoLogoutIntervalField)) {
-            this.administratorAutoLogoutIntervalField = "5";
-        } else {
-            this.administratorAutoLogoutIntervalField = administratorAutoLogoutIntervalField;
-        }
     }
     
     @Override
