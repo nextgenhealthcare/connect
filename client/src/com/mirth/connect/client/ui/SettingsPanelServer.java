@@ -708,7 +708,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             }
         });
         
-        administratorAutoLogoutIntervalLabel = new JLabel("Administrator auto logout interval:");
+        administratorAutoLogoutIntervalLabel = new JLabel("Enable Auto Logout:");
         administratorAutoLogoutIntervalButtonGroup = new ButtonGroup();
         
         administratorAutoLogoutIntervalYesRadio = new MirthRadioButton("Yes");
@@ -731,7 +731,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         });
         administratorAutoLogoutIntervalButtonGroup.add(administratorAutoLogoutIntervalNoRadio);
         
-        administratorAutoLogoutIntervalTimeLabel = new JLabel("Time (minutes):");
+        administratorAutoLogoutIntervalTimeLabel = new JLabel("Auto Logout Interval (minutes):");
         administratorAutoLogoutIntervalField = new MirthTextField();
         administratorAutoLogoutIntervalField.setToolTipText("<html>Interval in seconds at which to automatically logout the user due to inactivity. Decrement this for <br>faster automatic logouts, and increment it for slower automatic logouts.</html>");
         
@@ -899,7 +899,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         generalPanel.add(administratorAutoLogoutIntervalLabel, "newline, right");
         generalPanel.add(administratorAutoLogoutIntervalYesRadio, "split 3");
         generalPanel.add(administratorAutoLogoutIntervalNoRadio);
-        generalPanel.add(administratorAutoLogoutIntervalTimeLabel, "gapbefore 12");
+        generalPanel.add(administratorAutoLogoutIntervalTimeLabel, "newline, right");
         generalPanel.add(administratorAutoLogoutIntervalField, "w 30!");
         add(generalPanel, "growx");
 
