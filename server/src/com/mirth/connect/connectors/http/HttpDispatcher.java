@@ -364,8 +364,7 @@ public class HttpDispatcher extends DestinationConnector {
 
             // The entity could be null in certain cases such as 204 responses
             if (httpResponse.getEntity() != null) {
-                // Only parse multipart if XML Body is selected and Parse Multipart is enabled
-                if (httpDispatcherProperties.isResponseXmlBody() && httpDispatcherProperties.isResponseParseMultipart() && responseContentType.getMimeType().startsWith(FileUploadBase.MULTIPART)) {
+                if (shouldParseMultipart(httpDispatcherProperties, responseContentType.getMimeType())) {
                     responseBody = new MimeMultipart(new ByteArrayDataSource(httpResponse.getEntity().getContent(), responseContentType.toString()));
                 } else if (binaryContentTypeResolver.isBinaryContentType(responseContentType)) {
                     responseBody = IOUtils.toByteArray(httpResponse.getEntity().getContent());
@@ -423,6 +422,11 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
+    }
+    
+    protected boolean shouldParseMultipart(HttpDispatcherProperties httpDispatcherProperties, String mimeType) {
+    	// Only parse multipart if XML Body is selected and Parse Multipart is enabled
+    	return httpDispatcherProperties.isResponseXmlBody() && httpDispatcherProperties.isResponseParseMultipart() && mimeType.startsWith(FileUploadBase.MULTIPART);
     }
 
     @Override
