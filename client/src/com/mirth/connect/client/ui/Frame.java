@@ -2229,7 +2229,11 @@ public class Frame extends JXFrame {
         }
 
         try {
-            mirthClient.logout();
+        	if (inactivity) {
+        		mirthClient.inactivityLogout();
+        	} else {
+        		mirthClient.logout();
+        	}
         } catch (ClientException e) {
             alertThrowable(this, e);
         }

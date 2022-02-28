@@ -177,6 +177,36 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
             throw new MirthApiException(e);
         }
     }
+    
+    @Override
+    @DontCheckAuthorized
+    public void inactivityLogout() {
+        // Audit the logout request but don't block it
+        isUserAuthorized();
+
+        HttpSession session = request.getSession();
+
+        // save the session id before removing them from the session
+        Integer userId = (Integer) session.getAttribute(SESSION_USER);
+
+        // remove the sessions attributes
+        session.removeAttribute(SESSION_USER);
+        session.removeAttribute(SESSION_AUTHORIZED);
+
+        // invalidate the current sessions
+        session.invalidate();
+
+        // set the user status to logged out in the database
+        User user = new User();
+        user.setId(userId);
+
+        try {
+            userController.logoutUser(user);
+        } catch (ControllerException e) {
+            throw new MirthApiException(e);
+        }
+    }
+
 
     @Override
     public void createUser(User user) {
