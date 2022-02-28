@@ -87,6 +87,9 @@ import org.jdesktop.swingx.action.BoundAction;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.syntax.jedit.JEditTextArea;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ConnectServiceUtil;
@@ -145,6 +148,7 @@ import com.mirth.connect.util.ChannelDependencyException;
 import com.mirth.connect.util.ChannelDependencyGraph;
 import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.DirectedAcyclicGraphNode;
+import com.mirth.connect.util.HttpUtil;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.MigrationUtil;
 import javafx.application.Platform;
@@ -4482,7 +4486,42 @@ public class Frame extends JXFrame {
     }
 
     public void doHelp() {
-        BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION);
+        final String workingId = startWorking("Retrieving help URL...");
+
+        SwingWorker<String, Void> worker = new SwingWorker<String, Void>() {
+            @Override
+            protected String doInBackground() throws Exception {
+                return HttpUtil.get(UIConstants.HELP_URL_LOCATION, 30000, true, PlatformUI.HTTPS_PROTOCOLS, PlatformUI.HTTPS_CIPHER_SUITES);
+            }
+
+            @Override
+            protected void done() {
+                String url = UIConstants.HELP_DEFAULT_LOCATION;
+
+                try {
+                    String webhelpJson = get();
+                    ObjectNode webhelpObj = (ObjectNode) new ObjectMapper().readTree(webhelpJson);
+
+                    // Get version-specific node, or "default"
+                    JsonNode urlNode;
+                    if (webhelpObj.has(Version.getLatest().toString())) {
+                        urlNode = webhelpObj.get(Version.getLatest().toString());
+                    } else {
+                        urlNode = webhelpObj.get("default");
+                    }
+
+                    url = urlNode.asText();
+                } catch (Throwable t) {
+                    logger.error("Unable to retrieve help URL, using default.", t);
+                } finally {
+                    stopWorking(workingId);
+                }
+
+                BareBonesBrowserLaunch.openURL(url);
+            }
+        };
+
+        worker.execute();
     }
 
     public void goToUserGuide() {

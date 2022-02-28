@@ -76,7 +76,9 @@ public class UIConstants {
     // issue link
     public static final String ISSUE_TRACKER_LOCATION = "https://github.com/nextgenhealthcare/connect/issues";
     // help link
-    public static String HELP_LOCATION = "https://github.com/nextgenhealthcare/connect/wiki";
+    public static String HELP_URL_LOCATION = "https://s3.amazonaws.com/downloads.mirthcorp.com/connect-user-guide/webhelp.json";
+    // help link
+    public static String HELP_DEFAULT_LOCATION = "https://github.com/nextgenhealthcare/connect/wiki";
     // user guide link
     public static String USER_GUIDE_LOCATION = "http://downloads.mirthcorp.com/connect-user-guide/latest/mirth-connect-user-guide.pdf";
     // user api
