@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
@@ -127,6 +128,42 @@ public class DefaultConfigurationControllerTest {
 
         try {
             configurationController.getDatabaseDrivers();
+            fail("Exception should have been thrown");
+        } catch (ControllerException e) {
+            // Expected
+        }
+    }
+    
+    @Test
+    public void validateServerSettings_Exception_Enabled_BadValue() throws Exception {
+        DefaultConfigurationController configurationController = spy(new DefaultConfigurationController());
+        
+        Properties properties = new Properties();
+        String enabledKey = "administratorautologoutinterval.enabled";
+        String fieldKey = "administratorautologoutinterval.field";
+        properties.setProperty(enabledKey, "1");
+        properties.setProperty(fieldKey, "0");
+
+        try {
+            configurationController.validateServerSettings(properties);
+            fail("Exception should have been thrown");
+        } catch (ControllerException e) {
+            // Expected
+        }
+    }
+    
+    @Test
+    public void validateServerSettings_Exception_Disabled_BadValue() throws Exception {
+        DefaultConfigurationController configurationController = spy(new DefaultConfigurationController());
+        
+        Properties properties = new Properties();
+        String enabledKey = "administratorautologoutinterval.enabled";
+        String fieldKey = "administratorautologoutinterval.field";
+        properties.setProperty(enabledKey, "0");
+        properties.setProperty(fieldKey, "a");
+
+        try {
+            configurationController.validateServerSettings(properties);
             fail("Exception should have been thrown");
         } catch (ControllerException e) {
             // Expected
