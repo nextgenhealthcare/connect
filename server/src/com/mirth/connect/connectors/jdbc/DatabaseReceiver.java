@@ -276,7 +276,7 @@ public class DatabaseReceiver extends PollConnector {
                     }
                     // Only put into the map if the key (case-insensitive) doesn't already exist
                     if (caseInsensitiveKeys.add(lowerCaseKey)) {
-                        map.put(entry.getKey(), entry.getValue());
+                        map.put(lowerCaseKey, entry.getValue());
                     } else {
                         /*
                          * Currently, duplicate keys/aliases would get overwritten in the resultMap,
