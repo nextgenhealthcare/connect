@@ -4496,7 +4496,7 @@ public class Frame extends JXFrame {
 
             @Override
             protected void done() {
-                String url = UIConstants.HELP_DEFAULT_LOCATION;
+                String url = userPreferences.get("helpDefaultLocation", UIConstants.HELP_DEFAULT_LOCATION);
 
                 try {
                     String webhelpJson = get();
@@ -4510,7 +4510,12 @@ public class Frame extends JXFrame {
                         urlNode = webhelpObj.get("default");
                     }
 
-                    url = urlNode.asText();
+                    String newUrl = urlNode.asText();
+                    
+                    if (StringUtils.isNotBlank(newUrl)) {
+                        url = newUrl;
+                        userPreferences.put("helpDefaultLocation", url);
+                    }
                 } catch (Throwable t) {
                     logger.error("Unable to retrieve help URL, using default.", t);
                 } finally {
