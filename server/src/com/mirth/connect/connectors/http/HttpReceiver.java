@@ -562,9 +562,12 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     }
 
     protected HttpRequestMessage createRequestMessage(Request request, boolean ignorePayload) throws IOException, MessagingException {
-        // Only parse multipart if XML Body is selected and Parse Multipart is enabled
-        boolean parseMultipart = getConnectorProperties().isXmlBody() && getConnectorProperties().isParseMultipart() && ServletFileUpload.isMultipartContent(request);
-        return createRequestMessage(request, ignorePayload, parseMultipart);
+        return createRequestMessage(request, ignorePayload, shouldParseMultipart(getConnectorProperties(), request));
+    }
+    
+    protected boolean shouldParseMultipart(HttpReceiverProperties connectorProperties, Request request) {
+    	// Only parse multipart if XML Body is selected and Parse Multipart is enabled
+    	return connectorProperties.isXmlBody() && connectorProperties.isParseMultipart() && ServletFileUpload.isMultipartContent(request);
     }
 
     protected HttpRequestMessage createRequestMessage(Request request, boolean ignorePayload, boolean parseMultipart) throws IOException, MessagingException {
