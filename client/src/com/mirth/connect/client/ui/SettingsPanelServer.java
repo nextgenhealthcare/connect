@@ -36,6 +36,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 
@@ -84,7 +85,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         provideUsageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         queueBufferSizeField.setDocument(new MirthFieldConstraints(8, false, false, true));
         smtpTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, false));
-
+        administratorAutoLogoutIntervalField.setDocument(new MirthFieldConstraints(2, false, false, true));
+        
         defaultMetaDataColumns = new ArrayList<MetaDataColumn>();
     }
 
@@ -128,7 +130,21 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     public boolean doSave() {
         final ServerSettings serverSettings = getServerSettings();
         final UpdateSettings updateSettings = getUpdateSettings();
-
+        
+        if (serverSettings.getAdministratorAutoLogoutIntervalEnabled()) {
+            if (serverSettings.getAdministratorAutoLogoutIntervalField() == null) {
+                getFrame().alertWarning(this, "Please enter a valid auto logout interval time.");
+                return false;
+            }
+            
+            int autoLogoutInterval = Integer.parseInt(serverSettings.getAdministratorAutoLogoutIntervalField());
+        
+            if (autoLogoutInterval <= 0 || autoLogoutInterval >= 61) {
+                getFrame().alertWarning(this, "Please enter an auto logout interval time that is between 1 and 60.");
+                return false;
+            }
+        }
+        
         // Integer queueBufferSize will be null if it was invalid
         queueBufferSizeField.setBackground(null);
         if (serverSettings.getQueueBufferSize() == null) {
@@ -339,7 +355,23 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         	notificationTextPane.setText(serverSettings.getLoginNotificationMessage());
         } else {
         	notificationTextPane.setText("");
-        }        
+        }
+        
+        if (serverSettings.getAdministratorAutoLogoutIntervalEnabled()) {
+            administratorAutoLogoutIntervalYesRadio.setSelected(true);
+            administratorAutoLogoutIntervalTimeLabel.setEnabled(true);
+            administratorAutoLogoutIntervalField.setEnabled(true);
+        } else {
+            administratorAutoLogoutIntervalNoRadio.setSelected(true);
+            administratorAutoLogoutIntervalTimeLabel.setEnabled(false);
+            administratorAutoLogoutIntervalField.setEnabled(false);
+        }
+        
+        if (serverSettings.getAdministratorAutoLogoutIntervalField() != null) {
+            administratorAutoLogoutIntervalField.setText(serverSettings.getAdministratorAutoLogoutIntervalField().toString());
+        } else {
+            administratorAutoLogoutIntervalField.setText("");
+        }
         
         resetInvalidSettings();
     }
@@ -430,6 +462,14 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         }
       
         serverSettings.setLoginNotificationMessage(notificationTextPane.getText().toString());
+
+        if (administratorAutoLogoutIntervalYesRadio.isSelected()) {
+            serverSettings.setAdministratorAutoLogoutIntervalEnabled(true);
+        } else {
+            serverSettings.setAdministratorAutoLogoutIntervalEnabled(false);
+        }
+        
+        serverSettings.setAdministratorAutoLogoutIntervalField(administratorAutoLogoutIntervalField.getText().toString());
 
         return serverSettings;
     }
@@ -667,7 +707,34 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 provideUsageStatsMoreInfoLabelMouseClicked(evt);
             }
         });
+        
+        administratorAutoLogoutIntervalLabel = new JLabel("Enable Auto Logout:");
+        administratorAutoLogoutIntervalButtonGroup = new ButtonGroup();
+        
+        administratorAutoLogoutIntervalYesRadio = new MirthRadioButton("Yes");
+        administratorAutoLogoutIntervalYesRadio.setBackground(getBackground());
+        administratorAutoLogoutIntervalYesRadio.setToolTipText("<html>Toggles automatically logging out the user due to inactivity.</html>");
+        administratorAutoLogoutIntervalYesRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                requireAdministratorAutoLogoutIntervalYesRadioActionPerformed(evt);
+            }
+        });
+        administratorAutoLogoutIntervalButtonGroup.add(administratorAutoLogoutIntervalYesRadio);
 
+        administratorAutoLogoutIntervalNoRadio = new MirthRadioButton("No");
+        administratorAutoLogoutIntervalNoRadio.setBackground(getBackground());
+        administratorAutoLogoutIntervalNoRadio.setToolTipText("<html>Toggles automatically logging out the user due to inactivity.</html>");
+        administratorAutoLogoutIntervalNoRadio.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                requireAdministratorAutoLogoutIntervalNoRadioActionPerformed(evt);
+            }
+        });
+        administratorAutoLogoutIntervalButtonGroup.add(administratorAutoLogoutIntervalNoRadio);
+        
+        administratorAutoLogoutIntervalTimeLabel = new JLabel("Auto Logout Interval (minutes):");
+        administratorAutoLogoutIntervalField = new MirthTextField();
+        administratorAutoLogoutIntervalField.setToolTipText("<html>Interval in seconds at which to automatically logout the user due to inactivity. Decrement this for <br>faster automatic logouts, and increment it for slower automatic logouts.</html>");
+        
         channelPanel = new JPanel();
         channelPanel.setBackground(getBackground());
         channelPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(204, 204, 204)), "Channel", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Tahoma", 1, 11)));
@@ -813,8 +880,6 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         notificationLabel = new JLabel("Login Notification:");
         notificationTextPane = new MirthTextPane();
         notificationScrollPane = new JScrollPane(notificationTextPane);
-
-
     }
 
     private void initLayout() {
@@ -831,6 +896,11 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         generalPanel.add(provideUsageStatsYesRadio, "split 3");
         generalPanel.add(provideUsageStatsNoRadio);
         generalPanel.add(provideUsageStatsMoreInfoLabel, "gapbefore 12");
+        generalPanel.add(administratorAutoLogoutIntervalLabel, "newline, right");
+        generalPanel.add(administratorAutoLogoutIntervalYesRadio, "split 3");
+        generalPanel.add(administratorAutoLogoutIntervalNoRadio);
+        generalPanel.add(administratorAutoLogoutIntervalTimeLabel, "newline, right");
+        generalPanel.add(administratorAutoLogoutIntervalField, "w 30!");
         add(generalPanel, "growx");
 
         channelPanel.setLayout(new MigLayout("insets 12, novisualpadding, hidemode 3, fill, gap 6", "[]12[][grow]", ""));
@@ -905,7 +975,16 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     	notificationLabel.setEnabled(true);
         notificationTextPane.setEnabled(true);
     }
+    
+    private void requireAdministratorAutoLogoutIntervalNoRadioActionPerformed(ActionEvent evt) {
+        administratorAutoLogoutIntervalTimeLabel.setEnabled(false);
+        administratorAutoLogoutIntervalField.setEnabled(false);
+    }
 
+    private void requireAdministratorAutoLogoutIntervalYesRadioActionPerformed(ActionEvent evt) {
+        administratorAutoLogoutIntervalTimeLabel.setEnabled(true);
+        administratorAutoLogoutIntervalField.setEnabled(true);
+    }
 
     private void testEmailButtonActionPerformed(ActionEvent evt) {
         resetInvalidSettings();
@@ -1017,6 +1096,13 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     private MirthRadioButton provideUsageStatsYesRadio;
     private MirthRadioButton provideUsageStatsNoRadio;
     private JLabel provideUsageStatsMoreInfoLabel;
+    
+    private JLabel administratorAutoLogoutIntervalLabel;
+    private ButtonGroup administratorAutoLogoutIntervalButtonGroup;
+    private MirthRadioButton administratorAutoLogoutIntervalYesRadio;
+    private MirthRadioButton administratorAutoLogoutIntervalNoRadio;
+    private JLabel administratorAutoLogoutIntervalTimeLabel;
+    private JTextField administratorAutoLogoutIntervalField;
 
     private JPanel channelPanel;
     private JLabel clearGlobalMapLabel;

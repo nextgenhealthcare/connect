@@ -177,6 +177,12 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
             throw new MirthApiException(e);
         }
     }
+    
+    @Override
+    @DontCheckAuthorized
+    public void inactivityLogout() {
+    	logout();
+    }
 
     @Override
     public void createUser(User user) {

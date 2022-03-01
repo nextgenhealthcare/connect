@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
@@ -63,6 +65,7 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -520,7 +523,11 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     @Override
-    public void setServerSettings(ServerSettings settings) throws ControllerException {
+    public void setServerSettings(ServerSettings settings) throws ControllerException {        
+        Properties properties = settings.getProperties();
+
+        validateServerSettings(properties);
+        
         String environmentName = settings.getEnvironmentName();
         if (environmentName != null) {
             saveProperty(PROPERTIES_CORE, "environment.name", environmentName);
@@ -532,9 +539,71 @@ public class DefaultConfigurationController extends ConfigurationController {
             this.serverName = serverName;
         }
 
-        Properties properties = settings.getProperties();
+
         for (Object name : properties.keySet()) {
             saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));
+        }
+    }
+    
+    public void validateServerSettings(Properties properties) throws ControllerException {
+        Pattern pattern;
+        final String NUMERIC_PATTERN = "^[1-5][0-9]?$|^60$";
+        final String NON_NUMERIC_PATTERN = "[^0-9]";
+        
+        try {
+            Boolean autoLogoutEnabled = false;
+            String autoLogoutTime = "";
+            
+            if (properties.getProperty("administratorautologoutinterval.enabled") != null) {
+                autoLogoutEnabled = intToBooleanObject(properties.getProperty("administratorautologoutinterval.enabled"), false);
+            }
+            
+            if (properties.getProperty("administratorautologoutinterval.field") != null) {
+                autoLogoutTime = properties.getProperty("administratorautologoutinterval.field");
+            }
+            
+            if (autoLogoutEnabled == true) {
+                pattern = Pattern.compile(NUMERIC_PATTERN);
+                
+                Matcher matcher = pattern.matcher(autoLogoutTime);
+
+                if (!matcher.find()) {
+                    throw new ControllerException("Invalid auto logout interval, the value should be between 1 and 60.");
+                }
+            } else {
+                pattern = Pattern.compile(NON_NUMERIC_PATTERN);
+                
+                Matcher matcher = pattern.matcher(autoLogoutTime);
+
+                if (matcher.find()) {
+                    throw new ControllerException("Invalid auto logout interval, the value should be numeric integer.");
+                }
+            }
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+    }
+    
+    /**
+     * Takes a String and returns a Boolean Object. "1" = true "0" = false null or not a number =
+     * defaultValue
+     * 
+     * @param str
+     * @param defaultValue
+     * @return
+     */
+    protected Boolean intToBooleanObject(String str, Boolean defaultValue) {
+        int i = NumberUtils.toInt(str, -1);
+
+        if (i == -1) {
+            // Must return null explicitly to avoid Java NPE due to autoboxing
+            if (defaultValue == null) {
+                return null;
+            } else {
+                return defaultValue;
+            }
+        } else {
+            return BooleanUtils.toBooleanObject(i);
         }
     }
 

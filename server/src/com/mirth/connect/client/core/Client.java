@@ -345,6 +345,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
+     * Logs out of the server due to user inactivity.
+     * 
+     * @see UserServletInterface#inactivitylogout
+     */
+    @Override
+    public synchronized void inactivityLogout() throws ClientException {
+        getServlet(UserServletInterface.class).inactivityLogout();
+    }
+    
+    /**
      * Creates a new user.
      * 
      * @see UserServletInterface#createUser
