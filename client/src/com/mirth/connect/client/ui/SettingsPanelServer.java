@@ -131,7 +131,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         final ServerSettings serverSettings = getServerSettings();
         final UpdateSettings updateSettings = getUpdateSettings();
         
-        if (administratorAutoLogoutIntervalYesRadio.isSelected()) {
+        if (serverSettings.getAdministratorAutoLogoutIntervalEnabled()) {
             if (serverSettings.getAdministratorAutoLogoutIntervalField() == null) {
                 getFrame().alertWarning(this, "Please enter a valid auto logout interval time.");
                 return false;

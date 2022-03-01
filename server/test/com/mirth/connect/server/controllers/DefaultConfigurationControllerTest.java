@@ -135,6 +135,23 @@ public class DefaultConfigurationControllerTest {
     }
     
     @Test
+    public void validateServerSettings_Enabled_GoodValue() throws Exception {
+        DefaultConfigurationController configurationController = spy(new DefaultConfigurationController());
+        
+        Properties properties = new Properties();
+        String enabledKey = "administratorautologoutinterval.enabled";
+        String fieldKey = "administratorautologoutinterval.field";
+        properties.setProperty(enabledKey, "1");
+        properties.setProperty(fieldKey, "30");
+
+        try {
+            configurationController.validateServerSettings(properties);
+        } catch (ControllerException e) {
+            fail("Exception should not have been thrown");
+        }
+    }
+    
+    @Test
     public void validateServerSettings_Exception_Enabled_BadValue() throws Exception {
         DefaultConfigurationController configurationController = spy(new DefaultConfigurationController());
         
@@ -149,6 +166,23 @@ public class DefaultConfigurationControllerTest {
             fail("Exception should have been thrown");
         } catch (ControllerException e) {
             // Expected
+        }
+    }
+    
+    @Test
+    public void validateServerSettings_Disabled_GoodValue() throws Exception {
+        DefaultConfigurationController configurationController = spy(new DefaultConfigurationController());
+        
+        Properties properties = new Properties();
+        String enabledKey = "administratorautologoutinterval.enabled";
+        String fieldKey = "administratorautologoutinterval.field";
+        properties.setProperty(enabledKey, "1");
+        properties.setProperty(fieldKey, "5");
+
+        try {
+            configurationController.validateServerSettings(properties);
+        } catch (ControllerException e) {
+            fail("Exception should not have been thrown");
         }
     }
     
