@@ -143,7 +143,7 @@ public class HttpUtil {
         return map;
     }
 
-    public static String get(String url, int timeout, boolean hostnameVerification, String[] protocols, String[] cipherSuites) {
+    public static String executeGetRequest(String url, int timeout, boolean hostnameVerification, String[] protocols, String[] cipherSuites) {
         CloseableHttpClient client = null;
         CloseableHttpResponse response = null;
 
