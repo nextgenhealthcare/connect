@@ -26,10 +26,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
+
+import junit.framework.Assert;
 
 public class DatabaseReceiverTest {
 
@@ -166,6 +169,37 @@ public class DatabaseReceiverTest {
             receiver.processResultList(resultList);
             fail("Exception should have been thrown");
         } catch (DatabaseReceiverException e) {
+        }
+    }
+    
+    @Test
+    public void testprocessResultList() throws Exception {
+        
+        TestDatabaseReceiver receiver = new TestDatabaseReceiver();
+        ArrayList<Map<String, Object>> list = new ArrayList<>();
+        
+        HashMap<String, Object> map1 = new HashMap<>();
+        
+        //put upper case key in map
+        map1.put("KEY1", new Object());
+        list.add(map1);
+ 
+        receiver.processResultList(list);
+    }
+    
+    
+    public class TestDatabaseReceiver extends DatabaseReceiver {
+        
+        @Override
+        protected void processRecord(Map<String, Object> resultMap) throws InterruptedException, DatabaseReceiverException {
+            Set keySet = resultMap.keySet();
+            
+            //check to see if key is now lower case in map 
+            Assert.assertTrue(keySet.contains("key1"));
+        }
+        
+        public boolean isTerminated() {
+            return false;
         }
     }
 }
