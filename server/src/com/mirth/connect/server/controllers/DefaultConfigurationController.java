@@ -539,7 +539,6 @@ public class DefaultConfigurationController extends ConfigurationController {
             this.serverName = serverName;
         }
 
-
         for (Object name : properties.keySet()) {
             saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));
         }

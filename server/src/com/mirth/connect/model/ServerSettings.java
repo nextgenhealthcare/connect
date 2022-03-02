@@ -310,7 +310,8 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         if (StringUtils.isEmpty(administratorAutoLogoutIntervalField)) {
             this.administratorAutoLogoutIntervalField = "5";
         } else {
-            this.administratorAutoLogoutIntervalField = administratorAutoLogoutIntervalField;
+            // remove leading zeroes and then save field
+            this.administratorAutoLogoutIntervalField = administratorAutoLogoutIntervalField.replaceFirst("^0+(?!$)", "");
         }
     }
     
