@@ -351,15 +351,6 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
     @Override
     @CheckAuthorizedUserId(auditCurrentUser = false)
     public void setUserNotificationAcknowledged(Integer userId) throws ClientException {
-
-        operation.setDisplayName("User notification acknowledgement");
-        ServerEvent event = new ServerEvent(configurationController.getServerId(), operation.getDisplayName());
-        event.setUserId(userId);
-        event.setIpAddress(getRequestIpAddress());
-        event.setLevel(Level.INFORMATION);
-        event.setOutcome(Outcome.SUCCESS);
-
-        eventController.dispatchEvent(event);
-
+    	// This will dispatch an event because the auditAuthorizationRequest() will be called 
     }
 }
