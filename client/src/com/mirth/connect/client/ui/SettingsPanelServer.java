@@ -733,7 +733,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         
         administratorAutoLogoutIntervalTimeLabel = new JLabel("Auto Logout Interval (minutes):");
         administratorAutoLogoutIntervalField = new MirthTextField();
-        administratorAutoLogoutIntervalField.setToolTipText("<html>Interval in seconds at which to automatically logout the user due to inactivity. Decrement this for <br>faster automatic logouts, and increment it for slower automatic logouts.</html>");
+        administratorAutoLogoutIntervalField.setToolTipText("<html>Interval in minutes to automatically logout the user due to inactivity.</html>");
         
         channelPanel = new JPanel();
         channelPanel.setBackground(getBackground());
@@ -1102,7 +1102,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
     private MirthRadioButton administratorAutoLogoutIntervalYesRadio;
     private MirthRadioButton administratorAutoLogoutIntervalNoRadio;
     private JLabel administratorAutoLogoutIntervalTimeLabel;
-    private JTextField administratorAutoLogoutIntervalField;
+    private MirthTextField administratorAutoLogoutIntervalField;
 
     private JPanel channelPanel;
     private JLabel clearGlobalMapLabel;
