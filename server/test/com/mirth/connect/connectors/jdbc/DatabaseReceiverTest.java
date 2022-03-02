@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.lang.model.element.Element;
-
 import org.junit.Test;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -201,7 +199,7 @@ public class DatabaseReceiverTest {
         
         @Override
         protected void processRecord(Map<String, Object> resultMap) throws InterruptedException, DatabaseReceiverException {
-            Set keySet = resultMap.keySet();
+            Set<String> keySet = resultMap.keySet();
             for (Object keyObj: keySet) {
                 String key = (String) keyObj;
                 String lowercaseKey = key.toLowerCase();
