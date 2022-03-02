@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -25,7 +26,6 @@ import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.DefaultMetaData;
-import com.mysql.cj.util.StringUtils;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("serverSettings")
@@ -307,7 +307,7 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     }
     
     public void setAdministratorAutoLogoutIntervalField(String administratorAutoLogoutIntervalField) {
-        if (StringUtils.isNullOrEmpty(administratorAutoLogoutIntervalField)) {
+        if (StringUtils.isEmpty(administratorAutoLogoutIntervalField)) {
             this.administratorAutoLogoutIntervalField = "5";
         } else {
             this.administratorAutoLogoutIntervalField = administratorAutoLogoutIntervalField;
