@@ -28,11 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.lang.model.element.Element;
+
 import org.junit.Test;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
-
-import junit.framework.Assert;
 
 public class DatabaseReceiverTest {
 
@@ -173,16 +173,25 @@ public class DatabaseReceiverTest {
     }
     
     @Test
-    public void testprocessResultList() throws Exception {
+    public void testProcessResultListConvertsKeysToLowercase() throws Exception {
         
         TestDatabaseReceiver receiver = new TestDatabaseReceiver();
         ArrayList<Map<String, Object>> list = new ArrayList<>();
         
         HashMap<String, Object> map1 = new HashMap<>();
-        
         //put upper case key in map
         map1.put("KEY1", new Object());
         list.add(map1);
+        
+        HashMap<String, Object> map2 = new HashMap<>();
+        //put camel case key in map
+        map1.put("Key2", new Object());
+        list.add(map2);
+        
+        HashMap<String, Object> map3 = new HashMap<>();
+        //put lower case key in map
+        map1.put("key3", new Object());
+        list.add(map3);
  
         receiver.processResultList(list);
     }
@@ -193,9 +202,13 @@ public class DatabaseReceiverTest {
         @Override
         protected void processRecord(Map<String, Object> resultMap) throws InterruptedException, DatabaseReceiverException {
             Set keySet = resultMap.keySet();
-            
-            //check to see if key is now lower case in map 
-            Assert.assertTrue(keySet.contains("key1"));
+            for (Object keyObj: keySet) {
+                String key = (String) keyObj;
+                String lowercaseKey = key.toLowerCase();
+                
+                //assert that all keys are lower case
+                assertEquals(key, lowercaseKey);
+            }
         }
         
         public boolean isTerminated() {
