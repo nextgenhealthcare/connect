@@ -22,7 +22,7 @@ public class HttpUtilTest {
     @Test
     public void testExecuteGetRequest() throws Exception {
         // Test GET request to real website
-        assertFalse(StringUtils.isBlank(HttpUtil.executeGetRequest("https://www.nextgen.com", 30000, true, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES)));
+        assertFalse(StringUtils.isBlank(HttpUtil.executeGetRequest("https://www.amazon.com", 30000, true, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES)));
 
         // Test GET request to fake website
         assertTrue(StringUtils.isBlank(HttpUtil.executeGetRequest("https://www." + UUID.randomUUID().toString() + UUID.randomUUID().toString() + ".com", 30000, true, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES)));
