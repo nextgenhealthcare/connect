@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -144,20 +145,24 @@ public class HttpUtil {
     }
 
     public static String executeGetRequest(String url, int timeout, boolean hostnameVerification, String[] protocols, String[] cipherSuites) {
+        return executeGetRequest(url, timeout, hostnameVerification, protocols, cipherSuites, SSLContexts.createSystemDefault());
+    }
+
+    public static String executeGetRequest(String url, int timeout, boolean hostnameVerification, String[] protocols, String[] cipherSuites, SSLContext sslContext) {
         try {
-            return doExecuteGetRequest(url, timeout, hostnameVerification, protocols, cipherSuites);
+            return doExecuteGetRequest(url, timeout, hostnameVerification, protocols, cipherSuites, sslContext);
         } catch (Throwable t) {
             logger.error("Error executing GET request at URL " + url, t);
             return "";
         }
     }
 
-    static String doExecuteGetRequest(String url, int timeout, boolean hostnameVerification, String[] protocols, String[] cipherSuites) throws Exception {
+    static String doExecuteGetRequest(String url, int timeout, boolean hostnameVerification, String[] protocols, String[] cipherSuites, SSLContext sslContext) throws Exception {
         CloseableHttpClient client = null;
         CloseableHttpResponse response = null;
 
         try {
-            client = getHttpClient(timeout, hostnameVerification, protocols, cipherSuites);
+            client = getHttpClient(timeout, hostnameVerification, protocols, cipherSuites, sslContext);
 
             HttpGet get = new HttpGet(url);
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(timeout).setConnectionRequestTimeout(timeout).setSocketTimeout(timeout).build();
@@ -190,13 +195,13 @@ public class HttpUtil {
         }
     }
 
-    public static CloseableHttpClient getHttpClient(int timeout, boolean hostnameVerification, String[] protocols, String[] cipherSuites) {
+    public static CloseableHttpClient getHttpClient(int timeout, boolean hostnameVerification, String[] protocols, String[] cipherSuites, SSLContext sslContext) {
         HostnameVerifier hostnameVerifier = hostnameVerification ? new DefaultHostnameVerifier() : NoopHostnameVerifier.INSTANCE;
 
         RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory());
         String[] enabledProtocols = MirthSSLUtil.getEnabledHttpsProtocols(protocols);
         String[] enabledCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(cipherSuites);
-        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), enabledProtocols, enabledCipherSuites, hostnameVerifier);
+        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, enabledProtocols, enabledCipherSuites, hostnameVerifier);
         socketFactoryRegistry.register("https", sslConnectionSocketFactory);
 
         BasicHttpClientConnectionManager httpClientConnectionManager = new BasicHttpClientConnectionManager(socketFactoryRegistry.build());
