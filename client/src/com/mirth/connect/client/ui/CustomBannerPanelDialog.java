@@ -13,6 +13,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -49,6 +51,7 @@ public class CustomBannerPanelDialog extends JDialog {
             setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
 
+        startTimer();
         initComponents();
         setVisible(true);
     }
@@ -87,8 +90,7 @@ public class CustomBannerPanelDialog extends JDialog {
         btnCancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                isAccepted = false;
-                dispose();
+            	cancelOut();
             }
         });
 
@@ -108,10 +110,28 @@ public class CustomBannerPanelDialog extends JDialog {
         this.isAccepted = isAccepted;
     }
     
+
+    public void startTimer() {
+
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+            	cancelOut();
+            }
+        };
+        timer = new Timer(false);
+        timer.schedule(task, 300000);
+    }
     
+	public void cancelOut() {
+        isAccepted = false;
+        dispose();
+	}
+	
     private boolean isAccepted = false;
     private String notificationText;
     private String title;
     protected JTextArea textArea;
     protected JButton btnAccept, btnCancel;
+    private static Timer timer;
 }
