@@ -18,9 +18,9 @@ import java.util.Map.Entry;
 
 import javax.net.ssl.HostnameVerifier;
 
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -144,6 +144,15 @@ public class HttpUtil {
     }
 
     public static String executeGetRequest(String url, int timeout, boolean hostnameVerification, String[] protocols, String[] cipherSuites) {
+        try {
+            return doExecuteGetRequest(url, timeout, hostnameVerification, protocols, cipherSuites);
+        } catch (Throwable t) {
+            logger.error("Error executing GET request at URL " + url, t);
+            return "";
+        }
+    }
+
+    static String doExecuteGetRequest(String url, int timeout, boolean hostnameVerification, String[] protocols, String[] cipherSuites) throws Exception {
         CloseableHttpClient client = null;
         CloseableHttpResponse response = null;
 
@@ -173,9 +182,6 @@ public class HttpUtil {
             }
 
             return IOUtils.toString(responseEntity.getContent(), responseCharset).trim();
-        } catch (Throwable t) {
-            logger.error("Error executing GET request at URL " + url, t);
-            return "";
         } finally {
             if (client != null) {
                 HttpClientUtils.closeQuietly(response);

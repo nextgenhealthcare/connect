@@ -10,7 +10,7 @@
 package com.mirth.connect.util;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.UUID;
 
@@ -22,9 +22,13 @@ public class HttpUtilTest {
     @Test
     public void testExecuteGetRequest() throws Exception {
         // Test GET request to real website
-        assertFalse(StringUtils.isBlank(HttpUtil.executeGetRequest("https://www.amazon.com", 30000, true, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES)));
+        assertFalse(StringUtils.isBlank(HttpUtil.doExecuteGetRequest("https://www.nextgen.com", 30000, true, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES)));
 
         // Test GET request to fake website
-        assertTrue(StringUtils.isBlank(HttpUtil.executeGetRequest("https://www." + UUID.randomUUID().toString() + UUID.randomUUID().toString() + ".com", 30000, true, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES)));
+        try {
+            HttpUtil.doExecuteGetRequest("https://www." + UUID.randomUUID().toString() + UUID.randomUUID().toString() + ".com", 30000, true, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES);
+            fail("Exception should have been thrown");
+        } catch (Exception e) {
+        }
     }
 }
