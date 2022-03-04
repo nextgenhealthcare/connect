@@ -546,7 +546,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     
     public void validateServerSettings(Properties properties) throws ControllerException {
         Pattern pattern;
-        final String NUMERIC_PATTERN = "^[1-5][0-9]?$|^60$";
+        final String NUMERIC_PATTERN = "^[1-5]?[0-9]$|^60$";
         final String NON_NUMERIC_PATTERN = "[^0-9]";
         
         try {

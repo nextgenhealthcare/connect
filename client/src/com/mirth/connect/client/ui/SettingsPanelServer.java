@@ -143,6 +143,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 getFrame().alertWarning(this, "Please enter an auto logout interval time that is between 1 and 60.");
                 return false;
             }
+            serverSettings.setAdministratorAutoLogoutIntervalField(Integer.toString(autoLogoutInterval));
         }
         
         // Integer queueBufferSize will be null if it was invalid
