@@ -240,6 +240,10 @@ public abstract class MirthServlet {
     }
 
     public void checkUserAuthorized(Integer userId, boolean auditCurrentUser) {
+        // At first glance this logic looks unnecessary, but it is important to note
+        // isUserAuthorized() will trigger an audit, so having it first in
+        // the conditional means it will always trigger the audit whereas
+        // after the '&&' it will only trigger if the first condition succeeds.
         if (auditCurrentUser) {
             if (!isUserAuthorized() && !isCurrentUser(userId)) {
                 throw new MirthApiException(Status.FORBIDDEN);
