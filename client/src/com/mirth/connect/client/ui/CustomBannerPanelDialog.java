@@ -123,6 +123,12 @@ public class CustomBannerPanelDialog extends JDialog {
         timer.schedule(task, 300000);
     }
     
+    public void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+        }
+    }
+    
 	public void cancelOut() {
         isAccepted = false;
         dispose();
