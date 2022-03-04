@@ -79,6 +79,7 @@ public class CustomBannerPanelDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 isAccepted = true;
+                stopTimer();
                 dispose();
             }
         });
@@ -131,6 +132,7 @@ public class CustomBannerPanelDialog extends JDialog {
     
 	public void cancelOut() {
         isAccepted = false;
+        stopTimer();
         dispose();
 	}
 	
