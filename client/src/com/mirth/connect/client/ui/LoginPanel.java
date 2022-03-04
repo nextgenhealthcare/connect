@@ -462,9 +462,7 @@ public class LoginPanel extends javax.swing.JFrame {
                                 if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
                                     errorOccurred = false;
                                     if (!handleSuccess(loginStatus)) {
-                                        loggingIn.setVisible(false);
-                                        loginMain.setVisible(true);
-                                        LoginPanel.getInstance().setVisible(true);
+                                        LoginPanel.getInstance().setVisible(false);
                                         LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
                                     }
                                 }
