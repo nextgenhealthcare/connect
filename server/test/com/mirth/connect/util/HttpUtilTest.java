@@ -12,6 +12,7 @@ package com.mirth.connect.util;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
+import java.security.KeyStore;
 import java.util.UUID;
 
 import javax.net.ssl.SSLContext;
@@ -25,7 +26,9 @@ public class HttpUtilTest {
 
     @Test
     public void testExecuteGetRequest() throws Exception {
-        SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(new TrustAllStrategy()).build();
+        KeyStore trustStore = KeyStore.getInstance("JKS");
+        trustStore.load(null, null);
+        SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(trustStore, new TrustAllStrategy()).build();
 
         // Test GET request to real website
         assertFalse(StringUtils.isBlank(HttpUtil.doExecuteGetRequest("https://www.nextgen.com", 30000, true, MirthSSLUtil.DEFAULT_HTTPS_CLIENT_PROTOCOLS, MirthSSLUtil.DEFAULT_HTTPS_CIPHER_SUITES, sslContext)));
