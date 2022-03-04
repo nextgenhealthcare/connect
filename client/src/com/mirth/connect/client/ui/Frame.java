@@ -1908,6 +1908,10 @@ public class Frame extends JXFrame {
     }
 
     public User getCurrentUser(Component parentComponent) {
+        return getCurrentUser(parentComponent, true);
+    }
+    
+    public User getCurrentUser(Component parentComponent, boolean alertOnFailure) {
         User currentUser = null;
 
         try {
@@ -1918,7 +1922,9 @@ public class Frame extends JXFrame {
                 }
             }
         } catch (ClientException e) {
-            alertThrowable(parentComponent, e);
+            if (alertOnFailure) {
+                alertThrowable(parentComponent, e);
+            }
         }
 
         return currentUser;
@@ -2222,22 +2228,28 @@ public class Frame extends JXFrame {
         tagUserProperties.put("initialTagsChannels", channelPanel.getUserTags());
 
         try {
-            User currentUser = getCurrentUser(this);
+            User currentUser = getCurrentUser(this, !inactivity);
             if (currentUser != null) {
                 mirthClient.setUserPreferences(currentUser.getId(), tagUserProperties);
             }
         } catch (ClientException e) {
-            alertThrowable(this, e);
+            if (!inactivity) {
+                alertThrowable(this, e);
+            }
         }
 
-        try {
-        	if (inactivity) {
-        		mirthClient.inactivityLogout();
-        	} else {
-        		mirthClient.logout();
-        	}
-        } catch (ClientException e) {
-            alertThrowable(this, e);
+        if (inactivity) {
+            try {
+                mirthClient.inactivityLogout();
+            } catch (ClientException e) {
+                // do nothing
+            }
+        } else {
+            try {
+                mirthClient.logout();
+            } catch (ClientException e) {
+                alertThrowable(this, e);
+            }
         }
 
         mirthClient.close();
