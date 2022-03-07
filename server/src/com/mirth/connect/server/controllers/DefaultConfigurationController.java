@@ -553,11 +553,10 @@ public class DefaultConfigurationController extends ConfigurationController {
         if (autoLogoutEnabled == true) {
             try {
                 autoLogoutTime = Integer.parseInt(properties.getProperty("administratorautologoutinterval.field"));
+                if (autoLogoutTime <= 0 || autoLogoutTime >= 61) {
+                    throw new Exception();
+                }
             } catch (Exception e) {
-                throw new ControllerException("Invalid auto logout settings.");
-            }
-            
-            if (autoLogoutTime <= 0 || autoLogoutTime >= 61) {
                 throw new ControllerException("Invalid auto logout interval, the value should be between 1 and 60.");
             }
         }
