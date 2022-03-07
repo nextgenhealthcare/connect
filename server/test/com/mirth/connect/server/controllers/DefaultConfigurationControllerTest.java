@@ -176,7 +176,7 @@ public class DefaultConfigurationControllerTest {
         Properties properties = new Properties();
         String enabledKey = "administratorautologoutinterval.enabled";
         String fieldKey = "administratorautologoutinterval.field";
-        properties.setProperty(enabledKey, "1");
+        properties.setProperty(enabledKey, "0");
         properties.setProperty(fieldKey, "5");
 
         try {

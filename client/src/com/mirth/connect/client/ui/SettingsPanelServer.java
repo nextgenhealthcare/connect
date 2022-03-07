@@ -137,13 +137,14 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 return false;
             }
             
-            int autoLogoutInterval = Integer.parseInt(serverSettings.getAdministratorAutoLogoutIntervalField());
+            int autoLogoutInterval = serverSettings.getAdministratorAutoLogoutIntervalField();
         
             if (autoLogoutInterval <= 0 || autoLogoutInterval >= 61) {
                 getFrame().alertWarning(this, "Please enter an auto logout interval time that is between 1 and 60.");
                 return false;
             }
-            serverSettings.setAdministratorAutoLogoutIntervalField(Integer.toString(autoLogoutInterval));
+            
+            serverSettings.setAdministratorAutoLogoutIntervalField(autoLogoutInterval);
         }
         
         // Integer queueBufferSize will be null if it was invalid
@@ -470,7 +471,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             serverSettings.setAdministratorAutoLogoutIntervalEnabled(false);
         }
         
-        serverSettings.setAdministratorAutoLogoutIntervalField(administratorAutoLogoutIntervalField.getText().toString());
+        serverSettings.setAdministratorAutoLogoutIntervalField(Integer.parseInt(administratorAutoLogoutIntervalField.getText().toString()));
 
         return serverSettings;
     }
