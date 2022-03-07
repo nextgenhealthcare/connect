@@ -408,13 +408,12 @@ public class DatabaseReceiver extends PollConnector {
             String value = objectToString(entry.getValue());
 
             if (value != null) {
-                String key = entry.getKey();
-                String lowerCaseKey = key.toLowerCase();
+                String key = entry.getKey().toLowerCase(Locale.ENGLISH);
                 if (fixColumnNames) {
-                    key = fixColumnName(lowerCaseKey);
+                    key = fixColumnName(key);
                 }
 
-                Element child = document.createElement(lowerCaseKey);
+                Element child = document.createElement(key);
                 child.appendChild(document.createTextNode(value));
                 root.appendChild(child);
             }
