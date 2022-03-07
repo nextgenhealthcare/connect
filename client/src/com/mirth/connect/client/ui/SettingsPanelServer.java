@@ -473,7 +473,9 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
         
         try {
             serverSettings.setAdministratorAutoLogoutIntervalField(Integer.parseInt(administratorAutoLogoutIntervalField.getText().toString()));
-        } catch (NumberFormatException e) {}
+        } catch (NumberFormatException e) {
+            serverSettings.setAdministratorAutoLogoutIntervalField(null);
+        }
 
         return serverSettings;
     }
