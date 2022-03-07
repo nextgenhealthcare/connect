@@ -198,9 +198,8 @@ public class DefaultConfigurationControllerTest {
 
         try {
             configurationController.validateServerSettings(properties);
-            fail("Exception should have been thrown");
         } catch (ControllerException e) {
-            // Expected
+            fail("Exception should not have been thrown");
         }
     }
 
