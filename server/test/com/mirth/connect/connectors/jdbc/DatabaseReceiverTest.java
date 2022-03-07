@@ -93,7 +93,7 @@ public class DatabaseReceiverTest {
         assertTrue(tagNames.contains("abc"));
         assertTrue(tagNames.contains("a.bc"));
         assertTrue(tagNames.contains("abc-"));
-        assertTrue(tagNames.contains("azAZ09-_."));
+        assertTrue(tagNames.contains("azaz09-_."));
     }
 
     @Test
