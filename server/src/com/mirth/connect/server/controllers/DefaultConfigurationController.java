@@ -566,7 +566,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 
                 Matcher matcher = pattern.matcher(autoLogoutTime);
 
-                if (!matcher.find()) {
+                if (!matcher.find() || autoLogoutTime.equals("0")) {
                     throw new ControllerException("Invalid auto logout interval, the value should be between 1 and 60.");
                 }
             } else {
