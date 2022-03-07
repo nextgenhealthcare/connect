@@ -41,8 +41,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
@@ -544,42 +542,23 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
     
-    public void validateServerSettings(Properties properties) throws ControllerException {
-        Pattern pattern;
-        final String NUMERIC_PATTERN = "^[1-5]?[0-9]$|^60$";
-        final String NON_NUMERIC_PATTERN = "[^0-9]";
+    public void validateServerSettings(Properties properties) throws ControllerException {  
+        Boolean autoLogoutEnabled = false;
+        Integer autoLogoutTime = null;
         
-        try {
-            Boolean autoLogoutEnabled = false;
-            String autoLogoutTime = "";
-            
-            if (properties.getProperty("administratorautologoutinterval.enabled") != null) {
-                autoLogoutEnabled = intToBooleanObject(properties.getProperty("administratorautologoutinterval.enabled"), false);
-            }
-            
-            if (properties.getProperty("administratorautologoutinterval.field") != null) {
-                autoLogoutTime = properties.getProperty("administratorautologoutinterval.field");
-            }
-            
-            if (autoLogoutEnabled == true) {
-                pattern = Pattern.compile(NUMERIC_PATTERN);
-                
-                Matcher matcher = pattern.matcher(autoLogoutTime);
-
-                if (!matcher.find()) {
-                    throw new ControllerException("Invalid auto logout interval, the value should be between 1 and 60.");
+        if (properties.getProperty("administratorautologoutinterval.enabled") != null) {
+            autoLogoutEnabled = intToBooleanObject(properties.getProperty("administratorautologoutinterval.enabled"), false);
+        }
+        
+        if (autoLogoutEnabled == true) {
+            try {
+                autoLogoutTime = Integer.parseInt(properties.getProperty("administratorautologoutinterval.field"));
+                if (autoLogoutTime <= 0 || autoLogoutTime >= 61) {
+                    throw new Exception();
                 }
-            } else {
-                pattern = Pattern.compile(NON_NUMERIC_PATTERN);
-                
-                Matcher matcher = pattern.matcher(autoLogoutTime);
-
-                if (matcher.find()) {
-                    throw new ControllerException("Invalid auto logout interval, the value should be numeric integer.");
-                }
+            } catch (Exception e) {
+                throw new ControllerException("Invalid auto logout interval, the value should be between 1 and 60.");
             }
-        } catch (Exception e) {
-            throw new ControllerException(e);
         }
     }
     

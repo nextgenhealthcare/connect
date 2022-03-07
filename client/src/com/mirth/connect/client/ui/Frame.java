@@ -691,7 +691,7 @@ public class Frame extends JXFrame {
         // Fetch log timeout from server and use it for inactivity timer
         PublicServerSettings publicServerSettings = mirthClient.getPublicServerSettings();
         if (publicServerSettings.getAdministratorAutoLogoutIntervalEnabled() == true) {
-        	InactivityListener listener = new InactivityListener(this, logout, Integer.parseInt(publicServerSettings.getAdministratorAutoLogoutIntervalField()));
+        	InactivityListener listener = new InactivityListener(this, logout, publicServerSettings.getAdministratorAutoLogoutIntervalField());
         	listener.start();
         }
         

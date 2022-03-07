@@ -176,7 +176,7 @@ public class DefaultConfigurationControllerTest {
         Properties properties = new Properties();
         String enabledKey = "administratorautologoutinterval.enabled";
         String fieldKey = "administratorautologoutinterval.field";
-        properties.setProperty(enabledKey, "1");
+        properties.setProperty(enabledKey, "0");
         properties.setProperty(fieldKey, "5");
 
         try {
@@ -198,9 +198,8 @@ public class DefaultConfigurationControllerTest {
 
         try {
             configurationController.validateServerSettings(properties);
-            fail("Exception should have been thrown");
         } catch (ControllerException e) {
-            // Expected
+            fail("Exception should not have been thrown");
         }
     }
 
