@@ -66,6 +66,7 @@ public class CustomBannerPanelDialog extends JDialog {
         textArea.setBackground(getBackground());
         textArea.setEditable(false);
         textArea.setText(notificationText);
+        textArea.setLineWrap(true);
         textArea.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8)); // add 8 pixels padding to text
 
         JScrollPane scrollPane = new JScrollPane(textArea);
