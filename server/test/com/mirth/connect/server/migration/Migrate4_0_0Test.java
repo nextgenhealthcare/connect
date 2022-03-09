@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import com.mirth.connect.client.core.Version;
 
-public class Migrate3_13_0Test {
+public class Migrate4_0_0Test {
 	@Test
     public void testClientProtocols() throws Exception {
         testConfiguration("https.client.protocols", "TLSv1.3,TLSv1.2,TLSv1.1", "TLSv1.3,TLSv1.2", "TLSv1.2,TLSv1.1", "TLSv1.2");
@@ -28,7 +28,7 @@ public class Migrate3_13_0Test {
 
     @Test
     public void testCipherSuites() throws Exception {
-        testConfiguration("https.ciphersuites", Migrate3_13_0.OLD_DEFAULT_CIPHERSUITES,  Migrate3_13_0.NEW_DEFAULT_CIPHERSUITES, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_RSA_WITH_AES_256_CBC_SHA256", "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
+        testConfiguration("https.ciphersuites", Migrate4_0_0.OLD_DEFAULT_CIPHERSUITES,  Migrate4_0_0.NEW_DEFAULT_CIPHERSUITES, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_RSA_WITH_AES_256_CBC_SHA256", "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
     }
 
     private void testConfiguration(String key, String oldDefault, String newDefault, String customValue, String newCustomValue) throws Exception {
@@ -38,7 +38,7 @@ public class Migrate3_13_0Test {
     }
     
     private void testConfiguration(String key, String oldDefault, String newDefault, Version startingVersion, String customValue, String newCustomValue) throws Exception {
-    	Migrate3_13_0 migrator = new Migrate3_13_0();
+    	Migrate4_0_0 migrator = new Migrate4_0_0();
         migrator.setStartingVersion(startingVersion);
         migrator.setLogger(spy(migrator.getLogger()));
 
@@ -103,7 +103,7 @@ public class Migrate3_13_0Test {
     }
 
     private void testConfigurationVersionLatest(String key, String oldDefault, String newDefault, String customValue, String newCustomValue) throws Exception {
-    	Migrate3_13_0 migrator = new Migrate3_13_0();
+    	Migrate4_0_0 migrator = new Migrate4_0_0();
         migrator.setStartingVersion(Version.getLatest());
         migrator.setLogger(spy(migrator.getLogger()));
 
