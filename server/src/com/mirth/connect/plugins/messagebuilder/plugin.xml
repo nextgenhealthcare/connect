@@ -2,7 +2,7 @@
 	<name>Message Builder Transformer Step</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.12.0</mirthVersion>
+	<mirthVersion>4.0.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This plugin provides a Message Builder step-type for Mirth Connect transformers</description>
 	<clientClasses>
