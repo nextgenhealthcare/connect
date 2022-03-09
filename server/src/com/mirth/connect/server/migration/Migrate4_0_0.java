@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.util.MigrationException;
 
-public class Migrate3_13_0 extends Migrator implements ConfigurationMigrator {
+public class Migrate4_0_0 extends Migrator implements ConfigurationMigrator {
 	
 	private Logger logger = Logger.getLogger(getClass());
 
@@ -31,11 +31,11 @@ public class Migrate3_13_0 extends Migrator implements ConfigurationMigrator {
     @SuppressWarnings("unchecked")
 	@Override
     public void updateConfiguration(PropertiesConfiguration configuration) {
-        if (getStartingVersion() == null || getStartingVersion().ordinal() < Version.v3_13_0.ordinal()) {
+        if (getStartingVersion() == null || getStartingVersion().ordinal() < Version.v4_0_0.ordinal()) {
             updateConfiguration(configuration, "https.client.protocols", "TLSv1.3,TLSv1.2,TLSv1.1", "TLSv1.3,TLSv1.2", Arrays.asList(new String[] { "TLSv1.1" }));
             updateConfiguration(configuration, "https.server.protocols", "TLSv1.3,TLSv1.2,TLSv1.1,SSLv2Hello", "TLSv1.3,TLSv1.2,SSLv2Hello", Arrays.asList(new String[] { "TLSv1.1" }));
             updateConfiguration(configuration, "https.ciphersuites", OLD_DEFAULT_CIPHERSUITES, NEW_DEFAULT_CIPHERSUITES, CIPHERSUITES_TO_REMOVE);
-            logger.error("In version 3.13.0, TLSv1.1 and the following cipher suites have been disabled by default to reflect the lastest security best practices: TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_128_CBC_SHA256, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
+            logger.error("In version 4.0.0, TLSv1.1 and the following cipher suites have been disabled by default to reflect the lastest security best practices: TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_128_CBC_SHA256, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
         }
     }
 
@@ -53,9 +53,9 @@ public class Migrate3_13_0 extends Migrator implements ConfigurationMigrator {
             	
                 configuration.setProperty(key + ".old", currentValueStr);
                 configuration.getLayout().setBlancLinesBefore(key + ".old", 1);
-                configuration.getLayout().setComment(key + ".old", "In version 3.13.0 the default protocols / cipher suites were updated to reflect the latest security best practices. The old value for " + key + ", in case you need it, is below.\nIf you no longer need it, you can delete this property.");
+                configuration.getLayout().setComment(key + ".old", "In version 4.0.0 the default protocols / cipher suites were updated to reflect the latest security best practices. The old value for " + key + ", in case you need it, is below.\nIf you no longer need it, you can delete this property.");
 
-                logger.error("In version 3.13.0 the default protocols / cipher suites were updated to reflect the latest security best practices. The old value for " + key + " is still present in mirth.properties in case you need it. If you no longer need it, you can delete this property.");
+                logger.error("In version 4.0.0 the default protocols / cipher suites were updated to reflect the latest security best practices. The old value for " + key + " is still present in mirth.properties in case you need it. If you no longer need it, you can delete this property.");
             }
         }
 

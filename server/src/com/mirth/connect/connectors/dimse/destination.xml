@@ -2,7 +2,7 @@
 	<name>DICOM Sender</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.12.0</mirthVersion>
+	<mirthVersion>4.0.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This connector allows Mirth Connect to send messages using DICOM protocol.</description>
 	<clientClassName>com.mirth.connect.connectors.dimse.DICOMSender</clientClassName>

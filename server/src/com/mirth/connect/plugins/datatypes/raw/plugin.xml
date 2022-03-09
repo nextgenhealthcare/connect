@@ -2,7 +2,7 @@
 	<name>Raw Data Type</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.12.0</mirthVersion>
+	<mirthVersion>4.0.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This plugin provides support for the raw data type</description>
 	<serverClasses>
