@@ -2049,28 +2049,19 @@ public class DonkeyEngineController implements EngineController {
 	                DebugOptions debugOptions = channel.getDebugOptions();
 	                boolean debug = debugOptions != null && debugOptions.isDeployUndeployPreAndPostProcessorScripts();
 	                MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(channel.getResourceIds(),getChannelId(), undeployScriptId) : contextFactoryController.getContextFactory(channel.getResourceIds());
-	                
+	               
 	                if (debug) {
 	                    contextFactory.setContextType(ContextType.CHANNEL_UNDEPLOY);
 	                    contextFactory.setDebugType(debug);
 	                    contextFactory.setScriptText(unDeployScript);
 	                	debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, undeployScriptId);	                    
-	                } /*else {
-	                    if (!channel.getContextFactoryId().equals(contextFactory.getId())) {
-	                        JavaScriptUtil.recompileChannelScript(contextFactory, channelId, ScriptController.UNDEPLOY_SCRIPT_KEY);
-	                        channel.setContextFactoryId(contextFactory.getId());
-	                    }
-	                }*/
+	                } 
 	                
 	                try {
 	                    JavaScriptUtil.compileAndAddScript(getChannelId(), contextFactory, undeployScriptId, unDeployScript, ContextType.CHANNEL_UNDEPLOY, null, null);	                    
-	                    //scriptController.compileChannelScripts(contextFactory, channelModel);
 	                } catch (ScriptCompileException e) {
 	                    throw new DeployException("Failed to undeploy channel " + channelId + ".", e);
 	                }
-	                
-	               
-
 	                
 	                try {
 	                    scriptController.executeChannelUndeployScript(contextFactory, channelId, channel.getName());
