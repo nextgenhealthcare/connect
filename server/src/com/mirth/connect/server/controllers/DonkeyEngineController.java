@@ -2049,31 +2049,45 @@ public class DonkeyEngineController implements EngineController {
 	                DebugOptions debugOptions = channel.getDebugOptions();
 	                boolean debug = debugOptions != null && debugOptions.isDeployUndeployPreAndPostProcessorScripts();
 	                MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(channel.getResourceIds(),getChannelId(), undeployScriptId) : contextFactoryController.getContextFactory(channel.getResourceIds());
-	                contextFactory.setContextType(ContextType.CHANNEL_UNDEPLOY);
-	                contextFactory.setDebugType(debug);
-	                contextFactory.setScriptText(unDeployScript);
-	                if (!channel.getContextFactoryId().equals(contextFactory.getId())) {
-                        JavaScriptUtil.recompileChannelScript(contextFactory, channelId, ScriptController.UNDEPLOY_SCRIPT_KEY);
-                        channel.setContextFactoryId(contextFactory.getId());
-                    }
 	                
 	                if (debug) {
-	                	debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, undeployScriptId);
+	                    contextFactory.setContextType(ContextType.CHANNEL_UNDEPLOY);
+	                    contextFactory.setDebugType(debug);
+	                    contextFactory.setScriptText(unDeployScript);
+	                	debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, undeployScriptId);	                    
+	                } /*else {
+	                    if (!channel.getContextFactoryId().equals(contextFactory.getId())) {
+	                        JavaScriptUtil.recompileChannelScript(contextFactory, channelId, ScriptController.UNDEPLOY_SCRIPT_KEY);
+	                        channel.setContextFactoryId(contextFactory.getId());
+	                    }
+	                }*/
+	                
+	                try {
+	                    JavaScriptUtil.compileAndAddScript(getChannelId(), contextFactory, undeployScriptId, unDeployScript, ContextType.CHANNEL_UNDEPLOY, null, null);	                    
+	                    //scriptController.compileChannelScripts(contextFactory, channelModel);
+	                } catch (ScriptCompileException e) {
+	                    throw new DeployException("Failed to undeploy channel " + channelId + ".", e);
 	                }
 	                
-	                scriptController.compileChannelScripts(contextFactory, channelModel);          
-	                scriptController.executeChannelUndeployScript(contextFactory, channelId, channel.getName());
+	               
+
 	                
-                } catch (Exception e) {
-                    Throwable t = e;
-                    if (e instanceof JavaScriptExecutorException) {
-                        t = e.getCause();
+	                try {
+	                    scriptController.executeChannelUndeployScript(contextFactory, channelId, channel.getName());
+	                    
+                    } catch (Exception e) {
+                        Throwable t = e;
+                        if (e instanceof JavaScriptExecutorException) {
+                            t = e.getCause();
+                        }
+    
+                        eventController.dispatchEvent(new ErrorEvent(channelId, null, null, ErrorEventType.UNDEPLOY_SCRIPT, null, null, "Error running channel undeploy script", t));
+                        logger.error("Error executing undeploy script for channel " + channelId + ".", e);
                     }
-
-                    eventController.dispatchEvent(new ErrorEvent(channelId, null, null, ErrorEventType.UNDEPLOY_SCRIPT, null, null, "Error running channel undeploy script", t));
-                    logger.error("Error executing undeploy script for channel " + channelId + ".", e);
+	            } catch (Exception e) {
+                    throw new DeployException("Failed to undeploy channel " + channelId + ".", e);
                 }
-
+	            
                 // Remove channel scripts
                 scriptController.removeChannelScriptsFromCache(channelId);
 
