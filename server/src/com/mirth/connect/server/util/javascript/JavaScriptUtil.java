@@ -845,9 +845,15 @@ public class JavaScriptUtil {
     public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.model.Channel channel, String scriptId) {
         return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, channel.getName() + "-" + channel.getId(), scriptId);
     }
+    
+    public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.model.Channel channel, String scriptId, boolean showDebugger) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, channel.getName() + "-" + channel.getId(), scriptId, showDebugger);
+    }
+    
     public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.donkey.server.channel.Channel donkeychannel, String scriptId) {
         return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, donkeychannel.getName() + "-" + donkeychannel.getChannelId(), scriptId);
     }
+    
 
     public static void removeDebuggerFromMap(String channelId) {
         MirthMain.closeDebugger(channelId);

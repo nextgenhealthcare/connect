@@ -1851,7 +1851,7 @@ public class DonkeyEngineController implements EngineController {
 
                 //DEPLOY DEBUGGER
                 try {
-                    MirthMain debugger;
+                 
                     Boolean debug = debugOptions != null && debugOptions.isDeployUndeployPreAndPostProcessorScripts();
 
                     if (debug) {
@@ -1859,9 +1859,8 @@ public class DonkeyEngineController implements EngineController {
                             String deployScriptId = ScriptController.getScriptId(ScriptController.DEPLOY_SCRIPT_KEY, getChannelId());
                             contextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(),getChannelId(), deployScriptId);
                     
-                            debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channelModel, deployScriptId);
+                            JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channelModel, deployScriptId, true);
                             JavaScriptUtil.compileAndAddScript(channelId, contextFactory, deployScriptId, channelModel.getDeployScript(), ContextType.CHANNEL_DEPLOY);
-                            debugger.setVisible(true);
                             
                             //The Others
                             MirthContextFactory otherContextFactory = null;
@@ -1871,27 +1870,22 @@ public class DonkeyEngineController implements EngineController {
                             otherScriptId = ScriptController.getScriptId(ScriptController.UNDEPLOY_SCRIPT_KEY, getChannelId());
                             otherContextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(),getChannelId(), otherScriptId);
                     
-                            debugger = JavaScriptUtil.getDebugger(otherContextFactory, scopeProvider, channelModel, otherScriptId);
+                            JavaScriptUtil.getDebugger(otherContextFactory, scopeProvider, channelModel, otherScriptId, false);
                             JavaScriptUtil.compileAndAddScript(channelId, otherContextFactory, otherScriptId, channelModel.getUndeployScript(), ContextType.CHANNEL_UNDEPLOY);
-                            debugger.setVisible(false);
-                            
                             
                             //PREPROC
                             otherScriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, getChannelId());
                             otherContextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(),getChannelId(), otherScriptId);
                     
-                            debugger = JavaScriptUtil.getDebugger(otherContextFactory, scopeProvider, channelModel, otherScriptId);
+                            JavaScriptUtil.getDebugger(otherContextFactory, scopeProvider, channelModel, otherScriptId, false);
                             JavaScriptUtil.compileAndAddScript(channelId, otherContextFactory, otherScriptId, channelModel.getPreprocessingScript(), ContextType.CHANNEL_PREPROCESSOR);
-                            debugger.setVisible(false);
-                            
                             
                             //POSTPROC
                             otherScriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, getChannelId());
                             otherContextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(),getChannelId(), otherScriptId);
                     
-                            debugger = JavaScriptUtil.getDebugger(otherContextFactory, scopeProvider, channelModel, otherScriptId);
+                            JavaScriptUtil.getDebugger(otherContextFactory, scopeProvider, channelModel, otherScriptId, false);
                             JavaScriptUtil.compileAndAddScript(channelId, otherContextFactory, otherScriptId, channelModel.getPostprocessingScript(), ContextType.CHANNEL_POSTPROCESSOR);
-                            debugger.setVisible(false);
                             
                         
                     } else {
