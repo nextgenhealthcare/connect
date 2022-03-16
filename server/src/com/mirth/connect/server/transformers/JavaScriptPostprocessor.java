@@ -46,15 +46,33 @@ public class JavaScriptPostprocessor implements PostProcessor {
     private Channel channel;
     private String scriptId;
     private volatile String contextFactoryId;
-    private DebugOptions debugOptions;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
     private MirthMain debugger;
     private String postProcessingScript;
+    private Boolean debug = false;
     
     public JavaScriptPostprocessor(Channel channel, String postProcessingScript, DebugOptions debugOptions) throws JavaScriptInitializationException {
         this.channel = channel;
-        this.debugOptions = debugOptions;
         this.postProcessingScript = postProcessingScript;
+        this.scriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getChannelId());
+        this.debug = debugOptions != null && debugOptions.isDeployUndeployPreAndPostProcessorScripts();
+        
+        if (!debug) {
+            try {
+                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
+                contextFactoryId = contextFactory.getId();
+                JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, postProcessingScript, ContextType.CHANNEL_POSTPROCESSOR);
+            } catch (Exception e) {
+                logger.error("Error compiling postprocessor script " + scriptId + ".", e);
+    
+                if (e instanceof RhinoException) {
+                    e = new MirthJavascriptTransformerException((RhinoException) e, channel.getChannelId(), null, 0, ErrorEventType.POSTPROCESSOR_SCRIPT.toString(), null);
+                }
+    
+                logger.error(ErrorMessageBuilder.buildErrorMessage(ErrorEventType.POSTPROCESSOR_SCRIPT.toString(), null, e));
+                throw new JavaScriptInitializationException("Error initializing JavaScript Postprocessor", e);
+            }
+        }
     }
 
     @Override
@@ -62,10 +80,9 @@ public class JavaScriptPostprocessor implements PostProcessor {
         try {
             MirthContextFactory contextFactory;
 
-            scriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getChannelId());
             try {
                 Map<String, MirthContextFactory> contextFactories = new HashMap<>();
-                if (debugOptions.isDeployUndeployPreAndPostProcessorScripts()) {
+                if (debug) {
                     String postProcessingScriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getChannelId());
                     contextFactory = getContextFactory();
                     contextFactoryId = contextFactory.getId();
@@ -74,18 +91,16 @@ public class JavaScriptPostprocessor implements PostProcessor {
                     contextFactory.setDebugType(true);
                     contextFactories.put(postProcessingScriptId, contextFactory);
                     debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
-                    JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, postProcessingScript, ContextType.CHANNEL_POSTPROCESSOR, null, null);
+                    debugger.setVisible(true);
                 } else {
                     contextFactory = getContextFactory();
-                    contextFactoryId = contextFactory.getId();
-                    JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, postProcessingScript, ContextType.CHANNEL_POSTPROCESSOR);
-                }
-                if (!contextFactoryId.equals(contextFactory.getId())) {
-                    synchronized (this) {
-                        contextFactory = getContextFactory();
-                        if (!contextFactoryId.equals(contextFactory.getId())) {
-                            JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
-                            contextFactoryId = contextFactory.getId();
+                    if (!contextFactoryId.equals(contextFactory.getId())) {
+                        synchronized (this) {
+                            contextFactory = getContextFactory();
+                            if (!contextFactoryId.equals(contextFactory.getId())) {
+                                JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
+                                contextFactoryId = contextFactory.getId();
+                            }
                         }
                     }
                 }
@@ -116,7 +131,7 @@ public class JavaScriptPostprocessor implements PostProcessor {
     }
 
     protected MirthContextFactory getContextFactory() throws Exception {
-        if (debugOptions.isDeployUndeployPreAndPostProcessorScripts()) {
+        if (debug) {
             return contextFactoryController.getDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), scriptId);
         } else {
             return contextFactoryController.getContextFactory(channel.getResourceIds());
@@ -135,7 +150,7 @@ public class JavaScriptPostprocessor implements PostProcessor {
         @Override
         public Object doCall() throws Exception {
 
-            if (debugOptions.isDeployUndeployPreAndPostProcessorScripts() && debugger != null) {
+            if (debug && debugger != null) {
                 debugger.doBreak();
 
                 if (!debugger.isVisible()) {

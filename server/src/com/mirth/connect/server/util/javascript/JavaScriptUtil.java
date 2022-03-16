@@ -716,10 +716,7 @@ public class JavaScriptUtil {
 
         try {
             logger.debug("compiling script " + scriptId);
-            generatedScript = JavaScriptBuilder.generateScript(channelId, script, scriptOptions, contextType);
-            Script compiledScript = compileScript(context, generatedScript, scriptId);
-            String decompiledScript = context.decompileScript(compiledScript, 0);
-
+            
             String decompiledDefaultScript = null;
 
             if (defaultScript != null) {
@@ -727,6 +724,10 @@ public class JavaScriptUtil {
                 Script compiledDefaultScript = compileScript(context, generatedDefaultScript, scriptId);
                 decompiledDefaultScript = context.decompileScript(compiledDefaultScript, 0);
             }
+            
+            generatedScript = JavaScriptBuilder.generateScript(channelId, script, scriptOptions, contextType);
+            Script compiledScript = compileScript(context, generatedScript, scriptId);
+            String decompiledScript = context.decompileScript(compiledScript, 0);
 
             if ((defaultScript == null) || !decompiledScript.equals(decompiledDefaultScript)) {
                 logger.debug("adding script " + scriptId);
@@ -834,7 +835,7 @@ public class JavaScriptUtil {
             String scriptIdString = item.getKey();
             MirthContextFactory factory = item.getValue();
             try {
-                JavaScriptUtil.compileAndAddScript(channel.getId(), factory, scriptIdString, factory.getScriptText(), factory.getContextType(), null, null);
+                JavaScriptUtil.compileAndAddScript(channel.getId(), factory, scriptIdString, factory.getScriptText(), factory.getContextType());
             } catch (Exception e) {
                 logger.error("Error compiling channel scripts.", e);
             }
