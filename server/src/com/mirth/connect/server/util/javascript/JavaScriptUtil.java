@@ -835,7 +835,7 @@ public class JavaScriptUtil {
             String scriptIdString = item.getKey();
             MirthContextFactory factory = item.getValue();
             try {
-                JavaScriptUtil.compileAndAddScript(channel.getId(), factory, scriptIdString, factory.getScriptText(), factory.getContextType());
+                JavaScriptUtil.compileAndAddScript(channel.getId(), factory, scriptIdString, factory.getScriptText(), factory.getContextType(), null, null);
             } catch (Exception e) {
                 logger.error("Error compiling channel scripts.", e);
             }
