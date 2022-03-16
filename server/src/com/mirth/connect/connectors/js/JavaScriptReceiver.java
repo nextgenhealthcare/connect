@@ -53,13 +53,10 @@ public class JavaScriptReceiver extends PollConnector {
 
     private EventController eventController = getEventController();
     private ContextFactoryController contextFactoryController = getContextFactoryController();
-    private CompiledScriptCache compiledScriptCache = getCompiledScriptCache();
-
     private JavaScriptReceiverProperties connectorProperties;
     private String scriptId;
     private String contextFactoryId;
     private boolean debug = false;
-    private List<String> contextFactoryIdList = new ArrayList<String>();
     private MirthMain debugger;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
     private boolean ignoreBreakpoints = false;

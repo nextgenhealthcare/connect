@@ -1801,7 +1801,7 @@ public class DonkeyEngineController implements EngineController {
         private ServerEventContext context;
         private DebugOptions debugOptions;
         private MirthScopeProvider scopeProvider;
-        private MirthMain debugger;
+        
 
         public DeployTask(String channelId, DeployedState initialState, Set<Integer> connectorsToStart, ServerEventContext context, DebugOptions debugOptions) {
             super(channelId);
@@ -1842,8 +1842,6 @@ public class DonkeyEngineController implements EngineController {
                 throw new DeployException(e.getMessage(), e);
             }
 
-            Map<String, MirthContextFactory> contextFactories = new HashMap<>();
-
             try {
                 channel.updateCurrentState(DeployedState.DEPLOYING);
                 deployingChannels.add(channel);
@@ -1851,44 +1849,60 @@ public class DonkeyEngineController implements EngineController {
 
                 MirthContextFactory contextFactory;
 
+                //DEPLOY DEBUGGER
                 try {
-                    String deployScriptId = ScriptController.getScriptId(ScriptController.DEPLOY_SCRIPT_KEY, getChannelId());
+                 
+                    Boolean debug = debugOptions != null && debugOptions.isDeployUndeployPreAndPostProcessorScripts();
 
-                    if (debugOptions != null) {
-                        if (debugOptions.isDeployUndeployPreAndPostProcessorScripts()) {
+                    if (debug) {
+                            //DEPLOY
+                            String deployScriptId = ScriptController.getScriptId(ScriptController.DEPLOY_SCRIPT_KEY, getChannelId());
                             contextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(),getChannelId(), deployScriptId);
-
-                            contextFactory.setContextType(ContextType.CHANNEL_DEPLOY);
-                            contextFactory.setScriptText(channelModel.getDeployScript());
-                            contextFactory.setDebugType(true);
-                            contextFactories.put(deployScriptId, contextFactory);
-                            debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channelModel, deployScriptId);
-                        }
-                        else {
+                    
+                            JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channelModel, deployScriptId, true);
+                            JavaScriptUtil.compileAndAddScript(channelId, contextFactory, deployScriptId, channelModel.getDeployScript(), ContextType.CHANNEL_DEPLOY);
+                            
+                            //The Others
+                            MirthContextFactory otherContextFactory = null;
+                            String otherScriptId = "";
+                            
+                            //UNDEPLOY
+                            otherScriptId = ScriptController.getScriptId(ScriptController.UNDEPLOY_SCRIPT_KEY, getChannelId());
+                            otherContextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(),getChannelId(), otherScriptId);
+                    
+                            JavaScriptUtil.getDebugger(otherContextFactory, scopeProvider, channelModel, otherScriptId, false);
+                            JavaScriptUtil.compileAndAddScript(channelId, otherContextFactory, otherScriptId, channelModel.getUndeployScript(), ContextType.CHANNEL_UNDEPLOY);
+                            
+                            //PREPROC
+                            otherScriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, getChannelId());
+                            otherContextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(),getChannelId(), otherScriptId);
+                    
+                            JavaScriptUtil.getDebugger(otherContextFactory, scopeProvider, channelModel, otherScriptId, false);
+                            JavaScriptUtil.compileAndAddScript(channelId, otherContextFactory, otherScriptId, channelModel.getPreprocessingScript(), ContextType.CHANNEL_PREPROCESSOR);
+                            
+                            //POSTPROC
+                            otherScriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, getChannelId());
+                            otherContextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(),getChannelId(), otherScriptId);
+                    
+                            JavaScriptUtil.getDebugger(otherContextFactory, scopeProvider, channelModel, otherScriptId, false);
+                            JavaScriptUtil.compileAndAddScript(channelId, otherContextFactory, otherScriptId, channelModel.getPostprocessingScript(), ContextType.CHANNEL_POSTPROCESSOR);
+                            
+                        
+                    } else {
+                            //ALL 4
                             contextFactory = contextFactoryController.getContextFactory(channelModel.getProperties().getResourceIds().keySet());
                             contextFactory.setContextType(ContextType.CHANNEL_DEPLOY);
                             contextFactory.setScriptText(channelModel.getDeployScript());
                             contextFactory.setDebugType(false);
-                            contextFactories.put(deployScriptId, contextFactory);
-                        }
-                    }
-                    else {
-                        contextFactory = contextFactoryController.getContextFactory(channelModel.getProperties().getResourceIds().keySet());
-                        contextFactory.setContextType(ContextType.CHANNEL_DEPLOY);
-                        contextFactory.setScriptText(channelModel.getDeployScript());
-                        contextFactory.setDebugType(false);
-                        contextFactories.put(deployScriptId, contextFactory);
+                            scriptController.compileChannelScripts(contextFactory, channelModel);  //loads all4 in cache
+                        
                     }
 
                 } catch (Exception e) {
                     throw new DeployException("Failed to deploy channel " + channelId + ".", e);
                 }
-
-                try {
-                    scriptController.compileChannelScripts(contextFactories, channelModel);
-                } catch (ScriptCompileException e) {
-                    throw new DeployException("Failed to deploy channel " + channelId + ".", e);
-                }
+            
+            
 
                 clearGlobalChannelMap(channelModel);
 
@@ -1987,7 +2001,6 @@ public class DonkeyEngineController implements EngineController {
         private MirthScopeProvider scopeProvider;
         private ServerEventContext context;
         private String unDeployScript;
-        private MirthMain debugger;
         private com.mirth.connect.model.Channel channelModel;
 
         public UndeployTask(String channelId, String unDeployScript, ServerEventContext context, com.mirth.connect.model.Channel channelModel) {
@@ -2044,36 +2057,38 @@ public class DonkeyEngineController implements EngineController {
 
                 // Execute channel undeploy script
                 String undeployScriptId = ScriptController.getScriptId(ScriptController.UNDEPLOY_SCRIPT_KEY, getChannelId());
-
+                MirthMain debugger = null;
+                
 	            try {
 	                DebugOptions debugOptions = channel.getDebugOptions();
 	                boolean debug = debugOptions != null && debugOptions.isDeployUndeployPreAndPostProcessorScripts();
-	                MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(channel.getResourceIds(),getChannelId(), undeployScriptId) : contextFactoryController.getContextFactory(channel.getResourceIds());
-	                contextFactory.setContextType(ContextType.CHANNEL_UNDEPLOY);
-	                contextFactory.setDebugType(debug);
-	                contextFactory.setScriptText(unDeployScript);
-	                if (!channel.getContextFactoryId().equals(contextFactory.getId())) {
-                        JavaScriptUtil.recompileChannelScript(contextFactory, channelId, ScriptController.UNDEPLOY_SCRIPT_KEY);
-                        channel.setContextFactoryId(contextFactory.getId());
-                    }
+	                MirthContextFactory contextFactory = null;
 	                
 	                if (debug) {
-	                	debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, undeployScriptId);
+	                    contextFactory = contextFactoryController.getDebugContextFactory(channel.getResourceIds(),getChannelId(), undeployScriptId);
+	                	debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, undeployScriptId);	
+	                	debugger.setVisible(true);
+	                } else {
+	                    contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
+    	                if (!channel.getContextFactoryId().equals(contextFactory.getId())) {
+                            JavaScriptUtil.recompileChannelScript(contextFactory, channelId, ScriptController.UNDEPLOY_SCRIPT_KEY);
+                            channel.setContextFactoryId(contextFactory.getId());
+                        }
 	                }
 	                
-	                scriptController.compileChannelScripts(contextFactory, channelModel);          
 	                scriptController.executeChannelUndeployScript(contextFactory, channelId, channel.getName());
-	                
-                } catch (Exception e) {
-                    Throwable t = e;
+	                 
+	            } catch (Exception e) {
+	                Throwable t = e;
                     if (e instanceof JavaScriptExecutorException) {
                         t = e.getCause();
                     }
 
                     eventController.dispatchEvent(new ErrorEvent(channelId, null, null, ErrorEventType.UNDEPLOY_SCRIPT, null, null, "Error running channel undeploy script", t));
                     logger.error("Error executing undeploy script for channel " + channelId + ".", e);
+                
                 }
-
+	            
                 // Remove channel scripts
                 scriptController.removeChannelScriptsFromCache(channelId);
 
