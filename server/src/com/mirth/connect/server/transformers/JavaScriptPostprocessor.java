@@ -90,8 +90,9 @@ public class JavaScriptPostprocessor implements PostProcessor {
                     contextFactory.setScriptText(postProcessingScript);
                     contextFactory.setDebugType(true);
                     contextFactories.put(postProcessingScriptId, contextFactory);
-                    debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
-                    debugger.setVisible(true);
+                    if (JavaScriptUtil.getCompiledScript(scriptId) != null) {
+                    	JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId, true);
+                    }
                 } else {
                     contextFactory = getContextFactory();
                     if (!contextFactoryId.equals(contextFactory.getId())) {

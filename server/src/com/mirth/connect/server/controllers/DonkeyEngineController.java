@@ -1848,6 +1848,7 @@ public class DonkeyEngineController implements EngineController {
                 channelController.putDeployedChannelInCache(channelModel);
 
                 MirthContextFactory contextFactory;
+                MirthMain debugger;
 
                 //DEPLOY DEBUGGER
                 try {
@@ -1859,8 +1860,12 @@ public class DonkeyEngineController implements EngineController {
                             String deployScriptId = ScriptController.getScriptId(ScriptController.DEPLOY_SCRIPT_KEY, getChannelId());
                             contextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(),getChannelId(), deployScriptId);
                     
-                            JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channelModel, deployScriptId, true);
-                            JavaScriptUtil.compileAndAddScript(channelId, contextFactory, deployScriptId, channelModel.getDeployScript(), ContextType.CHANNEL_DEPLOY);
+                            debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channelModel, deployScriptId, false);
+                            if (!JavaScriptUtil.compileAndAddScript(channelId, contextFactory, deployScriptId, channelModel.getDeployScript(), ContextType.CHANNEL_DEPLOY)) {
+                            	debugger.dispose();
+                            } else {
+                            	debugger.setVisible(true);
+                            }
                             
                             //The Others
                             MirthContextFactory otherContextFactory = null;
@@ -1869,9 +1874,10 @@ public class DonkeyEngineController implements EngineController {
                             //UNDEPLOY
                             otherScriptId = ScriptController.getScriptId(ScriptController.UNDEPLOY_SCRIPT_KEY, getChannelId());
                             otherContextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(),getChannelId(), otherScriptId);
-                    
+
                             JavaScriptUtil.getDebugger(otherContextFactory, scopeProvider, channelModel, otherScriptId, false);
                             JavaScriptUtil.compileAndAddScript(channelId, otherContextFactory, otherScriptId, channelModel.getUndeployScript(), ContextType.CHANNEL_UNDEPLOY);
+                 
                             
                             //PREPROC
                             otherScriptId = ScriptController.getScriptId(ScriptController.PREPROCESSOR_SCRIPT_KEY, getChannelId());
@@ -1887,7 +1893,6 @@ public class DonkeyEngineController implements EngineController {
                             JavaScriptUtil.getDebugger(otherContextFactory, scopeProvider, channelModel, otherScriptId, false);
                             JavaScriptUtil.compileAndAddScript(channelId, otherContextFactory, otherScriptId, channelModel.getPostprocessingScript(), ContextType.CHANNEL_POSTPROCESSOR);
                             
-                        
                     } else {
                             //ALL 4
                             contextFactory = contextFactoryController.getContextFactory(channelModel.getProperties().getResourceIds().keySet());
