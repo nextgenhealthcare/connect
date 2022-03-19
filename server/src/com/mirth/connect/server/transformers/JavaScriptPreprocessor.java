@@ -92,7 +92,7 @@ public class JavaScriptPreprocessor implements PreProcessor {
                     contextFactory.setDebugType(true);
                     contextFactories.put(preProcessingScriptId, contextFactory);
                     if (JavaScriptUtil.getCompiledScript(scriptId) != null) {
-                    	JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId, true);
+                    	debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId, true);
                     }
                 } else {
                     contextFactory = getContextFactory();

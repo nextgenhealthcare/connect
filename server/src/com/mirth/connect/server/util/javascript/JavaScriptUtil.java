@@ -734,6 +734,7 @@ public class JavaScriptUtil {
                 compiledScriptCache.putCompiledScript(scriptId, compiledScript, generatedScript);
                 scriptInserted = true;
             } else {
+                logger.debug("removing script " + scriptId);
                 compiledScriptCache.removeCompiledScript(scriptId);
             }
         } catch (EvaluatorException e) {
