@@ -130,8 +130,11 @@ public class JavaScriptBuilder {
         } else if (key.equals(ScriptController.POSTPROCESSOR_SCRIPT_KEY)) {
             appendDefaultPostprocessorScript(builder, isGlobal);
             script = builder.toString();
+        } else if (key.equals(ScriptController.ATTACHMENT_SCRIPT_KEY)) {
+            appendDefaultAttachmentScript(builder);
+            script = builder.toString();
         }
-
+        
         return script;
     }
 
@@ -279,6 +282,10 @@ public class JavaScriptBuilder {
         }
     }
 
+    private static void appendDefaultAttachmentScript(StringBuilder builder) {
+        builder.append(JavaScriptConstants.DEFAULT_CHANNEL_ATTACHMENT_SCRIPT);
+    }
+    
     protected static void appendFilterScript(StringBuilder builder, Filter filter) throws ScriptBuilderException {
         List<Rule> enabledElements = filter.getEnabledElements();
         logger.debug("building javascript filter: enabled rule count=" + enabledElements.size());

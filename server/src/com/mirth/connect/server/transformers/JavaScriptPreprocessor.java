@@ -91,9 +91,9 @@ public class JavaScriptPreprocessor implements PreProcessor {
                     contextFactory.setScriptText(preProcessingScript);
                     contextFactory.setDebugType(true);
                     contextFactories.put(preProcessingScriptId, contextFactory);
-                    debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId);
-                    debugger.setVisible(true);
-                    
+                    if (JavaScriptUtil.getCompiledScript(scriptId) != null) {
+                    	debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId, true);
+                    }
                 } else {
                     contextFactory = getContextFactory();
                     if (!contextFactoryId.equals(contextFactory.getId())) {

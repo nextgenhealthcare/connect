@@ -734,6 +734,7 @@ public class JavaScriptUtil {
                 compiledScriptCache.putCompiledScript(scriptId, compiledScript, generatedScript);
                 scriptInserted = true;
             } else {
+                logger.debug("removing script " + scriptId);
                 compiledScriptCache.removeCompiledScript(scriptId);
             }
         } catch (EvaluatorException e) {
@@ -854,7 +855,10 @@ public class JavaScriptUtil {
         return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, donkeychannel.getName() + "-" + donkeychannel.getChannelId(), scriptId);
     }
     
-
+    public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.donkey.server.channel.Channel donkeychannel, String scriptId, boolean showDebugger) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, donkeychannel.getName() + "-" + donkeychannel.getChannelId(), scriptId, showDebugger);
+    }
+    
     public static void removeDebuggerFromMap(String channelId) {
         MirthMain.closeDebugger(channelId);
         
@@ -877,4 +881,8 @@ public class JavaScriptUtil {
 	    	throw new ConnectorTaskException("Error compiling generating context factory.", e);
 	    }
     }
+
+	public static Object getCompiledScript(String scriptId) {
+		return compiledScriptCache.getCompiledScript(scriptId);
+	}
 }

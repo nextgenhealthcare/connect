@@ -115,7 +115,7 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
     
     protected MirthMain getDebugger(MirthContextFactory contextFactory, Channel channel) {
         if (debug) {
-            return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, channel.getName() + "-" + channel.getChannelId(), scriptId);
+            return JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId, false);
         } else {
             return null;
         }
@@ -123,7 +123,7 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
     
     protected void showDebugger() {
         if (debug) {
-            if (debugger != null) {
+            if (debugger != null && JavaScriptUtil.getCompiledScript(scriptId) != null) {
                 debugger.doBreak();
 
                 if (!debugger.isVisible()) {
