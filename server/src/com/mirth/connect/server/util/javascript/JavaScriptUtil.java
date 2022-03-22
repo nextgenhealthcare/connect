@@ -716,10 +716,7 @@ public class JavaScriptUtil {
 
         try {
             logger.debug("compiling script " + scriptId);
-            generatedScript = JavaScriptBuilder.generateScript(channelId, script, scriptOptions, contextType);
-            Script compiledScript = compileScript(context, generatedScript, scriptId);
-            String decompiledScript = context.decompileScript(compiledScript, 0);
-
+            
             String decompiledDefaultScript = null;
 
             if (defaultScript != null) {
@@ -727,12 +724,17 @@ public class JavaScriptUtil {
                 Script compiledDefaultScript = compileScript(context, generatedDefaultScript, scriptId);
                 decompiledDefaultScript = context.decompileScript(compiledDefaultScript, 0);
             }
+            
+            generatedScript = JavaScriptBuilder.generateScript(channelId, script, scriptOptions, contextType);
+            Script compiledScript = compileScript(context, generatedScript, scriptId);
+            String decompiledScript = context.decompileScript(compiledScript, 0);
 
             if ((defaultScript == null) || !decompiledScript.equals(decompiledDefaultScript)) {
                 logger.debug("adding script " + scriptId);
                 compiledScriptCache.putCompiledScript(scriptId, compiledScript, generatedScript);
                 scriptInserted = true;
             } else {
+                logger.debug("removing script " + scriptId);
                 compiledScriptCache.removeCompiledScript(scriptId);
             }
         } catch (EvaluatorException e) {
@@ -844,10 +846,19 @@ public class JavaScriptUtil {
     public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.model.Channel channel, String scriptId) {
         return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, channel.getName() + "-" + channel.getId(), scriptId);
     }
+    
+    public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.model.Channel channel, String scriptId, boolean showDebugger) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, channel.getName() + "-" + channel.getId(), scriptId, showDebugger);
+    }
+    
     public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.donkey.server.channel.Channel donkeychannel, String scriptId) {
         return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, donkeychannel.getName() + "-" + donkeychannel.getChannelId(), scriptId);
     }
-
+    
+    public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.donkey.server.channel.Channel donkeychannel, String scriptId, boolean showDebugger) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, donkeychannel.getName() + "-" + donkeychannel.getChannelId(), scriptId, showDebugger);
+    }
+    
     public static void removeDebuggerFromMap(String channelId) {
         MirthMain.closeDebugger(channelId);
         
@@ -870,4 +881,8 @@ public class JavaScriptUtil {
 	    	throw new ConnectorTaskException("Error compiling generating context factory.", e);
 	    }
     }
+
+	public static Object getCompiledScript(String scriptId) {
+		return compiledScriptCache.getCompiledScript(scriptId);
+	}
 }

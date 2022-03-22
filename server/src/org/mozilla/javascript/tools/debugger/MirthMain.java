@@ -81,7 +81,6 @@ public class MirthMain extends Main {
 	@Override
 	public void dispose() {
 	    this.finishScriptExecution();
-	    this.setVisible(false);
 	    if (dim != null) {
 	    	this.detach();
 	    }
