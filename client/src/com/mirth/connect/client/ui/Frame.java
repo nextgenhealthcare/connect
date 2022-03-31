@@ -106,6 +106,7 @@ import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.client.core.VersionMismatchException;
 import com.mirth.connect.client.ui.DashboardPanel.TableState;
+import com.mirth.connect.client.ui.Frame.ChannelTask;
 import com.mirth.connect.client.ui.alert.AlertEditPanel;
 import com.mirth.connect.client.ui.alert.AlertPanel;
 import com.mirth.connect.client.ui.alert.DefaultAlertEditPanel;
@@ -126,6 +127,7 @@ import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.model.ApiProvider;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelTag;
@@ -2934,7 +2936,12 @@ public class Frame extends JXFrame {
     }
 
     public void doDeployFromChannelView() {
+        
+        // Only deploy enabled channels
+        Set<String> selectedEnabledChannelIds = new LinkedHashSet<String>();
+        
         String channelId = channelEditPanel.currentChannel.getId();
+        selectedEnabledChannelIds.add(channelId);
 
         if (isSaveEnabled()) {
             if (alertOption(PlatformUI.MIRTH_FRAME, "<html>This channel will be saved before it is deployed.<br/>Are you sure you want to save and deploy this channel?</html>")) {
@@ -2975,10 +2982,90 @@ public class Frame extends JXFrame {
         		return;
         	}
         }
+        
+        
+        // If there are any channel dependencies, decide if we need to warn the user on deploy.
+        try {
+            Set<ChannelDependency> channelDependencies;
+            channelDependencies = retrieveDependencies();
 
-        deployChannel(Collections.singleton(channelId), null);
+            ChannelDependencyGraph channelDependencyGraph = new ChannelDependencyGraph(channelDependencies);
+
+            Set<String> deployedChannelIds = new HashSet<String>();
+            Frame parent = PlatformUI.MIRTH_FRAME;
+            if (parent.status != null) {
+                for (DashboardStatus dashboardStatus : parent.status) {
+                    deployedChannelIds.add(dashboardStatus.getChannelId());
+                }
+            }
+
+            // For each selected channel, add any dependent/dependency channels as necessary
+            Set<String> channelIdsToDeploy = new HashSet<String>();
+            for (String channelEnabledId : selectedEnabledChannelIds) {
+                addChannelToDeploySet(channelEnabledId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
+            }
+
+            // If additional channels were added to the set, we need to prompt the user
+            if (!CollectionUtils.subtract(channelIdsToDeploy, selectedEnabledChannelIds).isEmpty()) {
+                ChannelDependenciesWarningDialog dialog = new ChannelDependenciesWarningDialog(ChannelTask.DEPLOY, channelDependencies, selectedEnabledChannelIds, channelIdsToDeploy);
+                if (dialog.getResult() == JOptionPane.OK_OPTION) {
+                    if (dialog.isIncludeOtherChannels()) {
+                        selectedEnabledChannelIds.addAll(channelIdsToDeploy);
+                    }
+                } else {
+                    return;
+                }
+            }
+
+        } catch (ChannelDependencyException e) {
+            // Should never happen
+            e.printStackTrace();
+        }
+        
+        deployChannel(selectedEnabledChannelIds, null);
+    }
+    
+    private void addChannelToDeploySet(String channelId, ChannelDependencyGraph channelDependencyGraph, Set<String> deployedChannelIds, Set<String> channelIdsToDeploy) {
+        if (!channelIdsToDeploy.add(channelId)) {
+            return;
+        }
+
+        DirectedAcyclicGraphNode<String> node = channelDependencyGraph.getNode(channelId);
+
+        if (node != null) {
+            for (String dependentChannelId : node.getDirectDependentElements()) {
+                ChannelStatus channelStatus = channelPanel.getCachedChannelStatuses().get(dependentChannelId);
+
+                // Only add the dependent channel if it's enabled and currently deployed
+                if (channelStatus != null && channelStatus.getChannel().getExportData().getMetadata().isEnabled() && deployedChannelIds.contains(dependentChannelId)) {
+                    addChannelToDeploySet(dependentChannelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
+                }
+            }
+
+            for (String dependencyChannelId : node.getDirectDependencyElements()) {
+                ChannelStatus channelStatus = channelPanel.getCachedChannelStatuses().get(dependencyChannelId);
+
+                // Only add the dependency channel it it's enabled
+                if (channelStatus != null && channelStatus.getChannel().getExportData().getMetadata().isEnabled()) {
+                    addChannelToDeploySet(dependencyChannelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
+                }
+            }
+        }
     }
 
+    
+    public Set<ChannelDependency> retrieveDependencies() {
+        try {
+            return mirthClient.getChannelDependencies();
+        } catch (ClientException e) {
+            SwingUtilities.invokeLater(() -> {
+                alertThrowable(PlatformUI.MIRTH_FRAME, e);
+            });
+        }
+        return null;
+    }
+    
+    
     public void deployChannel(final Set<String> selectedChannelIds, DebugOptions debugOptions) {
         if (CollectionUtils.isNotEmpty(selectedChannelIds)) {
             String plural = (selectedChannelIds.size() > 1) ? "s" : "";
