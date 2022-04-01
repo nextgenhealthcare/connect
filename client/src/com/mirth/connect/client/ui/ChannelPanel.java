@@ -881,70 +881,8 @@ public class ChannelPanel extends AbstractFramePanel {
             parent.alertWarning(parent, "Disabled channels will not be deployed.");
         }
 
-        // If there are any channel dependencies, decide if we need to warn the user on deploy.
-        /*try {
-            ChannelDependencyGraph channelDependencyGraph = new ChannelDependencyGraph(channelDependencies);
-
-            Set<String> deployedChannelIds = new HashSet<String>();
-            if (parent.status != null) {
-                for (DashboardStatus dashboardStatus : parent.status) {
-                    deployedChannelIds.add(dashboardStatus.getChannelId());
-                }
-            }
-
-            // For each selected channel, add any dependent/dependency channels as necessary
-            Set<String> channelIdsToDeploy = new HashSet<String>();
-            for (String channelId : selectedEnabledChannelIds) {
-                addChannelToDeploySet(channelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
-            }
-
-            // If additional channels were added to the set, we need to prompt the user
-            if (!CollectionUtils.subtract(channelIdsToDeploy, selectedEnabledChannelIds).isEmpty()) {
-                ChannelDependenciesWarningDialog dialog = new ChannelDependenciesWarningDialog(ChannelTask.DEPLOY, channelDependencies, selectedEnabledChannelIds, channelIdsToDeploy);
-                if (dialog.getResult() == JOptionPane.OK_OPTION) {
-                    if (dialog.isIncludeOtherChannels()) {
-                        selectedEnabledChannelIds.addAll(channelIdsToDeploy);
-                    }
-                } else {
-                    return;
-                }
-            }
-        } catch (ChannelDependencyException e) {
-            // Should never happen
-            e.printStackTrace();
-        }*/
-
         parent.deployChannel(selectedEnabledChannelIds, debugOptions);
     }
-
-    /*
-    private void addChannelToDeploySet(String channelId, ChannelDependencyGraph channelDependencyGraph, Set<String> deployedChannelIds, Set<String> channelIdsToDeploy) {
-        if (!channelIdsToDeploy.add(channelId)) {
-            return;
-        }
-
-        DirectedAcyclicGraphNode<String> node = channelDependencyGraph.getNode(channelId);
-
-        if (node != null) {
-            for (String dependentChannelId : node.getDirectDependentElements()) {
-                ChannelStatus channelStatus = channelStatuses.get(dependentChannelId);
-
-                // Only add the dependent channel if it's enabled and currently deployed
-                if (channelStatus != null && channelStatus.getChannel().getExportData().getMetadata().isEnabled() && deployedChannelIds.contains(dependentChannelId)) {
-                    addChannelToDeploySet(dependentChannelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
-                }
-            }
-
-            for (String dependencyChannelId : node.getDirectDependencyElements()) {
-                ChannelStatus channelStatus = channelStatuses.get(dependencyChannelId);
-
-                // Only add the dependency channel it it's enabled
-                if (channelStatus != null && channelStatus.getChannel().getExportData().getMetadata().isEnabled()) {
-                    addChannelToDeploySet(dependencyChannelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
-                }
-            }
-        }
-    }*/
 
     public void doEditGlobalScripts() {
         if (isSaveEnabled() && !confirmLeave()) {
