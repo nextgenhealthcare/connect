@@ -72,8 +72,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationException;
@@ -93,7 +91,6 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ForbiddenException;
 import com.mirth.connect.client.core.TaskConstants;
-//import com.mirth.connect.client.ui.Frame.ChannelTask;
 import com.mirth.connect.client.ui.Frame.ConflictOption;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplateImportDialog;
 import com.mirth.connect.client.ui.components.ChannelTableTransferHandler;
@@ -105,7 +102,6 @@ import com.mirth.connect.client.ui.components.tag.FilterCompletion;
 import com.mirth.connect.client.ui.components.tag.MirthTagField;
 import com.mirth.connect.client.ui.components.tag.SearchFilterListener;
 import com.mirth.connect.client.ui.components.tag.TagFilterCompletion;
-//import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
 import com.mirth.connect.client.ui.tag.SettingsPanelTags;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
@@ -132,9 +128,8 @@ import com.mirth.connect.model.util.ImportConverter3_0_0;
 import com.mirth.connect.plugins.ChannelColumnPlugin;
 import com.mirth.connect.plugins.ChannelPanelPlugin;
 import com.mirth.connect.plugins.TaskPlugin;
-//import com.mirth.connect.util.ChannelDependencyException;
-//import com.mirth.connect.util.ChannelDependencyGraph;
-//import com.mirth.connect.util.DirectedAcyclicGraphNode;
+
+import net.miginfocom.swing.MigLayout;
 
 public class ChannelPanel extends AbstractFramePanel {
 

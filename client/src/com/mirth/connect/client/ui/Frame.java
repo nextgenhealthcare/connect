@@ -106,7 +106,6 @@ import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.client.core.VersionMismatchException;
 import com.mirth.connect.client.ui.DashboardPanel.TableState;
-import com.mirth.connect.client.ui.Frame.ChannelTask;
 import com.mirth.connect.client.ui.alert.AlertEditPanel;
 import com.mirth.connect.client.ui.alert.AlertPanel;
 import com.mirth.connect.client.ui.alert.DefaultAlertEditPanel;
