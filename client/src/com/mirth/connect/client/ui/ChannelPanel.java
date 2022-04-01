@@ -93,7 +93,7 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ForbiddenException;
 import com.mirth.connect.client.core.TaskConstants;
-import com.mirth.connect.client.ui.Frame.ChannelTask;
+//import com.mirth.connect.client.ui.Frame.ChannelTask;
 import com.mirth.connect.client.ui.Frame.ConflictOption;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplateImportDialog;
 import com.mirth.connect.client.ui.components.ChannelTableTransferHandler;
@@ -105,7 +105,7 @@ import com.mirth.connect.client.ui.components.tag.FilterCompletion;
 import com.mirth.connect.client.ui.components.tag.MirthTagField;
 import com.mirth.connect.client.ui.components.tag.SearchFilterListener;
 import com.mirth.connect.client.ui.components.tag.TagFilterCompletion;
-import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
+//import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
 import com.mirth.connect.client.ui.tag.SettingsPanelTags;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
@@ -132,9 +132,9 @@ import com.mirth.connect.model.util.ImportConverter3_0_0;
 import com.mirth.connect.plugins.ChannelColumnPlugin;
 import com.mirth.connect.plugins.ChannelPanelPlugin;
 import com.mirth.connect.plugins.TaskPlugin;
-import com.mirth.connect.util.ChannelDependencyException;
-import com.mirth.connect.util.ChannelDependencyGraph;
-import com.mirth.connect.util.DirectedAcyclicGraphNode;
+//import com.mirth.connect.util.ChannelDependencyException;
+//import com.mirth.connect.util.ChannelDependencyGraph;
+//import com.mirth.connect.util.DirectedAcyclicGraphNode;
 
 public class ChannelPanel extends AbstractFramePanel {
 
@@ -887,7 +887,7 @@ public class ChannelPanel extends AbstractFramePanel {
         }
 
         // If there are any channel dependencies, decide if we need to warn the user on deploy.
-        try {
+        /*try {
             ChannelDependencyGraph channelDependencyGraph = new ChannelDependencyGraph(channelDependencies);
 
             Set<String> deployedChannelIds = new HashSet<String>();
@@ -917,11 +917,12 @@ public class ChannelPanel extends AbstractFramePanel {
         } catch (ChannelDependencyException e) {
             // Should never happen
             e.printStackTrace();
-        }
+        }*/
 
         parent.deployChannel(selectedEnabledChannelIds, debugOptions);
     }
 
+    /*
     private void addChannelToDeploySet(String channelId, ChannelDependencyGraph channelDependencyGraph, Set<String> deployedChannelIds, Set<String> channelIdsToDeploy) {
         if (!channelIdsToDeploy.add(channelId)) {
             return;
@@ -948,7 +949,7 @@ public class ChannelPanel extends AbstractFramePanel {
                 }
             }
         }
-    }
+    }*/
 
     public void doEditGlobalScripts() {
         if (isSaveEnabled() && !confirmLeave()) {

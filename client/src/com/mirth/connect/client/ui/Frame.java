@@ -2936,12 +2936,7 @@ public class Frame extends JXFrame {
     }
 
     public void doDeployFromChannelView() {
-        
-        // Only deploy enabled channels
-        Set<String> selectedEnabledChannelIds = new LinkedHashSet<String>();
-        
         String channelId = channelEditPanel.currentChannel.getId();
-        selectedEnabledChannelIds.add(channelId);
 
         if (isSaveEnabled()) {
             if (alertOption(PlatformUI.MIRTH_FRAME, "<html>This channel will be saved before it is deployed.<br/>Are you sure you want to save and deploy this channel?</html>")) {
@@ -2983,46 +2978,7 @@ public class Frame extends JXFrame {
         	}
         }
         
-        
-        // If there are any channel dependencies, decide if we need to warn the user on deploy.
-        try {
-            Set<ChannelDependency> channelDependencies;
-            channelDependencies = retrieveDependencies();
-
-            ChannelDependencyGraph channelDependencyGraph = new ChannelDependencyGraph(channelDependencies);
-
-            Set<String> deployedChannelIds = new HashSet<String>();
-            Frame parent = PlatformUI.MIRTH_FRAME;
-            if (parent.status != null) {
-                for (DashboardStatus dashboardStatus : parent.status) {
-                    deployedChannelIds.add(dashboardStatus.getChannelId());
-                }
-            }
-
-            // For each selected channel, add any dependent/dependency channels as necessary
-            Set<String> channelIdsToDeploy = new HashSet<String>();
-            for (String channelEnabledId : selectedEnabledChannelIds) {
-                addChannelToDeploySet(channelEnabledId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
-            }
-
-            // If additional channels were added to the set, we need to prompt the user
-            if (!CollectionUtils.subtract(channelIdsToDeploy, selectedEnabledChannelIds).isEmpty()) {
-                ChannelDependenciesWarningDialog dialog = new ChannelDependenciesWarningDialog(ChannelTask.DEPLOY, channelDependencies, selectedEnabledChannelIds, channelIdsToDeploy);
-                if (dialog.getResult() == JOptionPane.OK_OPTION) {
-                    if (dialog.isIncludeOtherChannels()) {
-                        selectedEnabledChannelIds.addAll(channelIdsToDeploy);
-                    }
-                } else {
-                    return;
-                }
-            }
-
-        } catch (ChannelDependencyException e) {
-            // Should never happen
-            e.printStackTrace();
-        }
-        
-        deployChannel(selectedEnabledChannelIds, null);
+        deployChannel(Collections.singleton(channelId), null);
     }
     
     private void addChannelToDeploySet(String channelId, ChannelDependencyGraph channelDependencyGraph, Set<String> deployedChannelIds, Set<String> channelIdsToDeploy) {
@@ -3068,7 +3024,51 @@ public class Frame extends JXFrame {
     
     public void deployChannel(final Set<String> selectedChannelIds, DebugOptions debugOptions) {
         if (CollectionUtils.isNotEmpty(selectedChannelIds)) {
-            String plural = (selectedChannelIds.size() > 1) ? "s" : "";
+            Set<String> selectedEnabledChannelIds = new LinkedHashSet<String>(selectedChannelIds);
+            
+            //check for dependencies when not in debug mode
+            if (debugOptions == null) {
+                
+                // If there are any channel dependencies, decide if we need to warn the user on deploy.
+                try {
+                    Set<ChannelDependency> channelDependencies;
+                    channelDependencies = retrieveDependencies();
+
+                    ChannelDependencyGraph channelDependencyGraph = new ChannelDependencyGraph(channelDependencies);
+
+                    Set<String> deployedChannelIds = new HashSet<String>();
+                   
+                    if (this.status != null) {
+                        for (DashboardStatus dashboardStatus : this.status) {
+                            deployedChannelIds.add(dashboardStatus.getChannelId());
+                        }
+                    }
+
+                    // For each selected channel, add any dependent/dependency channels as necessary
+                    Set<String> channelIdsToDeploy = new HashSet<String>();
+                    for (String channelEnabledId : selectedEnabledChannelIds) {
+                        addChannelToDeploySet(channelEnabledId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
+                    }
+
+                    // If additional channels were added to the set, we need to prompt the user
+                    if (!CollectionUtils.subtract(channelIdsToDeploy, selectedEnabledChannelIds).isEmpty()) {
+                        ChannelDependenciesWarningDialog dialog = new ChannelDependenciesWarningDialog(ChannelTask.DEPLOY, channelDependencies, selectedEnabledChannelIds, channelIdsToDeploy);
+                        if (dialog.getResult() == JOptionPane.OK_OPTION) {
+                            if (dialog.isIncludeOtherChannels()) {
+                                selectedEnabledChannelIds.addAll(channelIdsToDeploy);
+                            }
+                        } else {
+                            return;
+                        }
+                    }
+
+                } catch (ChannelDependencyException e) {
+                    // Should never happen
+                    e.printStackTrace();
+                }   
+            } 
+                   
+            String plural = (selectedEnabledChannelIds.size() > 1) ? "s" : "";
             final String workingId = startWorking("Deploying channel" + plural + "...");
 
             dashboardPanel.deselectRows(false);
@@ -3081,10 +3081,10 @@ public class Frame extends JXFrame {
                     try {
                         if (debugOptions != null) {
                             // call deployChannel with debugOptions in case of debugDeploy
-                            mirthClient.deployChannel(selectedChannelIds.iterator().next(), false, debugOptions);
+                            mirthClient.deployChannel(selectedEnabledChannelIds.iterator().next(), false, debugOptions);
                         } else {
                             // call deployChannel without debugOptions in case of normal deploy
-                            mirthClient.deployChannels(selectedChannelIds);
+                            mirthClient.deployChannels(selectedEnabledChannelIds);
                         }
 
                     } catch (ClientException e) {
