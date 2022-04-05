@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.mirth.connect.model.FilterTransformerElement;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.converters.collections.CollectionConverter;
@@ -13,6 +15,7 @@ import com.thoughtworks.xstream.mapper.Mapper;
 import edu.emory.mathcs.backport.java.util.Collections;
 
 public class FilterTransformerElementsConverter extends CollectionConverter {
+    private Logger logger = Logger.getLogger(getClass());
 
     public FilterTransformerElementsConverter(Mapper mapper) {
         super(mapper);
@@ -44,19 +47,24 @@ public class FilterTransformerElementsConverter extends CollectionConverter {
                             sequenceNumber2 = sequenceNumber2.replace("-", ".");
                         }
                         
-                        Double convertedSequenceNumber1 = Double.parseDouble(sequenceNumber1);
-                        Double convertedSequenceNumber2 = Double.parseDouble(sequenceNumber2);
-                        Double difference = convertedSequenceNumber1 - convertedSequenceNumber2;
-                        
-                        // -1 = convertedSequenceNumber1 < convertedSequenceNumber2
-                        //  0 = convertedSequenceNumber1 == convertedSequenceNumber2
-                        //  1 = convertedSequenceNumber1 > convertedSequenceNumber2
-                        if (difference < 0) {
-                            return -1;
-                        } else if (difference == 0) {
-                            return 0;
-                        } else {
-                            return 1;
+                        try {
+                            Double convertedSequenceNumber1 = Double.parseDouble(sequenceNumber1);
+                            Double convertedSequenceNumber2 = Double.parseDouble(sequenceNumber2);
+                            Double difference = convertedSequenceNumber1 - convertedSequenceNumber2;
+                            
+                            // -1 = convertedSequenceNumber1 < convertedSequenceNumber2
+                            //  0 = convertedSequenceNumber1 == convertedSequenceNumber2
+                            //  1 = convertedSequenceNumber1 > convertedSequenceNumber2
+                            if (difference < 0) {
+                                return -1;
+                            } else if (difference == 0) {
+                                return 0;
+                            } else {
+                                return 1;
+                            }
+                        } catch (Exception e) {
+                            logger.error(e);
+                            throw e;
                         }
                     }
                 });
