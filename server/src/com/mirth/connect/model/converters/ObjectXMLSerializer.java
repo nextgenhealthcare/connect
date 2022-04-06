@@ -168,6 +168,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         getXStream().registerConverter(new PluginMetaDataConverter(getXStream().getMapper()));
         getXStream().registerConverter(new JavaScriptObjectConverter(getXStream().getMapper()));
         getXStream().registerConverter(new ThrowableConverter(getXStream().getMapper()));
+        getXStream().registerConverter(new FilterTransformerElementsConverter(getXStream().getMapper()));
 
         // Create a separate instance of XStream specifically for handling references
         if (xstreamMode == XStream.NO_REFERENCES) {
