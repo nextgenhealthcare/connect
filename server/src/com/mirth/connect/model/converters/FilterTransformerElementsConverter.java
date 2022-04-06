@@ -36,32 +36,8 @@ public class FilterTransformerElementsConverter extends CollectionConverter {
             if (FilterTransformerElement.class.isAssignableFrom(firstElement.getClass())) {
                 Collections.sort(list, new Comparator<FilterTransformerElement>() {
                     public int compare(FilterTransformerElement e1, FilterTransformerElement e2) {
-                        String sequenceNumber1 = e1.getSequenceNumber();
-                        String sequenceNumber2 = e2.getSequenceNumber();
-                        
-                        // if sequenceNumberN is a child of an iterator step (i.e., "n-n") convert to "n.n" for comparison
-                        if (sequenceNumber1.contains("-")) {
-                            sequenceNumber1 = sequenceNumber1.replace("-", ".");
-                        }
-                        if (sequenceNumber2.contains("-")) {
-                            sequenceNumber2 = sequenceNumber2.replace("-", ".");
-                        }
-                        
                         try {
-                            Double convertedSequenceNumber1 = Double.parseDouble(sequenceNumber1);
-                            Double convertedSequenceNumber2 = Double.parseDouble(sequenceNumber2);
-                            Double difference = convertedSequenceNumber1 - convertedSequenceNumber2;
-                            
-                            // -1 = convertedSequenceNumber1 < convertedSequenceNumber2
-                            //  0 = convertedSequenceNumber1 == convertedSequenceNumber2
-                            //  1 = convertedSequenceNumber1 > convertedSequenceNumber2
-                            if (difference < 0) {
-                                return -1;
-                            } else if (difference == 0) {
-                                return 0;
-                            } else {
-                                return 1;
-                            }
+                            return Integer.parseInt(e1.getSequenceNumber().replaceAll("[\\D]", "")) - Integer.parseInt(e2.getSequenceNumber().replaceAll("[\\D]", ""));
                         } catch (Exception e) {
                             logger.error(e);
                             throw e;
