@@ -1,6 +1,7 @@
 package com.mirth.connect.model.converters;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -11,8 +12,6 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.converters.collections.CollectionConverter;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.mapper.Mapper;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 public class FilterTransformerElementsConverter extends CollectionConverter {
     private Logger logger = Logger.getLogger(getClass());
