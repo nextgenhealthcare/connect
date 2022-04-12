@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -112,7 +113,7 @@ public class Channel implements Runnable {
     private int processingThreads;
 
     private SourceQueue sourceQueue;
-    private Map<Long, Thread> queueThreads = new HashMap<Long, Thread>();
+    private Map<Long, Thread> queueThreads = new ConcurrentHashMap<Long, Thread>();
     private QueueHandler queueHandler;
 
     private PreProcessor preProcessor;
@@ -662,7 +663,7 @@ public class Channel implements Runnable {
         stopSourceQueue = true;
 
         if (MapUtils.isNotEmpty(queueThreads)) {
-            for (Thread queueThread : queueThreads.values().toArray(new Thread[queueThreads.size()])) {
+            for (Thread queueThread : queueThreads.values()) {
                 queueThread.join();
             }
             queueThreads.clear();
@@ -671,7 +672,7 @@ public class Channel implements Runnable {
 
     public void haltSourceQueue() {
         if (MapUtils.isNotEmpty(queueThreads)) {
-            for (Thread queueThread : queueThreads.values().toArray(new Thread[queueThreads.size()])) {
+            for (Thread queueThread : queueThreads.values()) {
                 queueThread.interrupt();
             }
         }

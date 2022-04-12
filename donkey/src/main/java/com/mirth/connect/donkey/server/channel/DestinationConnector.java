@@ -11,10 +11,9 @@ package com.mirth.connect.donkey.server.channel;
 
 import java.util.Calendar;
 import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -60,7 +59,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private final static String QUEUED_RESPONSE = "Message queued successfully";
 
     private Integer orderId;
-    private Map<Long, DestinationQueueThread> queueThreads = new HashMap<Long, DestinationQueueThread>();
+    private Map<Long, DestinationQueueThread> queueThreads = new ConcurrentHashMap<Long, DestinationQueueThread>();
     private Deque<Long> processingThreadIdStack;
     private DestinationConnectorProperties destinationConnectorProperties;
     private DestinationQueue queue;
@@ -319,11 +318,11 @@ public abstract class DestinationConnector extends Connector implements Runnable
 
         if (MapUtils.isNotEmpty(queueThreads)) {
             try {
-                for (DestinationQueueThread thread : queueThreads.values().toArray(new DestinationQueueThread[queueThreads.size()])) {
+                for (DestinationQueueThread thread : queueThreads.values()) {
                     thread.interruptIfWaitingRetryInterval();
                 }
 
-                for (Thread thread : queueThreads.values().toArray(new Thread[queueThreads.size()])) {
+                for (Thread thread : queueThreads.values()) {
                     thread.join();
                 }
 
@@ -373,7 +372,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         stopQueue.set(true);
 
         if (MapUtils.isNotEmpty(queueThreads)) {
-            for (Thread thread : queueThreads.values().toArray(new Thread[queueThreads.size()])) {
+            for (Thread thread : queueThreads.values()) {
                 thread.interrupt();
             }
         }
@@ -383,7 +382,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
         } finally {
             if (MapUtils.isNotEmpty(queueThreads)) {
                 try {
-                    for (Thread thread : queueThreads.values().toArray(new Thread[queueThreads.size()])) {
+                    for (Thread thread : queueThreads.values()) {
                         thread.join();
                     }
 
