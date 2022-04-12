@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -113,7 +114,7 @@ public class Channel implements Runnable {
     private int processingThreads;
 
     private SourceQueue sourceQueue;
-    private Map<Long, Thread> queueThreads = new HashMap<Long, Thread>();
+    private Map<Long, Thread> queueThreads = new ConcurrentHashMap<Long, Thread>();
     private QueueHandler queueHandler;
 
     private PreProcessor preProcessor;
@@ -130,9 +131,9 @@ public class Channel implements Runnable {
     // A cached thread pool executor that executes recovery tasks and destination chain tasks
     private ExecutorService channelExecutor;
     private Set<Thread> dispatchThreads = new HashSet<Thread>();
-    private boolean shuttingDown = false;
+    private volatile boolean shuttingDown = false;
 
-    private boolean stopSourceQueue = false;
+    private volatile boolean stopSourceQueue = false;
     private ChannelProcessLock processLock;
     private Lock removeContentLock = new ReentrantLock(true);
 
@@ -1934,7 +1935,7 @@ public class Channel implements Runnable {
         try {
             do {
                 processSourceQueue(Constants.SOURCE_QUEUE_POLL_TIMEOUT_MILLIS);
-            } while (isActive());
+            } while (isActive() && !stopSourceQueue);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
