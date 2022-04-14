@@ -388,7 +388,7 @@ public class MirthWebServer extends Server {
             IOUtils.closeQuietly(is);
         }
 
-        SslContextFactory contextFactory = new SslContextFactory();
+        SslContextFactory contextFactory = new SslContextFactory.Server();
         contextFactory.setKeyStore(keyStore);
         contextFactory.setCertAlias("mirthconnect");
         contextFactory.setKeyManagerPassword(mirthProperties.getString("keystore.keypass"));
