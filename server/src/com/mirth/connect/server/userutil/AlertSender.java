@@ -22,6 +22,7 @@ public class AlertSender {
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private String channelId;
     private Integer metaDataId;
+    private Long messageId;
     private String connectorName;
 
     /**
@@ -43,6 +44,7 @@ public class AlertSender {
     public AlertSender(ImmutableConnectorMessage connectorMessage) {
         channelId = connectorMessage.getChannelId();
         metaDataId = connectorMessage.getMetaDataId();
+        messageId = connectorMessage.getMessageId();
         connectorName = connectorMessage.getConnectorName();
     }
 
@@ -53,6 +55,6 @@ public class AlertSender {
      *            A custom error message to include with the error event.
      */
     public void sendAlert(String errorMessage) {
-        eventController.dispatchEvent(new ErrorEvent(channelId, metaDataId, null, ErrorEventType.USER_DEFINED_TRANSFORMER, connectorName, null, errorMessage, null));
+        eventController.dispatchEvent(new ErrorEvent(channelId, metaDataId, messageId, ErrorEventType.USER_DEFINED_TRANSFORMER, connectorName, null, errorMessage, null));
     }
 }
