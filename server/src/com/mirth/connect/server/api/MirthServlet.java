@@ -450,7 +450,8 @@ public abstract class MirthServlet {
     }
 
     private boolean isRequestLocal() {
-        String remoteAddr = request.getRemoteAddr();
+    	// The remote address can be surrounded in square brackets, and we need to remove them before making comparisons.
+        String remoteAddr = request.getRemoteAddr().replace("[", "").replace("]", "");
 
         try {
             if (StringUtils.equals(InetAddress.getLocalHost().getHostAddress(), remoteAddr)) {
