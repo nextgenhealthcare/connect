@@ -199,6 +199,6 @@
 	<classpathentry kind="lib" path="lib/hapi-structures-v28-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-structures-v281-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7.13.jar"/>
-	<classpathentry kind="lib" path="lib/xstream-1.4.18.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.19.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
