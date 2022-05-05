@@ -67,7 +67,6 @@
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
-	<classpathentry kind="lib" path="lib/xstream-1.4.12.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections4-4.4.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-engine-core-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-generic-3.0.jar"/>
@@ -83,5 +82,6 @@
 	<classpathentry kind="lib" path="lib/httpclient-4.5.13.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.5.13.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7.13.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.18.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
