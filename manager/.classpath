@@ -13,7 +13,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
-	<classpathentry kind="lib" path="lib/xstream-1.4.12.jar"/>
 	<classpathentry kind="lib" path="lib/looks-2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration2-2.7.jar"/>
@@ -38,5 +37,6 @@
 	<classpathentry kind="lib" path="lib/httpclient-4.5.13.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.5.13.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7.13.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.19.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
