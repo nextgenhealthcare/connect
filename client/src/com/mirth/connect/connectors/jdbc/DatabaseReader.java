@@ -364,7 +364,9 @@ public class DatabaseReader extends ConnectorSettingsPanel {
 
     private void updateIncomingData(String[] data) {
         try {
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            Document document = dbf.newDocumentBuilder().newDocument();
             Element resultElement = document.createElement("result");
             for (int i = 0; i < data.length; i++) {
                 Element columnElement = document.createElement(data[i]);

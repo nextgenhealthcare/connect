@@ -13,5 +13,5 @@ import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 
 public interface PreProcessor {
-    public String doPreProcess(ConnectorMessage message) throws DonkeyException, InterruptedException;
+    public String doPreProcess(ConnectorMessage sourceMessage) throws DonkeyException, InterruptedException;
 }

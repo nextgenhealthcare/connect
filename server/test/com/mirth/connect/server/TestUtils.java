@@ -115,21 +115,18 @@ public class TestUtils {
     }
 
     public static boolean tableExists(Connection connection, String tableName) throws SQLException {
-        ResultSet resultSet = null;
-
         try {
             DatabaseMetaData metaData = connection.getMetaData();
-            resultSet = metaData.getTables(null, null, tableName, null);
-
-            if (resultSet.next()) {
-                return true;
+            try (ResultSet resultSet = metaData.getTables(null, null, tableName, null)) {
+                if (resultSet.next()) {
+                    return true;
+                }
             }
-
-            resultSet = metaData.getTables(null, null, tableName.toUpperCase(), null);
-            return resultSet.next();
-        } finally {
-            resultSet.close();
-        }
+            
+            try (ResultSet resultSet = metaData.getTables(null, null, tableName.toUpperCase(), null)) {
+                return resultSet.next();
+            }
+        } finally {}
     }
 
     public static class DummyChannel extends com.mirth.connect.donkey.server.channel.Channel {

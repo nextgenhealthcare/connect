@@ -9,10 +9,15 @@
 
 package com.mirth.connect.server.transformers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.RhinoException;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.DonkeyException;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.Response;
@@ -21,6 +26,7 @@ import com.mirth.connect.donkey.server.channel.components.PostProcessor;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
@@ -40,40 +46,75 @@ public class JavaScriptPostprocessor implements PostProcessor {
     private Channel channel;
     private String scriptId;
     private volatile String contextFactoryId;
-
-    public JavaScriptPostprocessor(Channel channel, String postProcessingScript) throws JavaScriptInitializationException {
+    private MirthScopeProvider scopeProvider = new MirthScopeProvider();
+    private MirthMain debugger;
+    private String postProcessingScript;
+    private Boolean debug = false;
+    
+    public JavaScriptPostprocessor(Channel channel, String postProcessingScript, DebugOptions debugOptions) throws JavaScriptInitializationException {
         this.channel = channel;
-
-        scriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getChannelId());
-
-        try {
-            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
-            contextFactoryId = contextFactory.getId();
-            JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, postProcessingScript, ContextType.CHANNEL_POSTPROCESSOR);
-        } catch (Exception e) {
-            logger.error("Error compiling postprocessor script " + scriptId + ".", e);
-
-            if (e instanceof RhinoException) {
-                e = new MirthJavascriptTransformerException((RhinoException) e, channel.getChannelId(), null, 0, ErrorEventType.POSTPROCESSOR_SCRIPT.toString(), null);
+        this.postProcessingScript = postProcessingScript;
+        this.scriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getChannelId());
+        this.debug = debugOptions != null && debugOptions.isDeployUndeployPreAndPostProcessorScripts();
+        
+        if (!debug) {
+            try {
+                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
+                contextFactoryId = contextFactory.getId();
+                JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, postProcessingScript, ContextType.CHANNEL_POSTPROCESSOR);
+            } catch (Exception e) {
+                logger.error("Error compiling postprocessor script " + scriptId + ".", e);
+    
+                if (e instanceof RhinoException) {
+                    e = new MirthJavascriptTransformerException((RhinoException) e, channel.getChannelId(), null, 0, ErrorEventType.POSTPROCESSOR_SCRIPT.toString(), null);
+                }
+    
+                logger.error(ErrorMessageBuilder.buildErrorMessage(ErrorEventType.POSTPROCESSOR_SCRIPT.toString(), null, e));
+                throw new JavaScriptInitializationException("Error initializing JavaScript Postprocessor", e);
             }
-
-            logger.error(ErrorMessageBuilder.buildErrorMessage(ErrorEventType.POSTPROCESSOR_SCRIPT.toString(), null, e));
-            throw new JavaScriptInitializationException("Error initializing JavaScript Postprocessor", e);
         }
     }
 
     @Override
     public Response doPostProcess(Message message) throws DonkeyException, InterruptedException {
         try {
-            MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
-            if (!contextFactoryId.equals(contextFactory.getId())) {
-                synchronized (this) {
-                    contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
+            MirthContextFactory contextFactory;
+
+            try {
+                Map<String, MirthContextFactory> contextFactories = new HashMap<>();
+                if (debug) {
+                    String postProcessingScriptId = ScriptController.getScriptId(ScriptController.POSTPROCESSOR_SCRIPT_KEY, channel.getChannelId());
+                    contextFactory = getContextFactory();
+                    contextFactoryId = contextFactory.getId();
+                    contextFactory.setContextType(ContextType.CHANNEL_POSTPROCESSOR);
+                    contextFactory.setScriptText(postProcessingScript);
+                    contextFactory.setDebugType(true);
+                    contextFactories.put(postProcessingScriptId, contextFactory);
+                    if (JavaScriptUtil.getCompiledScript(scriptId) != null) {
+                    	debugger = JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId, true);
+                    }
+                } else {
+                    contextFactory = getContextFactory();
                     if (!contextFactoryId.equals(contextFactory.getId())) {
-                        JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
-                        contextFactoryId = contextFactory.getId();
+                        synchronized (this) {
+                            contextFactory = getContextFactory();
+                            if (!contextFactoryId.equals(contextFactory.getId())) {
+                                JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
+                                contextFactoryId = contextFactory.getId();
+                            }
+                        }
                     }
                 }
+
+            } catch (Exception e) {
+                logger.error("Error compiling postprocessor script " + scriptId + ".", e);
+
+                if (e instanceof RhinoException) {
+                    e = new MirthJavascriptTransformerException((RhinoException) e, channel.getChannelId(), null, 0, ErrorEventType.POSTPROCESSOR_SCRIPT.toString(), null);
+                }
+
+                logger.error(ErrorMessageBuilder.buildErrorMessage(ErrorEventType.POSTPROCESSOR_SCRIPT.toString(), null, e));
+                throw new JavaScriptInitializationException("Error initializing JavaScript Postprocessor", e);
             }
 
             return JavaScriptUtil.executeJavaScriptPostProcessorTask(new JavaScriptPostProcessorTask(contextFactory, message), message.getChannelId());
@@ -90,6 +131,14 @@ public class JavaScriptPostprocessor implements PostProcessor {
         }
     }
 
+    protected MirthContextFactory getContextFactory() throws Exception {
+        if (debug) {
+            return contextFactoryController.getDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), scriptId);
+        } else {
+            return contextFactoryController.getContextFactory(channel.getResourceIds());
+        }
+    }
+
     private class JavaScriptPostProcessorTask extends JavaScriptTask<Object> {
 
         private Message message;
@@ -101,6 +150,14 @@ public class JavaScriptPostprocessor implements PostProcessor {
 
         @Override
         public Object doCall() throws Exception {
+
+            if (debug && debugger != null) {
+                debugger.doBreak();
+
+                if (!debugger.isVisible()) {
+                    debugger.setVisible(true);
+                }
+            }
             return JavaScriptUtil.executePostprocessorScripts(this, message);
         }
     }

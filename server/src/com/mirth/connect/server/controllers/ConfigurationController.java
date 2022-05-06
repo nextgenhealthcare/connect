@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 
 import com.mirth.commons.encryption.Digester;
 import com.mirth.commons.encryption.Encryptor;
@@ -28,6 +28,7 @@ import com.mirth.connect.model.DatabaseSettings;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
@@ -177,6 +178,14 @@ public abstract class ConfigurationController extends Controller {
     public abstract void setServerSettings(ServerSettings settings) throws ControllerException;
 
     /**
+     * Returns all public server settings.
+     * 
+     * @return public server settings
+     * @throws ControllerException
+     */
+    public abstract PublicServerSettings getPublicServerSettings() throws ControllerException;
+    
+    /**
      * Returns all update settings.
      * 
      * @return update settings
@@ -249,6 +258,8 @@ public abstract class ConfigurationController extends Controller {
     public abstract int getStatsUpdateInterval();
 
     public abstract Integer getRhinoLanguageVersion();
+
+    public abstract int getStartupLockSleep();
 
     /**
      * Returns the server configuration, which contains:

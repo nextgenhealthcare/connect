@@ -14,6 +14,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Hashtable;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
@@ -47,11 +48,11 @@ public class MirthXmlUtil {
 
         try {
             // Space Normalization Transformer
-            TransformerFactory normalizerTransformerFactory = TransformerFactory.newInstance();
+            TransformerFactory normalizerTransformerFactory = getTransformerFactory();
             normalizerTemplates = normalizerTransformerFactory.newTemplates(new StreamSource(new StringReader(prettyPrintingXslt)));
 
             // Pretty Printer transformer
-            serializerTransformerFactory = TransformerFactory.newInstance();
+            serializerTransformerFactory = getTransformerFactory();
 
             // When Saxon-B is on the classpath setting this attribute throws an
             // IllegalArgumentException.
@@ -459,5 +460,12 @@ public class MirthXmlUtil {
         addXmlEntity("&quot", 34);
         addXmlEntity("&#10", 10);
         addXmlEntity("&#13", 13);
+    }
+    
+    private static TransformerFactory getTransformerFactory() {
+    	TransformerFactory tf = TransformerFactory.newInstance();
+    	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    	return tf;
     }
 }

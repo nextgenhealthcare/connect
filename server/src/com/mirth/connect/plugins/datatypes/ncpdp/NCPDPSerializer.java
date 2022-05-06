@@ -11,7 +11,9 @@ package com.mirth.connect.plugins.datatypes.ncpdp;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -59,6 +61,7 @@ public class NCPDPSerializer implements IMessageSerializer {
             deserializationGroupDelimiter = StringUtil.unescape(deserializationProperties.getGroupDelimiter());
             deserializationFieldDelimiter = StringUtil.unescape(deserializationProperties.getFieldDelimiter());
         }
+
     }
 
     public String getDeserializationSegmentDelimiter() {
@@ -142,6 +145,8 @@ public class NCPDPSerializer implements IMessageSerializer {
 
         try {
             XMLReader reader = XMLReaderFactory.createXMLReader();
+            reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            
             NCPDPXMLHandler handler = new NCPDPXMLHandler(deserializationSegmentDelimiter, deserializationGroupDelimiter, deserializationFieldDelimiter, version);
             reader.setContentHandler(handler);
 
@@ -158,11 +163,59 @@ public class NCPDPSerializer implements IMessageSerializer {
              * Parse, but first replace all spaces between brackets. This fixes pretty-printed XML
              * we might receive
              */
-            reader.parse(new InputSource(new StringReader(prettyPattern.matcher(source).replaceAll("><"))));
+            String rawXmlSource = prettyPattern.matcher(source).replaceAll("><");
+            String tansformedSource = source.contains("<TransactionHeaderRequest>") ? validateTransformHeader(rawXmlSource) : rawXmlSource;
+            reader.parse(new InputSource(new StringReader(tansformedSource)));
             return handler.getOutput().toString();
         } catch (Exception e) {
             throw new MessageSerializerException("Error converting XML to NCPDP message.", e, ErrorMessageBuilder.buildErrorMessage(this.getClass().getSimpleName(), "Error converting XML to NCPDP", e));
         }
+    }
+
+    public String validateTransformHeader(String sourceXml) {
+        /* NCPDP field info can be found in here 
+         * lengths of fields in page 4
+         *  https://www.cms.gov/medicare/billing/electronicbillingeditrans/downloads/ncpdpflatfile.pdf
+         * */
+        
+        Map<String, Integer> headerFieldsLengthMap = new LinkedHashMap<String, Integer>();
+        headerFieldsLengthMap.put("BinNumber", 6);
+        headerFieldsLengthMap.put("VersionReleaseNumber", 2);
+        headerFieldsLengthMap.put("TransactionCode", 2);
+        headerFieldsLengthMap.put("ProcessorControlNumber", 10);
+        headerFieldsLengthMap.put("TransactionCount", 1);
+        headerFieldsLengthMap.put("ServiceProviderIdQualifier", 2);
+        headerFieldsLengthMap.put("ServiceProviderId", 15);
+        headerFieldsLengthMap.put("DateOfService", 8);
+        headerFieldsLengthMap.put("SoftwareVendorCertificationId", 10);
+        headerFieldsLengthMap = Collections.unmodifiableMap(headerFieldsLengthMap);
+
+        String transformedXml = sourceXml;
+        for (Map.Entry<String, Integer> entry : headerFieldsLengthMap.entrySet()) {
+            String paddingString = "";
+            String tagValue = entry.getKey();
+            int fieldLength = entry.getValue();
+            paddingString = StringUtils.leftPad(paddingString, fieldLength);
+
+            //condition when only closing tag present with no value
+            if (transformedXml.contains("<" + tagValue + "/>")) {
+                transformedXml = transformedXml.replace("<" + tagValue + "/>", "<" + tagValue + ">" + paddingString + "</" + tagValue + ">");
+            }
+            // condition when both open and closing tag present but with no value
+            if (transformedXml.contains("<" + tagValue + ">" + "</" + tagValue + ">")) {
+                transformedXml = transformedXml.replace(("<" + tagValue + ">" + "</" + tagValue + ">"), ("<" + tagValue + ">" + paddingString + "</" + tagValue + ">"));
+            } // condition when field length is not as expected
+            else if (transformedXml.contains("<" + tagValue + ">")) {
+                String fieldValue = StringUtils.substringBetween(transformedXml, "<" + tagValue + ">", "</");
+                if (fieldValue.length() < fieldLength) {
+                    String replacementString = paddingString.substring(0, fieldLength - fieldValue.length()) + "</" + tagValue + ">";
+                    transformedXml = transformedXml.replace("</" + tagValue + ">", replacementString);
+
+                }
+            }
+
+        }
+        return transformedXml;
     }
 
     @Override

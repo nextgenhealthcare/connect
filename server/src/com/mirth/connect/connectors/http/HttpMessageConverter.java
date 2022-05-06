@@ -60,7 +60,7 @@ public class HttpMessageConverter {
 
     public static String httpRequestToXml(HttpRequestMessage request, boolean parseMultipart, boolean includeMetadata, BinaryContentTypeResolver resolver) {
         try {
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            Document document = getDocument();
             DonkeyElement requestElement = new DonkeyElement(document.createElement("HttpRequest"));
 
             if (includeMetadata) {
@@ -197,7 +197,7 @@ public class HttpMessageConverter {
 
     public static String httpResponseToXml(String status, Map<String, List<String>> headers, Object content, ContentType contentType, boolean parseMultipart, boolean includeMetadata, BinaryContentTypeResolver resolver) {
         try {
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            Document document = getDocument();
             DonkeyElement requestElement = new DonkeyElement(document.createElement("HttpResponse"));
 
             if (includeMetadata) {
@@ -304,4 +304,10 @@ public class HttpMessageConverter {
             throw new ParseException("Invalid content type: " + contentTypeString);
         }
     }
+    
+	private static Document getDocument() throws Exception {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		return dbf.newDocumentBuilder().newDocument();
+	}
 }

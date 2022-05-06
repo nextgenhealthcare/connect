@@ -239,8 +239,10 @@ public class MirthLauncher {
 
                 for (File extensionFile : extensionFiles) {
                     try {
-                        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(extensionFile);
-                        Element rootElement = document.getDocumentElement();
+                		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                		Document document = dbf.newDocumentBuilder().parse(extensionFile);
+                		Element rootElement = document.getDocumentElement();
 
                         boolean enabled = extensionStatuses.isEnabled(rootElement.getElementsByTagName("name").item(0).getTextContent());
                         boolean compatible = isExtensionCompatible(rootElement.getElementsByTagName("mirthVersion").item(0).getTextContent(), currentVersion);

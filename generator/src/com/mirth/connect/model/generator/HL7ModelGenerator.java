@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -24,10 +25,18 @@ public class HL7ModelGenerator {
     private static final String MESSAGE_TEMPLATE = "Message.txt";
     private static final String SEGMENT_TEMPLATE = "Segment.txt";
     private static final String COMPOSITE_TEMPLATE = "Composite.txt";
-    private static final String[] VERSIONS = new String[] { "21", "22", "23", "231", "24", "25" };
+    private static final String[] VERSIONS = new String[] { "21", "22", "23", "231", "24", "25", "251", "26", "27", "271", "28", "281", "282" };
 
     public String outputPath = "";
     public String version = "";
+    
+    static {
+    	// Set properties to ensure backward compatibility with Velocity 1.x
+    	Properties props = new Properties();
+    	props.put(Velocity.PARSER_HYPHEN_ALLOWED, true);
+    	
+        Velocity.init(props);
+    }
 
     public static void main(String[] args) {
         String baseDirectory = args[0];
@@ -57,7 +66,9 @@ public class HL7ModelGenerator {
 
                 for (int i = 0; i < files.length; i++) {
                     if (!files[i].isDirectory()) {
-                        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                        DocumentBuilder builder = dbf.newDocumentBuilder();
                         Document document = builder.parse(new InputSource(new StringReader(FileUtils.readFileToString(new File(files[i].getAbsolutePath())))));
 
                         if (files[i].getName().startsWith("message")) {
@@ -275,7 +286,6 @@ public class HL7ModelGenerator {
         StringWriter writer = new StringWriter();
 
         try {
-            Velocity.init();
             Velocity.evaluate(context, writer, "LOG", template);
         } catch (Exception e) {
             e.printStackTrace();

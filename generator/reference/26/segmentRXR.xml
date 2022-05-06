@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>RXR</name>
+    <description>Pharmacy/Treatment Route</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXR.1</name>
+            <description>Route</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXR.2</name>
+            <description>Administration Site</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXR.3</name>
+            <description>Administration Device</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXR.4</name>
+            <description>Administration Method</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXR.5</name>
+            <description>Routing Instruction</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXR.6</name>
+            <description>Administration Site Modifier</description>
+            <datatype>CWE</datatype>
+        </field>
+    </elements>
+</segment>

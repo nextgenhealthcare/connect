@@ -36,12 +36,13 @@ import javax.swing.table.TableCellEditor;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.PropertiesConfigurationLayout;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfigurationLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.components.MirthButton;
 import com.mirth.connect.client.ui.components.MirthDialogTableCellEditor;
@@ -174,10 +175,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
 
         if (file != null) {
             try {
-                PropertiesConfiguration properties = new PropertiesConfiguration();
-                properties.setDelimiterParsingDisabled(true);
-                properties.setListDelimiter((char) 0);
-                properties.load(file);
+                PropertiesConfiguration properties = PropertiesConfigurationUtil.create(file);
 
                 Map<String, ConfigurationProperty> configurationMap = new HashMap<String, ConfigurationProperty>();
                 Iterator<String> iterator = properties.getKeys();
@@ -226,9 +224,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
                 try {
                     File file = getFrame().createFileForExport(null, "PROPERTIES");
                     if (file != null) {
-                        PropertiesConfiguration properties = new PropertiesConfiguration();
-                        properties.setDelimiterParsingDisabled(true);
-                        properties.setListDelimiter((char) 0);
+                        PropertiesConfiguration properties = PropertiesConfigurationUtil.create(file);
                         properties.clear();
                         PropertiesConfigurationLayout layout = properties.getLayout();
 
@@ -247,7 +243,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
                             }
                         }
 
-                        properties.save(file);
+                        PropertiesConfigurationUtil.saveTo(properties, file);
                     }
                 } catch (Exception e) {
                     getFrame().alertThrowable(getFrame(), e);

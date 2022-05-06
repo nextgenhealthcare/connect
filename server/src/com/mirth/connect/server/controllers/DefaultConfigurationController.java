@@ -9,34 +9,61 @@
 
 package com.mirth.connect.server.controllers;
 
-import com.google.common.base.Strings;
-import com.mirth.commons.encryption.Digester;
-import com.mirth.commons.encryption.Encryptor;
-import com.mirth.commons.encryption.KeyEncryptor;
-import com.mirth.commons.encryption.Output;
-import com.mirth.connect.client.core.ControllerException;
-import com.mirth.connect.donkey.model.DatabaseConstants;
-import com.mirth.connect.donkey.server.data.DonkeyStatisticsUpdater;
-import com.mirth.connect.donkey.util.DonkeyElement;
-import com.mirth.connect.model.*;
-import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
-import com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties;
-import com.mirth.connect.server.ExtensionLoader;
-import com.mirth.connect.server.mybatis.KeyValuePair;
-import com.mirth.connect.server.tools.ClassPathResource;
-import com.mirth.connect.server.util.*;
-import com.mirth.connect.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.math.BigInteger;
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.Provider;
+import java.security.SecureRandom;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.sql.Connection;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TimeZone;
+import java.util.TreeMap;
+import java.util.UUID;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.net.ssl.SSLSocketFactory;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.configuration.ConfigurationConverter;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.PropertiesConfigurationLayout;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.configuration2.ConfigurationConverter;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfigurationLayout;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -60,21 +87,49 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.net.ssl.SSLSocketFactory;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
-import java.math.BigInteger;
-import java.net.URI;
-import java.nio.charset.Charset;
-import java.security.*;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.util.*;
-import java.util.Map.Entry;
+import com.google.common.base.Strings;
+import com.mirth.commons.encryption.Digester;
+import com.mirth.commons.encryption.Encryptor;
+import com.mirth.commons.encryption.KeyEncryptor;
+import com.mirth.commons.encryption.Output;
+import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.client.core.PropertiesConfigurationUtil;
+import com.mirth.connect.donkey.model.DatabaseConstants;
+import com.mirth.connect.donkey.server.data.DonkeyStatisticsUpdater;
+import com.mirth.connect.donkey.util.DonkeyElement;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelDependency;
+import com.mirth.connect.model.ChannelMetadata;
+import com.mirth.connect.model.ChannelTag;
+import com.mirth.connect.model.DatabaseSettings;
+import com.mirth.connect.model.DriverInfo;
+import com.mirth.connect.model.EncryptionSettings;
+import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.PublicServerSettings;
+import com.mirth.connect.model.ResourceProperties;
+import com.mirth.connect.model.ResourcePropertiesList;
+import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.ServerSettings;
+import com.mirth.connect.model.UpdateSettings;
+import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties;
+import com.mirth.connect.server.ExtensionLoader;
+import com.mirth.connect.server.mybatis.KeyValuePair;
+import com.mirth.connect.server.tools.ClassPathResource;
+import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.PasswordRequirementsChecker;
+import com.mirth.connect.server.util.ResourceUtil;
+import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.server.util.StatementLock;
+import com.mirth.connect.util.ChannelDependencyException;
+import com.mirth.connect.util.ChannelDependencyGraph;
+import com.mirth.connect.util.ConfigurationProperty;
+import com.mirth.connect.util.ConnectionTestResponse;
+import com.mirth.connect.util.JavaScriptSharedUtil;
+import com.mirth.connect.util.MigrationUtil;
+import com.mirth.connect.util.MirthSSLUtil;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.
@@ -106,14 +161,16 @@ public class DefaultConfigurationController extends ConfigurationController {
     private boolean startupDeploy;
     private volatile Map<String, String> configurationMap = Collections.unmodifiableMap(new HashMap<String, String>());
     private volatile Map<String, String> commentMap = Collections.unmodifiableMap(new HashMap<String, String>());
-    private static PropertiesConfiguration versionConfig = new PropertiesConfiguration();
-    private static PropertiesConfiguration mirthConfig = new PropertiesConfiguration();
+    private static PropertiesConfiguration versionConfig = PropertiesConfigurationUtil.create();
+    private static FileBasedConfigurationBuilder<PropertiesConfiguration> mirthConfigBuilder = PropertiesConfigurationUtil.createBuilder();
+    protected static PropertiesConfiguration mirthConfig = PropertiesConfigurationUtil.create();
     private static EncryptionSettings encryptionConfig;
     private static DatabaseSettings databaseConfig;
     private static String apiBypassword;
     private static int statsUpdateInterval;
     private static Integer rhinoLanguageVersion;
-    private volatile boolean configMapLoaded = false;
+    private static int startupLockSleep;
+    protected volatile boolean configMapLoaded = false;
 
     private static KeyEncryptor encryptor = null;
     private static Digester digester = null;
@@ -121,8 +178,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
     private static final String PROPERTY_TEMP_DIR = "dir.tempdata";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
-    private static final String CONFIGURATION_MAP_PATH = "configurationmap.path";
-    private static final String CONFIGURATION_MAP_LOCATION = "configurationmap.location";
+    public static final String CONFIGURATION_MAP_PATH = "configurationmap.path";
+    public static final String CONFIGURATION_MAP_LOCATION = "configurationmap.location";
     private static final String MAX_INACTIVE_SESSION_INTERVAL = "server.api.sessionmaxinactiveinterval";
     private static final String HTTPS_CLIENT_PROTOCOLS = "https.client.protocols";
     private static final String HTTPS_SERVER_PROTOCOLS = "https.server.protocols";
@@ -131,46 +188,54 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String API_BYPASSWORD = "server.api.bypassword";
     private static final String STATS_UPDATE_INTERVAL = "donkey.statsupdateinterval";
     private static final String RHINO_LANGUAGE_VERSION = "rhino.languageversion";
+    private static final String SERVER_STARTUP_LOCK_SLEEP = "server.startuplocksleep";
 
     private static final String DEFAULT_STOREPASS = "81uWxplDtB";
 
     // singleton pattern
     private static ConfigurationController instance = null;
 
-    DefaultConfigurationController() {
+    public DefaultConfigurationController() {
 
     }
-
+    
     public static ConfigurationController create() {
         synchronized (DefaultConfigurationController.class) {
             if (instance == null) {
                 instance = ExtensionLoader.getInstance().getControllerInstance(ConfigurationController.class);
-
                 if (instance == null) {
                     instance = new DefaultConfigurationController();
                     ((DefaultConfigurationController) instance).initialize();
+                } else {
+                    try {
+                        instance.getClass().getMethod("initialize").invoke(instance);
+                    } catch (Exception e) {
+                    	Logger.getLogger(DefaultConfigurationController.class).error("Error calling initialize method in DefaultConfigurationController", e);
+                    }
                 }
             }
-
             return instance;
         }
     }
 
-    private void initialize() {
+    public void initialize() {
+        InputStream versionPropertiesStream = null;
+
         try {
-            // Disable delimiter parsing so getString() returns the whole
-            // property, even if there are commas
-            mirthConfig.setDelimiterParsingDisabled(true);
-            mirthConfig.setFile(new File(ClassPathResource.getResourceURI("mirth.properties")));
-            mirthConfig.load();
+            // Delimiter parsing disabled by default so getString() returns the whole property, even if there are commas
+            mirthConfigBuilder = PropertiesConfigurationUtil.createBuilder(new File(ClassPathResource.getResourceURI("mirth.properties")));
+            mirthConfig = mirthConfigBuilder.getConfiguration();
 
             MigrationController.getInstance().migrateConfiguration(mirthConfig);
+            try {
+                mirthConfigBuilder.save();
+            } catch (ConfigurationException e) {
+                logger.error("Unable to update mirth.properties version during migration.", e);
+            }
 
             // load the server version
-            versionConfig.setDelimiterParsingDisabled(true);
-            InputStream versionPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
-            versionConfig.load(versionPropertiesStream);
-            IOUtils.closeQuietly(versionPropertiesStream);
+            versionPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
+            versionConfig = PropertiesConfigurationUtil.create(versionPropertiesStream);
 
             if (mirthConfig.getString(PROPERTY_TEMP_DIR) != null) {
                 File tempDataDirFile = new File(mirthConfig.getString(PROPERTY_TEMP_DIR));
@@ -261,14 +326,26 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             // Check for server GUID and generate a new one if it doesn't exist
-            PropertiesConfiguration serverIdConfig = new PropertiesConfiguration(new File(getApplicationDataDir(), "server.id"));
-            if (!mirthConfig.getBoolean("server.id.ephemeral", false) && serverIdConfig.getString("server.id") != null && serverIdConfig.getString("server.id").length() > 0) {
+            File serverIdFile = new File(getApplicationDataDir(), "server.id");
+            FileBasedConfigurationBuilder<PropertiesConfiguration> serverIdConfigBuilder = PropertiesConfigurationUtil.createBuilder(serverIdFile);
+
+            PropertiesConfiguration serverIdConfig = null;
+            if (serverIdFile.exists()) {
+                serverIdConfig = serverIdConfigBuilder.getConfiguration();
+            }
+
+            if (!mirthConfig.getBoolean("server.id.ephemeral", false) && serverIdConfig != null && serverIdConfig.getString("server.id") != null && serverIdConfig.getString("server.id").length() > 0) {
                 serverId = serverIdConfig.getString("server.id");
             } else {
                 serverId = generateGuid();
                 logger.debug("generated new server id: " + serverId);
+                if (!serverIdFile.exists()) {
+                    // Save to file first so the file gets created
+                    serverIdConfigBuilder.save();
+                    serverIdConfig = serverIdConfigBuilder.getConfiguration();
+                }
                 serverIdConfig.setProperty("server.id", serverId);
-                serverIdConfig.save();
+                serverIdConfigBuilder.save();
             }
 
             passwordRequirements = PasswordRequirementsChecker.getInstance().loadPasswordRequirements(mirthConfig);
@@ -281,20 +358,25 @@ public class DefaultConfigurationController extends ConfigurationController {
             statsUpdateInterval = NumberUtils.toInt(mirthConfig.getString(STATS_UPDATE_INTERVAL), DonkeyStatisticsUpdater.DEFAULT_UPDATE_INTERVAL);
 
             if (Strings.isNullOrEmpty(mirthConfig.getString(CONFIGURATION_MAP_LOCATION)) || "file".equals(mirthConfig.getString(CONFIGURATION_MAP_LOCATION))) {
-                PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration();
-                configurationMapProperties.setDelimiterParsingDisabled(true);
-                configurationMapProperties.setListDelimiter((char) 0);
+                PropertiesConfiguration configurationMapProperties = PropertiesConfigurationUtil.create();
+
                 // Check for configuration map properties
                 if (mirthConfig.getString(CONFIGURATION_MAP_PATH) != null) {
                     configurationFile = mirthConfig.getString(CONFIGURATION_MAP_PATH);
                 } else {
                     configurationFile = getApplicationDataDir() + File.separator + "configuration.properties";
                 }
+
                 try {
-                    configurationMapProperties.load(new File(configurationFile));
+                    File configFile = new File(configurationFile);
+                    if (configFile.exists()) {
+                        configurationMapProperties = PropertiesConfigurationUtil.create(configFile);
+                    } else {
+                        configurationMapProperties = PropertiesConfigurationUtil.create();
+                    }
                     configMapLoaded = true;
                 } catch (ConfigurationException e) {
-                    logger.warn("Failed to find configuration map file");
+                    logger.warn("Failed to find configuration map file", e);
                 }
 
                 Map<String, ConfigurationProperty> configurationMap = new HashMap<String, ConfigurationProperty>();
@@ -316,8 +398,12 @@ public class DefaultConfigurationController extends ConfigurationController {
                 rhinoLanguageVersion = getRhinoLanguageVersion(rhinoLanguageVersionStr);
                 JavaScriptSharedUtil.setRhinoLanguageVersion(rhinoLanguageVersion);
             }
+
+            startupLockSleep = NumberUtils.toInt(mirthConfig.getString(SERVER_STARTUP_LOCK_SLEEP), 0);
         } catch (Exception e) {
             logger.error("Failed to initialize configuration controller", e);
+        } finally {
+            ResourceUtil.closeResourceQuietly(versionPropertiesStream);
         }
     }
 
@@ -418,6 +504,11 @@ public class DefaultConfigurationController extends ConfigurationController {
         Properties serverSettings = getPropertiesForGroup(PROPERTIES_CORE);
         return new ServerSettings(environmentName, serverName, serverSettings);
     }
+    
+    @Override
+    public PublicServerSettings getPublicServerSettings() throws ControllerException {
+        return new PublicServerSettings(getServerSettings());
+    }
 
     @Override
     public EncryptionSettings getEncryptionSettings() throws ControllerException {
@@ -430,7 +521,11 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     @Override
-    public void setServerSettings(ServerSettings settings) throws ControllerException {
+    public void setServerSettings(ServerSettings settings) throws ControllerException {        
+        Properties properties = settings.getProperties();
+
+        validateServerSettings(properties);
+        
         String environmentName = settings.getEnvironmentName();
         if (environmentName != null) {
             saveProperty(PROPERTIES_CORE, "environment.name", environmentName);
@@ -442,9 +537,51 @@ public class DefaultConfigurationController extends ConfigurationController {
             this.serverName = serverName;
         }
 
-        Properties properties = settings.getProperties();
         for (Object name : properties.keySet()) {
             saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));
+        }
+    }
+    
+    public void validateServerSettings(Properties properties) throws ControllerException {  
+        Boolean autoLogoutEnabled = false;
+        Integer autoLogoutTime = null;
+        
+        if (properties.getProperty("administratorautologoutinterval.enabled") != null) {
+            autoLogoutEnabled = intToBooleanObject(properties.getProperty("administratorautologoutinterval.enabled"), false);
+        }
+        
+        if (autoLogoutEnabled == true) {
+            try {
+                autoLogoutTime = Integer.parseInt(properties.getProperty("administratorautologoutinterval.field"));
+                if (autoLogoutTime <= 0 || autoLogoutTime >= 61) {
+                    throw new Exception();
+                }
+            } catch (Exception e) {
+                throw new ControllerException("Invalid auto logout interval, the value should be between 1 and 60.");
+            }
+        }
+    }
+    
+    /**
+     * Takes a String and returns a Boolean Object. "1" = true "0" = false null or not a number =
+     * defaultValue
+     * 
+     * @param str
+     * @param defaultValue
+     * @return
+     */
+    protected Boolean intToBooleanObject(String str, Boolean defaultValue) {
+        int i = NumberUtils.toInt(str, -1);
+
+        if (i == -1) {
+            // Must return null explicitly to avoid Java NPE due to autoboxing
+            if (defaultValue == null) {
+                return null;
+            } else {
+                return defaultValue;
+            }
+        } else {
+            return BooleanUtils.toBooleanObject(i);
         }
     }
 
@@ -511,17 +648,19 @@ public class DefaultConfigurationController extends ConfigurationController {
         return drivers;
     }
 
-	File getDbDriversFile() {
-		URI uri = ClassPathResource.getResourceURI("dbdrivers.xml");
-		if (uri != null) {
-			return new File(uri);
-		}
-		return null;
-	}
+    File getDbDriversFile() {
+        URI uri = ClassPathResource.getResourceURI("dbdrivers.xml");
+        if (uri != null) {
+            return new File(uri);
+        }
+        return null;
+    }
 
     List<DriverInfo> parseDbdriversXml(Reader reader) throws Exception {
         List<DriverInfo> drivers = new ArrayList<DriverInfo>();
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(reader));
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        Document document = dbf.newDocumentBuilder().parse(new InputSource(reader));
         Element driversElement = document.getDocumentElement();
 
         for (int i = 0; i < driversElement.getElementsByTagName("driver").getLength(); i++) {
@@ -597,6 +736,11 @@ public class DefaultConfigurationController extends ConfigurationController {
     @Override
     public Integer getRhinoLanguageVersion() {
         return rhinoLanguageVersion;
+    }
+
+    @Override
+    public int getStartupLockSleep() {
+        return startupLockSleep;
     }
 
     @Override
@@ -683,7 +827,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         return configurationMap;
     }
 
-    private void loadDatabaseConfigPropsIfNecessary() {
+    protected void loadDatabaseConfigPropsIfNecessary() {
         try {
             if (!configMapLoaded && "database".equals(mirthConfig.getString(CONFIGURATION_MAP_LOCATION))) {
                 // load configurations from database
@@ -771,7 +915,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public Properties getPropertiesForGroup(String category, Set<String> propertyKeys) {
-        logger.debug("retrieving properties: category=" + category + " propertyKeys=" + StringUtils.join(propertyKeys, ","));
+        logger.trace("retrieving properties: category=" + category + " propertyKeys=" + StringUtils.join(propertyKeys, ","));
         Properties properties = new Properties();
 
         StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
@@ -815,7 +959,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public String getProperty(String category, String name) {
-        logger.debug("retrieving property: category=" + category + ", name=" + name);
+        logger.trace("retrieving property: category=" + category + ", name=" + name);
 
         StatementLock.getInstance(VACUUM_LOCK_STATEMENT_ID).readLock();
         try {
@@ -1007,6 +1151,9 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public void initializeSecuritySettings() {
+        InputStream keyStoreFileIs = null;
+        FileOutputStream fos = null;
+
         try {
             /*
              * Load the encryption settings so that they can be referenced client side.
@@ -1024,11 +1171,12 @@ public class DefaultConfigurationController extends ConfigurationController {
             if (MigrationUtil.compareVersions("2.2.0", getServerVersion()) == 1) {
                 keyStore = KeyStore.getInstance("JKS");
             } else {
-                keyStore = KeyStore.getInstance("JCEKS");
+                keyStore = KeyStore.getInstance(mirthConfig.getString("keystore.type", "JCEKS"));
             }
 
             if (keyStoreFile.exists()) {
-                keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
+                keyStoreFileIs = new FileInputStream(keyStoreFile);
+                keyStore.load(keyStoreFileIs, keyStorePassword);
                 logger.debug("found and loaded keystore: " + keyStoreFile.getAbsolutePath());
             } else {
                 /*
@@ -1055,11 +1203,13 @@ public class DefaultConfigurationController extends ConfigurationController {
             generateDefaultCertificate(provider, keyStore, keyPassword);
 
             // write the keystore back to the file
-            FileOutputStream fos = new FileOutputStream(keyStoreFile);
+            fos = new FileOutputStream(keyStoreFile);
             keyStore.store(fos, keyStorePassword);
-            IOUtils.closeQuietly(fos);
         } catch (Exception e) {
             logger.error("Could not initialize security settings.", e);
+        } finally {
+            ResourceUtil.closeResourceQuietly(keyStoreFileIs);
+            ResourceUtil.closeResourceQuietly(fos);
         }
     }
 
@@ -1134,9 +1284,9 @@ public class DefaultConfigurationController extends ConfigurationController {
         OutputStream os = new FileOutputStream(new File(confDir, "mirth.properties"));
 
         try {
-            mirthConfig.save(os);
+            PropertiesConfigurationUtil.saveTo(mirthConfig, os);
         } finally {
-            IOUtils.closeQuietly(os);
+            ResourceUtil.closeResourceQuietly(os);
         }
     }
 
@@ -1152,13 +1302,16 @@ public class DefaultConfigurationController extends ConfigurationController {
      */
 
     public void migrateKeystore() {
-        PropertiesConfiguration properties = new PropertiesConfiguration();
-        properties.setDelimiterParsingDisabled(true);
+        PropertiesConfiguration properties = PropertiesConfigurationUtil.create();
+
+        InputStream mirthPropsIs = null;
+        OutputStream keyStoreOuputStream = null;
 
         try {
             if (getProperty(PROPERTIES_CORE, "encryption.key") != null) {
                 // load the keystore path and passwords
-                properties.load(ResourceUtil.getResourceStream(this.getClass(), "mirth.properties"));
+                mirthPropsIs = ResourceUtil.getResourceStream(this.getClass(), "mirth.properties");
+                properties = PropertiesConfigurationUtil.create(mirthPropsIs);
                 File keyStoreFile = new File(properties.getString("keystore.path"));
                 char[] keyStorePassword = properties.getString("keystore.storepass").toCharArray();
                 char[] keyPassword = properties.getString("keystore.keypass").toCharArray();
@@ -1202,13 +1355,8 @@ public class DefaultConfigurationController extends ConfigurationController {
                 keyStore.setEntry(SECRET_KEY_ALIAS, entry, new KeyStore.PasswordProtection(keyPassword));
 
                 // save the keystore to the filesystem
-                OutputStream keyStoreOuputStream = new FileOutputStream(keyStoreFile);
-
-                try {
-                    keyStore.store(keyStoreOuputStream, keyStorePassword);
-                } finally {
-                    IOUtils.closeQuietly(keyStoreOuputStream);
-                }
+                keyStoreOuputStream = new FileOutputStream(keyStoreFile);
+                keyStore.store(keyStoreOuputStream, keyStorePassword);
 
                 // remove the property from CONFIGURATION
                 removeProperty(PROPERTIES_CORE, "encryption.key");
@@ -1218,6 +1366,9 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
         } catch (Exception e) {
             logger.error("Error migrating encryption key from database to keystore.", e);
+        } finally {
+            ResourceUtil.closeResourceQuietly(mirthPropsIs);
+            ResourceUtil.closeResourceQuietly(keyStoreOuputStream);
         }
     }
 
@@ -1357,10 +1508,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private void saveConfigurationProperties(Map<String, ConfigurationProperty> map) throws ControllerException {
         try {
             if (Strings.isNullOrEmpty(mirthConfig.getString(CONFIGURATION_MAP_LOCATION)) || "file".equals(mirthConfig.getString(CONFIGURATION_MAP_LOCATION))) {
-                PropertiesConfiguration configurationMapProperties = new PropertiesConfiguration();
-                configurationMapProperties.setDelimiterParsingDisabled(true);
-                configurationMapProperties.setListDelimiter((char) 0);
-                configurationMapProperties.clear();
+                PropertiesConfiguration configurationMapProperties = PropertiesConfigurationUtil.create();
 
                 PropertiesConfigurationLayout layout = configurationMapProperties.getLayout();
 
@@ -1378,7 +1526,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                     }
                 }
 
-                configurationMapProperties.save(new File(configurationFile));
+                PropertiesConfigurationUtil.saveTo(configurationMapProperties, new File(configurationFile));
             } else {
                 // save to database
                 saveProperty(PROPERTIES_CORE, "configuration.properties", ObjectXMLSerializer.getInstance().serialize(map));

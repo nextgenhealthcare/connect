@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ORDO04</name>
+    <description>Diet Order Acknowledgment</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">ERR</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        <group minOccurs="0">
+            <group minOccurs="0">
+                <segment>PID</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded">
+                <segment>ORC</segment>
+                <group maxOccurs="unbounded" minOccurs="0">
+                    <segment>TQ1</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">TQ2</segment>
+                </group>
+                <segment minOccurs="0" maxOccurs="unbounded">ODS</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>ORC</segment>
+                <group maxOccurs="unbounded" minOccurs="0">
+                    <segment>TQ1</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">TQ2</segment>
+                </group>
+                <segment minOccurs="0" maxOccurs="unbounded">ODT</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+        </group>
+    </segments>
+</message>

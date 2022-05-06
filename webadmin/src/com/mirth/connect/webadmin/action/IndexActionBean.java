@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,6 +22,7 @@ import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
 
+import com.mirth.connect.donkey.util.ResourceUtil;
 import com.mirth.connect.webadmin.utils.Constants;
 
 public class IndexActionBean extends BaseActionBean {
@@ -50,20 +52,11 @@ public class IndexActionBean extends BaseActionBean {
                 httpPort = mirthProps.getProperty("http.port", httpPort);
                 maxHeapSize = mirthProps.getProperty("administrator.maxheapsize", maxHeapSize);
                 maxHeapSizeOptions = mirthProps.getProperty("administrator.maxheapsizeoptions", maxHeapSizeOptions);
-                contextPath = mirthProps.getProperty("http.contextpath", contextPath);
-
-                // Add a starting slash if one does not exist
-                if (!contextPath.startsWith("/")) {
-                    contextPath = "/" + contextPath;
-                }
-
-                // Remove a trailing slash if one exists
-                if (contextPath.endsWith("/")) {
-                    contextPath = contextPath.substring(0, contextPath.length() - 1);
-                }
-
+                contextPath = getSlashedContextPath(mirthProps.getProperty("http.contextpath", contextPath));
             } catch (IOException e) {
                 // Ignore
+            } finally {
+                ResourceUtil.closeResourceQuietly(mirthPropertiesStream);
             }
         }
 
@@ -75,12 +68,15 @@ public class IndexActionBean extends BaseActionBean {
         context.setServerAddress(getWebServerUrl("https://", httpsHost, httpsPort, contextPath));
         context.setMaxHeapSize(maxHeapSize);
         context.setMaxHeapSizeOptions(maxHeapSizeOptions);
-
+        context.setNonce(UUID.randomUUID().toString());
+        
         // Check if http or https
         secureHttps = request.isSecure();
 
         return new ForwardResolution(Constants.INDEX_JSP);
     }
+
+
 
     public boolean isSecureHttps() {
         return secureHttps;

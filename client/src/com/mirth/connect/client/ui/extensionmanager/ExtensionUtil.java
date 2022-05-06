@@ -12,7 +12,6 @@ package com.mirth.connect.client.ui.extensionmanager;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -26,6 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
 import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.donkey.util.ResourceUtil;
 
 public class ExtensionUtil {
 
@@ -103,16 +103,8 @@ public class ExtensionUtil {
         } catch (Exception e) {
             statusLabel.setText("Could not download file.");
         } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException ioe) {
-            }
+            ResourceUtil.closeResourceQuietly(in);
+            ResourceUtil.closeResourceQuietly(out);
         }
 
         return null;

@@ -22,9 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.PropertiesConfigurationLayout;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfigurationLayout;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -106,14 +105,9 @@ public class ServerMigrator extends Migrator {
             version = version.getNextVersion();
         }
 
-        try {
-            mirthConfig.setProperty("version", Version.getLatest().toString());
-            mirthConfig.getLayout().setBlancLinesBefore("version", 1);
-            mirthConfig.getLayout().setComment("version", "Only used for migration purposes, do not modify");
-            mirthConfig.save();
-        } catch (ConfigurationException e) {
-            logger.error("Unable to update mirth.properties version during migration.", e);
-        }
+        mirthConfig.setProperty("version", Version.getLatest().toString());
+        mirthConfig.getLayout().setBlancLinesBefore("version", 1);
+        mirthConfig.getLayout().setComment("version", "Only used for migration purposes, do not modify");
     }
 
     private void runConfigurationMigrator(ConfigurationMigrator configurationMigrator, PropertiesConfiguration mirthConfig, Version version) {
@@ -181,20 +175,6 @@ public class ServerMigrator extends Migrator {
             if (!removedProperties.isEmpty()) {
                 logger.info("Removing properties in mirth.properties: " + removedProperties);
             }
-
-            try {
-                mirthConfig.save();
-            } catch (ConfigurationException e) {
-                logger.error("There was an error updating mirth.properties.", e);
-
-                if (!addedProperties.isEmpty()) {
-                    logger.error("The following properties should be added to mirth.properties manually: " + addedProperties.toString());
-                }
-
-                if (!removedProperties.isEmpty()) {
-                    logger.error("The following properties should be removed from mirth.properties manually: " + removedProperties.toString());
-                }
-            }
         }
     }
 
@@ -236,6 +216,14 @@ public class ServerMigrator extends Migrator {
             case V3_8_0: return new Migrate3_8_0();
             case V3_8_1: return null;
             case V3_9_0: return null;
+            case v3_9_1: return null;
+            case v3_10_0: return null;
+            case v3_10_1: return null;
+            case v3_11_0: return new Migrate3_11_0();
+            case v3_11_1: return null;
+            case v3_12_0: return new Migrate3_12_0();
+            case v4_0_0: return new Migrate4_0_0();
+            case v4_0_1: return null;
         } // @formatter:on
 
         return null;
@@ -269,6 +257,62 @@ public class ServerMigrator extends Migrator {
             }
 
             updateVersion(Version.getLatest());
+        }
+    }
+
+    /**
+     * In case multiple servers startup and initialize the database at the same time, this inserts a
+     * row into a custom table as a simple lock mechanism.
+     * 
+     * @return True if a row was inserted into the startup lock table.
+     */
+    public boolean checkStartupLockTable() {
+        try {
+            try {
+                executeScript("/" + getDatabaseType() + "/" + getDatabaseType() + "-create-startup-lock-table.sql");
+            } catch (Exception e) {
+                logger.debug("Unable to create startup lock table.", e);
+            }
+
+            Connection connection = getConnection();
+            PreparedStatement stmt = null;
+            try {
+                stmt = connection.prepareStatement("INSERT INTO STARTUP_LOCK (ID) VALUES (1)");
+                int result = stmt.executeUpdate();
+                if (result != 1) {
+                    throw new SQLException("Got insert result: " + result);
+                }
+                return true;
+            } catch (SQLException e) {
+                logger.debug("Unable to insert into startup lock table.", e);
+            } finally {
+                DbUtils.closeQuietly(stmt);
+            }
+        } catch (Throwable t) {
+            logger.error("Error checking startup lock table.", t);
+        }
+
+        return false;
+    }
+
+    /**
+     * Deletes the inserted row from the startup lock table.
+     */
+    public void clearStartupLockTable() {
+        try {
+            Connection connection = getConnection();
+            PreparedStatement stmt = null;
+
+            try {
+                stmt = connection.prepareStatement("DELETE FROM STARTUP_LOCK WHERE ID = 1");
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                logger.debug("Unable to delete row from startup lock table.", e);
+            } finally {
+                DbUtils.closeQuietly(stmt);
+            }
+        } catch (Throwable t) {
+            logger.error("Error clearing startup lock table.", t);
         }
     }
 

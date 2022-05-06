@@ -9,13 +9,19 @@
 
 package com.mirth.connect.webadmin.action;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.ErrorResolution;
 
 import com.mirth.connect.client.core.Client;
+import com.mirth.connect.donkey.util.ResourceUtil;
 import com.mirth.connect.model.LoginStatus;
 import com.mirth.connect.model.User;
 import com.mirth.connect.webadmin.utils.Constants;
@@ -26,7 +32,30 @@ public class LoginActionBean extends BaseActionBean {
         Client client;
         HttpServletRequest request = getContext().getRequest();
         LoginStatus loginStatus = null;
+        InputStream mirthPropertiesStream = getClass().getResourceAsStream("/mirth.properties");
+        String contextPath = "/";
+        
+        if (mirthPropertiesStream != null) {
+            Properties mirthProps = new Properties();
 
+            try {
+                mirthProps.load(mirthPropertiesStream);
+
+                contextPath = getSlashedContextPath(mirthProps.getProperty("http.contextpath", contextPath));
+
+            } catch (IOException e) {
+                // Ignore
+            } finally {
+                ResourceUtil.closeResourceQuietly(mirthPropertiesStream);
+            }
+        }
+
+        
+        String nonce = request.getParameter("nonce");
+        if (nonce == null || nonce.isEmpty() || !nonce.equals(getContext().getNonce())) {
+            return new ErrorResolution(403, "Invalid request");
+        }
+        
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
@@ -41,10 +70,18 @@ public class LoginActionBean extends BaseActionBean {
             try {
                 User validUser = client.getUser(loginStatus.getUpdatedUsername() != null ? loginStatus.getUpdatedUsername() : username);
 
+                // recreate the session to prevent session fixation attack
+                request.getSession().invalidate();
+                request.getSession(true);
+                
                 // set the sessions attributes
                 getContext().setUser(validUser);
                 getContext().setAuthorized(true);
                 getContext().setClient(client);
+                
+                getContext().setCurrentPort(String.valueOf(request.getServerPort()));
+                getContext().setContextPath(contextPath);
+                getContext().setCurrentScheme(request.getScheme());
 
                 // this prevents the session from timing out
                 request.getSession().setMaxInactiveInterval(-1);

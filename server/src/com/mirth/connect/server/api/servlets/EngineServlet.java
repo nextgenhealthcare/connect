@@ -21,12 +21,14 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.client.core.api.servlets.EngineServletInterface;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.server.api.CheckAuthorizedChannelId;
 import com.mirth.connect.server.api.MirthServlet;
 import com.mirth.connect.server.channel.ErrorTaskHandler;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
+import com.mirth.connect.server.util.DebuggerUtil;
 
 public class EngineServlet extends MirthServlet implements EngineServletInterface {
 
@@ -62,9 +64,11 @@ public class EngineServlet extends MirthServlet implements EngineServletInterfac
 
     @Override
     @CheckAuthorizedChannelId
-    public void deployChannel(String channelId, boolean returnErrors) {
+    public void deployChannel(String channelId, boolean returnErrors, String debug) {
         ErrorTaskHandler handler = new ErrorTaskHandler();
-        engineController.deployChannels(Collections.singleton(channelId), context, handler);
+        DebugOptions debugOptions = DebuggerUtil.parseDebugOptions(debug);
+
+        engineController.deployChannels(Collections.singleton(channelId), context, handler, debugOptions);
         if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }
@@ -76,7 +80,7 @@ public class EngineServlet extends MirthServlet implements EngineServletInterfac
             channelIds = channelController.getChannelIds();
         }
         ErrorTaskHandler handler = new ErrorTaskHandler();
-        engineController.deployChannels(redactChannelIds(channelIds), context, handler);
+        engineController.deployChannels(redactChannelIds(channelIds), context, handler, new DebugOptions());
         if (returnErrors && handler.isErrored()) {
             throw new MirthApiException(handler.getError());
         }

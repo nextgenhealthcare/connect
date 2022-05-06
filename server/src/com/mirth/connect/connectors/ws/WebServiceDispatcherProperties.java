@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
@@ -481,7 +481,10 @@ public class WebServiceDispatcherProperties extends ConnectorProperties implemen
     @Override public void migrate3_5_0(DonkeyElement element) {}
     @Override public void migrate3_6_0(DonkeyElement element) {}
     @Override public void migrate3_7_0(DonkeyElement element) {}
-    @Override public void migrate3_9_0(DonkeyElement element) {} // @formatter:on
+    @Override public void migrate3_9_0(DonkeyElement element) {}
+    @Override public void migrate3_11_0(DonkeyElement element) {}
+    @Override public void migrate3_11_1(DonkeyElement element) {} 
+    @Override public void migrate3_12_0(DonkeyElement element) {}// @formatter:on
 
     @Override
     public Map<String, Object> getPurgedProperties() {

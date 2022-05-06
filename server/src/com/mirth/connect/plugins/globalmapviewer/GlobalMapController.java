@@ -33,9 +33,9 @@ public abstract class GlobalMapController {
         }
     }
 
-    public abstract Map<String, Map<String, String>> getAllMaps(Set<String> channelIds, boolean includeGlobalMap) throws ControllerException;
+    public abstract Map<String, Map<String, Map<String, String>>> getAllMaps(Set<String> channelIds, boolean includeGlobalMap) throws ControllerException;
 
-    public abstract String getGlobalMap();
+    public abstract Map<String, String> getGlobalMap();
 
-    public abstract String getGlobalChannelMap(String channelId);
+    public abstract Map<String, String> getGlobalChannelMap(String channelId);
 }

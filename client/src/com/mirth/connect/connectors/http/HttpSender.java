@@ -42,7 +42,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import org.apache.commons.collections.MapUtils;
+import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -68,8 +70,6 @@ import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.util.ConnectionTestResponse;
-
-import net.miginfocom.swing.MigLayout;
 
 public class HttpSender extends ConnectorSettingsPanel {
 
@@ -630,6 +630,20 @@ public class HttpSender extends ConnectorSettingsPanel {
             }
         }
 
+        if (props.isUseParametersVariable() && StringUtils.isBlank(props.getParametersVariable())) {
+            valid = false;
+            if (highlight) {
+                queryParamsVariableField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+
+        if (props.isUseHeadersVariable() && StringUtils.isBlank(props.getHeadersVariable())) {
+            valid = false;
+            if (highlight) {
+                headersVariableField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+
         if (props.getMethod().equalsIgnoreCase("post") || props.getMethod().equalsIgnoreCase("put") || props.getMethod().equalsIgnoreCase("patch")) {
             if (props.getContentType().length() == 0) {
                 valid = false;
@@ -638,10 +652,8 @@ public class HttpSender extends ConnectorSettingsPanel {
                 }
             }
 
-            if (isUsingFormUrlEncoded(props.getContentType())) {
-                if (MapUtils.isEmpty(props.getParametersMap())) {
-                    valid = false;
-                }
+            if (isUsingFormUrlEncoded(props.getContentType()) && !props.isUseParametersVariable() && MapUtils.isEmpty(props.getParametersMap())) {
+                valid = false;
             }
         }
 
@@ -655,6 +667,8 @@ public class HttpSender extends ConnectorSettingsPanel {
         proxyAddressField.setBackground(null);
         proxyPortField.setBackground(null);
         sendTimeoutField.setBackground(null);
+        queryParamsVariableField.setBackground(null);
+        headersVariableField.setBackground(null);
         contentTypeField.setBackground(null);
         contentTextArea.setBackground(null);
     }

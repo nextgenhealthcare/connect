@@ -129,6 +129,7 @@ public class NCPDPTests {
         xr.setFeature("http://xml.org/sax/features/validation", true);
         xr.setFeature("http://apache.org/xml/features/validation/schema", true);
         xr.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true);
+        xr.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
         xr.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation", SchemaUrl);
         xr.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", "/ncpdp51.xsd");

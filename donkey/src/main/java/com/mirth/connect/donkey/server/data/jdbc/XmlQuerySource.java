@@ -17,7 +17,6 @@ import java.util.Map.Entry;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Attr;
@@ -35,14 +34,17 @@ public class XmlQuerySource implements QuerySource {
     public void load(String xmlFile) throws XmlQuerySourceException {
         Document document = null;
 
+        InputStream is = null;
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
-            InputStream is = ResourceUtil.getResourceStream(XmlQuerySource.class, xmlFile);
+            is = ResourceUtil.getResourceStream(XmlQuerySource.class, xmlFile);
             document = documentBuilder.parse(is);
-            IOUtils.closeQuietly(is);
         } catch (Exception e) {
             throw new XmlQuerySourceException("Failed to read query file: " + xmlFile, e);
+        } finally {
+            ResourceUtil.closeResourceQuietly(is);
         }
 
         NodeList queryNodes = document.getElementsByTagName("query");

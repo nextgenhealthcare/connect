@@ -1,8 +1,7 @@
 package com.mirth.connect.model.converters;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -13,7 +12,8 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
-import static org.junit.Assert.assertFalse;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.Channel;

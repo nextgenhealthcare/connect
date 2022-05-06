@@ -15,7 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 
@@ -133,7 +133,7 @@ public class DefaultAlertController extends AlertController {
 
     @Override
     public AlertModel getAlert(String alertId) throws ControllerException {
-        logger.debug("getting alert");
+        logger.trace("getting alert");
 
         StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).readLock();
         try {
@@ -158,7 +158,7 @@ public class DefaultAlertController extends AlertController {
 
     @Override
     public List<AlertModel> getAlerts() throws ControllerException {
-        logger.debug("getting alert");
+        logger.trace("getting alert");
 
         StatementLock.getInstance(VACUUM_LOCK_ALERT_STATEMENT_ID).readLock();
         try {

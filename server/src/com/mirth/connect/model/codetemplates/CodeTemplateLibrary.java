@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -187,7 +187,10 @@ public class CodeTemplateLibrary implements Serializable, Migratable, Purgable, 
     @Override public void migrate3_5_0(DonkeyElement element) {}
     @Override public void migrate3_6_0(DonkeyElement element) {} 
     @Override public void migrate3_7_0(DonkeyElement element) {}
-    @Override public void migrate3_9_0(DonkeyElement element) {} // @formatter:on
+    @Override public void migrate3_9_0(DonkeyElement element) {} 
+    @Override public void migrate3_11_0(DonkeyElement element) {}
+    @Override public void migrate3_11_1(DonkeyElement element) {}
+    @Override public void migrate3_12_0(DonkeyElement element) {}// @formatter:on
 
     @Override
     public Map<String, Object> getPurgedProperties() {

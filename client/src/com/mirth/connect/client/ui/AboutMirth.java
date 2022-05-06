@@ -73,6 +73,7 @@ public class AboutMirth extends MirthDialog {
         content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
         content.append("This product includes all or a portion of the HL7 Vocabulary database, or is derived from the HL7 Vocabulary database, subject to a license from Health Level Seven, Inc.\n\n");
         content.append("This product includes a portion of images from http://www.famfamfam.com/lab/icons/silk/.\n\n");
+        content.append("This product includes a portion of images from https://www.fatcow.com/free-icons.\n\n");
         content.append("This product includes software developed by the Indiana University Extreme! Lab (http://www.extreme.indiana.edu/).\n\n");
         content.append("This product includes the Flying Saucer XHTML renderer library, licensed under the LGPL version 2.1 (http://www.gnu.org/licenses/lgpl-2.1.html).\n\n");
         content.append("This product includes the jTDS JDBC driver, licensed under the LGPL version 2.1 (http://www.gnu.org/licenses/lgpl-2.1.html).\n\n");

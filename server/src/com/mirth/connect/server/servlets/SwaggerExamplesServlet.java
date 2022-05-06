@@ -70,6 +70,7 @@ import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.model.DatabaseTask;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.ExtensionLibrary;
@@ -81,6 +82,7 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginClass;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
@@ -100,9 +102,9 @@ import com.mirth.connect.model.alert.DefaultTrigger;
 import com.mirth.connect.model.codetemplates.CodeTemplate;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult;
-import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult.CodeTemplateUpdateResult;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult.LibraryUpdateResult;
+import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
 import com.mirth.connect.model.converters.ObjectJSONSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
@@ -119,6 +121,7 @@ import com.mirth.connect.server.controllers.DefaultExtensionController;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
 
+@SuppressWarnings("serial")
 public class SwaggerExamplesServlet extends HttpServlet {
 	
 	private static Calendar dateNow;
@@ -253,7 +256,9 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getDatabaseTaskExample();
 		} else if (exampleRequested.equals("database_task_map")) {
 		    requestedObject = getDatabaseTaskMapExample();
-		} else if (exampleRequested.equals("definition_service_map")) {
+		} else if (exampleRequested.equals("debug_options")) {
+            requestedObject = getDebugOptionsExample();  
+        } else if (exampleRequested.equals("definition_service_map")) {
 		    requestedObject = getDefinitionServiceMapExample();
 		} else if (exampleRequested.equals("driver_info_list")) {
             requestedObject = getDriverInfoListExample();
@@ -269,8 +274,6 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getGenerateEnvelopeExample();
         } else if (exampleRequested.equals("generic_map")) {
             requestedObject = getGenericMapExample();
-        } else if (exampleRequested.equals("global_map")) {
-            requestedObject = getGlobalMapExample();
         } else if (exampleRequested.equals("global_maps")) {
             requestedObject = getGlobalMapsExample();
         } else if (exampleRequested.equals("global_scripts")) {
@@ -339,6 +342,8 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getServerLogItemListExample();
         } else if (exampleRequested.equals("server_settings")) {
             requestedObject = getServerSettingsExample();
+        } else if (exampleRequested.equals("public_server_settings")) {
+            requestedObject = getPublicServerSettingsExample();
         } else if (exampleRequested.equals("smtp_dispatcher_properties")) {
             requestedObject = getSmtpDispatcherPropertiesExample("none");
         } else if (exampleRequested.equals("smtp_dispatcher_properties_ssl")) {
@@ -362,7 +367,6 @@ public class SwaggerExamplesServlet extends HttpServlet {
         } else if (exampleRequested.equals("ws_dispatcher_properties")) {
             requestedObject = getWsDispatcherPropertiesExample();
         }
-		
 		resp.setContentType("application/json");
 		if (req.getPathInfo().endsWith("_json")) {
 	        String serializedObject = jsonSerialize(requestedObject);
@@ -887,6 +891,19 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    return taskMap;
 	}
 	
+	private DebugOptions getDebugOptionsExample() {
+	    DebugOptions debugOptions=new DebugOptions();
+        debugOptions.setAttachmentBatchScripts(false);
+        debugOptions.setDeployUndeployPreAndPostProcessorScripts(false);
+        debugOptions.setDestinationConnectorScripts(false);
+        debugOptions.setDestinationFilterTransformer(false);
+        debugOptions.setDestinationResponseTransformer(false);
+        debugOptions.setDestinationResponseTransformer(false);
+        debugOptions.setSourceConnectorScripts(false);
+        debugOptions.setSourceFilterTransformer(false);
+        return debugOptions;
+    }
+	
 	private DefinitionServiceMap getDefinitionServiceMapExample() {
 	    DefinitionServiceMap definitionMap = new DefinitionServiceMap();
 	    Map<String, DefinitionPortMap> portMap = definitionMap.getMap();
@@ -975,23 +992,11 @@ public class SwaggerExamplesServlet extends HttpServlet {
         return genericMap;
     }
 	
-	private String getGenericMapStringExample() {
-	    try {
-	        return xmlSerialize(getGenericMapExample());
-	    } catch (UnsupportedEncodingException e) {}
-	    
-	    return "";
-	}
-	
-	private Map<String, String> getGlobalMapExample() {
-	    Map<String, String> globalMap = new HashMap<>();
-	    globalMap.put(null, getGenericMapStringExample());
-	    return globalMap;
-	}
-	
-	private Map<String, Map<String, String>> getGlobalMapsExample() {
-	    Map<String, Map<String, String>> globalMaps = new HashMap<>();
-	    globalMaps.put(UUID.randomUUID().toString(), getGlobalMapExample());
+	private Map<String, Map<String, Map<String, String>>>getGlobalMapsExample() {
+	    Map<String, Map<String, Map<String, String>>> globalMaps = new HashMap<>();
+	    Map<String, Map<String, String>> serverGlobalMap = new HashMap<>();
+	    serverGlobalMap.put(UUID.randomUUID().toString(), getGenericMapExample());
+	    globalMaps.put(UUID.randomUUID().toString(), serverGlobalMap);
 	    return globalMaps;
 	}
 	
@@ -1313,7 +1318,13 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    serverSettings.setSmtpFrom("");
 	    serverSettings.setSmtpUsername("");
 	    serverSettings.setSmtpPassword("");
+	    serverSettings.setLoginNotificationEnabled(false);
+	    serverSettings.setLoginNotificationMessage("");
 	    return serverSettings;
+	}
+	
+	private PublicServerSettings getPublicServerSettingsExample() {
+	    return new PublicServerSettings(getServerSettingsExample());
 	}
 	
 	private SystemInfo getSystemInfoExample() {

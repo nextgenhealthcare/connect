@@ -1,8 +1,11 @@
 package com.mirth.connect.connectors.http;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jetty.server.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -189,6 +193,22 @@ public class HttpReceiverTest {
         props.setUseHeadersVariable(true);
         Map<String, List<String>> result = receiver.getHeaders(dispatchResult);
         assertTrue(result.isEmpty());
+    }
+    
+    @Test
+    public void testShouldParseMultipart() {
+    	HttpReceiverProperties props = new HttpReceiverProperties();
+    	props.setXmlBody(true);
+    	props.setParseMultipart(true);
+    	
+    	Request request = mock(Request.class);
+    	when(request.getMethod()).thenReturn("POST");
+    	
+    	when(request.getContentType()).thenReturn("text/plain");
+    	assertFalse(receiver.shouldParseMultipart(props, request));
+    	
+    	when(request.getContentType()).thenReturn("multipart/form-data");
+    	assertTrue(receiver.shouldParseMultipart(props, request));
     }
 
     class TestDispatchResult extends DispatchResult {

@@ -29,7 +29,7 @@ import com.mirth.connect.client.core.UnauthorizedException;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.ExtendedLoginStatus;
 import com.mirth.connect.model.LoginStatus;
-import com.mirth.connect.model.ServerSettings;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.MultiFactorAuthenticationClientPlugin;
@@ -442,7 +442,10 @@ public class LoginPanel extends javax.swing.JFrame {
 
                     // If SUCCESS or SUCCESS_GRACE_PERIOD
                     if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
-                        handleSuccess(loginStatus);
+                        if (!handleSuccess(loginStatus)) {
+                            LoginPanel.getInstance().setVisible(false);
+                            LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
+                        }
                     } else {
                         // Assume failure unless overridden by a plugin
                         errorOccurred = true;
@@ -458,7 +461,10 @@ public class LoginPanel extends javax.swing.JFrame {
 
                                 if ((loginStatus != null) && ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD))) {
                                     errorOccurred = false;
-                                    handleSuccess(loginStatus);
+                                    if (!handleSuccess(loginStatus)) {
+                                        LoginPanel.getInstance().setVisible(false);
+                                        LoginPanel.getInstance().initialize(PlatformUI.SERVER_URL, PlatformUI.CLIENT_VERSION, "", "");
+                                    }
                                 }
                             }
                         }
@@ -488,23 +494,35 @@ public class LoginPanel extends javax.swing.JFrame {
                 return null;
             }
 
-            private void handleSuccess(LoginStatus loginStatus) throws ClientException {
+            private boolean handleSuccess(LoginStatus loginStatus) throws ClientException {
                 try {
-                    ServerSettings serverSettings = client.getServerSettings();
-
-                    String environmentName = serverSettings.getEnvironmentName();
+                    PublicServerSettings publicServerSettings = client.getPublicServerSettings();
+                    
+                    if (publicServerSettings.getLoginNotificationEnabled() == true) {
+                    	CustomBannerPanelDialog customBannerPanelDialog = new CustomBannerPanelDialog(LoginPanel.getInstance(), "Login Notification", publicServerSettings.getLoginNotificationMessage());
+                    	boolean isAccepted = customBannerPanelDialog.isAccepted();
+                    	
+                    	if (isAccepted == true) {
+                    	    client.setUserNotificationAcknowledged(client.getCurrentUser().getId());
+                    	}
+                    	else {
+                    	    return false;
+                    	}
+                    }
+                    
+                    String environmentName = publicServerSettings.getEnvironmentName();
                     if (!StringUtils.isBlank(environmentName)) {
                         PlatformUI.ENVIRONMENT_NAME = environmentName;
                     }
 
-                    String serverName = serverSettings.getServerName();
+                    String serverName = publicServerSettings.getServerName();
                     if (!StringUtils.isBlank(serverName)) {
                         PlatformUI.SERVER_NAME = serverName;
                     } else {
                         PlatformUI.SERVER_NAME = null;
                     }
 
-                    Color defaultBackgroundColor = serverSettings.getDefaultAdministratorBackgroundColor();
+                    Color defaultBackgroundColor = publicServerSettings.getDefaultAdministratorBackgroundColor();
                     if (defaultBackgroundColor != null) {
                         PlatformUI.DEFAULT_BACKGROUND_COLOR = defaultBackgroundColor;
                     }
@@ -581,6 +599,8 @@ public class LoginPanel extends javax.swing.JFrame {
                 }
 
                 PlatformUI.MIRTH_FRAME.sendUsageStatistics();
+                
+                return true;
             }
 
             public void done() {}

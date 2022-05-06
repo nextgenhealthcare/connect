@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.client.core.ExtensionOperation;

@@ -22,7 +22,7 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -130,7 +130,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
                     String deployScript = results.getString(13);
                     String shutdownScript = results.getString(14);
 
-                    Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+                    Document document = getDocument();
                     Element element = document.createElement("channel");
                     document.appendChild(element);
                     DonkeyElement channel = new DonkeyElement(element);
@@ -260,7 +260,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
                     /*
                      * Create a new document with alertModel as the root node
                      */
-                    Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+                    Document document = getDocument();
                     Element alertNode = document.createElement("alert");
                     document.appendChild(alertNode);
 
@@ -367,7 +367,8 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
                     String toolTip = results.getString(5);
                     String code = results.getString(6);
 
-                    Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+                    Document document = getDocument();
+                    
                     Element element = document.createElement("codeTemplate");
                     document.appendChild(element);
                     DonkeyElement codeTemplate = new DonkeyElement(element);
@@ -409,4 +410,10 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
             DbUtils.closeQuietly(preparedStatement);
         }
     }
+    
+	private static Document getDocument() throws Exception {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		return dbf.newDocumentBuilder().newDocument();
+	}
 }

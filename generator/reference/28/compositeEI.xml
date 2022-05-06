@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>EI</name>
+    <description>Entity Identifier</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>EI.1</name>
+            <description>Entity Identifier</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>EI.2</name>
+            <description>Namespace ID</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>EI.3</name>
+            <description>Universal ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>EI.4</name>
+            <description>Universal ID Type</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

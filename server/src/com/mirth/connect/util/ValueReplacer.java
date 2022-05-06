@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -38,6 +39,14 @@ import com.mirth.connect.userutil.XmlUtil;
 public class ValueReplacer {
     private Logger logger = Logger.getLogger(this.getClass());
     private AtomicLong count = new AtomicLong(1);
+    
+    static {
+    	// Set properties to ensure backward compatibility with Velocity 1.x
+    	Properties props = new Properties();
+    	props.put(Velocity.PARSER_HYPHEN_ALLOWED, true);
+    	
+        Velocity.init(props);
+    }
 
     public long getCount() {
         return count.getAndIncrement();
@@ -221,7 +230,6 @@ public class ValueReplacer {
         StringWriter writer = new StringWriter();
 
         try {
-            Velocity.init();
             Velocity.evaluate(context, writer, "LOG", template);
         } catch (Exception e) {
             logger.warn("Could not replace template values", e);

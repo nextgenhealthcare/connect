@@ -13,6 +13,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -49,6 +51,8 @@ public class DocumentSerializer {
     public void toXML(Document source, Writer writer) {
         try {
             TransformerFactory factory = TransformerFactory.newInstance();
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, ""); 
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
 
             // When Saxon-B is on the classpath setting this attribute throws an
             // IllegalArgumentException.
@@ -107,11 +111,19 @@ public class DocumentSerializer {
         Document document = null;
 
         try {
-            document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(source)));
+    		DocumentBuilderFactory dbf = getSecureDocumentBuilderFactory();
+    		DocumentBuilder db = dbf.newDocumentBuilder();
+    		document = db.parse(new InputSource(new StringReader(source)));
         } catch (Exception e) {
             logger.error(e);
         }
 
         return document;
     }
+    
+	public static DocumentBuilderFactory getSecureDocumentBuilderFactory() throws Exception {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		return dbf;
+	}
 }

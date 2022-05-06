@@ -160,13 +160,15 @@ public class RecoveryTask implements Callable<Void> {
                             sourceMinMessageId = sourceConnectorMessages.pollFirst().getMessageId() + 1;
 
                             if (attemptedMessages++ == 0) {
-                                logger.info("Starting message recovery for channel " + channel.getName() + " (" + channel.getChannelId() + "). Incomplete messages found.");
+                                logger.info("Starting message recovery for channel " + channel.getName() + " (" + channel.getChannelId() + "). Incomplete messages found in source queue.");
                             }
+                            logger.debug("Recovering incomplete message " + messageId + " for channel " + channel.getName() + " (" + channel.getChannelId() + ")");
 
                             // Execute the recovery process for this message
                             channel.process(sourceConnectorMessage, true);
                             // Use this to decrement the queue size
                             channel.getSourceQueue().decrementSize();
+                            logger.debug("Recovered incomplete message " + messageId + " for channel " + channel.getName() + " (" + channel.getChannelId() + ")");
                             // Increment the number of successfully recovered messages
                             recoveredMessages++;
                         }
@@ -183,11 +185,13 @@ public class RecoveryTask implements Callable<Void> {
                         }
 
                         if (attemptedMessages++ == 0) {
-                            logger.info("Starting message recovery for channel " + channel.getName() + " (" + channel.getChannelId() + "). Incomplete messages found.");
+                            logger.info("Starting message recovery for channel " + channel.getName() + " (" + channel.getChannelId() + "). Incomplete unfinished messages found.");
                         }
+                        logger.debug("Recovering incomplete unfinished message " + messageId + " for channel " + channel.getName() + " (" + channel.getChannelId() + ")");
 
                         // Execute the recovery process for this message
                         recoverUnfinishedMessage(unfinishedMessage);
+                        logger.debug("Recovered incomplete unfinished message " + messageId + " for channel " + channel.getName() + " (" + channel.getChannelId() + ")");
                         // Increment the number of successfully recovered messages
                         recoveredMessages++;
                     } else if (pendingMessage != null) {
@@ -197,11 +201,13 @@ public class RecoveryTask implements Callable<Void> {
                         pendingMinMessageId = pendingMessages.pollFirst().getMessageId() + 1;
 
                         if (attemptedMessages++ == 0) {
-                            logger.info("Starting message recovery for channel " + channel.getName() + " (" + channel.getChannelId() + "). Incomplete messages found.");
+                            logger.info("Starting message recovery for channel " + channel.getName() + " (" + channel.getChannelId() + "). Incomplete pending ('P') messages found.");
                         }
+                        logger.debug("Recovering incomplete pending message " + messageId + " for channel " + channel.getName() + " (" + channel.getChannelId() + ")");
 
                         // Execute the recovery process for this message
                         recoverPendingMessage(pendingMessage);
+                        logger.debug("Recovered incomplete pending message " + messageId + " for channel " + channel.getName() + " (" + channel.getChannelId() + ")");
                         // Increment the number of successfully recovered messages
                         recoveredMessages++;
                     }

@@ -109,8 +109,13 @@ public class Donkey {
 
             dao.checkAndCreateChannelTables();
             dao.commit();
-        } catch (Exception e) {
+        } catch (Exception e) {           
             logger.error("Could not check and create channel tables on startup", e);
+            if (dao != null) {
+                try {
+                    dao.rollback();
+                } catch (Exception e2) {}
+            }
         } finally {
             if (dao != null) {
                 dao.close();

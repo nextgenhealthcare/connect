@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>RPT</name>
+    <description>Repeat Pattern</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RPT.1</name>
+            <description>Repeat Pattern Code</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RPT.2</name>
+            <description>Calendar Alignment</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RPT.3</name>
+            <description>Phase Range Begin Value</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RPT.4</name>
+            <description>Phase Range End Value</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RPT.5</name>
+            <description>Period Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RPT.6</name>
+            <description>Period Units</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RPT.7</name>
+            <description>Institution Specified Time</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RPT.8</name>
+            <description>Event</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RPT.9</name>
+            <description>Event Offset Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RPT.10</name>
+            <description>Event Offset Units</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RPT.11</name>
+            <description>General Timing Specification</description>
+            <datatype>GTS</datatype>
+        </field>
+    </elements>
+</segment>

@@ -74,9 +74,13 @@ public class UIConstants {
     public static final Font MONOSPACED_FONT = new Font(MONOSPACED_FONT_NAME, Font.PLAIN, 12);
 
     // issue link
-    public static final String ISSUE_TRACKER_LOCATION = "http://www.mirthcorp.com/community/issues/";
+    public static final String ISSUE_TRACKER_LOCATION = "https://github.com/nextgenhealthcare/connect/issues";
     // help link
-    public static String HELP_LOCATION = "http://www.mirthcorp.com/community/wiki/display/mirth";
+    public static String HELP_URL_LOCATION = "https://s3.amazonaws.com/downloads.mirthcorp.com/connect-user-guide/webhelp.json";
+    // help link
+    public static String HELP_DEFAULT_LOCATION = "https://github.com/nextgenhealthcare/connect/wiki";
+    // user guide link
+    public static String USER_GUIDE_LOCATION = "http://downloads.mirthcorp.com/connect-user-guide/latest/mirth-connect-user-guide.pdf";
     // user api
     public static String USER_API_LOCATION = "/javadocs/user-api/";
     // user api

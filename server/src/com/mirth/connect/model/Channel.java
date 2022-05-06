@@ -360,7 +360,37 @@ public class Channel implements Serializable, Auditable, Migratable, Purgable, C
     
     @Override
     public void migrate3_9_0(DonkeyElement element) {}
+    
+    @Override
+    public void migrate3_11_0(DonkeyElement element) {}
+    
+    @Override
+    public void migrate3_11_1(DonkeyElement element) {}
+    
+    @Override
+    public void migrate3_12_0(DonkeyElement element) {
+        DonkeyElement propertiesElement = element.getChildElement("properties");
 
+        // Only do migration if the properties exist. Otherwise this could be a stub channel inside of a channel group.
+        if (propertiesElement != null) {
+            // Get channel metadata
+            DonkeyElement exportDataElement = propertiesElement.getChildElement("exportData");
+            
+            if (exportDataElement != null) {
+	            DonkeyElement metadataElement = exportDataElement.getChildElement("metadata");
+	
+	            if (metadataElement != null) {
+		            // Get pruning settings and add "pruneErroredMessages" property
+		            DonkeyElement pruningSettingsElement = metadataElement.getChildElement("pruningSettings");
+		            
+		            if (pruningSettingsElement != null) {
+		                pruningSettingsElement.addChildElement("pruneErroredMessages", "false");
+		            }
+	            }
+            }
+        }
+    }
+    
     @Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();

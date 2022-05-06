@@ -31,11 +31,15 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class ServerSettings extends AbstractSettings implements Serializable, Auditable, Purgable {
 
     public static final Color DEFAULT_COLOR = new Color(0x9EB1C9);
+    public static final String DEFAULT_LOGIN_NOTIFICATION_ENABLED_VALUE = "0";
+    public static final String DEFAULT_LOGIN_NOTIFICATION_MESSAGE_VALUE = "";
+    public static final String DEFAULT_ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED_VALUE =  "0";
+    public static final Integer DEFAULT_ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD_VALUE =  5;
 
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
     private static final String QUEUE_BUFFER_SIZE = "server.queuebuffersize";
     private static final String DEFAULT_METADATA_COLUMNS = "server.defaultmetadatacolumns";
-    private static final String DEFAULT_ADMINISTRATOR_COLOR = "server.defaultadministratorcolor";
+    protected static final String DEFAULT_ADMINISTRATOR_COLOR = "server.defaultadministratorcolor";
     private static final String SMTP_HOST = "smtp.host";
     private static final String SMTP_PORT = "smtp.port";
     private static final String SMTP_TIMEOUT = "smtp.timeout";
@@ -44,6 +48,10 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     private static final String SMTP_AUTH = "smtp.auth";
     private static final String SMTP_USERNAME = "smtp.username";
     private static final String SMTP_PASSWORD = "smtp.password";
+    protected static final String LOGIN_NOTIFICATION_ENABLED = "loginnotification.enabled";
+    protected static final String LOGIN_NOTIFICATION_MESSAGE = "loginnotification.message";
+    protected static final String ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED = "administratorautologoutinterval.enabled";
+    protected static final String ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD = "administratorautologoutinterval.field";
 
     // General
     private String environmentName;
@@ -62,7 +70,15 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     private Boolean smtpAuth;
     private String smtpUsername;
     private String smtpPassword;
-
+    
+    // Login Notification
+    private Boolean loginNotificationEnabled;
+    private String loginNotificationMessage;
+    
+    // Auto Logout
+    private Boolean administratorAutoLogoutIntervalEnabled;
+    private Integer administratorAutoLogoutIntervalField;
+    
     public ServerSettings() {
 
     }
@@ -113,6 +129,18 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         if (getSmtpPassword() != null) {
             properties.put(SMTP_PASSWORD, getSmtpPassword());
         }
+        if (getLoginNotificationEnabled() != null) {
+            properties.put(LOGIN_NOTIFICATION_ENABLED, BooleanUtils.toIntegerObject(getLoginNotificationEnabled()).toString());
+        }
+        if (getLoginNotificationMessage() != null) {
+            properties.put(LOGIN_NOTIFICATION_MESSAGE, getLoginNotificationMessage());
+        }
+        if (getAdministratorAutoLogoutIntervalEnabled() != null) {
+            properties.put(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED, BooleanUtils.toIntegerObject(getAdministratorAutoLogoutIntervalEnabled()).toString());
+        }
+        if (getAdministratorAutoLogoutIntervalField() != null) {
+            properties.put(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD, getAdministratorAutoLogoutIntervalField().toString());
+        }
 
         return properties;
     }
@@ -131,6 +159,10 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         setSmtpAuth(intToBooleanObject(properties.getProperty(SMTP_AUTH)));
         setSmtpUsername(properties.getProperty(SMTP_USERNAME));
         setSmtpPassword(properties.getProperty(SMTP_PASSWORD));
+        setLoginNotificationEnabled(intToBooleanObject(properties.getProperty(LOGIN_NOTIFICATION_ENABLED, DEFAULT_LOGIN_NOTIFICATION_ENABLED_VALUE)));
+        setLoginNotificationMessage(properties.getProperty(LOGIN_NOTIFICATION_MESSAGE, DEFAULT_LOGIN_NOTIFICATION_MESSAGE_VALUE));
+        setAdministratorAutoLogoutIntervalEnabled(intToBooleanObject(properties.getProperty(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED, DEFAULT_ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_ENABLED_VALUE)));
+        setAdministratorAutoLogoutIntervalField(toIntegerObject(properties.getProperty(ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD, DEFAULT_ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD_VALUE.toString())));
     }
 
     public String getEnvironmentName() {
@@ -245,6 +277,38 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
         this.smtpPassword = smtpPassword;
     }
 
+    public Boolean getLoginNotificationEnabled() {
+        return loginNotificationEnabled;
+    }
+    
+    public void setLoginNotificationEnabled(Boolean loginNotificationEnabled) {
+        this.loginNotificationEnabled = loginNotificationEnabled;
+    }
+    
+    public String getLoginNotificationMessage() {
+        return loginNotificationMessage;
+    }
+    
+    public void setLoginNotificationMessage(String loginNotificationMessage) {
+        this.loginNotificationMessage = loginNotificationMessage;
+    }
+    
+    public Boolean getAdministratorAutoLogoutIntervalEnabled() {
+        return administratorAutoLogoutIntervalEnabled;
+    }
+    
+    public void setAdministratorAutoLogoutIntervalEnabled(Boolean administratorAutoLogoutIntervalEnabled) {
+        this.administratorAutoLogoutIntervalEnabled = administratorAutoLogoutIntervalEnabled;
+    }
+    
+    public Integer getAdministratorAutoLogoutIntervalField() {
+        return administratorAutoLogoutIntervalField;
+    }
+    
+    public void setAdministratorAutoLogoutIntervalField(Integer administratorAutoLogoutIntervalField) {
+        this.administratorAutoLogoutIntervalField = administratorAutoLogoutIntervalField;
+    }
+    
     @Override
     public String toAuditString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();

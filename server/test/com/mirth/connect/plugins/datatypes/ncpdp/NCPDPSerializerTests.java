@@ -79,4 +79,31 @@ public class NCPDPSerializerTests {
         NCPDPSerializer serializer = new NCPDPSerializer(defaultProperties.getSerializerProperties());
         Assert.assertEquals(output, serializer.fromXML(input));
     }
+    
+    @Test
+    public void testvalidateTransformHeaderWithfieldValue() throws Exception {
+        String input = "<BinNumber>6100</BinNumber>";
+        String expectedOutput = "<BinNumber>6100  </BinNumber>";
+        NCPDPSerializer serializer = new NCPDPSerializer(defaultProperties.getSerializerProperties());
+        String actualOutput = serializer.validateTransformHeader(input);
+        Assert.assertEquals(actualOutput, expectedOutput);
+    }
+    
+    @Test
+    public void testvalidateTransformHeaderWithoutFieldValue() throws Exception {
+        String input = "<BinNumber></BinNumber>";
+        String expectedOutput = "<BinNumber>      </BinNumber>";
+        NCPDPSerializer serializer = new NCPDPSerializer(defaultProperties.getSerializerProperties());
+        String actualOutput = serializer.validateTransformHeader(input);
+        Assert.assertEquals(actualOutput, expectedOutput);  
+    }
+    
+    @Test
+    public void testvalidateTransformHeaderWithOneEndTag() throws Exception {
+        String input = "<BinNumber/>";
+        String expectedOutput = "<BinNumber>      </BinNumber>";
+        NCPDPSerializer serializer = new NCPDPSerializer(defaultProperties.getSerializerProperties());
+        String actualOutput = serializer.validateTransformHeader(input);
+        Assert.assertEquals(actualOutput, expectedOutput);
+    }
 }

@@ -1,12 +1,17 @@
 package com.mirth.connect.connectors.file.filesystems;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 
 import com.mirth.connect.connectors.file.FileSystemConnectionOptions;
 import com.mirth.connect.connectors.file.SmbSchemeProperties;
 
+import jcifs.CIFSContext;
 import jcifs.DialectVersion;
 import jcifs.config.PropertyConfiguration;
 import jcifs.smb.NtlmPasswordAuthenticator;
@@ -80,5 +85,37 @@ public class SmbFileConnectionTest {
     	 assertEquals("localhost", auth.getUserDomain());
     	 assertEquals("testuser", auth.getUsername());
     	 assertEquals("testpassword", auth.getPassword());
+    }
+    
+    /*
+     * Tests that when an SmbFileConnection is destroyed, the associated CIFSContext is closed, which allows the CIFSContext to be deallocated.
+     */
+    @Test
+    public void testContextIsClosedOnDestroy() throws Exception {
+        SmbSchemeProperties schemeProperties = new SmbSchemeProperties();
+        FileSystemConnectionOptions fileSystemOptions = new FileSystemConnectionOptions(false, "localhost/testuser", "testpassword", schemeProperties);
+        TestSmbFileConnection smbFileConnection = new TestSmbFileConnection("host1", fileSystemOptions, 1000);
+        
+        smbFileConnection.destroy();
+        
+        verify(smbFileConnection.getShareContext(), times(1)).close();
+    }
+    
+    private class TestSmbFileConnection extends SmbFileConnection {
+        
+        private CIFSContext shareContext = mock(CIFSContext.class);
+
+        public TestSmbFileConnection(String share, FileSystemConnectionOptions fileSystemOptions, int timeout) throws Exception {
+            super(share, fileSystemOptions, timeout);
+            
+            SmbFile smbFileShare = mock(SmbFile.class);
+            when(smbFileShare.getContext()).thenReturn(shareContext);
+            setShare(smbFileShare);
+        }
+        
+        public CIFSContext getShareContext() {
+            return shareContext;
+        }
+        
     }
 }

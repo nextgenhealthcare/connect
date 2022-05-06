@@ -49,7 +49,7 @@ import javax.swing.table.DefaultTableModel;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -286,6 +286,20 @@ public class WebServiceSender extends ConnectorSettingsPanel {
             }
         }
 
+        if (props.isUseHeadersVariable() && StringUtils.isBlank(props.getHeadersVariable())) {
+            valid = false;
+            if (highlight) {
+                headersVariableField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+
+        if (props.isUseMtom() && props.isUseAttachmentsVariable() && StringUtils.isBlank(props.getAttachmentsVariable())) {
+            valid = false;
+            if (highlight) {
+                attachmentsVariableField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+
         return valid;
     }
 
@@ -298,6 +312,8 @@ public class WebServiceSender extends ConnectorSettingsPanel {
         locationURIComboBox.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
         socketTimeoutField.setBackground(null);
         soapEnvelopeTextArea.setBackground(null);
+        headersVariableField.setBackground(null);
+        attachmentsVariableField.setBackground(null);
     }
 
     @Override

@@ -15,14 +15,17 @@ import java.util.Map;
 
 import com.mirth.connect.donkey.util.purge.Purgable;
 
+@SuppressWarnings("serial")
 public class ChannelPruningSettings implements Serializable, Purgable {
 
     private Integer pruneMetaDataDays;
     private Integer pruneContentDays;
     private boolean archiveEnabled;
+    private boolean pruneErroredMessages;
 
     public ChannelPruningSettings() {
         archiveEnabled = true;
+        pruneErroredMessages = false;
     }
 
     public Integer getPruneMetaDataDays() {
@@ -49,12 +52,21 @@ public class ChannelPruningSettings implements Serializable, Purgable {
         this.archiveEnabled = archiveEnabled;
     }
 
-    @Override
+    public boolean isPruneErroredMessages() {
+		return pruneErroredMessages;
+	}
+
+	public void setPruneErroredMessages(boolean pruneErroredMessages) {
+		this.pruneErroredMessages = pruneErroredMessages;
+	}
+
+	@Override
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("pruneMetaDataDays", pruneMetaDataDays);
         purgedProperties.put("pruneContentDays", pruneContentDays);
         purgedProperties.put("archiveEnabled", archiveEnabled);
+        purgedProperties.put("pruneErroredMessages", pruneErroredMessages);
         return purgedProperties;
     }
 }

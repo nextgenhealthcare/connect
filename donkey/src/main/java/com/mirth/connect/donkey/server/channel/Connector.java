@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.message.DataType;
@@ -31,7 +32,7 @@ public abstract class Connector {
     private Set<String> resourceIds;
 
     public abstract void onDeploy() throws ConnectorTaskException;
-
+    
     public abstract void onUndeploy() throws ConnectorTaskException;
 
     public abstract void onStart() throws ConnectorTaskException;
@@ -45,6 +46,14 @@ public abstract class Connector {
     public abstract void stop() throws ConnectorTaskException, InterruptedException;
 
     public abstract void halt() throws ConnectorTaskException, InterruptedException;
+    
+    public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
+    	onDeploy();
+    }
+    
+    public void stopDebugging() throws ConnectorTaskException {
+
+    }
 
     public Channel getChannel() {
         return channel;

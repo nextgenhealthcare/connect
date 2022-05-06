@@ -46,8 +46,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
@@ -112,6 +112,7 @@ import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.userutil.MessageHeaders;
 import com.mirth.connect.userutil.MessageParameters;
@@ -517,7 +518,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     }
 
     protected void sendErrorResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult, Throwable t) throws IOException {
-        String responseError = ExceptionUtils.getStackTrace(t);
+        String responseError = ExceptionUtils.getRootCauseMessage(t);
         logger.error("Error receiving message (" + getConnectorProperties().getName() + " \"Source\" on channel " + getChannelId() + ").", t);
         eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), dispatchResult == null ? null : dispatchResult.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), getConnectorProperties().getName(), "Error receiving message", t));
 
@@ -561,9 +562,12 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     }
 
     protected HttpRequestMessage createRequestMessage(Request request, boolean ignorePayload) throws IOException, MessagingException {
-        // Only parse multipart if XML Body is selected and Parse Multipart is enabled
-        boolean parseMultipart = getConnectorProperties().isXmlBody() && getConnectorProperties().isParseMultipart() && ServletFileUpload.isMultipartContent(request);
-        return createRequestMessage(request, ignorePayload, parseMultipart);
+        return createRequestMessage(request, ignorePayload, shouldParseMultipart(getConnectorProperties(), request));
+    }
+    
+    protected boolean shouldParseMultipart(HttpReceiverProperties connectorProperties, Request request) {
+    	// Only parse multipart if XML Body is selected and Parse Multipart is enabled
+    	return connectorProperties.isXmlBody() && connectorProperties.isParseMultipart() && ServletFileUpload.isMultipartContent(request);
     }
 
     protected HttpRequestMessage createRequestMessage(Request request, boolean ignorePayload, boolean parseMultipart) throws IOException, MessagingException {
@@ -717,7 +721,13 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
 
                 if (staticResource.getResourceType() == ResourceType.FILE) {
                     // Just stream the file itself back to the client
-                    IOUtils.copy(new FileInputStream(value), responseOutputStream);
+                    InputStream is = null;
+                    try {
+                        is = new FileInputStream(value);
+                        IOUtils.copy(is, responseOutputStream);
+                    } finally {
+                        ResourceUtil.closeResourceQuietly(is);
+                    }
                 } else if (staticResource.getResourceType() == ResourceType.DIRECTORY) {
                     File file = new File(value);
 
@@ -747,7 +757,13 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
                         }
 
                         // A valid file was found; stream it back to the client
-                        IOUtils.copy(new FileInputStream(file), responseOutputStream);
+                        InputStream is = null;
+                        try {
+                            is = new FileInputStream(file);
+                            IOUtils.copy(is, responseOutputStream);
+                        } finally {
+                            ResourceUtil.closeResourceQuietly(is);
+                        }
                     } else {
                         // File does not exist, pass to the next request handler
                         servletResponse.reset();

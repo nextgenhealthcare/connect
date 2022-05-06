@@ -23,6 +23,8 @@ public class DatabaseConstants {
     public static final String DATABASE_POOL = "database.pool";
     public static final String DATABASE_JDBC4 = "database.jdbc4";
     public static final String DATABASE_TEST_QUERY = "database.test-query";
+    public static final String DATABASE_CONN_MAX_RETRY = "database.connection.maxretry";
+    public static final String DATABASE_CONN_RETRY_TIMEOUT = "database.connection.retrywaitinmilliseconds";
 
     public static final String DATABASE_READONLY = "database-readonly";
     public static final String DATABASE_READONLY_URL = "database-readonly.url";

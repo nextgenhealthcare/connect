@@ -12,12 +12,14 @@ package com.mirth.connect.server.servlets;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,8 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -39,6 +41,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.model.ExtensionLibrary;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.converters.DocumentSerializer;
@@ -70,14 +73,22 @@ public class WebStartServlet extends HttpServlet {
         try {
             response.setContentType("application/x-java-jnlp-file");
             response.setHeader("Pragma", "no-cache");
+            response.setHeader("X-Content-Type-Options", "nosniff");
             PrintWriter out = response.getWriter();
             Document jnlpDocument = null;
-
-            if (request.getServletPath().equals("/webstart.jnlp") || request.getServletPath().equals("/webstart")) {
+            
+            PropertiesConfiguration mirthProperties = getMirthProperties();
+            String contextPathProp = getContextPathProp(mirthProperties);
+            
+            if ((request.getRequestURI().equals(contextPathProp + "/webstart.jnlp") || request.getRequestURI().equals(contextPathProp + "/webstart")) && isWebstartRequestValid(request)) {
                 jnlpDocument = getAdministratorJnlp(request);
-            } else if (request.getServletPath().equals("/webstart/extensions")) {
-                String extensionPath = StringUtils.removeEnd(StringUtils.removeStart(request.getPathInfo(), "/"), ".jnlp");
-                jnlpDocument = getExtensionJnlp(extensionPath);
+                response.setHeader("Content-Disposition", "attachment; filename = \"webstart.jnlp\"");
+            } else if (request.getServletPath().equals("/webstart/extensions") && isWebstartExtensionsRequestValid(request, contextPathProp)) {
+                String extensionPath = getExtensionPath(request);
+                jnlpDocument = getExtensionJnlp(getExtensionPath(request));
+                response.setHeader("Content-Disposition", "attachment; filename = \"" + extensionPath +  ".jnlp\"");
+            } else {
+            	response.setContentType("");
             }
 
             DocumentSerializer docSerializer = new DocumentSerializer(true);
@@ -89,18 +100,61 @@ public class WebStartServlet extends HttpServlet {
             throw new ServletException(t);
         }
     }
+    
+    private boolean isWebstartRequestValid(HttpServletRequest request) {
+    	// Only allow "maxHeapSize" and "time" parameters and only with appropriate values
+        for (Enumeration<String> parameterNameIter = request.getParameterNames(); parameterNameIter.hasMoreElements();) {
+        	String parameterName = parameterNameIter.nextElement();
+        	if ((!"maxHeapSize".equals(parameterName) && !"time".equals(parameterName))) {
+        		return false;
+        	}
+        	
+        	if ("maxHeapSize".equals(parameterName) && !request.getParameter(parameterName).matches("\\d+[kKmMgGtT]")) {
+        		return false;
+        	}
+        	
+        	if ("time".equals(parameterName) && !request.getParameter(parameterName).matches("\\d+")) {
+        		return false;
+        	}
+        }
+        
+        return true;
+    }
+    
+    private boolean isWebstartExtensionsRequestValid(HttpServletRequest request, String contextPathProp) {
+        // Don't allow any parameters and don't allow modified URIs
+        return request.getParameterMap().isEmpty() 
+                && (contextPathProp + request.getServletPath() + "/" + getExtensionPath(request)).equals(StringUtils.removeEnd(request.getRequestURI(), ".jnlp"));
+    }
+    
+    private String getExtensionPath(HttpServletRequest request) {
+    	return StringUtils.removeEnd(StringUtils.removeStart(request.getPathInfo(), "/"), ".jnlp");
+    }
 
-    private Document getAdministratorJnlp(HttpServletRequest request) throws Exception {
-        InputStream is = ResourceUtil.getResourceStream(this.getClass(), "mirth-client.jnlp");
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
-        IOUtils.closeQuietly(is);
+    protected Document getAdministratorJnlp(HttpServletRequest request) throws Exception {
+        InputStream clientJnlpIs = null;
+        Document document;
+        try {
+            clientJnlpIs = ResourceUtil.getResourceStream(this.getClass(), "mirth-client.jnlp");
+            DocumentBuilderFactory dbf = getSecureDocumentBuilderFactory();
+            document = dbf.newDocumentBuilder().parse(clientJnlpIs);
+        } finally {
+            ResourceUtil.closeResourceQuietly(clientJnlpIs);
+        }
 
         Element jnlpElement = document.getDocumentElement();
 
         // Change the title to include the version of Mirth Connect
-        PropertiesConfiguration versionProperties = new PropertiesConfiguration();
-        versionProperties.setDelimiterParsingDisabled(true);
-        versionProperties.load(ResourceUtil.getResourceStream(getClass(), "version.properties"));
+        PropertiesConfiguration versionProperties = PropertiesConfigurationUtil.create();
+        
+        InputStream versionPropsIs = null;
+        try {
+            versionPropsIs = ResourceUtil.getResourceStream(getClass(), "version.properties");
+            versionProperties = PropertiesConfigurationUtil.create(versionPropsIs);
+        } finally {
+            ResourceUtil.closeResourceQuietly(versionPropsIs);
+        }
+        
         String version = versionProperties.getString("mirth.version");
 
         jnlpElement.setAttribute("version", version);
@@ -129,9 +183,7 @@ public class WebStartServlet extends HttpServlet {
         String contextPath = request.getContextPath();
         String codebase = scheme + "://" + serverHostname + ":" + serverPort + contextPath;
 
-        PropertiesConfiguration mirthProperties = new PropertiesConfiguration();
-        mirthProperties.setDelimiterParsingDisabled(true);
-        mirthProperties.load(ResourceUtil.getResourceStream(getClass(), "mirth.properties"));
+        PropertiesConfiguration mirthProperties = getMirthProperties();
 
         String server = null;
 
@@ -139,17 +191,7 @@ public class WebStartServlet extends HttpServlet {
             server = mirthProperties.getString("server.url");
         } else {
             int httpsPort = mirthProperties.getInt("https.port", 8443);
-            String contextPathProp = mirthProperties.getString("http.contextpath", "");
-
-            // Add a starting slash if one does not exist
-            if (!contextPathProp.startsWith("/")) {
-                contextPathProp = "/" + contextPathProp;
-            }
-
-            // Remove a trailing slash if one exists
-            if (contextPathProp.endsWith("/")) {
-                contextPathProp = contextPathProp.substring(0, contextPathProp.length() - 1);
-            }
+            String contextPathProp = getContextPathProp(mirthProperties);
 
             server = "https://" + serverHostname + ":" + httpsPort + contextPathProp;
         }
@@ -271,7 +313,7 @@ public class WebStartServlet extends HttpServlet {
         return false;
     }
 
-    private Document getExtensionJnlp(String extensionPath) throws Exception {
+    protected Document getExtensionJnlp(String extensionPath) throws Exception {
         List<MetaData> allExtensions = new ArrayList<MetaData>();
         allExtensions.addAll(ControllerFactory.getFactory().createExtensionController().getConnectorMetaData().values());
         allExtensions.addAll(ControllerFactory.getFactory().createExtensionController().getPluginMetaData().values());
@@ -294,7 +336,8 @@ public class WebStartServlet extends HttpServlet {
             throw new Exception("Extension metadata could not be located for the path: " + extensionPath);
         }
 
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        DocumentBuilderFactory dbf = getSecureDocumentBuilderFactory();
+        Document document = dbf.newDocumentBuilder().newDocument();
         Element jnlpElement = document.createElement("jnlp");
 
         Element informationElement = document.createElement("information");
@@ -333,6 +376,7 @@ public class WebStartServlet extends HttpServlet {
     }
 
     private String getDigest(File directory, String filePath) throws Exception {
+        FileInputStream fis = null;
         BufferedInputStream bis = null;
         try {
             String canonicalDirPath = directory.getCanonicalPath();
@@ -342,7 +386,8 @@ public class WebStartServlet extends HttpServlet {
                 throw new Exception("File " + filePath + " does not reside within directory " + directory);
             }
 
-            bis = new BufferedInputStream(new FileInputStream(file));
+            fis = new FileInputStream(file);
+            bis = new BufferedInputStream(fis);
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
             byte[] buffer = new byte[4096];
@@ -353,7 +398,43 @@ public class WebStartServlet extends HttpServlet {
 
             return Base64.getEncoder().encodeToString(digest.digest());
         } finally {
-            IOUtils.closeQuietly(bis);
+            ResourceUtil.closeResourceQuietly(bis);
+            ResourceUtil.closeResourceQuietly(fis);
         }
     }
+    
+    protected PropertiesConfiguration getMirthProperties() throws FileNotFoundException, ConfigurationException {
+        PropertiesConfiguration mirthProperties = PropertiesConfigurationUtil.create();
+        
+        InputStream mirthPropsIs = null;
+        try {
+            mirthPropsIs = ResourceUtil.getResourceStream(getClass(), "mirth.properties"); 
+            mirthProperties = PropertiesConfigurationUtil.create(mirthPropsIs);
+        } finally {
+            ResourceUtil.closeResourceQuietly(mirthPropsIs);
+        }
+        return mirthProperties;
+    }
+    
+    private String getContextPathProp(PropertiesConfiguration mirthProperties) {
+        String contextPathProp = mirthProperties.getString("http.contextpath", "");
+
+        // Add a starting slash if one does not exist
+        if (!contextPathProp.startsWith("/")) {
+            contextPathProp = "/" + contextPathProp;
+        }
+
+        // Remove a trailing slash if one exists
+        if (contextPathProp.endsWith("/")) {
+            contextPathProp = contextPathProp.substring(0, contextPathProp.length() - 1);
+        }
+        
+        return contextPathProp;
+    }
+    
+	private static DocumentBuilderFactory getSecureDocumentBuilderFactory() throws Exception {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		return dbf;
+	}
 }

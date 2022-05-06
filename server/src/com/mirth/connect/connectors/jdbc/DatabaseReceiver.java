@@ -9,6 +9,36 @@
 
 package com.mirth.connect.connectors.jdbc;
 
+import java.io.BufferedReader;
+import java.io.Reader;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.dbutils.BasicRowProcessor;
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
@@ -26,50 +56,25 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.util.CharsetUtils;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.dbutils.BasicRowProcessor;
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.commons.collections4.map.CaseInsensitiveMap;
-import java.sql.ResultSetMetaData;
-import org.apache.log4j.Logger;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedReader;
-import java.io.Reader;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class DatabaseReceiver extends PollConnector {
 
     /**
      * @formatter:off
-     *
+     * 
      * NameStartChar    ::=    ":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] |
      *                  [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] |
      *                  [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] |
      *                  [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] |
      *                  [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
-     *
+     *                  
      * NameChar         ::=    NameStartChar | "-" | "." | [0-9] | #xB7 |
-     *                         [#x0300-#x036F] | [#x203F-#x2040]
+     *                         [#x0300-#x036F] | [#x203F-#x2040] 
      *
-     * Name             ::=    NameStartChar (NameChar)*
-     *
+     * Name             ::=    NameStartChar (NameChar)* 
+     * 
      * @formatter:on
      */
     private static Pattern INVALID_XML_ELEMENT_NAMESTARTCHAR = Pattern.compile("[^:A-Z_a-z\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD\\x{10000}-\\x{EFFFF}]");
@@ -171,35 +176,6 @@ public class DatabaseReceiver extends PollConnector {
     }
 
     /**
-     * Checks for duplicate columns in a case-insensitive way.
-     * <p>
-     * This ensures that when columnA, ColumnA, and CoLuMnA are processed into the
-     * Maps before being converted to XML or JSON that no duplicate keys exist that would overwrite data in the Map
-     * <p>
-     * Duplicate keys/aliases would get overwritten in the resultMap, so we
-     * throw an exception to keep the message from processing since it would contain
-     * incomplete data and so that the user can have a chance to modify the query and
-     * select those records again. In the future, we plan to allow duplicate field names
-     * (https://github.com/nextgenhealthcare/connect/issues/4400).
-     *
-     * @param resultSet the result set to check for duplicate column names
-     */
-    private void checkForDuplicateColumnsInResultSetCaseInsensitive(ResultSet resultSet) throws SQLException {
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int colCount = metaData.getColumnCount();
-
-
-        Map<String, Object> caseInsensitiveMap = new CaseInsensitiveMap(resultList.size());
-        for (int i = 1; i <= colCount; i++) {
-            if(caseInsensitiveMap.containsKey(metaData.getColumnLabel(i))){
-                throw new SQLException("Multiple columns have the alias '" + foundLowerCaseAliases + "'. To prevent this error from occurring, specify unique aliases for each column. Aliases are derived by taking the column name and converting it to lower case");
-            } else {
-                caseInsensitiveMap.put(metaData.getColumnLabel(i), null);
-            }
-        }
-    }
-
-    /**
      * For each record in the given ResultSet, convert it to XML and dispatch it as a raw message to
      * the channel. Then run the post-process if applicable.
      */
@@ -207,9 +183,9 @@ public class DatabaseReceiver extends PollConnector {
     private void processResultSet(ResultSet resultSet) throws SQLException, InterruptedException, DatabaseReceiverException {
         BasicRowProcessor basicRowProcessor = new BasicRowProcessor();
 
-        checkForDuplicateColumnsInResultSetCaseInsensitive(resultSet);
-
         try {
+            checkForDuplicateColumns(resultSet);
+
             List<Map<String, Object>> resultsList = null;
             if (connectorProperties.isAggregateResults()) {
                 resultsList = new ArrayList<Map<String, Object>>();
@@ -244,20 +220,76 @@ public class DatabaseReceiver extends PollConnector {
         }
     }
 
+    void checkForDuplicateColumns(ResultSet resultSet) throws SQLException {
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int colCount = metaData.getColumnCount();
+        Set<String> lowerCaseColumnNames = new HashSet<String>();
+
+        for (int i = 1; i <= colCount; i++) {
+            // This is the same logic used in BasicRowProcessor from commons-dbutils 1.7
+            String columnName = metaData.getColumnLabel(i);
+            if (null == columnName || 0 == columnName.length()) {
+                columnName = metaData.getColumnName(i);
+            }
+
+            if (columnName != null) {
+                columnName = columnName.toLowerCase(Locale.ENGLISH);
+            }
+
+            if (!lowerCaseColumnNames.add(columnName)) {
+                /*
+                 * Currently, duplicate keys/aliases would get overwritten in the resultMap, so we
+                 * throw an exception to keep the message from processing since it would contain
+                 * incomplete data and so that the user can have a chance to modify the query and
+                 * select those records again. In the future, we plan to allow duplicate field names
+                 * (MIRTH-3138).
+                 */
+                throw new SQLException("Multiple columns have the alias/name '" + columnName + "' (case-insensitive). To prevent this error from occurring, specify unique aliases for each column.");
+            }
+        }
+    }
+
     /**
      * For each record in the given list, convert it to XML and dispatch it as a raw message to the
      * channel. Then run the post-process if applicable.
      */
-    private void processResultList(List<Map<String, Object>> resultList) throws InterruptedException, DatabaseReceiverException {
+    @SuppressWarnings("unchecked")
+    void processResultList(List<Map<String, Object>> resultList) throws InterruptedException, DatabaseReceiverException {
         for (Object object : resultList) {
             if (isTerminated()) {
                 return;
             }
 
             if (object instanceof Map) {
-                Map<String, Object> caseInsensitiveMap = new CaseInsensitiveMap(resultList.size());
-                caseInsensitiveMap.putAll((Map<String, Object>) object);
-                processRecord(caseInsensitiveMap);
+                /*
+                 * Previously, this code was adding to a CaseInsensitiveMap that we overrode in
+                 * commons-dbutils to be public. Instead, we're no longer overriding that class, and
+                 * just checking for case sensitivity here when adding to the map.
+                 */
+                Map<String, Object> map = new LinkedHashMap<String, Object>();
+                Set<String> caseInsensitiveKeys = new HashSet<String>();
+
+                for (Entry<String, Object> entry : ((Map<String, Object>) object).entrySet()) {
+                    String lowerCaseKey = entry.getKey();
+                    if (lowerCaseKey != null) {
+                        lowerCaseKey = lowerCaseKey.toLowerCase(Locale.ENGLISH);
+                    }
+                    // Only put into the map if the key (case-insensitive) doesn't already exist
+                    if (caseInsensitiveKeys.add(lowerCaseKey)) {
+                        map.put(lowerCaseKey, entry.getValue());
+                    } else {
+                        /*
+                         * Currently, duplicate keys/aliases would get overwritten in the resultMap,
+                         * so we throw an exception to keep the message from processing since it
+                         * would contain incomplete data and so that the user can have a chance to
+                         * modify the query and select those records again. In the future, we plan
+                         * to allow duplicate field names (MIRTH-3138).
+                         */
+                        throw new DatabaseReceiverException("Multiple columns have the alias/name '" + lowerCaseKey + "' (case-insensitive). To prevent this error from occurring, specify unique aliases for each column.");
+                    }
+                }
+
+                processRecord(map);
             } else {
                 String errorMessage = "Received invalid list entry in channel \"" + ChannelController.getInstance().getDeployedChannelById(getChannelId()).getName() + "\", expected Map<String, Object>: " + object.toString();
                 logger.error(errorMessage);
@@ -270,7 +302,7 @@ public class DatabaseReceiver extends PollConnector {
      * Convert the given resultMap into XML and dispatch it as a raw message to the channel. Then
      * run the post-process if applicable.
      */
-    private void processRecord(Map<String, Object> resultMap) throws InterruptedException, DatabaseReceiverException {
+    void processRecord(Map<String, Object> resultMap) throws InterruptedException, DatabaseReceiverException {
         try {
             if (isProcessBatch()) {
                 BatchRawMessage batchRawMessage = new BatchRawMessage(new BatchMessageReader(resultMapToXml(resultMap)));
@@ -366,7 +398,9 @@ public class DatabaseReceiver extends PollConnector {
     }
 
     private String doResultMapToXml(Map<String, Object> resultMap, boolean fixColumnNames) throws Exception {
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        Document document = dbf.newDocumentBuilder().newDocument();
         Element root = document.createElement("result");
         document.appendChild(root);
 
@@ -374,7 +408,7 @@ public class DatabaseReceiver extends PollConnector {
             String value = objectToString(entry.getValue());
 
             if (value != null) {
-                String key = entry.getKey();
+                String key = entry.getKey().toLowerCase(Locale.ENGLISH);
                 if (fixColumnNames) {
                     key = fixColumnName(key);
                 }
@@ -434,19 +468,21 @@ public class DatabaseReceiver extends PollConnector {
 
     private String clobToString(Clob clob) throws Exception {
         StringBuilder stringBuilder = new StringBuilder();
-        Reader reader = clob.getCharacterStream();
-        BufferedReader bufferedReader = new BufferedReader(reader);
-        int c;
+        Reader reader = null;
+        BufferedReader bufferedReader = null;
 
         try {
+            reader = clob.getCharacterStream();
+            bufferedReader = new BufferedReader(reader);
+            int c;
             while ((c = bufferedReader.read()) != -1) {
                 stringBuilder.append((char) c);
             }
 
             return stringBuilder.toString();
         } finally {
-            IOUtils.closeQuietly(bufferedReader);
-            IOUtils.closeQuietly(reader);
+            ResourceUtil.closeResourceQuietly(bufferedReader);
+            ResourceUtil.closeResourceQuietly(reader);
         }
     }
 

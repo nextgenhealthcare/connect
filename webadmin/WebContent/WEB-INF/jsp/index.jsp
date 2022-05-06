@@ -18,7 +18,7 @@
             }
         </script>
         
-        <script type="text/javascript" src="js/jquery-1.12.4.js"></script>
+        <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
         <script type="text/javascript" src="js/bootstrap.min.js"></script>
     </head>
     
@@ -88,6 +88,7 @@
 			                            <input type="hidden" name="op" value="login" /> <input type="hidden" name="version" value="0.0.0" /> <label for="username">Username</label>
 			                            <input id="username" type="text" name="username" autocomplete="off" maxlength="32" /> <label for="password">Password</label>
 			                            <input id="password" type="password" name="password" autocomplete="off" />
+			                            <input type="hidden" name="nonce" value="${actionBean.context.nonce}" />
 			                            <div id="webLoginSecurityReminder" class="help-block">
 			                                <strong>Security Reminder:</strong><br /> Sign out of your account when you finish your session.
 			                            </div>
@@ -114,7 +115,7 @@
             </div>
         </div>
         <div id="smallSubPage">
-        	<p>&copy; 2019 NextGen Healthcare | Mirth Connect</p>
+        	<p>&copy; 2021 NextGen Healthcare | Mirth Connect</p>
         </div>
     
         <script type="text/javascript">
@@ -306,7 +307,7 @@
         			if (suffix == 'linux.sh') {
         				suffix = 'unix.sh';
         			}
-        			window.location.href = 'https://s3.amazonaws.com/downloads.mirthcorp.com/connect-client-launcher/mirth-administrator-launcher-1.1.0-' + suffix;
+        			window.location.href = 'https://s3.amazonaws.com/downloads.mirthcorp.com/connect-client-launcher/mirth-administrator-launcher-latest-' + suffix;
         		}});
        		}
         

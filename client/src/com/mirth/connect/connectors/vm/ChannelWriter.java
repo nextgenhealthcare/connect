@@ -1,20 +1,30 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
- * 
+ *
  * http://www.mirthcorp.com
- * 
+ *
  * The software in this package is published under the terms of the MPL license a copy of which has
  * been included with this distribution in the LICENSE.txt file.
  */
 
 package com.mirth.connect.connectors.vm;
 
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.FlavorMap;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TooManyListenersException;
 import java.util.Vector;
 
 import javax.swing.ListSelectionModel;
@@ -33,8 +43,6 @@ import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.ChannelStatus;
 
 public class ChannelWriter extends ConnectorSettingsPanel {
 
@@ -95,9 +103,11 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
         mapVariablesTable.getColumnModel().getColumn(0).setCellEditor(new CustomTableCellEditor());
         mapVariablesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        mapVariablesTable.setToolTipText("The following map variables will be included in the source map of the destination channel's message.");
+
+        mapVariablesTable.setToolTipText("The following map variables will be included in the source map of the destination channel's message.\nWhen adding rows to this table, only use the map key itself, without the \"${}\" syntax.");
 
         mapVariablesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
 
             public void valueChanged(ListSelectionEvent evt) {
                 if (mapVariablesTable.getRowCount() > 0) {
@@ -107,6 +117,53 @@ public class ChannelWriter extends ConnectorSettingsPanel {
                 }
             }
         });
+
+        DropTarget gt = new DropTarget();
+		try {
+			gt.addDropTargetListener(new DropTargetListener() {
+
+				public void dragEnter(DropTargetDragEvent dtde) {}
+
+				public void dragExit(DropTargetEvent dte) {}
+
+				public void dragOver(DropTargetDragEvent dtde) {}
+
+				public void drop(DropTargetDropEvent dtde) {
+
+					Transferable transferable = dtde.getTransferable();
+					String data = "";
+					try {
+						dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+						data = (String) transferable.getTransferData(DataFlavor.stringFlavor);
+						if(data.startsWith("${") && data.endsWith("}")) {
+							data = data.substring(2, data.length() - 1);
+						}
+						((CustomTableCellEditor)mapVariablesTable.getColumnModel().getColumn(0).getCellEditor()).getTextField().setText(data);
+						dtde.dropComplete(true);
+					} catch (Exception e) {
+						e.printStackTrace();
+						dtde.rejectDrop();
+					}
+				}
+
+				public void dropActionChanged(DropTargetDragEvent dtde) {}
+			});
+		} catch (TooManyListenersException e) {
+			e.printStackTrace();
+		}
+
+		gt.setFlavorMap(new FlavorMap() {
+
+			public Map<String, DataFlavor> getFlavorsForNatives(String[] natives) {
+				return null;
+			}
+
+			public Map<DataFlavor, String> getNativesForFlavors(DataFlavor[] flavors) {
+				return null;
+			}
+		});
+        CustomTableCellEditor customTableCellEditor =  (CustomTableCellEditor)mapVariablesTable.getColumnModel().getColumn(0).getCellEditor();
+        customTableCellEditor.getTextField().setDropTarget(gt);
     }
 
     private void updateField() {

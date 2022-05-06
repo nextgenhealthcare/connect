@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+
 @Path("/channels")
 @Tag(name = "Channel Deployment Operations")
 @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -45,15 +46,20 @@ public interface EngineServletInterface extends BaseServletInterface {
     @MirthOperation(name = "redeployAllChannels", display = "Redeploy all channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void redeployAllChannels(@Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
 
+ 
     @POST
     @Path("/{channelId}/_deploy")
     @Operation(summary = "Deploys (or redeploys) a single channel.")
     @MirthOperation(name = "deployChannels", display = "Deploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void deployChannel(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel to deploy.", required = true) @PathParam("channelId") String channelId,
-            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors) throws ClientException;
-    // @formatter:on
-
+            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors, 
+            @Param("debugOptions") @Parameter(description = "If present, the channel will deploy in debug mode and use these options. The input should be a comma-separated list of 't' and 'f' values "
+            		+ "that indicate whether to debug Deploy/Undeploy/Preprocessor/Postprocessor scripts, Attachment/Batch scripts, Source Connectors scripts, Source Filter/Transformer scripts, "
+            		+ "Destination Filter/Transformer scripts, Destination Connector scripts, and Destination Response Transformer scripts, in that order. Example: \"f,f,f,f,f,f,f\")", example="f,f,f,f,f,f,f")  @QueryParam("debugOptions") String debug) throws ClientException;
+   
+    // @formatter:on     
+    
     @POST
     @Path("/_deploy")
     @Operation(summary = "Deploys (or redeploys) selected channels.")

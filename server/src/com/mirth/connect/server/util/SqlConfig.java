@@ -18,7 +18,7 @@ import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.logging.LogFactory;
@@ -124,7 +124,12 @@ public class SqlConfig {
         // parse the SqlMapConfig (ignoring the DTD)
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+		// Temporarily set the factory to allow doctype declarations in order to parse
+		// the SqlmapConfig.xml file, and then immediately disallow doctype declarations
+		// afterward.
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
         Document document = factory.newDocumentBuilder().parse(new InputSource(br));
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 
         addPluginSqlMaps(database, new DonkeyElement(document.getDocumentElement()).getChildElement("mappers"));
 

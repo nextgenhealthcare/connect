@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>MOP</name>
+    <description>Money or Percentage</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>MOP.1</name>
+            <description>Money or Percentage Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>MOP.2</name>
+            <description>Money or Percentage Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>MOP.3</name>
+            <description>Currency Denomination</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

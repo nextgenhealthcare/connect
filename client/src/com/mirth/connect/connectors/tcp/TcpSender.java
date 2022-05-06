@@ -23,6 +23,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
@@ -48,8 +50,6 @@ import com.mirth.connect.plugins.BasicModeClientProvider;
 import com.mirth.connect.plugins.TransmissionModeClientProvider;
 import com.mirth.connect.plugins.TransmissionModePlugin;
 import com.mirth.connect.util.ConnectionTestResponse;
-
-import net.miginfocom.swing.MigLayout;
 
 public class TcpSender extends ConnectorSettingsPanel implements ActionListener {
 

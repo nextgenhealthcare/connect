@@ -37,7 +37,7 @@ public class StatusUpdater implements Runnable {
                 return;
             }
 
-            // Stop this thread if the current content page is neither dashboard or alert panel
+            // Stop this thread if the current content page is neither dashboard nor alert panel
             if (parent.currentContentPage != null) {
                 if (parent.currentContentPage == parent.dashboardPanel) {
                     parent.doRefreshStatuses(false);

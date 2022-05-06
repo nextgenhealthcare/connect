@@ -13,14 +13,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.mirth.connect.donkey.util.xstream.SerializerException;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.httpauth.HttpAuthConnectorPluginProperties;
-import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class DigestHttpAuthProperties extends HttpAuthConnectorPluginProperties {
 

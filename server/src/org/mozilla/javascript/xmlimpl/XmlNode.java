@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.XMLConstants;
+import javax.xml.transform.TransformerFactory;
+
 import org.mozilla.javascript.Undefined;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -21,12 +24,14 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.UserDataHandler;
 
 class XmlNode implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private static final String XML_NAMESPACES_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
-
+    
     private static final String USER_DATA_XMLNODE_KEY = XmlNode.class.getName();
-
+    
     private static final boolean DOM_LEVEL_3 = true;
-
+    
     private static XmlNode getUserData(Node node) {
         if (DOM_LEVEL_3) {
             return (XmlNode)node.getUserData(USER_DATA_XMLNODE_KEY);
@@ -94,8 +99,6 @@ class XmlNode implements Serializable {
     private static XmlNode copy(XmlNode other) {
         return createImpl( other.dom.cloneNode(true) );
     }
-
-    private static final long serialVersionUID = 1L;
 
     private UserDataHandler events = new XmlNodeUserDataHandler();
 
@@ -342,9 +345,8 @@ class XmlNode implements Serializable {
 
         Namespace[] getNamespaces() {
             ArrayList<Namespace> rv = new ArrayList<Namespace>();
-            for (String prefix: map.keySet()) {
-                String uri = map.get(prefix);
-                Namespace n = Namespace.create(prefix, uri);
+            for (Map.Entry<String, String> e : map.entrySet()) {
+                Namespace n = Namespace.create(e.getKey(), e.getValue());
                 if (!n.isEmpty()) {
                     rv.add(n);
                 }
@@ -559,7 +561,10 @@ class XmlNode implements Serializable {
 
     String ecmaToXMLString(XmlProcessor processor) {
         try {
-            javax.xml.transform.Transformer serializer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
+        	TransformerFactory tf = TransformerFactory.newInstance();
+        	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        	tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+            javax.xml.transform.Transformer serializer = tf.newTransformer();
             serializer.setOutputProperty(javax.xml.transform.OutputKeys.INDENT, "no"); 
             serializer.setOutputProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
             java.io.Writer writer = new java.io.StringWriter();
@@ -608,7 +613,7 @@ class XmlNode implements Serializable {
         static Namespace create(String uri) {
             Namespace rv = new Namespace();
             rv.uri = uri;
-            
+
             // Avoid null prefix for "" namespace
             if (uri == null || uri.length() == 0) {
                 rv.prefix = "";
@@ -721,7 +726,7 @@ class XmlNode implements Serializable {
             if (!equals(this.localName, other.localName)) return false;
             return true;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if(!(obj instanceof QName)) {
@@ -729,7 +734,7 @@ class XmlNode implements Serializable {
             }
             return equals((QName)obj);
         }
-        
+
         @Override
         public int hashCode() {
             return localName == null ? 0 : localName.hashCode();
@@ -768,13 +773,7 @@ class XmlNode implements Serializable {
                 if (node != null) {
                     lookupPrefix(node);
                 } else {
-                    if (namespace.getUri().equals("")) {
-                        namespace.setPrefix("");
-                    } else {
-                        //    TODO    I am not sure this is right, but if we are creating a standalone node, I think we can set the
-                        //            default namespace on the node itself and not worry about setting a prefix for that namespace.
-                        namespace.setPrefix("");
-                    }
+                    namespace.setPrefix("");
                 }
             }
             return qualify(namespace.getPrefix(), localName);

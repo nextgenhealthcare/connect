@@ -71,6 +71,7 @@ import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.extprops.ExtensionStatuses;
 import com.mirth.connect.server.migration.Migrator;
 import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
 
 public class DefaultExtensionController extends ExtensionController {
@@ -423,7 +424,7 @@ public class DefaultExtensionController extends ExtensionController {
                 tempFileOutputStream = new FileOutputStream(tempFile);
                 IOUtils.copy(inputStream, tempFileOutputStream);
             } finally {
-                IOUtils.closeQuietly(tempFileOutputStream);
+                ResourceUtil.closeResourceQuietly(tempFileOutputStream);
             }
 
             // create a new zip file from the temp file
@@ -546,7 +547,7 @@ public class DefaultExtensionController extends ExtensionController {
         } catch (IOException e) {
             logger.error("Error adding extension to uninstall file: " + pluginPath, e);
         } finally {
-            IOUtils.closeQuietly(writer);
+            ResourceUtil.closeResourceQuietly(writer);
         }
     }
 
@@ -560,12 +561,14 @@ public class DefaultExtensionController extends ExtensionController {
         } catch (IOException e) {
             logger.error("Error adding extension to uninstall properties file: " + pluginName, e);
         } finally {
-            IOUtils.closeQuietly(writer);
+            ResourceUtil.closeResourceQuietly(writer);
         }
     }
 
     private String getUninstallScriptForCurrentDatabase(String pluginSqlScripts) throws Exception {
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(pluginSqlScripts)));
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    	Document document = dbf.newDocumentBuilder().parse(new InputSource(new StringReader(pluginSqlScripts)));
         Element uninstallElement = (Element) document.getElementsByTagName("uninstall").item(0);
         String databaseType = ControllerFactory.getFactory().createConfigurationController().getDatabaseType();
         NodeList scriptNodes = uninstallElement.getElementsByTagName("script");
@@ -713,11 +716,19 @@ public class DefaultExtensionController extends ExtensionController {
             directory.mkdir();
         } else {
             // otherwise, write the file out to the install temp dir
-            InputStream zipInputStream = zipFile.getInputStream(entry);
-            OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(installTempDir, entry.getName())));
-            IOUtils.copy(zipInputStream, outputStream);
-            IOUtils.closeQuietly(zipInputStream);
-            IOUtils.closeQuietly(outputStream);
+            InputStream zipInputStream = null;
+            FileOutputStream fileOutputStream = null;
+            OutputStream outputStream = null;
+            try {
+                zipInputStream = zipFile.getInputStream(entry);
+                fileOutputStream = new FileOutputStream(new File(installTempDir, entry.getName()));
+                outputStream = new BufferedOutputStream(fileOutputStream);
+                IOUtils.copy(zipInputStream, outputStream);
+            } finally {
+                ResourceUtil.closeResourceQuietly(outputStream);
+                ResourceUtil.closeResourceQuietly(fileOutputStream);
+                ResourceUtil.closeResourceQuietly(zipInputStream);
+            }
         }
     }
 }

@@ -9,7 +9,7 @@
 
 package com.mirth.connect.server.controllers;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 
 import com.mirth.connect.model.util.MigrationException;
 
@@ -35,4 +35,16 @@ public abstract class MigrationController extends Controller {
     public abstract void migrateExtensions();
 
     public abstract void migrateConfiguration(PropertiesConfiguration configuration) throws MigrationException;
+
+    /**
+     * In case multiple servers startup and initialize the database at the same time, this inserts a
+     * row into a custom table as a simple lock mechanism. If the row wasn't able to be inserted,
+     * this method will sleep the configured amount of time (server.startuplocksleep).
+     */
+    public abstract void checkStartupLockTable();
+
+    /**
+     * Deletes the inserted row from the startup lock table.
+     */
+    public abstract void clearStartupLockTable();
 }

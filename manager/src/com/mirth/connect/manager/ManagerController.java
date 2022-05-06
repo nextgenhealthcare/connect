@@ -26,19 +26,24 @@ import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.ReloadingFileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.PropertiesConfigurationUtil;
+import com.mirth.connect.donkey.util.ResourceUtil;
 
 public class ManagerController {
 
     private static ManagerController managerController = null;
     private static ServiceController serviceController = null;
+    
+    private ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> serverPropertiesBuilder;
+    private ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> log4jPropertiesBuilder;
 
     private PropertiesConfiguration serverProperties;
     private PropertiesConfiguration log4jProperties;
@@ -64,37 +69,65 @@ public class ManagerController {
     }
 
     public void initialize() {
-        serverProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES, true);
-        log4jProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_LOG4J_PROPERTIES, true);
-        serverIdProperties = initializeProperties(PlatformUI.MIRTH_PATH + getServerProperties().getString(ManagerConstants.DIR_APPDATA) + System.getProperty("file.separator") + ManagerConstants.PATH_SERVER_ID_FILE, false);
+        serverPropertiesBuilder = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES, true);
+        try {
+            serverProperties = serverPropertiesBuilder.getConfiguration();
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        log4jPropertiesBuilder = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_LOG4J_PROPERTIES, true, true);
+        try {
+            log4jProperties = log4jPropertiesBuilder.getConfiguration();
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            serverIdProperties = initializeProperties(PlatformUI.MIRTH_PATH + getServerProperties().getString(ManagerConstants.DIR_APPDATA) + System.getProperty("file.separator") + ManagerConstants.PATH_SERVER_ID_FILE, false).getConfiguration();
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+        }
 
         InputStream is = getClass().getResourceAsStream(ManagerConstants.PATH_VERSION_FILE);
         if (is != null) {
             try {
-                versionProperties = new PropertiesConfiguration();
-                versionProperties.load(is);
+                versionProperties = PropertiesConfigurationUtil.create(is);
             } catch (ConfigurationException e) {
                 alertErrorDialog("Could not load resource: " + ManagerConstants.PATH_VERSION_FILE);
+            } finally {
+                ResourceUtil.closeResourceQuietly(is);
             }
         } else {
-            versionProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_VERSION_FILE, true);
+            try {
+                versionProperties = initializeProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_VERSION_FILE, true).getConfiguration();
+            } catch (ConfigurationException e) {
+                e.printStackTrace();
+            }
         }
     }
+    
+    private ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> initializeProperties(String path, boolean alert) {
+    	return initializeProperties(path, alert, false);
+    }
 
-    private PropertiesConfiguration initializeProperties(String path, boolean alert) {
-        PropertiesConfiguration properties = new PropertiesConfiguration();
-
+    private ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> initializeProperties(String path, boolean alert, boolean commaDelimited) {
         // Auto reload changes
-        FileChangedReloadingStrategy fileChangedReloadingStrategy = new FileChangedReloadingStrategy();
-        fileChangedReloadingStrategy.setRefreshDelay(1000);
-        properties.setReloadingStrategy(fileChangedReloadingStrategy);
-        properties.setFile(new File(path));
+        ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> builder = PropertiesConfigurationUtil.createReloadingBuilder(new File(path), commaDelimited);
 
-        if (properties.isEmpty() && alert) {
+        PropertiesConfiguration properties = null;
+        try {
+            properties = builder.getConfiguration();
+            PropertiesConfigurationUtil.createReloadTrigger(builder).start();
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        if ((properties == null || properties.isEmpty()) && alert) {
             alertErrorDialog("Could not load properties from file: " + path);
         }
 
-        return properties;
+        return builder;
     }
 
     /**
@@ -351,21 +384,59 @@ public class ManagerController {
     public boolean isUsingHttp() {
         return getServerProperties().containsKey(ManagerConstants.SERVER_HTTP_PORT) && getServerProperties().getInt(ManagerConstants.SERVER_HTTP_PORT) > 0;
     }
+    
+    public ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> getServerPropertiesBuilder() {
+        return serverPropertiesBuilder;
+    }
 
     public PropertiesConfiguration getServerProperties() {
         return serverProperties;
+    }
+
+    public void reloadServerProperties() {
+        try {
+            serverProperties = serverPropertiesBuilder.getConfiguration();
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveServerProperties() throws ConfigurationException {
+        PropertiesConfigurationUtil.saveTo(serverProperties, new File(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES));
+    }
+
+    public ReloadingFileBasedConfigurationBuilder<PropertiesConfiguration> getLog4jPropertiesBuilder() {
+        return log4jPropertiesBuilder;
     }
 
     public PropertiesConfiguration getLog4jProperties() {
         return log4jProperties;
     }
 
+    public void reloadLog4jProperties() {
+        try {
+            log4jProperties = log4jPropertiesBuilder.getConfiguration();
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveLog4jProperties() throws ConfigurationException {
+        PropertiesConfigurationUtil.saveTo(log4jProperties, new File(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_LOG4J_PROPERTIES));
+    }
+
     public String getServerVersion() {
-        return versionProperties.getString(ManagerConstants.PROPERTY_SERVER_VERSION);
+    	if (versionProperties != null) {
+    		return versionProperties.getString(ManagerConstants.PROPERTY_SERVER_VERSION, "");
+    	}
+    	return "";
     }
 
     public String getServerId() {
-        return serverIdProperties.getString(ManagerConstants.PROPERTY_SERVER_ID);
+    	if (serverIdProperties != null) {
+    		return serverIdProperties.getString(ManagerConstants.PROPERTY_SERVER_ID, "");
+    	}
+    	return "";
     }
 
     public List<String> getLogFiles(String path) {

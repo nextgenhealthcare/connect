@@ -69,9 +69,9 @@ import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ComparatorUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -92,8 +92,6 @@ import com.mirth.connect.util.ColorUtil;
 public class SettingsPanelTags extends AbstractSettingsPanel {
 
     public static final String TAB_NAME = "Tags";
-
-    private static int MAX_TAG_COUNT = 10;
 
     private static final int TAGS_NAME_COLUMN = 0;
     private static final int TAGS_BACKGROUND_COLUMN = 1;

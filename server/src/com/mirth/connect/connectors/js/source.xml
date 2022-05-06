@@ -2,7 +2,7 @@
 	<name>JavaScript Reader</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.9.0</mirthVersion>
+	<mirthVersion>4.0.1</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This connector allows Mirth Connect to execute arbitrary JavaScript to pull in messages to a channel.</description>
 	<clientClassName>com.mirth.connect.connectors.js.JavaScriptReader</clientClassName>

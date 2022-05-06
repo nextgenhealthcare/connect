@@ -9,13 +9,13 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
@@ -71,6 +71,12 @@ public interface UserServletInterface extends BaseServletInterface {
     @MirthOperation(name = "logout", display = "Logout")
     public void logout() throws ClientException;
 
+    @POST
+    @Path("/_inactivityLogout")
+    @Operation(summary = "User has been inactive and automatically logged out.")
+    @MirthOperation(name = "inactivityLogout", display = "Logged out due to inactivity")
+    public void inactivityLogout() throws ClientException;
+ 
     @POST
     @Path("/")
     @Operation(summary = "Creates a new user.")
@@ -168,7 +174,7 @@ public interface UserServletInterface extends BaseServletInterface {
                     @ExampleObject(name = "loggedIn", ref = "../apiexamples/boolean_json") }) })
     @MirthOperation(name = "isUserLoggedIn", display = "Check if user is logged in", permission = Permissions.USERS_MANAGE)
     public boolean isUserLoggedIn(@Param("userId") @Parameter(description = "The unique ID of the user.", required = true) @PathParam("userId") Integer userId) throws ClientException;
-
+    
     @GET
     @Path("/{userId}/preferences")
     @Operation(summary = "Returns a Map of user preferences, optionally filtered by a set of property names.")
@@ -206,6 +212,14 @@ public interface UserServletInterface extends BaseServletInterface {
 							@ExampleObject(name = "properties", ref = "../apiexamples/properties_json") }) }) Properties properties)
 			throws ClientException;
     // @formatter:on
+    
+    @POST
+    @Path("/{userId}/notificationAcknowledged")
+    @Operation(summary = "User notification has been acknowledged.")
+    @MirthOperation(name = "userNotificationAcknowledged", display = "Login notification accepted")
+    public void setUserNotificationAcknowledged(// @formatter:off
+            @Param("userId") @Parameter(description = "The unique ID of the user.", required = true) @PathParam("userId") Integer userId) throws ClientException;
+    // @formatter:on
 
     @PUT
     @Path("/{userId}/preferences/{name}")
@@ -217,4 +231,5 @@ public interface UserServletInterface extends BaseServletInterface {
             @Param("name") @Parameter(description = "The name of the user property to update.", required = true) @PathParam("name") String name,
             @Param("value") @Parameter(description = "The value to update the property with.", required = true) String value) throws ClientException;
     // @formatter:on
+
 }

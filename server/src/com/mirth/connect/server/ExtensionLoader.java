@@ -17,10 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -30,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
+import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PluginClass;
@@ -234,11 +234,16 @@ public class ExtensionLoader {
     }
 
     private String getServerVersion() throws FileNotFoundException, ConfigurationException {
-        PropertiesConfiguration versionConfig = new PropertiesConfiguration();
-        versionConfig.setDelimiterParsingDisabled(true);
-        InputStream versionPropertiesStream = ResourceUtil.getResourceStream(ExtensionLoader.class, "version.properties");
-        versionConfig.load(versionPropertiesStream);
-        IOUtils.closeQuietly(versionPropertiesStream);
+        PropertiesConfiguration versionConfig = PropertiesConfigurationUtil.create();
+        
+        InputStream versionPropertiesStream = null;
+        try {
+            versionPropertiesStream = ResourceUtil.getResourceStream(ExtensionLoader.class, "version.properties");
+            versionConfig = PropertiesConfigurationUtil.create(versionPropertiesStream);
+        } finally {
+            ResourceUtil.closeResourceQuietly(versionPropertiesStream);
+        }
+        
         return versionConfig.getString("mirth.version");
     }
 }

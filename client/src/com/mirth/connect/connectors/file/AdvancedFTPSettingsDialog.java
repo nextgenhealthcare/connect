@@ -17,14 +17,14 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.util.DisplayUtil;
-
-import net.miginfocom.swing.MigLayout;
 
 public class AdvancedFTPSettingsDialog extends AdvancedSettingsDialog {
 

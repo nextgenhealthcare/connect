@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -36,7 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -101,6 +102,8 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.server.api.MirthServlet;
 import com.mirth.connect.server.api.providers.ApiOriginFilter;
 import com.mirth.connect.server.api.providers.ClickjackingFilter;
+import com.mirth.connect.server.api.providers.RequestedWithFilter;
+import com.mirth.connect.server.api.providers.StrictTransportSecurityFilter;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
@@ -144,7 +147,10 @@ public class MirthWebServer extends Server {
 
         if (usingHttp) {
             // add HTTP listener
-            connector = new ServerConnector(this);
+            HttpConfiguration config = new HttpConfiguration();
+            config.setSendServerVersion(false);
+            config.setSendXPoweredBy(false);
+            connector = new ServerConnector(this, new HttpConnectionFactory(config));
             connector.setName(CONNECTOR);
             connector.setHost(mirthProperties.getString("http.host", "0.0.0.0"));
             connector.setPort(mirthProperties.getInt("http.port"));
@@ -201,7 +207,7 @@ public class MirthWebServer extends Server {
         String clientLibPath = null;
 
         if (ClassPathResource.getResourceURI("client-lib") != null) {
-            clientLibPath = ClassPathResource.getResourceURI("client-lib").getPath() + File.separator;
+            clientLibPath = Paths.get(ClassPathResource.getResourceURI("client-lib")).toString() + File.separator;
         } else {
             clientLibPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "client-lib" + File.separator;
         }
@@ -296,9 +302,10 @@ public class MirthWebServer extends Server {
                 // Set the session cache directly on the handler so it doesn't use the server bean
                 sessionHandler.setSessionCache(sessionCache);
                 webapp.setSessionHandler(sessionHandler);
-
+                
                 webapp.setContextPath(contextPath + "/" + file.getName().substring(0, file.getName().length() - 4));
                 webapp.addFilter(new FilterHolder(new ClickjackingFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
+                webapp.addFilter(new FilterHolder(new StrictTransportSecurityFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
 
                 /*
                  * Set the ContainerIncludeJarPattern so that Jetty examines these JARs for TLDs,
@@ -373,7 +380,7 @@ public class MirthWebServer extends Server {
     }
 
     private ServerConnector createSSLConnector(String name, PropertiesConfiguration mirthProperties) throws Exception {
-        KeyStore keyStore = KeyStore.getInstance("JCEKS");
+        KeyStore keyStore = KeyStore.getInstance(mirthProperties.getString("keystore.type", "JCEKS"));
         FileInputStream is = new FileInputStream(new File(mirthProperties.getString("keystore.path")));
         try {
             keyStore.load(is, mirthProperties.getString("keystore.storepass").toCharArray());
@@ -381,15 +388,18 @@ public class MirthWebServer extends Server {
             IOUtils.closeQuietly(is);
         }
 
-        SslContextFactory contextFactory = new SslContextFactory();
+        SslContextFactory contextFactory = new SslContextFactory.Server();
         contextFactory.setKeyStore(keyStore);
         contextFactory.setCertAlias("mirthconnect");
         contextFactory.setKeyManagerPassword(mirthProperties.getString("keystore.keypass"));
+        contextFactory.setEndpointIdentificationAlgorithm(null);
 
         HttpConfiguration config = new HttpConfiguration();
         config.setSecureScheme("https");
         config.setSecurePort(mirthProperties.getInt("https.port"));
         config.addCustomizer(new SecureRequestCustomizer());
+        config.setSendServerVersion(false);
+        config.setSendXPoweredBy(false);
 
         ServerConnector sslConnector = new ServerConnector(this, new SslConnectionFactory(contextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(config));
 
@@ -441,9 +451,13 @@ public class MirthWebServer extends Server {
         apiServletContextHandler.setContextPath(contextPath + baseAPI + apiPath);
         apiServletContextHandler.addFilter(new FilterHolder(new ApiOriginFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         apiServletContextHandler.addFilter(new FilterHolder(new ClickjackingFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
+        apiServletContextHandler.addFilter(new FilterHolder(new RequestedWithFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         apiServletContextHandler.addFilter(new FilterHolder(new MethodFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
+        apiServletContextHandler.addFilter(new FilterHolder(new StrictTransportSecurityFilter(mirthProperties)), "/*", EnumSet.of(DispatcherType.REQUEST));
         setConnectorNames(apiServletContextHandler, apiAllowHTTP);
-    	
+    
+        
+        
         return apiServletContextHandler;
     }
     

@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -22,6 +23,7 @@ import org.apache.derby.tools.ij;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.ResourceUtil;
 
 public class ScriptRunner {
     private static Logger logger = Logger.getLogger("ScriptRunner");
@@ -35,14 +37,27 @@ public class ScriptRunner {
     }
 
     public static void runScript(String scriptFile) {
+        Connection connection = null;
+        InputStream in = null;
+        
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
-            Connection connection = DriverManager.getConnection("jdbc:derby:mirthdb;create=true");
-            InputStream in = new FileInputStream(new File(scriptFile));
+            connection = DriverManager.getConnection("jdbc:derby:mirthdb;create=true");
+            in = new FileInputStream(new File(scriptFile));
             OutputStream out = new NullOutputStream();
             ij.runScript(connection, in, "UTF-8", out, "UTF-8");
         } catch (Exception e) {
             logger.error("error executing script", e);
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    logger.error("Error closing database connection.", e);
+                }
+            }
+            
+            ResourceUtil.closeResourceQuietly(in);
         }
     }
 

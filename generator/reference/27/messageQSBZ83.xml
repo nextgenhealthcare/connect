@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>QSBZ83</name>
+    <description>ORU Subscription</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>QPD</segment>
+        <segment>RCP</segment>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

@@ -9,9 +9,15 @@
 
 package com.mirth.connect.server.servlets;
 
+import io.swagger.v3.jaxrs2.integration.ServletOpenApiContextBuilder;
+import io.swagger.v3.oas.integration.OpenApiConfigurationException;
+import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
+
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,13 +28,6 @@ import javax.servlet.http.HttpServlet;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.Version;
-
-import io.swagger.v3.jaxrs2.integration.ServletOpenApiContextBuilder;
-import io.swagger.v3.oas.integration.OpenApiConfigurationException;
-import io.swagger.v3.oas.integration.SwaggerConfiguration;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
 
 public class SwaggerServlet extends HttpServlet {
 

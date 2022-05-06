@@ -107,5 +107,8 @@ public abstract class FilterTransformerElement implements Serializable, Purgable
     }
     
     // @formatter:off
-    @Override public void migrate3_9_0(DonkeyElement element) {} // @formatter:on
+    @Override public void migrate3_9_0(DonkeyElement element) {} 
+    @Override public void migrate3_11_0(DonkeyElement element) {}
+    @Override public void migrate3_11_1(DonkeyElement element) {} 
+    @Override public void migrate3_12_0(DonkeyElement element) {}// @formatter:on
 }

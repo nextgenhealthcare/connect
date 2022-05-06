@@ -111,7 +111,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
                 closeUpdateConnection();
 
                 if (attempts++ < maxRetryCount) {
-                    logger.error("An error occurred while initializing the connection, retrying after " + retryInterval + " ms...", e);
+                    logger.error("An error occurred while initializing the connection on channel " + connector.getChannelId() + ",  retrying after " + retryInterval + " ms...", e);
 
                     // Wait the specified amount of time before retrying
                     try {
@@ -204,7 +204,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
                 DbUtils.closeQuietly(cachedRowSet);
 
                 if (attempts++ < maxRetryCount && !connector.isTerminated()) {
-                    logger.error("An error occurred while polling for messages, retrying after " + retryInterval + " ms...", e);
+                    logger.error("An error occurred while polling for messages on channel " + connector.getChannelId() + ", retrying after " + retryInterval + " ms...", e);
 
                     // Wait the specified amount of time before retrying
                     Thread.sleep(retryInterval);

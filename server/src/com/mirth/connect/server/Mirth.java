@@ -25,18 +25,19 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Appender;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.MDC;
-import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
 
 import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConnectionPools;
 import com.mirth.connect.model.LibraryProperties;
@@ -73,8 +74,8 @@ public class Mirth extends Thread {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private boolean running = false;
-    private PropertiesConfiguration mirthProperties = new PropertiesConfiguration();
-    private PropertiesConfiguration versionProperties = new PropertiesConfiguration();
+    private PropertiesConfiguration mirthProperties = PropertiesConfigurationUtil.create();
+    private PropertiesConfiguration versionProperties = PropertiesConfigurationUtil.create();
     private MirthWebServer webServer;
     private CommandQueue commandQueue = CommandQueue.getInstance();
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
@@ -114,12 +115,12 @@ public class Mirth extends Thread {
 
     public void run() {
         Thread.currentThread().setName("Main Server Thread");
-        
+
         // Add the host address as a variable that log4j can output
         try {
             MDC.put("hostAddress", NetworkUtil.getIpv4HostAddress());
         } catch (Exception e) {}
-        
+
         initializeLogging();
 
         if (initResources()) {
@@ -178,8 +179,7 @@ public class Mirth extends Thread {
 
         try {
             mirthPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "mirth.properties");
-            mirthProperties.setDelimiterParsingDisabled(true);
-            mirthProperties.load(mirthPropertiesStream);
+            mirthProperties = PropertiesConfigurationUtil.create(mirthPropertiesStream);
         } catch (Exception e) {
             logger.error("could not load mirth.properties", e);
         } finally {
@@ -190,8 +190,7 @@ public class Mirth extends Thread {
 
         try {
             versionPropertiesStream = ResourceUtil.getResourceStream(this.getClass(), "version.properties");
-            versionProperties.setDelimiterParsingDisabled(true);
-            versionProperties.load(versionPropertiesStream);
+            versionProperties = PropertiesConfigurationUtil.create(versionPropertiesStream);
         } catch (Exception e) {
             logger.error("could not load version.properties", e);
         } finally {
@@ -219,14 +218,78 @@ public class Mirth extends Thread {
         configurationController.updatePropertiesConfiguration(mirthProperties);
 
         try {
-            DonkeyConnectionPools.getInstance().init(configurationController.getDatabaseSettings().getProperties());
-            SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
-            SqlConfig.getInstance().getSqlSessionManager().getConnection();
+            int maxRetry = configurationController.getDatabaseSettings().getDatabaseConnectionMaxRetry();
+            int maxRetryTimeout = configurationController.getDatabaseSettings().getDatabaseConnectionMaxRetryWaitTimeInMs();
+            do {
+                try {
+                    DonkeyConnectionPools.getInstance().init(configurationController.getDatabaseSettings().getProperties());
+                    break;
+                }catch(Exception e) {
+                    maxRetry--;
+                    if(maxRetry >= 0) {
+                        try {
+                            logger.error("Error establishing connection to database, retrying startup in " + maxRetryTimeout + " milliseconds", e);
+                            Thread.sleep(maxRetryTimeout);
+                        }catch(InterruptedException ie) {
+                            //ignore
+                        }
+                    }else {
+                        throw e;
+                    }
+                }
 
+            }while(maxRetry >= 0);
+
+            maxRetry = configurationController.getDatabaseSettings().getDatabaseConnectionMaxRetry();
+            do {
+                try {
+                    if (!SqlConfig.getInstance().getSqlSessionManager().isManagedSessionStarted()) {
+                        SqlConfig.getInstance().getSqlSessionManager().startManagedSession();
+                    }
+                    SqlConfig.getInstance().getSqlSessionManager().getConnection();
+                    break;
+                }catch(Exception e) {
+                    maxRetry--;
+                    if(maxRetry >= 0) {
+                        try {
+                            logger.error("Error establishing connection to database, retrying startup in " + maxRetryTimeout + " milliseconds", e);
+                            Thread.sleep(maxRetryTimeout);
+                        }catch(InterruptedException ie) {
+                            //ignore
+                        }
+                    }else {
+                        throw e;
+                    }
+                }
+
+            }while(maxRetry >= 0);
+
+            maxRetry = configurationController.getDatabaseSettings().getDatabaseConnectionMaxRetry();
             if (SqlConfig.getInstance().isSplitReadWrite()) {
-                SqlConfig.getInstance().getReadOnlySqlSessionManager().startManagedSession();
-                SqlConfig.getInstance().getReadOnlySqlSessionManager().getConnection();
+                do {
+                    try {
+                        if (!SqlConfig.getInstance().getReadOnlySqlSessionManager().isManagedSessionStarted()) {
+                            SqlConfig.getInstance().getReadOnlySqlSessionManager().startManagedSession();
+                        }
+                        SqlConfig.getInstance().getReadOnlySqlSessionManager().getConnection();
+                        break;
+                    }catch(Exception e) {
+                        maxRetry--;
+                        if(maxRetry >= 0) {
+                            try {
+                                logger.error("Error establishing connection to database, retrying startup in " + maxRetryTimeout + " milliseconds", e);
+                                Thread.sleep(maxRetryTimeout);
+                            }catch(InterruptedException ie) {
+                                //ignore
+                            }
+                        }else {
+                            throw e;
+                        }
+                    }
+
+                }while(maxRetry >= 0);
             }
+
         } catch (Exception e) {
             // the getCause is needed since the wrapper exception is from the connection pool
             logger.error("Error establishing connection to database, aborting startup. " + e.getCause().getMessage());
@@ -240,30 +303,40 @@ public class Mirth extends Thread {
             }
         }
 
-        extensionController.removePropertiesForUninstalledExtensions();
+        // First make a check in case multiple servers are initializing at the same time
+        migrationController.checkStartupLockTable();
 
         try {
-            migrationController.migrate();
-        } catch (MigrationException e) {
-            logger.error("Failed to migrate database schema", e);
-            stopDatabase();
-            running = false;
-            return;
+            extensionController.removePropertiesForUninstalledExtensions();
+
+            try {
+                migrationController.migrate();
+            } catch (MigrationException e) {
+                logger.error("Failed to migrate database schema", e);
+                stopDatabase();
+                running = false;
+                return;
+            }
+
+            // MIRTH-3535 disable Quartz update check
+            System.setProperty("org.terracotta.quartz.skipUpdateCheck", "true");
+
+            configurationController.migrateKeystore();
+            extensionController.setDefaultExtensionStatus();
+            extensionController.uninstallExtensions();
+            migrationController.migrateExtensions();
+            extensionController.initPlugins();
+            migrationController.migrateSerializedData();
+            userController.resetUserStatus();
+        } finally {
+            migrationController.clearStartupLockTable();
         }
 
-        // MIRTH-3535 disable Quartz update check
-        System.setProperty("org.terracotta.quartz.skipUpdateCheck", "true");
-
-        configurationController.migrateKeystore();
-        extensionController.setDefaultExtensionStatus();
-        extensionController.uninstallExtensions();
-        migrationController.migrateExtensions();
-        extensionController.initPlugins();
-        migrationController.migrateSerializedData();
-        userController.resetUserStatus();
-
         // disable the velocity logging
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
+        Logger velocityLogger = Logger.getLogger(RuntimeConstants.DEFAULT_RUNTIME_LOG_NAME);
+        if (velocityLogger != null && velocityLogger.getLevel() == null) {
+            velocityLogger.setLevel(Level.OFF);
+        }
 
         eventController.dispatchEvent(new ServerEvent(configurationController.getServerId(), "Server startup"));
 

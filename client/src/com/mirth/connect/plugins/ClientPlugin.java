@@ -12,7 +12,6 @@ package com.mirth.connect.plugins;
 import java.util.Properties;
 import java.util.Set;
 
-import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;

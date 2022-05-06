@@ -9,8 +9,10 @@
 
 package com.mirth.connect.donkey.util;
 
+import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 
 public class ResourceUtil {
@@ -40,5 +42,15 @@ public class ResourceUtil {
         }
 
         return is;
+    }
+    
+    public static void closeResourceQuietly(Closeable resource) {
+        if (resource != null) {
+            try {
+                resource.close();
+            } catch (IOException e) {
+                // Ignore
+            }
+        }
     }
 }
