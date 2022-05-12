@@ -609,7 +609,7 @@ public class TestUtils {
     }
 
     public static void assertDatesEqual(long timestamp1, long timestamp2) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String date1String = format.format(timestamp1);
         String date2String = format.format(timestamp2);
 

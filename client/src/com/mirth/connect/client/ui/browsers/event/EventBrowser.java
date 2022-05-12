@@ -72,7 +72,7 @@ import com.mirth.connect.model.User;
 import com.mirth.connect.model.filters.EventFilter;
 
 public class EventBrowser extends javax.swing.JPanel {
-    private final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
+    private final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
     private final String EVENT_ID_COLUMN_NAME = "ID";
     private final String EVENT_LEVEL_COLUMN_NAME = "Level";
