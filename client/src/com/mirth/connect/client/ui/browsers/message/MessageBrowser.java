@@ -132,7 +132,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     protected static final int IMPORT_ID_COLUMN = 12;
     protected static final int IMPORT_CHANNEL_ID_COLUMN = 13;
 
-    protected final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
+    protected final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
     private final String SCOPE_COLUMN_NAME = "Scope";
     private final String KEY_COLUMN_NAME = "Variable";
