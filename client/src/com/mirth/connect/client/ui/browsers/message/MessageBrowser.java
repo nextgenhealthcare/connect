@@ -147,6 +147,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private Frame parent;
     private String channelId;
     private boolean isChannelDeployed;
+    private boolean isCURESPHILoggingOn;
     private Map<Integer, String> connectors;
     private List<MetaDataColumn> metaDataColumns;
     private MessageBrowserTableModel tableModel;
@@ -329,6 +330,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         Set<String> metaDataColumnNames = new LinkedHashSet<String>();
 
         for (MetaDataColumn column : metaDataColumns) {
+            // if channel has patient_id metadata, turn on CURES PHI logging
+            isCURESPHILoggingOn = column.getName().toLowerCase().equals("patient_id") ? true : false;
+            
             metaDataColumnNames.add(column.getName());
         }
 
@@ -1737,6 +1741,23 @@ public class MessageBrowser extends javax.swing.JPanel {
 
                         if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
                             parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 10, false);
+                        }
+                        
+                        // if CURES PHI logging is on and a channel message has been accessed, audit the event
+                        if (isCURESPHILoggingOn) {
+                            try {
+                                parent.mirthClient.auditAccessedPHIMessage(connectorMessage.getMetaDataMap() != null && connectorMessage.getMetaDataMap().get("PATIENT_ID") != null ? connectorMessage.getMetaDataMap().get("PATIENT_ID").toString() : "");
+                            } catch (Throwable t) {
+                                if (t.getMessage().contains("Java heap space")) {
+                                    parent.alertError(parent, "There was an out of memory error when trying to retrieve message content.\nIncrease your heap size and try again.");
+                                } else if (t instanceof RequestAbortedException) {
+                                    // The client is no longer waiting for the message content request
+                                } else {
+                                    parent.alertThrowable(parent, t);
+                                }
+                                this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                return;
+                            }
                         }
                     }
                 } else {
