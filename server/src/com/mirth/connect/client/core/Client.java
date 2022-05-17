@@ -2049,6 +2049,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     public synchronized void auditAccessedPHIMessage(String patientID) throws ClientException {
         getServlet(MessageServletInterface.class).auditAccessedPHIMessage(patientID);
     }
+    
+    /**
+     * Audit that the user has queried the channel messages panel that contains PHI.
+     * 
+     * @see MessageServletInterface#auditQueriedPHIMessage
+     */
+    @Override
+    public synchronized void auditQueriedPHIMessage(String query) throws ClientException {
+        getServlet(MessageServletInterface.class).auditQueriedPHIMessage(query);
+    }
 
     /*****************
      * Event Servlet *

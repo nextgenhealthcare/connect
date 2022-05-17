@@ -148,6 +148,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private String channelId;
     private boolean isChannelDeployed;
     private boolean isCURESPHILoggingOn;
+    private boolean isChannelMessagesPanelFirstLoadSearch;
     private Map<Integer, String> connectors;
     private List<MetaDataColumn> metaDataColumns;
     private MessageBrowserTableModel tableModel;
@@ -364,7 +365,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageTreeTable.setMetaDataColumns(metaDataColumnNames, channelId);
         messageTreeTable.restoreColumnPreferences();
 
+        isChannelMessagesPanelFirstLoadSearch = true;
         runSearch();
+        isChannelMessagesPanelFirstLoadSearch = false;
     }
 
     public Set<Operation> getAbortOperations() {
@@ -587,6 +590,23 @@ public class MessageBrowser extends javax.swing.JPanel {
             loadPageNumber(1);
 
             updateSearchCriteriaPane();
+            
+            // if CURES PHI logging is on and channel messages have been loaded, audit the event
+            if (isCURESPHILoggingOn && !isChannelMessagesPanelFirstLoadSearch) {
+                try {
+                    parent.mirthClient.auditQueriedPHIMessage(messageFilter.getTextSearch());
+                } catch (Throwable t) {
+                    if (t.getMessage().contains("Java heap space")) {
+                        parent.alertError(parent, "There was an out of memory error when trying to retrieve message content.\nIncrease your heap size and try again.");
+                    } else if (t instanceof RequestAbortedException) {
+                        // The client is no longer waiting for the message content request
+                    } else {
+                        parent.alertThrowable(parent, t);
+                    }
+                    this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    return;
+                }
+            }
         }
     }
 

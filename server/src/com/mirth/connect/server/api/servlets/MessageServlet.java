@@ -348,7 +348,18 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
     @Override
     @DontCheckAuthorized
     public void auditAccessedPHIMessage(String patientID) {
-        // manually audit the accessed PHI event when the user clicks on a channel message that contains patient_id
+        auditAccessedQueriedPHIMessage(patientID, null);
+    }
+    
+    @Override
+    @DontCheckAuthorized
+    public void auditQueriedPHIMessage(String query) {
+        auditAccessedQueriedPHIMessage(null, query);
+    }
+    
+    @DontCheckAuthorized
+    public void auditAccessedQueriedPHIMessage(String patientID, String query) {
+        // manually audit the accessed or queried PHI event when the user clicks on a channel message or queries the channel messages panel that contains patient_id
         ServerEvent event = new ServerEvent(configurationController.getServerId(), operation.getDisplayName());
         
         // set default event properties
@@ -357,16 +368,24 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
         event.setLevel(Level.INFORMATION);
         event.setOutcome(Outcome.SUCCESS);
 
-        // set patient_id attribute
+        // set patient_id or query attribute
         Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("patient_id", patientID);
+        
+        if (patientID != null && !patientID.isEmpty()) {
+            attributes.put("patient_id", patientID);
+        }
+        
+        if (query != null && !query.isEmpty()) {
+            attributes.put("query", query);
+        }
+        
         event.setAttributes(attributes);
 
         eventController.dispatchEvent(event);
         
         return;
     }
-
+    
     private MessageFilter getMessageFilter(Long minMessageId, Long maxMessageId, Long minOriginalId, Long maxOriginalId, Long minImportId, Long maxImportId, Calendar startDate, Calendar endDate, String textSearch, Boolean textSearchRegex, Set<Status> statuses, Set<Integer> includedMetaDataIds, Set<Integer> excludedMetaDataIds, String serverId, Set<String> rawContentSearches, Set<String> processedRawContentSearches, Set<String> transformedContentSearches, Set<String> encodedContentSearches, Set<String> sentContentSearches, Set<String> responseContentSearches, Set<String> responseTransformedContentSearches, Set<String> processedResponseContentSearches, Set<String> connectorMapContentSearches, Set<String> channelMapContentSearches, Set<String> sourceMapContentSearches, Set<String> responseMapContentSearches, Set<String> processingErrorContentSearches, Set<String> postprocessorErrorContentSearches, Set<String> responseErrorContentSearches, Set<MetaDataSearch> metaDataSearches, Set<MetaDataSearch> metaDataCaseInsensitiveSearches, Set<String> textSearchMetaDataColumns, Integer minSendAttempts, Integer maxSendAttempts, Boolean attachment, Boolean error) {
         MessageFilter filter = new MessageFilter();
         filter.setMinMessageId(minMessageId);
