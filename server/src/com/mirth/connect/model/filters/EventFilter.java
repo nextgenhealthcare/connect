@@ -11,6 +11,8 @@ package com.mirth.connect.model.filters;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -38,8 +40,10 @@ public class EventFilter implements Serializable {
     private String name;
     private Outcome outcome;
     private Integer userId;
+    private String patientId;
     private String ipAddress;
     private String serverId;
+    private Map<String, String> attributes = new LinkedHashMap<String, String>();
 
     public Integer getMaxEventId() {
         return maxEventId;
@@ -111,6 +115,14 @@ public class EventFilter implements Serializable {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+    
+    public String getPatientId() {
+		return patientId;
+	}
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
     }
 
     public String getIpAddress() {

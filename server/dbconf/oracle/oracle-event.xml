@@ -28,6 +28,7 @@
          <if test='endDate != null'>AND DATE_CREATED <![CDATA[ <= ]]> #{endDate}</if>
          <if test='outcome != null'>AND OUTCOME = #{outcome}</if>
          <if test='userId != null'>AND USER_ID = #{userId}</if>
+         <if test='patientId != null'>AND ATTRIBUTES ILIKE '%&lt;string&gt;' || #{patientId} || '%'</if>
          <if test='ipAddress != null'>AND IP_ADDRESS = #{ipAddress}</if>
          <if test='serverId != null'>AND SERVER_ID LIKE '%' || #{serverId} || '%'</if>
       </where>

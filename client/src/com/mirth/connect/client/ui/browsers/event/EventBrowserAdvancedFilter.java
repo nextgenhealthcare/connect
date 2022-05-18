@@ -75,6 +75,7 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
     public void reset() {
         userComboBox.setSelectedIndex(0);
         outcomeComboBox.setSelectedIndex(0);
+        patientIdField.setText("");
         ipAddressField.setText("");
     }
 
@@ -92,12 +93,14 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
 
         cachedSettings.put("user", userComboBox.getSelectedItem());
         cachedSettings.put("outcome", outcomeComboBox.getSelectedItem());
+        cachedSettings.put("patientId", patientIdField.getText());
         cachedSettings.put("ipAddress", ipAddressField.getText());
     }
 
     public void loadSelections() {
         userComboBox.setSelectedItem((String) cachedSettings.get("user"));
         outcomeComboBox.setSelectedItem((String) cachedSettings.get("outcome"));
+        patientIdField.setText((String) cachedSettings.get("patientId"));
         ipAddressField.setText((String) cachedSettings.get("ipAddress"));
 
         cachedSettings.clear();
@@ -106,7 +109,7 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
     public Boolean hasAdvancedCriteria() {
         Boolean hasAdvancedCriteria = false;
 
-        if (userComboBox.getSelectedIndex() != 0 || outcomeComboBox.getSelectedIndex() != 0 || StringUtils.isNotEmpty(ipAddressField.getText())) {
+        if (userComboBox.getSelectedIndex() != 0 || outcomeComboBox.getSelectedIndex() != 0 || StringUtils.isNotEmpty(ipAddressField.getText()) || StringUtils.isNotEmpty(patientIdField.getText())) {
             hasAdvancedCriteria = true;
         }
 
@@ -121,6 +124,10 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
 
     public String getOutcome() {
         return (String) outcomeComboBox.getSelectedItem();
+    }
+
+    public String getPatientId() {
+        return patientIdField.getText();
     }
 
     public String getIpAddress() {
@@ -156,6 +163,8 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
         okButton1 = new javax.swing.JButton();
         serverIdField = new com.mirth.connect.client.ui.components.MirthTextField();
         serverIdLabel = new javax.swing.JLabel();
+        patientIdField = new com.mirth.connect.client.ui.components.MirthTextField();
+        patientIdLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -165,6 +174,8 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
         });
 
         userLabel.setText("User:");
+
+        patientIdLabel.setText("Patient ID:");
 
         ipAddressLabel.setText("IP Address:");
 
@@ -224,6 +235,7 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(outcomeLabel)
                     .addComponent(userLabel)
+                    .addComponent(patientIdLabel)
                     .addComponent(ipAddressLabel)
                     .addComponent(serverIdLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -231,6 +243,7 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(outcomeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(userComboBox, 0, 125, Short.MAX_VALUE)
+                        .addComponent(patientIdField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(ipAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(serverIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(56, Short.MAX_VALUE))
@@ -250,6 +263,10 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(outcomeLabel)
                     .addComponent(outcomeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(patientIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(patientIdLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ipAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -295,5 +312,7 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
     private javax.swing.JLabel serverIdLabel;
     private javax.swing.JComboBox userComboBox;
     private javax.swing.JLabel userLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField patientIdField;
+    private javax.swing.JLabel patientIdLabel;
     // End of variables declaration//GEN-END:variables
 }

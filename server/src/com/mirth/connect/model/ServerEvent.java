@@ -45,10 +45,12 @@ public class ServerEvent extends Event implements Serializable {
     private Map<String, String> attributes = new LinkedHashMap<String, String>();
     private Outcome outcome = Outcome.SUCCESS;
     private int userId = 0;
+    private String patientId;
     private String ipAddress;
     private String serverId;
 
-    public ServerEvent() {
+
+	public ServerEvent() {
         eventTime = Calendar.getInstance();
         eventTime.setTimeInMillis(getDateTime());
     }
@@ -131,6 +133,15 @@ public class ServerEvent extends Event implements Serializable {
     public void setUserId(int userId) {
         this.userId = userId;
     }
+    
+    public String getPatientId() {
+    	this.patientId = this.attributes.get("patient_id");
+		return patientId;
+	}
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
 
     public String getIpAddress() {
         return ipAddress;
@@ -157,7 +168,7 @@ public class ServerEvent extends Event implements Serializable {
     }
 
     public static String getExportHeader() {
-        return "ID, Date and Time, Level, Outcome, Operation, Name, User ID, IP Address, Attributes";
+        return "ID, Date and Time, Level, Outcome, Operation, Name, User ID, IP Address, Patient ID, Attributes";
     }
 
     public String toExportString() {
@@ -169,6 +180,7 @@ public class ServerEvent extends Event implements Serializable {
         builder.append(name + ", ");
         builder.append(userId + ", ");
         builder.append(ipAddress + ", ");
+        builder.append(getPatientId() + ", ");
 
         /*
          * Print out the attributes and Base64 encode them in case there are newlines.
