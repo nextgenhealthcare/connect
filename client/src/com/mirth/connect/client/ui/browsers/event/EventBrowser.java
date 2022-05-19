@@ -297,8 +297,8 @@ public class EventBrowser extends javax.swing.JPanel {
             }
         }
 
-        if (!advancedSearchPopup.getPatientId().equals("")) {
-            eventFilter.setPatientId(advancedSearchPopup.getPatientId());
+        if (!advancedSearchPopup.getAttributeSearch().equals("")) {
+            eventFilter.setAttributeSearch(advancedSearchPopup.getAttributeSearch());
         }
 
         if (!advancedSearchPopup.getIpAddress().equals("")) {
@@ -399,8 +399,8 @@ public class EventBrowser extends javax.swing.JPanel {
             text.append(padding + "Outcome: " + eventFilter.getOutcome());
         }
 
-        if (eventFilter.getPatientId() != null) {
-            text.append(padding + "Patient ID: " + eventFilter.getPatientId());
+        if (eventFilter.getAttributeSearch() != null) {
+            text.append(padding + "AttributeSearch: " + eventFilter.getAttributeSearch());
         }
 
         if (eventFilter.getIpAddress() != null) {
