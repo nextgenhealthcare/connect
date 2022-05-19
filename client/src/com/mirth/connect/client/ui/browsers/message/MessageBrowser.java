@@ -595,14 +595,8 @@ public class MessageBrowser extends javax.swing.JPanel {
             if (isCURESPHILoggingOn && !isChannelMessagesPanelFirstLoadSearch) {
                 try {
                     parent.mirthClient.auditQueriedPHIMessage(messageFilter.getTextSearch());
-                } catch (Throwable t) {
-                    if (t.getMessage().contains("Java heap space")) {
-                        parent.alertError(parent, "There was an out of memory error when trying to retrieve message content.\nIncrease your heap size and try again.");
-                    } else if (t instanceof RequestAbortedException) {
-                        // The client is no longer waiting for the message content request
-                    } else {
-                        parent.alertThrowable(parent, t);
-                    }
+                } catch (ClientException e) {
+                    parent.alertThrowable(parent, e);
                     this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     return;
                 }
@@ -1767,14 +1761,8 @@ public class MessageBrowser extends javax.swing.JPanel {
                         if (isCURESPHILoggingOn) {
                             try {
                                 parent.mirthClient.auditAccessedPHIMessage(connectorMessage.getMetaDataMap() != null && connectorMessage.getMetaDataMap().get("PATIENT_ID") != null ? connectorMessage.getMetaDataMap().get("PATIENT_ID").toString() : "");
-                            } catch (Throwable t) {
-                                if (t.getMessage().contains("Java heap space")) {
-                                    parent.alertError(parent, "There was an out of memory error when trying to retrieve message content.\nIncrease your heap size and try again.");
-                                } else if (t instanceof RequestAbortedException) {
-                                    // The client is no longer waiting for the message content request
-                                } else {
-                                    parent.alertThrowable(parent, t);
-                                }
+                            } catch (ClientException e) {
+                                parent.alertThrowable(parent, e);
                                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                 return;
                             }
@@ -1785,7 +1773,6 @@ public class MessageBrowser extends javax.swing.JPanel {
                 }
 
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
             }
         }
     }
