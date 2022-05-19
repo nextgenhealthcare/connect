@@ -596,9 +596,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 try {
                     parent.mirthClient.auditQueriedPHIMessage(messageFilter.getTextSearch());
                 } catch (ClientException e) {
-                    parent.alertThrowable(parent, e);
-                    this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                    return;
+                    logger.error("Unable to audit the CURES queried PHI event.", e);
                 }
             }
         }
@@ -1762,9 +1760,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                             try {
                                 parent.mirthClient.auditAccessedPHIMessage(connectorMessage.getMetaDataMap() != null && connectorMessage.getMetaDataMap().get("PATIENT_ID") != null ? connectorMessage.getMetaDataMap().get("PATIENT_ID").toString() : "");
                             } catch (ClientException e) {
-                                parent.alertThrowable(parent, e);
-                                this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                                return;
+                                logger.error("Unable to audit the CURES accessed PHI event.", e);
                             }
                         }
                     }
