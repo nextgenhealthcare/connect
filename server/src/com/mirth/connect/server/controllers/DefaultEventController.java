@@ -211,7 +211,7 @@ public class DefaultEventController extends EventController {
 
         params.put("outcome", filter.getOutcome());
         params.put("userId", filter.getUserId());
-        params.put("patientId", filter.getPatientId());
+        params.put("attributeSearch", filter.getAttributeSearch());
         params.put("ipAddress", filter.getIpAddress());
         params.put("serverId", filter.getServerId());
 

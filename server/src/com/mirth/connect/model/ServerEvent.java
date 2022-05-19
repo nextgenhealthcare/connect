@@ -168,7 +168,7 @@ public class ServerEvent extends Event implements Serializable {
     }
 
     public static String getExportHeader() {
-        return "ID, Date and Time, Level, Outcome, Operation, Name, User ID, IP Address, Patient ID, Attributes";
+        return "ID, Date and Time, Level, Outcome, Operation, Name, User ID, IP Address, Attributes";
     }
 
     public String toExportString() {
@@ -180,7 +180,6 @@ public class ServerEvent extends Event implements Serializable {
         builder.append(name + ", ");
         builder.append(userId + ", ");
         builder.append(ipAddress + ", ");
-        builder.append(getPatientId() + ", ");
 
         /*
          * Print out the attributes and Base64 encode them in case there are newlines.

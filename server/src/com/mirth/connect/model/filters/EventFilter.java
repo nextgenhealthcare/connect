@@ -40,7 +40,7 @@ public class EventFilter implements Serializable {
     private String name;
     private Outcome outcome;
     private Integer userId;
-    private String patientId;
+    private String attributeSearch;
     private String ipAddress;
     private String serverId;
     private Map<String, String> attributes = new LinkedHashMap<String, String>();
@@ -117,12 +117,12 @@ public class EventFilter implements Serializable {
         this.userId = userId;
     }
     
-    public String getPatientId() {
-		return patientId;
+    public String getAttributeSearch() {
+		return attributeSearch;
 	}
 
-    public void setPatientId(String patientId) {
-        this.patientId = patientId;
+    public void setAttributeSearch(String patientId) {
+        this.attributeSearch = patientId;
     }
 
     public String getIpAddress() {
