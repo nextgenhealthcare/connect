@@ -147,6 +147,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private Frame parent;
     private String channelId;
     private boolean isChannelDeployed;
+    private boolean isCURESPHILoggingOn;
+    private boolean isChannelMessagesPanelFirstLoadSearch;
     private Map<Integer, String> connectors;
     private List<MetaDataColumn> metaDataColumns;
     private MessageBrowserTableModel tableModel;
@@ -329,6 +331,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         Set<String> metaDataColumnNames = new LinkedHashSet<String>();
 
         for (MetaDataColumn column : metaDataColumns) {
+            // if channel has patient_id metadata, turn on CURES PHI logging
+            isCURESPHILoggingOn = column.getName().toLowerCase().equals("patient_id") ? true : false;
+            
             metaDataColumnNames.add(column.getName());
         }
 
@@ -360,7 +365,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageTreeTable.setMetaDataColumns(metaDataColumnNames, channelId);
         messageTreeTable.restoreColumnPreferences();
 
+        isChannelMessagesPanelFirstLoadSearch = true;
         runSearch();
+        isChannelMessagesPanelFirstLoadSearch = false;
     }
 
     public Set<Operation> getAbortOperations() {
@@ -583,6 +590,15 @@ public class MessageBrowser extends javax.swing.JPanel {
             loadPageNumber(1);
 
             updateSearchCriteriaPane();
+            
+            // if CURES PHI logging is on and channel messages have been loaded, audit the event
+            if (isCURESPHILoggingOn && !isChannelMessagesPanelFirstLoadSearch) {
+                try {
+                    parent.mirthClient.auditQueriedPHIMessage(messageFilter.getTextSearch());
+                } catch (ClientException e) {
+                    logger.error("Unable to audit the CURES queried PHI event.", e);
+                }
+            }
         }
     }
 
@@ -1738,13 +1754,21 @@ public class MessageBrowser extends javax.swing.JPanel {
                         if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
                             parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 10, false);
                         }
+                        
+                        // if CURES PHI logging is on and a channel message has been accessed, audit the event
+                        if (isCURESPHILoggingOn) {
+                            try {
+                                parent.mirthClient.auditAccessedPHIMessage(connectorMessage.getMetaDataMap() != null && connectorMessage.getMetaDataMap().get("PATIENT_ID") != null ? connectorMessage.getMetaDataMap().get("PATIENT_ID").toString() : "");
+                            } catch (ClientException e) {
+                                logger.error("Unable to audit the CURES accessed PHI event.", e);
+                            }
+                        }
                     }
                 } else {
                     clearDescription(null);
                 }
 
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
             }
         }
     }

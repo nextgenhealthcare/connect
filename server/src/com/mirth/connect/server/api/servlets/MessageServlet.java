@@ -46,14 +46,20 @@ import com.mirth.connect.donkey.server.channel.ChannelException;
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.model.MessageImportResult;
+import com.mirth.connect.model.ServerEvent;
+import com.mirth.connect.model.ServerEvent.Level;
+import com.mirth.connect.model.ServerEvent.Outcome;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.mirth.connect.server.api.CheckAuthorizedChannelId;
+import com.mirth.connect.server.api.DontCheckAuthorized;
 import com.mirth.connect.server.api.MirthServlet;
 import com.mirth.connect.server.api.providers.ResponseCodeFilter;
+import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
+import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.MessageController;
 import com.mirth.connect.server.util.DICOMMessageUtil;
 import com.mirth.connect.util.MessageImporter.MessageImportException;
@@ -65,6 +71,8 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
     private static final Logger logger = Logger.getLogger(MessageServlet.class);
     private static MessageController messageController;
     private static EngineController engineController;
+    private static ConfigurationController configurationController;
+    private static EventController eventController;
 
     public MessageServlet(@Context HttpServletRequest request, @Context ContainerRequestContext containerRequestContext, @Context SecurityContext sc) {
         super(request, containerRequestContext, sc);
@@ -79,6 +87,8 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
         super.initializeControllers();
         messageController = controllerFactory.createMessageController();
         engineController = controllerFactory.createEngineController();
+        configurationController = controllerFactory.createConfigurationController();
+        eventController = controllerFactory.createEventController();
     }
 
     @Override
@@ -334,7 +344,38 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
             throw new MirthApiException(e);
         }
     }
+    
+    @Override
+    @DontCheckAuthorized
+    public void auditAccessedPHIMessage(String patientID) {
+        sendServerEventWithAttributes(Collections.singletonMap("patient_id", patientID));
+    }
+    
+    @Override
+    @DontCheckAuthorized
+    public void auditQueriedPHIMessage(String query) {
+        sendServerEventWithAttributes(Collections.singletonMap("query", query));
+    }
+    
+    @DontCheckAuthorized
+    private void sendServerEventWithAttributes(Map<String, String> attributes) {
+        // manually audit the server event
+        ServerEvent event = new ServerEvent(configurationController.getServerId(), operation.getDisplayName());
+        
+        // set default event properties
+        event.setUserId(getCurrentUserId());
+        event.setIpAddress(getRequestIpAddress());
+        event.setLevel(Level.INFORMATION);
+        event.setOutcome(Outcome.SUCCESS);
 
+        // set event attributes
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            event.addAttribute(entry.getKey(), entry.getValue());
+        }
+
+        eventController.dispatchEvent(event);
+    }
+    
     private MessageFilter getMessageFilter(Long minMessageId, Long maxMessageId, Long minOriginalId, Long maxOriginalId, Long minImportId, Long maxImportId, Calendar startDate, Calendar endDate, String textSearch, Boolean textSearchRegex, Set<Status> statuses, Set<Integer> includedMetaDataIds, Set<Integer> excludedMetaDataIds, String serverId, Set<String> rawContentSearches, Set<String> processedRawContentSearches, Set<String> transformedContentSearches, Set<String> encodedContentSearches, Set<String> sentContentSearches, Set<String> responseContentSearches, Set<String> responseTransformedContentSearches, Set<String> processedResponseContentSearches, Set<String> connectorMapContentSearches, Set<String> channelMapContentSearches, Set<String> sourceMapContentSearches, Set<String> responseMapContentSearches, Set<String> processingErrorContentSearches, Set<String> postprocessorErrorContentSearches, Set<String> responseErrorContentSearches, Set<MetaDataSearch> metaDataSearches, Set<MetaDataSearch> metaDataCaseInsensitiveSearches, Set<String> textSearchMetaDataColumns, Integer minSendAttempts, Integer maxSendAttempts, Boolean attachment, Boolean error) {
         MessageFilter filter = new MessageFilter();
         filter.setMinMessageId(minMessageId);

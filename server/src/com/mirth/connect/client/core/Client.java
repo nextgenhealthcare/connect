@@ -2039,6 +2039,26 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     public void exportAttachmentServer(String channelId, Long messageId, String attachmentId, String filePath, boolean binary) throws ClientException {
         getServlet(MessageServletInterface.class).exportAttachmentServer(channelId, messageId, attachmentId, filePath, binary);
     }
+    
+    /**
+     * Audit that the user has accessed a channel message that contains PHI.
+     * 
+     * @see MessageServletInterface#auditAccessedPHIMessage
+     */
+    @Override
+    public synchronized void auditAccessedPHIMessage(String patientID) throws ClientException {
+        getServlet(MessageServletInterface.class).auditAccessedPHIMessage(patientID);
+    }
+    
+    /**
+     * Audit that the user has queried the channel messages panel that contains PHI.
+     * 
+     * @see MessageServletInterface#auditQueriedPHIMessage
+     */
+    @Override
+    public synchronized void auditQueriedPHIMessage(String query) throws ClientException {
+        getServlet(MessageServletInterface.class).auditQueriedPHIMessage(query);
+    }
 
     /*****************
      * Event Servlet *
