@@ -2080,8 +2080,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EventServletInterface#getEvents
      */
     @Override
-    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String patientId, String ipAddress, String serverId, Integer offset, Integer limit) throws ClientException {
-        return getServlet(EventServletInterface.class).getEvents(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, patientId, ipAddress, serverId, offset, limit);
+    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String attributeSearch, String ipAddress, String serverId, Integer offset, Integer limit) throws ClientException {
+        return getServlet(EventServletInterface.class).getEvents(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, attributeSearch, ipAddress, serverId, offset, limit);
     }
 
     /**
@@ -2100,8 +2100,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EventServletInterface#getEventCount
      */
     @Override
-    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String patientId, String ipAddress, String serverId) throws ClientException {
-        return getServlet(EventServletInterface.class).getEventCount(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, patientId, ipAddress, serverId);
+    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String attributeSearch, String ipAddress, String serverId) throws ClientException {
+        return getServlet(EventServletInterface.class).getEventCount(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, attributeSearch, ipAddress, serverId);
     }
 
     /**

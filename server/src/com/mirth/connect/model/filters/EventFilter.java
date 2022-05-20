@@ -43,7 +43,6 @@ public class EventFilter implements Serializable {
     private String attributeSearch;
     private String ipAddress;
     private String serverId;
-    private Map<String, String> attributes = new LinkedHashMap<String, String>();
 
     public Integer getMaxEventId() {
         return maxEventId;

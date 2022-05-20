@@ -100,7 +100,7 @@ public interface EventServletInterface extends BaseServletInterface {
             @Param("name") @Parameter(description = "Searches the event name for this string.") @QueryParam("name") String name,
             @Param("outcome") @Parameter(description = "Searches on whether the event outcome was successful or not.") @QueryParam("outcome") Outcome outcome,
             @Param("userId") @Parameter(description = "The user ID to query events by.") @QueryParam("userId") Integer userId,
-            @Param("patientId") @Parameter(description = "The patient ID associated with the event.") @QueryParam("patientId") String patientId,
+            @Param("attributeSearch") @Parameter(description = "Searches the attributes for this string.") @QueryParam("attributeSearch") String attributeSearch,
             @Param("ipAddress") @Parameter(description = "The IP address that originated the event.") @QueryParam("ipAddress") String ipAddress,
             @Param("serverId") @Parameter(description = "The ID of the server that the event was created from.") @QueryParam("serverId") String serverId,
             @Param("offset") @Parameter(description = "Used for pagination, determines where to start in the search results.", schema = @Schema(defaultValue = "0")) @QueryParam("offset") Integer offset,
@@ -132,7 +132,7 @@ public interface EventServletInterface extends BaseServletInterface {
             @Param("name") @Parameter(description = "Searches the event name for this string.") @QueryParam("name") String name,
             @Param("outcome") @Parameter(description = "Searches on whether the event outcome was successful or not.") @QueryParam("outcome") Outcome outcome,
             @Param("userId") @Parameter(description = "The user ID to query events by.") @QueryParam("userId") Integer userId,
-            @Param("patientId") @Parameter(description = "The patient ID associated with the event.") @QueryParam("patientId") String patientId,
+            @Param("attributeSearch") @Parameter(description = "Searches the attributes for this string.") @QueryParam("attributeSearch") String attributeSearch,
             @Param("ipAddress") @Parameter(description = "The IP address that originated the event.") @QueryParam("ipAddress") String ipAddress,
             @Param("serverId") @Parameter(description = "The ID of the server that the event was created from.") @QueryParam("serverId") String serverId) throws ClientException;
     // @formatter:on

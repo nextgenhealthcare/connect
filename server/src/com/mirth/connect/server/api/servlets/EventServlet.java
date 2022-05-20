@@ -73,7 +73,7 @@ public class EventServlet extends MirthServlet implements EventServletInterface 
     }
 
     @Override
-    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String AttributeSearch, String ipAddress, String serverId, Integer offset, Integer limit) {
+    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String attributeSearch, String ipAddress, String serverId, Integer offset, Integer limit) {
         EventFilter filter = new EventFilter();
         filter.setMaxEventId(maxEventId);
         filter.setMinEventId(minEventId);
@@ -85,7 +85,7 @@ public class EventServlet extends MirthServlet implements EventServletInterface 
         filter.setName(name);
         filter.setOutcome(outcome);
         filter.setUserId(userId);
-        filter.setAttributeSearch(AttributeSearch);
+        filter.setAttributeSearch(attributeSearch);
         filter.setIpAddress(ipAddress);
         filter.setServerId(serverId);
 
@@ -106,7 +106,7 @@ public class EventServlet extends MirthServlet implements EventServletInterface 
     }
 
     @Override
-    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String AttributeSearch, String ipAddress, String serverId) {
+    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String attributeSearch, String ipAddress, String serverId) {
         EventFilter filter = new EventFilter();
         filter.setMaxEventId(maxEventId);
         filter.setMinEventId(minEventId);
@@ -116,7 +116,7 @@ public class EventServlet extends MirthServlet implements EventServletInterface 
         filter.setName(name);
         filter.setOutcome(outcome);
         filter.setUserId(userId);
-        filter.setAttributeSearch(AttributeSearch);
+        filter.setAttributeSearch(attributeSearch);
         filter.setIpAddress(ipAddress);
         filter.setServerId(serverId);
 

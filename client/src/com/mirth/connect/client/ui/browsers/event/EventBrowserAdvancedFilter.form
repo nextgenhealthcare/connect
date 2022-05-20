@@ -106,7 +106,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="AttributeSearchLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Patient ID:"/>
+        <Property name="text" type="java.lang.String" value="Attributes:"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="ipAddressField">
