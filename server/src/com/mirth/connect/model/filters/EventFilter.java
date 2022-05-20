@@ -11,8 +11,6 @@ package com.mirth.connect.model.filters;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
