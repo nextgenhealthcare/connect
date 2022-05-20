@@ -31,7 +31,7 @@
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="outcomeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="userLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="AttributeSearchLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="attributeSearchLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="ipAddressLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="serverIdLabel" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -40,7 +40,7 @@
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Component id="outcomeComboBox" max="32767" attributes="1"/>
                       <Component id="userComboBox" alignment="0" pref="125" max="32767" attributes="1"/>
-                      <Component id="AttributeSearchField" alignment="0" max="32767" attributes="1"/>
+                      <Component id="attributeSearchField" alignment="0" max="32767" attributes="1"/>
                       <Component id="ipAddressField" alignment="0" max="32767" attributes="1"/>
                   </Group>
                   <Component id="serverIdField" min="-2" pref="215" max="-2" attributes="1"/>
@@ -69,8 +69,8 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="AttributeSearchField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="AttributeSearchLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="attributeSearchField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="attributeSearchLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -102,9 +102,9 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="AttributeSearchField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="attributeSearchField">
     </Component>
-    <Component class="javax.swing.JLabel" name="AttributeSearchLabel">
+    <Component class="javax.swing.JLabel" name="attributeSearchLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Attributes:"/>
       </Properties>

@@ -93,7 +93,7 @@ public class EventBrowserAdvancedFilter extends MirthDialog {
 
         cachedSettings.put("user", userComboBox.getSelectedItem());
         cachedSettings.put("outcome", outcomeComboBox.getSelectedItem());
-        cachedSettings.put("Attributes", attributeSearchField.getText());
+        cachedSettings.put("attributeSearch", attributeSearchField.getText());
         cachedSettings.put("ipAddress", ipAddressField.getText());
     }
 

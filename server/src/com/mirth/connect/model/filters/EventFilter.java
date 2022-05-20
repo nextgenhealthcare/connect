@@ -120,8 +120,8 @@ public class EventFilter implements Serializable {
 		return attributeSearch;
 	}
 
-    public void setAttributeSearch(String patientId) {
-        this.attributeSearch = patientId;
+    public void setAttributeSearch(String attributeSearch) {
+        this.attributeSearch = attributeSearch;
     }
 
     public String getIpAddress() {
