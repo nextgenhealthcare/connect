@@ -82,6 +82,7 @@ public class EventBrowser extends javax.swing.JPanel {
     private final String EVENT_USER_COLUMN_NAME = "User";
     private final String EVENT_OUTCOME_COLUMN_NAME = "Outcome";
     private final String EVENT_IP_ADDRESS_COLUMN_NAME = "IP Address";
+    private final String EVENT_PATIENT_ID_NAME = "Patient ID";
     private final String ATTRIBUTES_NAME_COLUMN_NAME = "Name";
     private final String ATTRIBUTES_VALUE_COLUMN_NAME = "Value";
     private final int ATTRIBUTES_VALUE_COLUMN_NUMBER = 1;
@@ -296,6 +297,10 @@ public class EventBrowser extends javax.swing.JPanel {
             }
         }
 
+        if (!advancedSearchPopup.getAttributeSearch().equals("")) {
+            eventFilter.setAttributeSearch(advancedSearchPopup.getAttributeSearch());
+        }
+
         if (!advancedSearchPopup.getIpAddress().equals("")) {
             eventFilter.setIpAddress(advancedSearchPopup.getIpAddress());
         }
@@ -392,6 +397,10 @@ public class EventBrowser extends javax.swing.JPanel {
 
         if (eventFilter.getOutcome() != null) {
             text.append(padding + "Outcome: " + eventFilter.getOutcome());
+        }
+
+        if (eventFilter.getAttributeSearch() != null) {
+            text.append(padding + "AttributeSearch: " + eventFilter.getAttributeSearch());
         }
 
         if (eventFilter.getIpAddress() != null) {
@@ -597,7 +606,7 @@ public class EventBrowser extends javax.swing.JPanel {
         Object[][] tableData = null;
 
         if (systemEventList != null) {
-            tableData = new Object[systemEventList.size()][8];
+            tableData = new Object[systemEventList.size()][9];
 
             for (int i = 0; i < systemEventList.size(); i++) {
                 ServerEvent systemEvent = systemEventList.get(i);
@@ -637,6 +646,8 @@ public class EventBrowser extends javax.swing.JPanel {
                 }
 
                 tableData[i][7] = systemEvent.getIpAddress();
+                
+                tableData[i][8] = systemEvent.getPatientId();
             }
         } else {
             tableData = new Object[0][8];
@@ -654,12 +665,13 @@ public class EventBrowser extends javax.swing.JPanel {
             defaultVisibleColumns.add(EVENT_USER_COLUMN_NAME);
             defaultVisibleColumns.add(EVENT_OUTCOME_COLUMN_NAME);
             defaultVisibleColumns.add(EVENT_IP_ADDRESS_COLUMN_NAME);
+            defaultVisibleColumns.add(EVENT_PATIENT_ID_NAME);
 
             eventTable = new MirthTable("eventBrowser", defaultVisibleColumns);
             eventTable.setModel(new RefreshTableModel(tableData, new String[] {
                     EVENT_ID_COLUMN_NAME, EVENT_LEVEL_COLUMN_NAME, EVENT_DATE_COLUMN_NAME,
                     EVENT_NAME_COLUMN_NAME, EVENT_SERVER_ID_COLUMN_NAME, EVENT_USER_COLUMN_NAME,
-                    EVENT_OUTCOME_COLUMN_NAME, EVENT_IP_ADDRESS_COLUMN_NAME }) {
+                    EVENT_OUTCOME_COLUMN_NAME, EVENT_IP_ADDRESS_COLUMN_NAME, EVENT_PATIENT_ID_NAME }) {
 
                 boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false,
                         false };
