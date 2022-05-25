@@ -29,7 +29,7 @@ public class FilterTransformerElementsConverter extends CollectionConverter {
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         List list = (List) super.unmarshal(reader, context);
         
-        if (list != null && !list.isEmpty()) {
+        if (list != null && !list.isEmpty() && list.get(0) != null) {
             Object firstElement = list.get(0);
             
             if (FilterTransformerElement.class.isAssignableFrom(firstElement.getClass())) {
