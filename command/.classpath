@@ -59,9 +59,19 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/logging/apidocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar">
+	<classpathentry kind="lib" path="lib/log4j-1.2-api-2.17.2.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="http://logging.apache.org/log4j/1.2/apidocs/"/>
+			<attribute name="javadoc_location" value="https://logging.apache.org/log4j/2.x/log4j-1.2-api/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/log4j-api-2.17.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/log4j-core-2.17.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="https://logging.apache.org/log4j/2.x/log4j-core/apidocs/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
