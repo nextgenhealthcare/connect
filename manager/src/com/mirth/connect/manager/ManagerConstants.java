@@ -46,7 +46,7 @@ public class ManagerConstants {
 
     // File paths
     public static final String PATH_SERVER_PROPERTIES = "conf" + System.getProperty("file.separator") + "mirth.properties";
-    public static final String PATH_LOG4J_PROPERTIES = "conf" + System.getProperty("file.separator") + "log4j.properties";
+    public static final String PATH_LOG4J_PROPERTIES = "conf" + System.getProperty("file.separator") + "log4j2.properties";
     public static final String PATH_VERSION_FILE = "version.properties";
     public static final String PATH_SERVER_ID_FILE = "server.id";
     public static final String PATH_SERVICE_VMOPTIONS = "mcservice.vmoptions";

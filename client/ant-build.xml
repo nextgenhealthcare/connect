@@ -76,7 +76,7 @@
 			<classpath refid="classpath" />
 		</javac>
 
-		<copy todir="${classes}" file="${src}/log4j.properties" />
+		<copy todir="${classes}" file="${src}/log4j2.properties" />
 
 		<!-- copy the image files so they will be included in jar -->
 		<copy todir="${classes}/com/mirth/connect/client/ui/images">
