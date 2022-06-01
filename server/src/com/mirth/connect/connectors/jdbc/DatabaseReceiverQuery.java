@@ -19,18 +19,18 @@ import java.util.List;
 import java.util.Map;
 
 import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
-import com.sun.rowset.CachedRowSetImpl;
 
 public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     private PreparedStatement selectStatement;
@@ -42,7 +42,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     private DatabaseReceiver connector;
     private DatabaseReceiverProperties connectorProperties;
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private CustomDriver customDriver;
     private String contextFactoryId;
@@ -192,7 +192,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
                 // if we are not caching the ResultSet, return it immediately
                 if (connectorProperties.isCacheResults()) {
                     // if we are caching the ResultSet, convert it into a CachedRowSet and return it
-                    cachedRowSet = new CachedRowSetImpl();
+                    cachedRowSet = RowSetProvider.newFactory().createCachedRowSet();
                     cachedRowSet.populate(resultSet);
                     DbUtils.closeQuietly(resultSet);
                     resultSet = cachedRowSet;

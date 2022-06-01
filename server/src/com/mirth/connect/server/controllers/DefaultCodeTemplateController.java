@@ -23,7 +23,8 @@ import java.util.UUID;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
@@ -48,7 +49,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
     private static final String VACUUM_LOCK_CODE_TEMPLATE_STATEMENT_ID = "CodeTemplate.vacuumCodeTemplateTable";
     private static final String VACUUM_LOCK_LIBRARY_STATEMENT_ID = "CodeTemplate.vacuumLibraryTable";
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();

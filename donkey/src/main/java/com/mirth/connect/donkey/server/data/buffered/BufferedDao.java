@@ -15,7 +15,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -37,7 +38,7 @@ public class BufferedDao implements DonkeyDao {
     private StatisticsUpdater statisticsUpdater;
     private Queue<DaoTask> tasks = new LinkedList<DaoTask>();
     private boolean closed = false;
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     protected BufferedDao(DonkeyDaoFactory daoFactory, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData, StatisticsUpdater statisticsUpdater) {
         this.daoFactory = daoFactory;

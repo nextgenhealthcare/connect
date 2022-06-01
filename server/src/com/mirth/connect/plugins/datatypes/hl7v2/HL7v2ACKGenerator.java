@@ -13,14 +13,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.model.datatype.SerializerProperties;
 
 // Supports ACKS from 2.1-2.4
 // 2.5 is supported but the advanced fields in ERR and SFT are not supported
 public class HL7v2ACKGenerator {
-    private static Logger logger = Logger.getLogger(HL7v2ACKGenerator.class);
+    private static Logger logger = LogManager.getLogger(HL7v2ACKGenerator.class);
 
     public static String generateAckResponse(String message, boolean isXML, String acknowledgementCode, String textMessage, String dateFormat, String errorMessage) throws Exception {
         return generateAckResponse(message, isXML, acknowledgementCode, textMessage, dateFormat, errorMessage, "\r");

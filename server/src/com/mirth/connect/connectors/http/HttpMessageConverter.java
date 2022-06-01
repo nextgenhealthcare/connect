@@ -40,7 +40,8 @@ import org.apache.http.message.BasicHeaderValueParser;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.ParserCursor;
 import org.apache.http.util.CharArrayBuffer;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 import com.mirth.connect.donkey.util.Base64Util;
@@ -48,7 +49,7 @@ import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 
 public class HttpMessageConverter {
-    private static Logger logger = Logger.getLogger(HttpMessageConverter.class);
+    private static Logger logger = LogManager.getLogger(HttpMessageConverter.class);
 
     private static BinaryContentTypeResolver defaultResolver = new BinaryContentTypeResolver() {
         @Override

@@ -28,7 +28,8 @@ import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
@@ -38,7 +39,7 @@ import com.mirth.connect.model.util.MigrationException;
 
 public class Migrate3_3_0 extends Migrator implements ConfigurationMigrator {
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
 
     @Override

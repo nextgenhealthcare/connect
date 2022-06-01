@@ -20,8 +20,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.donkey.util.Serializer;
@@ -34,7 +34,7 @@ public class JmsConnectorServlet extends MirthServlet implements JmsConnectorSer
     private static final String PLUGIN_NAME = "JMS";
     private static final String TEMPLATES_PROPERTY = "templates";
     private static final Serializer serializer = ObjectXMLSerializer.getInstance();
-    private static final Logger logger = Logger.getLogger(JmsConnectorServlet.class);
+    private static final Logger logger = LogManager.getLogger(JmsConnectorServlet.class);
     private static final Lock lock = new ReentrantLock(true);
 
     private static Properties properties = new Properties();

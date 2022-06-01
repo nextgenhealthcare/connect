@@ -13,7 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 
@@ -24,7 +25,7 @@ public class ConnectionStateItem {
     private ConnectionStatusEventType status;
     private AtomicInteger connectionCount;
     private AtomicInteger maxConnectionCount;
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     public ConnectionStateItem(String serverId, String channelId, String metadataId, ConnectionStatusEventType status, int connectionCount, int maxConnectionCount) {
         this.serverId = serverId;

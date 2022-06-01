@@ -14,7 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.RhinoException;
@@ -51,8 +52,8 @@ import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptDispatcher extends DestinationConnector {
-    private Logger logger = Logger.getLogger(this.getClass());
-    private Logger scriptLogger = Logger.getLogger("js-connector");
+    private Logger logger = LogManager.getLogger(this.getClass());
+    private Logger scriptLogger = LogManager.getLogger("js-connector");
     private EventController eventController = getEventController();
     private ScriptController scriptController = getScriptController();
     private ContextFactoryController contextFactoryController = getContextFactoryController();

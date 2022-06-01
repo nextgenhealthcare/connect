@@ -24,7 +24,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.tools.generic.DateTool;
@@ -37,7 +38,7 @@ import com.mirth.connect.userutil.JsonUtil;
 import com.mirth.connect.userutil.XmlUtil;
 
 public class ValueReplacer {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private AtomicLong count = new AtomicLong(1);
     
     static {

@@ -32,7 +32,8 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.util.messagewriter.EncryptionType;
 
@@ -42,7 +43,7 @@ public class ArchiveUtils {
      */
     private final static int BUFFER_SIZE = 1048576;
 
-    private static Logger logger = Logger.getLogger(ArchiveUtils.class);
+    private static Logger logger = LogManager.getLogger(ArchiveUtils.class);
 
     /**
      * Create an archive file from files/subfolders in a given source folder.

@@ -26,7 +26,8 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.inject.Inject;
 import com.mirth.connect.client.core.PropertiesConfigurationUtil;
@@ -54,7 +55,7 @@ public class ExtensionLoader {
     private Map<String, MetaData> invalidMetaDataMap = new HashMap<String, MetaData>();
     private boolean loadedExtensions = false;
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-    private static Logger logger = Logger.getLogger(ExtensionLoader.class);
+    private static Logger logger = LogManager.getLogger(ExtensionLoader.class);
 
     private ExtensionLoader() {}
 

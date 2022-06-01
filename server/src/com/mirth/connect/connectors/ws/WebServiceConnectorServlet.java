@@ -41,7 +41,8 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.eviware.soapui.DefaultSoapUICore;
 import com.eviware.soapui.SoapUI;
@@ -73,7 +74,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
     private static final Map<String, DefinitionServiceMap> definitionCache = new HashMap<String, DefinitionServiceMap>();
     private static final Map<String, Map<String, Map<String, WsdlInterface>>> wsdlInterfaceCache = new HashMap<String, Map<String, Map<String, WsdlInterface>>>();
     private static final ExecutorService executor = Executors.newCachedThreadPool();
-    private static final Logger logger = Logger.getLogger(WebServiceConnectorServlet.class);
+    private static Logger logger = LogManager.getLogger(WebServiceConnectorServlet.class);
 
     static {
         SoapUI.setSoapUICore(new EmbeddedSoapUICore());
@@ -324,12 +325,12 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
     private static class EmbeddedSoapUICore extends DefaultSoapUICore {
         @Override
         protected void initLog() {
-            log = Logger.getLogger(DefaultSoapUICore.class);
+            logger = LogManager.getLogger(DefaultSoapUICore.class);
         }
 
         @Override
         public Settings getSettings() {
-            if (log == null) {
+            if (logger == null) {
                 initLog();
             }
 

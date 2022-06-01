@@ -14,8 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.datatype.BatchProperties;
@@ -24,7 +24,7 @@ import com.mirth.connect.model.datatype.PropertyEditorType;
 
 public class DelimitedBatchProperties extends BatchProperties {
 
-    private transient Logger logger = Logger.getLogger(this.getClass());
+    private transient Logger logger = LogManager.getLogger(this.getClass());
 
     public enum SplitType {
         Record, Delimiter, Grouping_Column, JavaScript;

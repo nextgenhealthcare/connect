@@ -26,8 +26,8 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MirthXmlUtil {
 
@@ -39,7 +39,7 @@ public class MirthXmlUtil {
     private static final String[] encoder = new String[0x100];
     private static final String[] encoderXml = new String[0x100];
 
-    private static Logger logger = Logger.getLogger(MirthXmlUtil.class);
+    private static Logger logger = LogManager.getLogger(MirthXmlUtil.class);
 
     private static final String prettyPrintingXslt = "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\"><xsl:output indent=\"no\" method=\"xml\" omit-xml-declaration=\"yes\"/><xsl:strip-space elements=\"*\"/><xsl:template match=\"/\"><xsl:copy-of select=\".\"/></xsl:template></xsl:stylesheet>";
 

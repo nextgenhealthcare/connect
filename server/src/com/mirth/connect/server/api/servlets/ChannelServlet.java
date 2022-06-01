@@ -26,7 +26,8 @@ import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ControllerException;
@@ -57,7 +58,7 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
     private static final ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private static final CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
     private static final ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     public ChannelServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc);
