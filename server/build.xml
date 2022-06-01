@@ -86,7 +86,9 @@
 				<compilerarg value="java.sql.rowset,java.xml.ws" />
 				<compilerarg value="-add-exports" />
 				<compilerarg value="java.sql.rowset/com.sun.rowset=ALL-UNNAMED" />
-			-->
+				<compilerarg value="-add-opens" />
+			    <compilerarg value="java.sql.rowset/com.sun.rowset=ALL-UNNAMED" />
+			    -->
 		</javac>
 
 		<!-- create version.properties file -->
