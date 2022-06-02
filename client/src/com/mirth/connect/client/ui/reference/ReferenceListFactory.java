@@ -26,7 +26,8 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fife.rsta.ac.LanguageSupportFactory;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.reflections.Reflections;
@@ -62,7 +63,7 @@ public class ReferenceListFactory {
 
     private static ReferenceListFactory instance = null;
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private Map<Type, List<Reference>> cache = new HashMap<Type, List<Reference>>();
     private Map<Type, List<Reference>> userCache = new HashMap<Type, List<Reference>>();
     private Map<String, List<CodeTemplate>> codeTemplateMap = new TreeMap<String, List<CodeTemplate>>(new CategoryComparator());

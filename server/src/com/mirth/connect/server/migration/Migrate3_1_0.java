@@ -44,21 +44,21 @@ public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
 
     private void migrateLog4jProperties() {
         try {
-            FileBasedConfigurationBuilder<PropertiesConfiguration> builder = PropertiesConfigurationUtil.createBuilder(new File(ClassPathResource.getResourceURI("log4j.properties")));
+            FileBasedConfigurationBuilder<PropertiesConfiguration> builder = PropertiesConfigurationUtil.createBuilder(new File(ClassPathResource.getResourceURI("log4j2.properties")));
             PropertiesConfiguration log4jproperties = builder.getConfiguration();
 
-            String level = (String) log4jproperties.getProperty("log4j.logger.shutdown");
+            String level = (String) log4jproperties.getProperty("logger.shutdown.level");
             if (level != null) {
-                log4jproperties.setProperty("log4j.logger.undeploy", level);
-                log4jproperties.clearProperty("log4j.logger.shutdown");
+                log4jproperties.setProperty("logger.undeploy.level", level);
+                log4jproperties.clearProperty("logger.shutdown.level");
                 Logger logger2 = LogManager.getLogger("undeploy");
                 Configurator.setLevel(logger2.getName(),Level.toLevel(level));
             }
 
-            level = (String) log4jproperties.getProperty("log4j.logger.com.mirth.connect.donkey.server.channel.RecoveryTask");
+            level = (String) log4jproperties.getProperty("logger.recoveryTask.level");
             if (StringUtils.isBlank(level)) {
                 level = "INFO";
-                log4jproperties.setProperty("log4j.logger.com.mirth.connect.donkey.server.channel.RecoveryTask", level);
+                log4jproperties.setProperty("logger.recoveryTask.level", level);
                 Logger logger2 = LogManager.getLogger("com.mirth.connect.donkey.server.channel.RecoveryTask");
                 Configurator.setLevel(logger2.getName(),Level.toLevel(level));
             }
