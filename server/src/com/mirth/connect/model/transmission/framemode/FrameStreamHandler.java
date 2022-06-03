@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.server.message.StreamHandler;
 import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
@@ -28,7 +29,7 @@ import com.mirth.connect.util.TcpUtil;
 
 public class FrameStreamHandler extends StreamHandler {
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     protected byte[] startOfMessageBytes;
     protected byte[] endOfMessageBytes;

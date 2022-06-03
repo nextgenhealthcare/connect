@@ -43,7 +43,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
 import org.glassfish.jersey.client.spi.Connector;
@@ -131,7 +132,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
 
     public static final int MAX_QUERY_PARAM_COLLECTION_SIZE = 100;
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ServerConnection serverConnection;
     private javax.ws.rs.client.Client client;
     private URI api;

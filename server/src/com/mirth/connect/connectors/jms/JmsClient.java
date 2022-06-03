@@ -25,7 +25,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
@@ -64,7 +65,7 @@ public class JmsClient implements ExceptionListener {
     private AtomicBoolean connected = new AtomicBoolean(false);
     private AtomicBoolean attemptingReconnect = new AtomicBoolean(false);
     private int intervalMillis;
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private Set<String> resourceIds;
 

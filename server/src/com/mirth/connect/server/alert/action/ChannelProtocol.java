@@ -13,7 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.model.Channel;
@@ -26,7 +27,7 @@ public class ChannelProtocol implements Protocol {
 
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     @Override
     public String getName() {

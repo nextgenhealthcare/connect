@@ -5,7 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.model.FilterTransformerElement;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -14,7 +15,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.mapper.Mapper;
 
 public class FilterTransformerElementsConverter extends CollectionConverter {
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     public FilterTransformerElementsConverter(Mapper mapper) {
         super(mapper);

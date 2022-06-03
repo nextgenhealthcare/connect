@@ -17,7 +17,8 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.quartz.Scheduler;
 
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
@@ -38,7 +39,7 @@ public class DefaultDataPrunerController extends DataPrunerController {
     private Scheduler scheduler;
     private PollConnectorJobHandler handler;
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public void init(Properties properties) throws DataPrunerException {

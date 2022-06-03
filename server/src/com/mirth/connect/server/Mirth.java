@@ -28,7 +28,7 @@ import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.MDC;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -124,7 +124,7 @@ public class Mirth extends Thread {
 
         // Add the host address as a variable that log4j can output
         try {
-            MDC.put("hostAddress", NetworkUtil.getIpv4HostAddress());
+            ThreadContext.put("hostAddress", NetworkUtil.getIpv4HostAddress());
         } catch (Exception e) {}
 
         initializeLogging();

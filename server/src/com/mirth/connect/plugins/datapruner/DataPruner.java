@@ -30,7 +30,8 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
@@ -85,7 +86,7 @@ public class DataPruner implements Runnable {
     private Thread pruneThread;
     private DataPrunerStatus status = new DataPrunerStatus();
     private DataPrunerStatus lastStatus;
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     private PollConnectorProperties pollingProperties;
 

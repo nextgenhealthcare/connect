@@ -36,7 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.commons.encryption.Encryptor;
@@ -167,7 +168,7 @@ public class DonkeyEngineController implements EngineController {
     }
 
     private Donkey donkey = Donkey.getInstance();
-    private Logger logger = Logger.getLogger(DonkeyEngineController.class);
+    private Logger logger = LogManager.getLogger(DonkeyEngineController.class);
     protected ConfigurationController configurationController = getConfigurationController();
     protected ScriptController scriptController = getScriptController();
     protected ChannelController channelController = getChannelController();

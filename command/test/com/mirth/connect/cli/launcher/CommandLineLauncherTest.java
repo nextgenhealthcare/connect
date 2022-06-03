@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ public class CommandLineLauncherTest {
 
     @BeforeClass
     public static void setup() {
-        CommandLineLauncher.logger = Logger.getLogger(CommandLineLauncher.class);
+        CommandLineLauncher.logger = LogManager.getLogger(CommandLineLauncher.class);
     }
 
     @Test

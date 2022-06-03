@@ -49,14 +49,15 @@ import org.apache.http.impl.cookie.IgnoreSpecProvider;
 import org.apache.http.impl.cookie.NetscapeDraftSpecProvider;
 import org.apache.http.impl.cookie.RFC6265CookieSpecProvider;
 import org.apache.http.ssl.SSLContexts;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.util.MessageMaps;
 
 public class HttpUtil {
 
-    private static Logger logger = Logger.getLogger(HttpUtil.class);
+    private static Logger logger = LogManager.getLogger(HttpUtil.class);
 
     /**
      * Applies global settings to any Apache HttpComponents HttpClientBuilder.<br/>

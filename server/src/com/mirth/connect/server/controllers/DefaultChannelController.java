@@ -27,7 +27,8 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.model.channel.DeployedState;
@@ -59,7 +60,7 @@ public class DefaultChannelController extends ChannelController {
     public static final String VACUUM_LOCK_CHANNEL_STATEMENT_ID = "Channel.vacuumChannelTable";
     public static final String VACUUM_LOCK_CHANNEL_GROUP_STATEMENT_ID = "Channel.vacuumChannelGroupTable";
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();

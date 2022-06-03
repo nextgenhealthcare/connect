@@ -20,13 +20,13 @@ public class ManagerConstants {
     public static final String DIR_LOGS = "dir.logs";
 
     // Log4j
-    public static final String LOG4J_MIRTH_LOG_LEVEL = "log4j.rootLogger";
-    public static final String LOG4J_DATABASE_LOG_LEVEL = "log4j.logger.java.sql";
+    public static final String LOG4J_MIRTH_LOG_LEVEL = "rootLogger";
+    public static final String LOG4J_DATABASE_LOG_LEVEL = "logger.sql.level";
     public static final String[] LOG4J_CHANNEL_LOG_LEVELS = new String[] {
-            "log4j.logger.transformer", "log4j.logger.preprocessor", "log4j.logger.postprocessor",
-            "log4j.logger.deploy", "log4j.logger.undeploy", "log4j.logger.filter",
-            "log4j.logger.db-connector", "log4j.logger.js-connector", "log4j.logger.attachment",
-            "log4j.logger.batch", "log4j.logger.response" };
+            "logger.transformer.level", "logger.preprocessor.level", "logger.postprocessor.level",
+            "logger.deploy.level", "logger.undeploy.level", "logger.filter.level",
+            "logger.db-connector.level", "logger.js-connector.level", "logger.attachment.level",
+            "logger.batch.level", "logger.response.level" };
     public static final String[] LOG4J_ERROR_CODES = new String[] { "ERROR", "WARN", "INFO",
             "DEBUG", "TRACE" };
     public static final String[] LOG4J_ERROR_CODES_WITH_BLANK = new String[] { "", "ERROR", "WARN",

@@ -72,7 +72,8 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
@@ -145,7 +146,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public static final String SECRET_KEY_ALIAS = "encryption";
     public static final String VACUUM_LOCK_STATEMENT_ID = "Configuration.vacuumConfigurationTable";
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private String appDataDir = null;
     private String baseDir = null;
     private String configurationFile = null;
@@ -210,7 +211,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                     try {
                         instance.getClass().getMethod("initialize").invoke(instance);
                     } catch (Exception e) {
-                    	Logger.getLogger(DefaultConfigurationController.class).error("Error calling initialize method in DefaultConfigurationController", e);
+                    	LogManager.getLogger(DefaultConfigurationController.class).error("Error calling initialize method in DefaultConfigurationController", e);
                     }
                 }
             }

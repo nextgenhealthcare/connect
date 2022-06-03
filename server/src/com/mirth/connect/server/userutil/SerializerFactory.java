@@ -12,7 +12,8 @@ package com.mirth.connect.server.userutil;
 import java.util.Map;
 
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.model.converters.IMessageSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
@@ -23,7 +24,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
  * Used to create a serializer for a specific data type for conversion to and from XML.
  */
 public class SerializerFactory {
-    private static Logger logger = Logger.getLogger(SerializerFactory.class);
+    private static Logger logger = LogManager.getLogger(SerializerFactory.class);
     private static Map<String, DataTypeServerPlugin> dataPlugins = new CaseInsensitiveMap(ControllerFactory.getFactory().createExtensionController().getDataTypePlugins());
 
     private SerializerFactory() {}

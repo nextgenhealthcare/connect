@@ -18,7 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
@@ -44,7 +45,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.util.StringUtil;
 
 public class DelimitedBatchAdaptor extends DebuggableBatchAdaptor {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private DelimitedSerializationProperties serializationProperties;
     private DelimitedReader delimitedReader = null;
@@ -241,7 +242,7 @@ public class DelimitedBatchAdaptor extends DebuggableBatchAdaptor {
                             logger.error("Batch script could not be found in cache");
                             return null;
                         } else {
-                            Logger scriptLogger = Logger.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
+                            Logger scriptLogger = LogManager.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
 
                             try {
                                 Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(getContextFactory(), scriptLogger, sourceConnector.getChannelId(), sourceConnector.getChannel().getName(), getScopeObjects(in, serializationProperties, skipHeader, batchSkipRecords));

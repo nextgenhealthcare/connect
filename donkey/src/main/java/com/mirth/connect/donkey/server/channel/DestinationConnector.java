@@ -22,7 +22,8 @@ import java.util.concurrent.locks.Lock;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -75,7 +76,7 @@ public abstract class DestinationConnector extends Connector implements Runnable
     private ResponseTransformerExecutor responseTransformerExecutor;
     private StorageSettings storageSettings = new StorageSettings();
     private DonkeyDaoFactory daoFactory;
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     public abstract void replaceConnectorProperties(ConnectorProperties connectorProperties, ConnectorMessage message);
 

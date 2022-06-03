@@ -8,20 +8,20 @@ import static org.mockito.Mockito.when;
 
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.channel.DebugOptions;
-import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class JavaScriptAttachmentHandlerProviderTest {
-    private static Logger logger = Logger.getLogger(JavaScriptAttachmentHandlerProviderTest.class);
+    private static Logger logger = LogManager.getLogger(JavaScriptAttachmentHandlerProviderTest.class);
     private DebugOptions debugOptions;
     private AttachmentHandlerProperties attachmentProperties;
     

@@ -10,7 +10,8 @@
 package com.mirth.connect.server.transformers;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
@@ -42,7 +43,7 @@ import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptResponseTransformer implements ResponseTransformer {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
@@ -183,7 +184,7 @@ public class JavaScriptResponseTransformer implements ResponseTransformer {
 
         @Override
         public String doCall() throws Exception {
-            Logger scriptLogger = Logger.getLogger("response");
+            Logger scriptLogger = LogManager.getLogger("response");
 
             // Get the script from the cache
             Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);

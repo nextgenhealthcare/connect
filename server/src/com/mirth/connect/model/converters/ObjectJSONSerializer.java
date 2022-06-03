@@ -6,7 +6,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.util.JsonXmlUtil;
@@ -15,7 +16,7 @@ public class ObjectJSONSerializer {
 
     private static final ObjectJSONSerializer instance = new ObjectJSONSerializer();
     
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     
     public static ObjectJSONSerializer getInstance() {
         return instance;

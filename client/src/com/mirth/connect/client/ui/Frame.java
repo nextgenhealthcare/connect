@@ -79,7 +79,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.conn.HttpHostConnectException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fife.rsta.ac.LanguageSupportFactory;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.jdesktop.swingx.JXFrame;
@@ -167,7 +168,7 @@ import javafx.application.Platform;
  */
 public class Frame extends JXFrame {
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     public Client mirthClient;
     public DashboardPanel dashboardPanel = null;
     public ChannelPanel channelPanel = null;

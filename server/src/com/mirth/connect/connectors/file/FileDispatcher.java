@@ -15,7 +15,8 @@ import java.io.InputStream;
 import java.net.URI;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
@@ -37,7 +38,7 @@ import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class FileDispatcher extends DestinationConnector {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private FileDispatcherProperties connectorProperties;
     private FileConnector fileConnector;
     private String charsetEncoding;

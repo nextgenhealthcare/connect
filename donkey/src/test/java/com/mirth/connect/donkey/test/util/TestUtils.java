@@ -40,7 +40,8 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
@@ -99,7 +100,7 @@ public class TestUtils {
     final public static String DEFAULT_DESTINATION_NAME = "testdestination";
     final public static String DEFAULT_OUTBOUND_TEMPLATE = null;
 
-    private static Logger logger = Logger.getLogger(TestUtils.class);
+    private static Logger logger = LogManager.getLogger(TestUtils.class);
 
     public static DonkeyDaoFactory getDaoFactory() {
         return new BufferedDaoFactory(Donkey.getInstance().getDaoFactory(), new SerializerProvider() {

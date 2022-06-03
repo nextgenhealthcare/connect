@@ -29,7 +29,8 @@ import javax.imageio.ImageWriter;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dcm4che2.data.DicomElement;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
@@ -45,7 +46,7 @@ import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.userutil.ImmutableMessageContent;
 
 public class DICOMMessageUtil {
-    private static Logger logger = Logger.getLogger(DICOMMessageUtil.class);
+    private static Logger logger = LogManager.getLogger(DICOMMessageUtil.class);
 
     public static String getDICOMRawData(ImmutableConnectorMessage message) {
         String mergedMessage = null;
