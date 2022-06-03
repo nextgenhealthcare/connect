@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.sql.rowset.CachedRowSet;
-import javax.sql.rowset.RowSetProvider;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -31,6 +30,7 @@ import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
+import com.sun.rowset.CachedRowSetImpl;
 
 public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     private PreparedStatement selectStatement;
@@ -192,7 +192,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
                 // if we are not caching the ResultSet, return it immediately
                 if (connectorProperties.isCacheResults()) {
                     // if we are caching the ResultSet, convert it into a CachedRowSet and return it
-                    cachedRowSet = RowSetProvider.newFactory().createCachedRowSet();
+                    cachedRowSet = new CachedRowSetImpl();
                     cachedRowSet.populate(resultSet);
                     DbUtils.closeQuietly(resultSet);
                     resultSet = cachedRowSet;

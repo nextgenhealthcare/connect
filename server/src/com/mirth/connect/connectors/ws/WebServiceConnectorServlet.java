@@ -74,7 +74,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
     private static final Map<String, DefinitionServiceMap> definitionCache = new HashMap<String, DefinitionServiceMap>();
     private static final Map<String, Map<String, Map<String, WsdlInterface>>> wsdlInterfaceCache = new HashMap<String, Map<String, Map<String, WsdlInterface>>>();
     private static final ExecutorService executor = Executors.newCachedThreadPool();
-    private static Logger logger = LogManager.getLogger(WebServiceConnectorServlet.class);
+    private static final Logger logger = LogManager.getLogger(WebServiceConnectorServlet.class);  //log4j2.x
 
     static {
         SoapUI.setSoapUICore(new EmbeddedSoapUICore());
@@ -325,12 +325,12 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
     private static class EmbeddedSoapUICore extends DefaultSoapUICore {
         @Override
         protected void initLog() {
-            logger = LogManager.getLogger(DefaultSoapUICore.class);
+            log = org.apache.log4j.Logger.getLogger(DefaultSoapUICore.class); //still uses log4j1 using bridge
         }
 
         @Override
         public Settings getSettings() {
-            if (logger == null) {
+            if (log == null) {
                 initLog();
             }
 
