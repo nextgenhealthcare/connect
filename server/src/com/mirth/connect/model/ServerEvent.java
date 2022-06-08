@@ -45,10 +45,12 @@ public class ServerEvent extends Event implements Serializable {
     private Map<String, String> attributes = new LinkedHashMap<String, String>();
     private Outcome outcome = Outcome.SUCCESS;
     private int userId = 0;
+    private String patientId;
     private String ipAddress;
     private String serverId;
 
-    public ServerEvent() {
+
+	public ServerEvent() {
         eventTime = Calendar.getInstance();
         eventTime.setTimeInMillis(getDateTime());
     }
@@ -130,6 +132,15 @@ public class ServerEvent extends Event implements Serializable {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+    
+    public String getPatientId() {
+    	this.patientId = this.attributes.get("patient_id");
+		return patientId;
+	}
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
     }
 
     public String getIpAddress() {

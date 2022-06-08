@@ -34,7 +34,8 @@ import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.util.Arrays;
 import org.eclipse.jetty.io.RuntimeIOException;
 import org.w3c.dom.Document;
@@ -53,7 +54,7 @@ import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.util.MirthSSLUtil;
 
 public class WebStartServlet extends HttpServlet {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 

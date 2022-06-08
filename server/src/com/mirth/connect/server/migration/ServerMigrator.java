@@ -27,7 +27,8 @@ import org.apache.commons.configuration2.PropertiesConfigurationLayout;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.Channel;
@@ -40,7 +41,7 @@ import com.mirth.connect.model.util.MigrationException;
 import com.mirth.connect.server.util.DatabaseUtil;
 
 public class ServerMigrator extends Migrator {
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     public ServerMigrator() {
         setDefaultScriptPath("/deltas");
@@ -222,7 +223,8 @@ public class ServerMigrator extends Migrator {
             case v3_11_0: return new Migrate3_11_0();
             case v3_11_1: return null;
             case v3_12_0: return new Migrate3_12_0();
-            case v3_13_0: return new Migrate3_13_0();
+            case v4_0_0: return new Migrate4_0_0();
+            case v4_0_1: return null;
         } // @formatter:on
 
         return null;

@@ -12,8 +12,8 @@ APACHE-LICENSE-2.0.txt):
 	Apache Log4j 1.2.16
 	Apache PDFBox 1.8.4 [Mirth Connect only]
 	Apache Standard Taglib 1.2.1 [Mirth Connect only]
-	Apache Tomcat Jasper JSP Engine 8.5.24.2 [Mirth Connect only]
-	Apache Tomcat Jasper Expression Language Impl 8.5.24.2 [Mirth Connect only]
+	Apache Tomcat Jasper JSP Engine 8.5.70 [Mirth Connect only]
+	Apache Tomcat Jasper Expression Language Impl 8.5.70 [Mirth Connect only]
 	Apache Velocity Engine 2.2
 	Apache Velocity Tools 3.0
 	Apache XMLBeans [Mirth Connect only]
@@ -29,7 +29,7 @@ APACHE-LICENSE-2.0.txt):
 	Jackson Project (https://github.com/FasterXML/jackson)
 	Jasypt 1.7.1 [Mirth Connect only]
 	Java Native Access (JNA) 4.5.2 [Mirth Connect only] (https://github.com/java-native-access/jna)
-	Jetty 9.4.21 [Mirth Connect only]
+	Jetty 9.4.44 [Mirth Connect only]
 	Joda-Time 2.2 [Mirth Connect only]
 	JSR305 Annotations for Findbugs 3.0.2 [Mirth Connect only] (http://findbugs.sourceforge.net/)
 	MyBatis 3.1.1 [Mirth Connect only]
@@ -175,7 +175,7 @@ the Common Development and Distribution License version 1.0 (see CDDL-1.0.txt):
 	Java Servlet API 3.1.0 (source code can be downloaded from: https://java.net
 	/projects/glassfish/sources/svn/show/tags/javax.servlet-api-3.1.0)
 	
-	Jetty Apache JSP Implementation 9.4.21 (source code can be downloaded from:
+	Jetty Apache JSP Implementation 9.4.44 (source code can be downloaded from:
 	http://download.eclipse.org/jetty/)
 
 	Swinglabs Wizard (source code can be downloaded from:
@@ -222,10 +222,10 @@ the OSGi Specification License, Version 1.0 (see OSGi-1.0.txt):
 
 Mirth Connect includes the following software:
 
-	Eclipse Java Development Tools 3.12.3
+	Eclipse Java Development Tools 3.19.0
 
 Licensing information for this software can be found in the about.html file
-contained within the org.eclipse.jdt.ecj-3.12.3.jar file. This file
+contained within the org.eclipse.jdt.ecj-3.19.0.jar file. This file
 can be found within the Mirth Connect installation folder at:
 
 	[Mirth Connect Install Folder]/server-lib/jetty/jsp/

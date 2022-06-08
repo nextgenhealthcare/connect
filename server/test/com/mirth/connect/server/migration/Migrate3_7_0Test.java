@@ -67,7 +67,8 @@ public class Migrate3_7_0Test {
         assertEquals(newDefault, StringUtils.join(configuration.getStringArray(key), ','));
         assertFalse(configuration.containsKey(key + ".old"));
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
-        verify(migrator.getLogger(), times(0)).error(any());
+        verify(migrator.getLogger(), times(0)).error(any(String.class));
+
 
         // Set to old default
         reset(migrator.getLogger());
@@ -77,7 +78,8 @@ public class Migrate3_7_0Test {
         assertEquals(newDefault, StringUtils.join(configuration.getStringArray(key), ','));
         assertFalse(configuration.containsKey(key + ".old"));
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
-        verify(migrator.getLogger(), times(0)).error(any());
+        verify(migrator.getLogger(), times(0)).error(any(String.class));
+
 
         // Set to something custom
         reset(migrator.getLogger());
@@ -87,7 +89,8 @@ public class Migrate3_7_0Test {
         assertEquals(newDefault, StringUtils.join(configuration.getStringArray(key), ','));
         assertEquals("test", StringUtils.join(configuration.getStringArray(key + ".old"), ','));
         assertFalse(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
-        verify(migrator.getLogger(), times(1)).error(any());
+        verify(migrator.getLogger(), times(1)).error(any(String.class));
+
 
         // Set to empty
         reset(migrator.getLogger());
@@ -97,7 +100,8 @@ public class Migrate3_7_0Test {
         assertEquals(newDefault, StringUtils.join(configuration.getStringArray(key), ','));
         assertFalse(configuration.containsKey(key + ".old"));
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
-        verify(migrator.getLogger(), times(0)).error(any());
+        verify(migrator.getLogger(), times(0)).error(any(String.class));
+
 
         // Set to blank
         reset(migrator.getLogger());
@@ -107,7 +111,8 @@ public class Migrate3_7_0Test {
         assertEquals(newDefault, StringUtils.join(configuration.getStringArray(key), ','));
         assertFalse(configuration.containsKey(key + ".old"));
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
-        verify(migrator.getLogger(), times(0)).error(any());
+        verify(migrator.getLogger(), times(0)).error(any(String.class));
+
 
         // Not set at all
         reset(migrator.getLogger());
@@ -116,7 +121,8 @@ public class Migrate3_7_0Test {
         assertEquals(newDefault, StringUtils.join(configuration.getStringArray(key), ','));
         assertFalse(configuration.containsKey(key + ".old"));
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
-        verify(migrator.getLogger(), times(0)).error(any());
+        verify(migrator.getLogger(), times(0)).error(any(String.class));
+
     }
 
     private void testConfigurationVersionLatest(String key, String oldDefault, String newDefault) throws Exception {
@@ -132,7 +138,8 @@ public class Migrate3_7_0Test {
         assertEquals(newDefault, StringUtils.join(configuration.getStringArray(key), ','));
         assertFalse(configuration.containsKey(key + ".old"));
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
-        verify(migrator.getLogger(), times(0)).error(any());
+        verify(migrator.getLogger(), times(0)).error(any(String.class));
+
 
         // Set to old default
         reset(migrator.getLogger());
@@ -142,7 +149,7 @@ public class Migrate3_7_0Test {
         assertEquals(oldDefault, StringUtils.join(configuration.getStringArray(key), ','));
         assertFalse(configuration.containsKey(key + ".old"));
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
-        verify(migrator.getLogger(), times(0)).error(any());
+        verify(migrator.getLogger(), times(0)).error(any(String.class));
 
         // Set to something custom
         reset(migrator.getLogger());
@@ -152,7 +159,8 @@ public class Migrate3_7_0Test {
         assertEquals("test", StringUtils.join(configuration.getStringArray(key), ','));
         assertFalse(configuration.containsKey(key + ".old"));
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
-        verify(migrator.getLogger(), times(0)).error(any());
+        verify(migrator.getLogger(), times(0)).error(any(String.class));
+
 
         // Set to empty
         reset(migrator.getLogger());
@@ -162,7 +170,8 @@ public class Migrate3_7_0Test {
         assertEquals("", StringUtils.join(configuration.getStringArray(key), ','));
         assertFalse(configuration.containsKey(key + ".old"));
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
-        verify(migrator.getLogger(), times(0)).error(any());
+        verify(migrator.getLogger(), times(0)).error(any(String.class));
+
 
         // Set to blank
         reset(migrator.getLogger());
@@ -172,7 +181,8 @@ public class Migrate3_7_0Test {
         assertEquals("   ", StringUtils.join(configuration.getStringArray(key), ','));
         assertFalse(configuration.containsKey(key + ".old"));
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
-        verify(migrator.getLogger(), times(0)).error(any());
+        verify(migrator.getLogger(), times(0)).error(any(String.class));
+
 
         // Not set at all
         reset(migrator.getLogger());
@@ -181,6 +191,7 @@ public class Migrate3_7_0Test {
         assertFalse(configuration.containsKey(key));
         assertFalse(configuration.containsKey(key + ".old"));
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
-        verify(migrator.getLogger(), times(0)).error(any());
+        verify(migrator.getLogger(), times(0)).error(any(String.class));
+
     }
 }

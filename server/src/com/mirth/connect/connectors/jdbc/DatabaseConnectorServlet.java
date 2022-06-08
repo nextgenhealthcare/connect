@@ -29,7 +29,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.server.api.MirthServlet;
@@ -41,7 +42,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 public class DatabaseConnectorServlet extends MirthServlet implements DatabaseConnectorServletInterface {
 
     private static final String[] TABLE_TYPES = { "TABLE", "VIEW" };
-    private static final Logger logger = Logger.getLogger(DatabaseConnectorServlet.class);
+    private static final Logger logger = LogManager.getLogger(DatabaseConnectorServlet.class);
     private static final TemplateValueReplacer replacer = new TemplateValueReplacer();
     private static final ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
 

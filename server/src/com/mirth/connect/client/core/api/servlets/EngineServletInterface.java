@@ -9,13 +9,6 @@
 
 package com.mirth.connect.client.core.api.servlets;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -32,7 +25,13 @@ import com.mirth.connect.client.core.Permissions;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
-import com.mirth.connect.donkey.model.channel.DebugOptions;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 
 @Path("/channels")
@@ -54,12 +53,11 @@ public interface EngineServletInterface extends BaseServletInterface {
     @MirthOperation(name = "deployChannels", display = "Deploy channels", permission = Permissions.CHANNELS_DEPLOY_UNDEPLOY, type = ExecuteType.ABORT_PENDING)
     public void deployChannel(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel to deploy.", required = true) @PathParam("channelId") String channelId,
-            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors,
-            @RequestBody(description = "Debug options for the channel to deploy", content = {
-                    @Content(mediaType = MediaType.APPLICATION_XML, examples = {
-                            @ExampleObject(name = "channel_set", ref = "../apiexamples/debug_options_xml") }),
-                    @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
-                            @ExampleObject(name = "channel_set", ref = "../apiexamples/debug_options_json") }) }) DebugOptions debug) throws ClientException;
+            @Param("returnErrors") @Parameter(description = "If true, an error response code and the exception will be returned.") @QueryParam("returnErrors") boolean returnErrors, 
+            @Param("debugOptions") @Parameter(description = "If present, the channel will deploy in debug mode and use these options. The input should be a comma-separated list of 't' and 'f' values "
+            		+ "that indicate whether to debug Deploy/Undeploy/Preprocessor/Postprocessor scripts, Attachment/Batch scripts, Source Connectors scripts, Source Filter/Transformer scripts, "
+            		+ "Destination Filter/Transformer scripts, Destination Connector scripts, and Destination Response Transformer scripts, in that order. Example: \"f,f,f,f,f,f,f\")", example="f,f,f,f,f,f,f")  @QueryParam("debugOptions") String debug) throws ClientException;
+   
     // @formatter:on     
     
     @POST

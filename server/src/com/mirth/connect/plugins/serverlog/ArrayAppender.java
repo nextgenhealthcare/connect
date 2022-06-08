@@ -9,38 +9,51 @@
 
 package com.mirth.connect.plugins.serverlog;
 
+import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.spi.ErrorCode;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.util.Throwables;
+import org.apache.logging.log4j.util.Strings;
 
 import com.mirth.connect.server.logging.MirthLog4jFilter;
 
-public class ArrayAppender extends AppenderSkeleton {
+public class ArrayAppender extends AbstractAppender {
     private ServerLogProvider serverLogProvider;
 
-    public ArrayAppender(ServerLogProvider serverLogProvider) {
+    public ArrayAppender(ServerLogProvider serverLogProvider, Layout<? extends Serializable> layout) {
+        super(serverLogProvider.getClass().getName(), new MirthLog4jFilter(), layout, true, Property.EMPTY_ARRAY);
         this.serverLogProvider = serverLogProvider;
-        addFilter(new MirthLog4jFilter());
     }
 
-    protected void append(LoggingEvent loggingEvent) {
-        if (this.layout == null) {
-            errorHandler.error("No layout for appender " + name, null, ErrorCode.MISSING_LAYOUT);
+    @Override
+    public void append(LogEvent logEvent) {
+        if (getLayout() == null) {
+            getHandler().error("No layout for appender " + getName(), logEvent, null);
             return;
         }
 
-        String level = String.valueOf(loggingEvent.getLevel());
-        Date date = new Date(loggingEvent.getTimeStamp());
-        String threadName = loggingEvent.getThreadName();
-        String category = loggingEvent.getLoggerName();
-        String lineNumber = loggingEvent.getLocationInformation().getLineNumber();
-        String message = String.valueOf(loggingEvent.getMessage());
+        String level = String.valueOf(logEvent.getLevel());
+        Date date = new Date(logEvent.getTimeMillis());
+        String threadName = logEvent.getThreadName();
+        String category = logEvent.getLoggerName();
+        String message = String.valueOf(logEvent.getMessage());
+
+        String lineNumber = "?";
+        StackTraceElement source = logEvent.getSource();
+        if (source != null) {
+            int line = source.getLineNumber();
+            if (line >= 0) {
+                lineNumber = Integer.toString(line);
+            }
+        }
 
         String throwableInformation = null;
-        if (loggingEvent.getThrowableStrRep() != null) {
-            String[] completeLogTrace = loggingEvent.getThrowableStrRep();
+        if (logEvent.getThrown() != null) {
+            String[] completeLogTrace = Throwables.toStringList(logEvent.getThrown()).toArray(Strings.EMPTY_ARRAY);
             StringBuffer logText = new StringBuffer();
             for (String aCompleteLogTrace : completeLogTrace) {
                 logText.append(aCompleteLogTrace);
@@ -49,16 +62,5 @@ public class ArrayAppender extends AppenderSkeleton {
         }
 
         serverLogProvider.newServerLogReceived(level, date, threadName, category, lineNumber, message, throwableInformation);
-    }
-
-    public boolean requiresLayout() {
-        return true;
-    }
-
-    public void close() {
-        // clean up and set the boolean 'closed' to true to indiciate that this
-        // appender has been shut down.
-        serverLogProvider = null;
-        closed = true;
     }
 }

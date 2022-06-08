@@ -43,7 +43,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
 import org.glassfish.jersey.client.spi.Connector;
@@ -73,6 +74,7 @@ import com.mirth.connect.client.core.api.servlets.MessageServletInterface;
 import com.mirth.connect.client.core.api.servlets.UsageServletInterface;
 import com.mirth.connect.client.core.api.servlets.UserServletInterface;
 import com.mirth.connect.client.core.api.util.OperationUtil;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -81,7 +83,6 @@ import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
@@ -102,6 +103,7 @@ import com.mirth.connect.model.MessageImportResult;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
@@ -119,6 +121,7 @@ import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult;
 import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
+import com.mirth.connect.server.util.DebuggerUtil;
 import com.mirth.connect.util.ConfigurationProperty;
 import com.mirth.connect.util.ConnectionTestResponse;
 import com.mirth.connect.util.MirthSSLUtil;
@@ -129,7 +132,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
 
     public static final int MAX_QUERY_PARAM_COLLECTION_SIZE = 100;
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ServerConnection serverConnection;
     private javax.ws.rs.client.Client client;
     private URI api;
@@ -343,6 +346,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
 
     /**
+     * Logs out of the server due to user inactivity.
+     * 
+     * @see UserServletInterface#inactivitylogout
+     */
+    @Override
+    public synchronized void inactivityLogout() throws ClientException {
+        getServlet(UserServletInterface.class).inactivityLogout();
+    }
+    
+    /**
      * Creates a new user.
      * 
      * @see UserServletInterface#createUser
@@ -452,6 +465,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     @Override
     public boolean isUserLoggedIn(Integer userId) throws ClientException {
         return getServlet(UserServletInterface.class).isUserLoggedIn(userId);
+    }
+
+    /**
+     * Records acknowledgement of custom user notification dialog displayed before login.
+     * 
+     * @see UserServletInterface#setUserNotificationAcknowledged
+     */
+    @Override
+    public synchronized void setUserNotificationAcknowledged(Integer userId) throws ClientException {
+        getServlet(UserServletInterface.class).setUserNotificationAcknowledged(userId);
     }
 
     /**
@@ -637,6 +660,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     @Override
     public synchronized void setServerSettings(ServerSettings settings) throws ClientException {
         getServlet(ConfigurationServletInterface.class).setServerSettings(settings);
+    }
+    
+    /**
+     * Returns a PublicServerSettings object with all public server settings.
+     * 
+     * @see ConfigurationServletInterface#getPublicServerSettings
+     */
+    @Override
+    public PublicServerSettings getPublicServerSettings() throws ClientException {
+        return getServlet(ConfigurationServletInterface.class).getPublicServerSettings();
     }
 
     public Encryptor getEncryptor() {
@@ -1615,7 +1648,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannel
      */
     public void deployChannel(String channelId) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannel(channelId, false, new DebugOptions());
+        getServlet(EngineServletInterface.class).deployChannel(channelId, false, new String());
     }
 
     /**
@@ -1624,10 +1657,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EngineServletInterface#deployChannel
      */
     @Override
-    public void deployChannel(String channelId, boolean returnErrors, DebugOptions debugOptions) throws ClientException {
-        getServlet(EngineServletInterface.class).deployChannel(channelId, returnErrors, debugOptions);
+    public void deployChannel(String channelId, boolean returnErrors, String debug) throws ClientException {
+        getServlet(EngineServletInterface.class).deployChannel(channelId, returnErrors, debug);
     }
-
+    
+    
+    public void deployChannel(String channelId, boolean returnErrors, DebugOptions debugOptions) throws ClientException {
+        String debug = DebuggerUtil.parseDebugOptions(debugOptions);
+        getServlet(EngineServletInterface.class).deployChannel(channelId, returnErrors, debug);
+    }
+    
     /**
      * Deploys (or redeploys) selected channels.
      * 
@@ -2001,6 +2040,26 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     public void exportAttachmentServer(String channelId, Long messageId, String attachmentId, String filePath, boolean binary) throws ClientException {
         getServlet(MessageServletInterface.class).exportAttachmentServer(channelId, messageId, attachmentId, filePath, binary);
     }
+    
+    /**
+     * Audit that the user has accessed a channel message that contains PHI.
+     * 
+     * @see MessageServletInterface#auditAccessedPHIMessage
+     */
+    @Override
+    public synchronized void auditAccessedPHIMessage(String patientID) throws ClientException {
+        getServlet(MessageServletInterface.class).auditAccessedPHIMessage(patientID);
+    }
+    
+    /**
+     * Audit that the user has queried the channel messages panel that contains PHI.
+     * 
+     * @see MessageServletInterface#auditQueriedPHIMessage
+     */
+    @Override
+    public synchronized void auditQueriedPHIMessage(String query) throws ClientException {
+        getServlet(MessageServletInterface.class).auditQueriedPHIMessage(query);
+    }
 
     /*****************
      * Event Servlet *
@@ -2042,8 +2101,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EventServletInterface#getEvents
      */
     @Override
-    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String ipAddress, String serverId, Integer offset, Integer limit) throws ClientException {
-        return getServlet(EventServletInterface.class).getEvents(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, ipAddress, serverId, offset, limit);
+    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String attributeSearch, String ipAddress, String serverId, Integer offset, Integer limit) throws ClientException {
+        return getServlet(EventServletInterface.class).getEvents(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, attributeSearch, ipAddress, serverId, offset, limit);
     }
 
     /**
@@ -2062,8 +2121,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EventServletInterface#getEventCount
      */
     @Override
-    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String ipAddress, String serverId) throws ClientException {
-        return getServlet(EventServletInterface.class).getEventCount(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, ipAddress, serverId);
+    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String attributeSearch, String ipAddress, String serverId) throws ClientException {
+        return getServlet(EventServletInterface.class).getEventCount(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, attributeSearch, ipAddress, serverId);
     }
 
     /**

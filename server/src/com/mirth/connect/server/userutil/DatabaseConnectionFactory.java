@@ -16,7 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.connectors.jdbc.CustomDriver;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
@@ -28,7 +29,7 @@ public class DatabaseConnectionFactory {
 
     private MirthContextFactory contextFactory;
     private Map<String, CustomDriverInfo> customDriverInfoMap;
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     public DatabaseConnectionFactory(MirthContextFactory contextFactory) {
         this.contextFactory = contextFactory;

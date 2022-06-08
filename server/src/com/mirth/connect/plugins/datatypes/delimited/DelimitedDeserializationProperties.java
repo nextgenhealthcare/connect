@@ -14,7 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.datatype.DataTypePropertyDescriptor;
@@ -103,7 +104,7 @@ public class DelimitedDeserializationProperties extends DeserializationPropertie
 
     private void logError(String error) {
         if (logger == null) {
-            logger = Logger.getLogger(this.getClass());
+            logger = LogManager.getLogger(this.getClass());
         }
 
         logger.error(error);

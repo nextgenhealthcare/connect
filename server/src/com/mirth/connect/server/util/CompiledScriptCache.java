@@ -12,11 +12,12 @@ package com.mirth.connect.server.util;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Script;
 
 public class CompiledScriptCache {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private Map<String, Script> compiledScripts = new ConcurrentHashMap<String, Script>();
     private Map<String, String> sourceScripts = new ConcurrentHashMap<String, String>();
 

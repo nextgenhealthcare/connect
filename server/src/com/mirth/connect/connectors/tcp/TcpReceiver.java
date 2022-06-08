@@ -39,7 +39,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
@@ -79,7 +80,7 @@ public class TcpReceiver extends SourceConnector {
     // This determines how many client requests can queue up while waiting for the server socket to accept
     private static final int DEFAULT_BACKLOG = 256;
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     protected TcpReceiverProperties connectorProperties;

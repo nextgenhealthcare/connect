@@ -72,8 +72,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationException;
@@ -93,7 +91,6 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ForbiddenException;
 import com.mirth.connect.client.core.TaskConstants;
-import com.mirth.connect.client.ui.Frame.ChannelTask;
 import com.mirth.connect.client.ui.Frame.ConflictOption;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplateImportDialog;
 import com.mirth.connect.client.ui.components.ChannelTableTransferHandler;
@@ -105,7 +102,6 @@ import com.mirth.connect.client.ui.components.tag.FilterCompletion;
 import com.mirth.connect.client.ui.components.tag.MirthTagField;
 import com.mirth.connect.client.ui.components.tag.SearchFilterListener;
 import com.mirth.connect.client.ui.components.tag.TagFilterCompletion;
-import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
 import com.mirth.connect.client.ui.tag.SettingsPanelTags;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
@@ -132,9 +128,8 @@ import com.mirth.connect.model.util.ImportConverter3_0_0;
 import com.mirth.connect.plugins.ChannelColumnPlugin;
 import com.mirth.connect.plugins.ChannelPanelPlugin;
 import com.mirth.connect.plugins.TaskPlugin;
-import com.mirth.connect.util.ChannelDependencyException;
-import com.mirth.connect.util.ChannelDependencyGraph;
-import com.mirth.connect.util.DirectedAcyclicGraphNode;
+
+import net.miginfocom.swing.MigLayout;
 
 public class ChannelPanel extends AbstractFramePanel {
 
@@ -218,7 +213,7 @@ public class ChannelPanel extends AbstractFramePanel {
 
         parent.addTask(TaskConstants.CHANNEL_REFRESH, "Refresh", "Refresh the list of channels.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_REDEPLOY_ALL, "Redeploy All", "Undeploy all channels and deploy all currently enabled channels.", "A", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_rotate_clockwise.png")), channelTasks, channelPopupMenu, this);
-        parent.addTask(TaskConstants.CHANNEL_DEPLOY_DEBUG, "Debug Channel", "Deploys the currently selected channel in debug mode.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelTasks, channelPopupMenu, this);
+        parent.addTask(TaskConstants.CHANNEL_DEPLOY_DEBUG, "Debug Channel", "Deploys the currently selected channel in debug mode.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bug_go.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_DEPLOY, "Deploy Channel", "Deploys the currently selected channel.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EDIT_GLOBAL_SCRIPTS, "Edit Global Scripts", "Edit scripts that are not channel specific.", "G", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/script_edit.png")), channelTasks, channelPopupMenu, this);
         parent.addTask(TaskConstants.CHANNEL_EDIT_CODE_TEMPLATES, "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout Mirth Connect.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/page_edit.png")), channelTasks, channelPopupMenu, this);
@@ -886,68 +881,7 @@ public class ChannelPanel extends AbstractFramePanel {
             parent.alertWarning(parent, "Disabled channels will not be deployed.");
         }
 
-        // If there are any channel dependencies, decide if we need to warn the user on deploy.
-        try {
-            ChannelDependencyGraph channelDependencyGraph = new ChannelDependencyGraph(channelDependencies);
-
-            Set<String> deployedChannelIds = new HashSet<String>();
-            if (parent.status != null) {
-                for (DashboardStatus dashboardStatus : parent.status) {
-                    deployedChannelIds.add(dashboardStatus.getChannelId());
-                }
-            }
-
-            // For each selected channel, add any dependent/dependency channels as necessary
-            Set<String> channelIdsToDeploy = new HashSet<String>();
-            for (String channelId : selectedEnabledChannelIds) {
-                addChannelToDeploySet(channelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
-            }
-
-            // If additional channels were added to the set, we need to prompt the user
-            if (!CollectionUtils.subtract(channelIdsToDeploy, selectedEnabledChannelIds).isEmpty()) {
-                ChannelDependenciesWarningDialog dialog = new ChannelDependenciesWarningDialog(ChannelTask.DEPLOY, channelDependencies, selectedEnabledChannelIds, channelIdsToDeploy);
-                if (dialog.getResult() == JOptionPane.OK_OPTION) {
-                    if (dialog.isIncludeOtherChannels()) {
-                        selectedEnabledChannelIds.addAll(channelIdsToDeploy);
-                    }
-                } else {
-                    return;
-                }
-            }
-        } catch (ChannelDependencyException e) {
-            // Should never happen
-            e.printStackTrace();
-        }
-
         parent.deployChannel(selectedEnabledChannelIds, debugOptions);
-    }
-
-    private void addChannelToDeploySet(String channelId, ChannelDependencyGraph channelDependencyGraph, Set<String> deployedChannelIds, Set<String> channelIdsToDeploy) {
-        if (!channelIdsToDeploy.add(channelId)) {
-            return;
-        }
-
-        DirectedAcyclicGraphNode<String> node = channelDependencyGraph.getNode(channelId);
-
-        if (node != null) {
-            for (String dependentChannelId : node.getDirectDependentElements()) {
-                ChannelStatus channelStatus = channelStatuses.get(dependentChannelId);
-
-                // Only add the dependent channel if it's enabled and currently deployed
-                if (channelStatus != null && channelStatus.getChannel().getExportData().getMetadata().isEnabled() && deployedChannelIds.contains(dependentChannelId)) {
-                    addChannelToDeploySet(dependentChannelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
-                }
-            }
-
-            for (String dependencyChannelId : node.getDirectDependencyElements()) {
-                ChannelStatus channelStatus = channelStatuses.get(dependencyChannelId);
-
-                // Only add the dependency channel it it's enabled
-                if (channelStatus != null && channelStatus.getChannel().getExportData().getMetadata().isEnabled()) {
-                    addChannelToDeploySet(dependencyChannelId, channelDependencyGraph, deployedChannelIds, channelIdsToDeploy);
-                }
-            }
-        }
     }
 
     public void doEditGlobalScripts() {
@@ -1455,10 +1389,20 @@ public class ChannelPanel extends AbstractFramePanel {
             return;
         }
 
-        String content = parent.browseForFileString("XML");
+        List<String> contentList = parent.browseForMultipleFileStrings("XML");
 
-        if (content != null) {
-            importChannel(content, true);
+        // If only one channel was selected, import it as usual.
+        if (contentList.size() == 1) {
+        	importChannel(contentList.get(0), true);
+        } else {
+        	// If multiple channels were selected, import them without showing alerts.
+        	// Whenever we import multiple channels at once (such as when importing a channel group or
+        	// importing through drap-and-drop), we don't show alerts because it's a poor user experience
+        	// to have many alerts appearing in a row. In that situation, the user is expected to fix
+        	// issues with their channels after importing them.
+	        for (String content : contentList) {
+	            importChannel(content, false);
+	        }
         }
     }
 

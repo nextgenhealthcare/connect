@@ -24,7 +24,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ControllerException;
@@ -42,6 +43,7 @@ import com.mirth.connect.model.LibraryProperties;
 import com.mirth.connect.model.LicenseInfo;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.ServerConfiguration;
@@ -63,7 +65,7 @@ import com.mirth.connect.util.MirthSSLUtil;
 
 public class ConfigurationServlet extends MirthServlet implements ConfigurationServletInterface {
 
-    private static final Logger logger = Logger.getLogger(ConfigurationServlet.class);
+    private static final Logger logger = LogManager.getLogger(ConfigurationServlet.class);
     private static final ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private static final ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private static final ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
@@ -213,6 +215,15 @@ public class ConfigurationServlet extends MirthServlet implements ConfigurationS
         }
     }
 
+    @Override
+    public PublicServerSettings getPublicServerSettings() {
+        try {
+            return configurationController.getPublicServerSettings();
+        } catch (ControllerException e) {
+            throw new MirthApiException(e);
+        }
+    }
+    
     @Override
     public EncryptionSettings getEncryptionSettings() {
         try {

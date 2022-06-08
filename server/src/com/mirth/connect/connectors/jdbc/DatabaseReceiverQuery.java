@@ -22,8 +22,8 @@ import javax.sql.rowset.CachedRowSet;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.server.controllers.ContextFactoryController;
@@ -42,7 +42,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     private DatabaseReceiver connector;
     private DatabaseReceiverProperties connectorProperties;
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private CustomDriver customDriver;
     private String contextFactoryId;

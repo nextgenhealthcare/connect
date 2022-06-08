@@ -24,7 +24,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -48,7 +49,7 @@ public class JmsReceiverTests {
     private static ConnectionFactory connectionFactory;
     private static Session session;
     private static InitialContext initialContext;
-    private static Logger logger = Logger.getLogger(JmsReceiverTests.class);
+    private static Logger logger = LogManager.getLogger(JmsReceiverTests.class);
 
     private static JmsReceiverProperties getInitialProperties() {
         return getInitialProperties(false);

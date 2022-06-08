@@ -22,11 +22,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.ContextFactory;
 
-import com.google.common.base.Objects;
 import com.mirth.connect.model.LibraryProperties;
 import com.mirth.connect.plugins.LibraryPlugin;
 import com.mirth.connect.server.ExtensionLoader;
@@ -34,7 +33,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class DefaultContextFactoryController extends ContextFactoryController {
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private ExtensionController extensionController;
     private Map<String, LibraryProperties> libraryResources = new ConcurrentHashMap<String, LibraryProperties>();
     private Map<String, List<URL>> libraryCache = new ConcurrentHashMap<String, List<URL>>();
@@ -186,8 +185,8 @@ public class DefaultContextFactoryController extends ContextFactoryController {
     }
 
     @Override
-    public MirthContextFactory getDebugContextFactory(Set<String> libraryResourceIds, String channelId) throws Exception {
-    	Set<String> key = getDebugContextFactoryMapKey(libraryResourceIds, channelId);
+    public MirthContextFactory getDebugContextFactory(Set<String> libraryResourceIds, String channelId, String scriptId) throws Exception {
+    	Set<String> key = getDebugContextFactoryMapKey(libraryResourceIds, channelId, scriptId);
     	
     	MirthContextFactory contextFactory = debugContextFactoryMap.get(key);
     	
@@ -209,12 +208,12 @@ public class DefaultContextFactoryController extends ContextFactoryController {
     }
     
     @Override
-    public void removeDebugContextFactory(Set<String> libraryResourceIds, String channelId) {
-    	Set<String> key = getDebugContextFactoryMapKey(libraryResourceIds, channelId);
+    public void removeDebugContextFactory(Set<String> libraryResourceIds, String channelId, String scriptId) {
+    	Set<String> key = getDebugContextFactoryMapKey(libraryResourceIds, channelId, scriptId);
     	debugContextFactoryMap.remove(key);
     }
     
-    private Set<String> getDebugContextFactoryMapKey(Set<String> libraryResourceIds, String channelId) {
+    private Set<String> getDebugContextFactoryMapKey(Set<String> libraryResourceIds, String channelId, String scriptId) {
     	java.util.Objects.requireNonNull(channelId);
     	if (libraryResourceIds == null) {
     		libraryResourceIds = new HashSet<>();
@@ -222,6 +221,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
     	
     	Set<String> key = new HashSet<>(libraryResourceIds);
     	key.add(channelId);
+    	key.add(scriptId);
     	
     	return key;
     }

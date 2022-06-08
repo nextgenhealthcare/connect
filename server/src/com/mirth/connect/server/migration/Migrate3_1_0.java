@@ -22,8 +22,10 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 
 import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.model.util.MigrationException;
@@ -31,7 +33,7 @@ import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
 
 public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     @Override
     public void migrate() throws MigrationException {
@@ -42,21 +44,23 @@ public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
 
     private void migrateLog4jProperties() {
         try {
-            FileBasedConfigurationBuilder<PropertiesConfiguration> builder = PropertiesConfigurationUtil.createBuilder(new File(ClassPathResource.getResourceURI("log4j.properties")));
+            FileBasedConfigurationBuilder<PropertiesConfiguration> builder = PropertiesConfigurationUtil.createBuilder(new File(ClassPathResource.getResourceURI("log4j2.properties")));
             PropertiesConfiguration log4jproperties = builder.getConfiguration();
 
-            String level = (String) log4jproperties.getProperty("log4j.logger.shutdown");
+            String level = (String) log4jproperties.getProperty("logger.shutdown.level");
             if (level != null) {
-                log4jproperties.setProperty("log4j.logger.undeploy", level);
-                log4jproperties.clearProperty("log4j.logger.shutdown");
-                Logger.getLogger("undeploy").setLevel(Level.toLevel(level));
+                log4jproperties.setProperty("logger.undeploy.level", level);
+                log4jproperties.clearProperty("logger.shutdown.level");
+                Logger logger2 = LogManager.getLogger("undeploy");
+                Configurator.setLevel(logger2.getName(),Level.toLevel(level));
             }
 
-            level = (String) log4jproperties.getProperty("log4j.logger.com.mirth.connect.donkey.server.channel.RecoveryTask");
+            level = (String) log4jproperties.getProperty("logger.recoveryTask.level");
             if (StringUtils.isBlank(level)) {
                 level = "INFO";
-                log4jproperties.setProperty("log4j.logger.com.mirth.connect.donkey.server.channel.RecoveryTask", level);
-                Logger.getLogger("com.mirth.connect.donkey.server.channel.RecoveryTask").setLevel(Level.toLevel(level));
+                log4jproperties.setProperty("logger.recoveryTask.level", level);
+                Logger logger2 = LogManager.getLogger("com.mirth.connect.donkey.server.channel.RecoveryTask");
+                Configurator.setLevel(logger2.getName(),Level.toLevel(level));
             }
 
             builder.save();

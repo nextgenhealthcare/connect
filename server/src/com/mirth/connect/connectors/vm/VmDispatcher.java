@@ -15,7 +15,8 @@ import java.util.Map;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
@@ -52,7 +53,7 @@ public class VmDispatcher extends DestinationConnector {
     private ConfigurationController configurationController = ConfigurationController.getInstance();
     private GlobalVariableStore globalMap;
     private GlobalChannelVariableStore globalChannelMap;
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     @Override
     public void onDeploy() throws ConnectorTaskException {

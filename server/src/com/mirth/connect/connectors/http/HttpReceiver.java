@@ -58,7 +58,8 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.security.AbstractLoginService.UserPrincipal;
@@ -120,7 +121,7 @@ import com.mirth.connect.util.CharsetUtils;
 import com.mirth.connect.util.HttpUtil;
 
 public class HttpReceiver extends SourceConnector implements BinaryContentTypeResolver {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
@@ -518,7 +519,7 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     }
 
     protected void sendErrorResponse(Request baseRequest, HttpServletResponse servletResponse, DispatchResult dispatchResult, Throwable t) throws IOException {
-        String responseError = ExceptionUtils.getStackTrace(t);
+        String responseError = ExceptionUtils.getRootCauseMessage(t);
         logger.error("Error receiving message (" + getConnectorProperties().getName() + " \"Source\" on channel " + getChannelId() + ").", t);
         eventController.dispatchEvent(new ErrorEvent(getChannelId(), getMetaDataId(), dispatchResult == null ? null : dispatchResult.getMessageId(), ErrorEventType.SOURCE_CONNECTOR, getSourceName(), getConnectorProperties().getName(), "Error receiving message", t));
 
@@ -562,9 +563,12 @@ public class HttpReceiver extends SourceConnector implements BinaryContentTypeRe
     }
 
     protected HttpRequestMessage createRequestMessage(Request request, boolean ignorePayload) throws IOException, MessagingException {
-        // Only parse multipart if XML Body is selected and Parse Multipart is enabled
-        boolean parseMultipart = getConnectorProperties().isXmlBody() && getConnectorProperties().isParseMultipart() && ServletFileUpload.isMultipartContent(request);
-        return createRequestMessage(request, ignorePayload, parseMultipart);
+        return createRequestMessage(request, ignorePayload, shouldParseMultipart(getConnectorProperties(), request));
+    }
+    
+    protected boolean shouldParseMultipart(HttpReceiverProperties connectorProperties, Request request) {
+    	// Only parse multipart if XML Body is selected and Parse Multipart is enabled
+    	return connectorProperties.isXmlBody() && connectorProperties.isParseMultipart() && ServletFileUpload.isMultipartContent(request);
     }
 
     protected HttpRequestMessage createRequestMessage(Request request, boolean ignorePayload, boolean parseMultipart) throws IOException, MessagingException {

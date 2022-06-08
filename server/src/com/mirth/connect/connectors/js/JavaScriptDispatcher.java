@@ -9,9 +9,13 @@
 
 package com.mirth.connect.connectors.js;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.RhinoException;
@@ -20,7 +24,6 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
-import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
@@ -32,14 +35,14 @@ import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 import com.mirth.connect.donkey.server.event.ConnectionStatusEvent;
 import com.mirth.connect.donkey.server.event.ErrorEvent;
-import com.mirth.connect.model.DebugUsage;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
-import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.MirthScopeProvider;
+import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.controllers.DebugUsageController;
 import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptScopeUtil;
 import com.mirth.connect.server.util.javascript.JavaScriptTask;
@@ -49,23 +52,31 @@ import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptDispatcher extends DestinationConnector {
-    private Logger logger = Logger.getLogger(this.getClass());
-    private Logger scriptLogger = Logger.getLogger("js-connector");
+    private Logger logger = LogManager.getLogger(this.getClass());
+    private Logger scriptLogger = LogManager.getLogger("js-connector");
     private EventController eventController = getEventController();
+    private ScriptController scriptController = getScriptController();
     private ContextFactoryController contextFactoryController = getContextFactoryController();
     private CompiledScriptCache compiledScriptCache = getCompiledScriptCache();
     private JavaScriptDispatcherProperties connectorProperties;
     private String scriptId;
-    private volatile String contextFactoryId;
+    List<String> contextFactoryIdList = new ArrayList<String>();
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
     private boolean debug = false;
     private MirthMain debugger;
     private boolean ignoreBreakpoints = false;
-    private DebugUsageController debugUsageController = ControllerFactory.getFactory().createDebugUsageController();
-    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     
     protected EventController getEventController() {
         return ControllerFactory.getFactory().createEventController();
+    }
+    
+    protected ScriptController getScriptController() {
+        return ControllerFactory.getFactory().createScriptController();
+    }
+    
+    
+    protected ChannelController getChannelController() {
+        return ControllerFactory.getFactory().createChannelController();
     }
     
     protected ContextFactoryController getContextFactoryController() {
@@ -78,48 +89,44 @@ public class JavaScriptDispatcher extends DestinationConnector {
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
-        onDeploy(false);
+        onDeploy(null);
     }
     
     @Override
     public void onDebugDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
-    
-        String serverId = configurationController.getServerId();
-        try {
-            DebugUsage debugUsage = debugUsageController.getDebugUsage(serverId);
-            if (debugUsage == null) {
-                debugUsage = new DebugUsage();
-            }
-            
-            debugUsage.setInvocationCount(debugUsage.getInvocationCount() + 1);
-            onDeploy(debugOptions != null && debugOptions.isDestinationConnectorScripts());
-            debugUsageController.upsertDebugUsage(debugUsage);
-            
-        }
-        catch (ControllerException ex) {
-            ex.printStackTrace();
-        }
+        onDeploy(debugOptions);
     }
     
-    public void onDeploy(boolean debug) throws ConnectorTaskException {
+    public void onDeploy(DebugOptions debugOptions) throws ConnectorTaskException {
         this.connectorProperties = (JavaScriptDispatcherProperties) getConnectorProperties();
-        this.debug = debug;
-
-        scriptId = UUID.randomUUID().toString();
+        this.debug = debugOptions != null && debugOptions.isDestinationConnectorScripts();
+        com.mirth.connect.model.Channel channelModel = new com.mirth.connect.model.Channel();
+        channelModel = getChannelController().getChannelById(getChannelId());
+        scriptId = ScriptController.getScriptId("JavaScript_Writer_" + getMetaDataId(), getChannelId());
 
         try {
-            MirthContextFactory contextFactory;
+            MirthContextFactory contextFactory = null;
+            Map<String, MirthContextFactory> contextFactories = new HashMap<>();
             
             if (debug) {
-                contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId());
+                contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
+                contextFactoryIdList.add(contextFactory.getId());
+                contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
+                contextFactory.setScriptText(connectorProperties.getScript());
+                contextFactory.setDebugType(true);
+                contextFactories.put(scriptId, contextFactory);
                 debugger = getDebugger(contextFactory);
             } else {
+                //default case
                 contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+                contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
+                contextFactoryIdList.add(contextFactory.getId());
+                contextFactory.setScriptText(connectorProperties.getScript());
+                contextFactories.put(scriptId, contextFactory);
             }
+           
+            scriptController.compileChannelScripts(contextFactories, channelModel);
             
-            contextFactoryId = contextFactory.getId();
-            
-            compileAndAddScript(contextFactory, scriptId);
         } catch (Exception e) {
             throw new ConnectorTaskException("Error compiling/adding script.", e);
         }
@@ -127,8 +134,9 @@ public class JavaScriptDispatcher extends DestinationConnector {
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getDestinationName(), ConnectionStatusEventType.IDLE));
     }
     
+
     protected MirthMain getDebugger(MirthContextFactory contextFactory) {
-        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, getChannel().getName() + "-" + getChannelId());
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, getChannel().getName() + "-" + getChannelId(), scriptId);
     }
     
     protected void compileAndAddScript(MirthContextFactory contextFactory, String scriptId) throws Exception {
@@ -137,14 +145,15 @@ public class JavaScriptDispatcher extends DestinationConnector {
 
     @Override
     public void onUndeploy() throws ConnectorTaskException {
-        JavaScriptUtil.removeScriptFromCache(scriptId);
-        
-        if (debug && debugger != null) {
-            debugger.detach();
-            contextFactoryController.removeDebugContextFactory(getResourceIds(), getChannelId());
-            debugger.dispose();
-            debugger = null;
-        }
+        if(scriptId != null) {
+            JavaScriptUtil.removeScriptFromCache(scriptId);
+              
+            if (debug && debugger != null) {
+                contextFactoryController.removeDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
+                debugger.dispose();
+                debugger = null;
+            }
+        } 
     }
 
     @Override
@@ -181,15 +190,15 @@ public class JavaScriptDispatcher extends DestinationConnector {
         JavaScriptDispatcherProperties javaScriptDispatcherProperties = (JavaScriptDispatcherProperties) connectorProperties;
 
         try {
-            MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId()) : contextFactoryController.getContextFactory(getResourceIds()); 
+            MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId) : contextFactoryController.getContextFactory(getResourceIds()); 
 
-            if (!contextFactoryId.equals(contextFactory.getId())) {
+            if (!contextFactoryIdList.contains(contextFactory.getId())) {
                 synchronized (this) {
-                    contextFactory = debug ? contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId()) : contextFactoryController.getContextFactory(getResourceIds());
+                    contextFactory = debug ? contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId) : contextFactoryController.getContextFactory(getResourceIds());
 
-                    if (!contextFactoryId.equals(contextFactory.getId())) {
+                    if (!contextFactoryIdList.contains(contextFactory.getId())) {
                         JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
-                        contextFactoryId = contextFactory.getId();
+                        contextFactoryIdList.add(contextFactory.getId());
                     }
                 }
             }

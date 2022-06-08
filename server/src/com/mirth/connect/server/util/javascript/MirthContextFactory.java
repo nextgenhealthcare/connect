@@ -20,6 +20,7 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -33,6 +34,32 @@ public class MirthContextFactory extends ContextFactory {
     private ObjectXMLSerializer serializer;
     private ClassLoader isolatedClassLoader;
     private int languageVersion = Context.VERSION_DEFAULT;
+    private String scriptText;
+    private ContextType contextType;
+    private Boolean debugType = false;
+    
+    public Boolean isDebug() {
+        return debugType;
+    }
+    public void setDebugType(Boolean debug) {
+        this.debugType = debug;
+    }
+
+    public String getScriptText() {
+        return scriptText;
+    }
+
+    public void setScriptText(String scriptText) {
+        this.scriptText = scriptText;
+    }
+
+    public ContextType getContextType() {
+        return contextType;
+    }
+
+    public void setContextType(ContextType contextType) {
+        this.contextType = contextType;
+    }
 
     public MirthContextFactory(URL[] urls, Set<String> resourceIds) {
         this.id = UUID.randomUUID().toString();

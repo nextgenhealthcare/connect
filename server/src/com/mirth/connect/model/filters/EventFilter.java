@@ -38,6 +38,7 @@ public class EventFilter implements Serializable {
     private String name;
     private Outcome outcome;
     private Integer userId;
+    private String attributeSearch;
     private String ipAddress;
     private String serverId;
 
@@ -111,6 +112,14 @@ public class EventFilter implements Serializable {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+    
+    public String getAttributeSearch() {
+		return attributeSearch;
+	}
+
+    public void setAttributeSearch(String attributeSearch) {
+        this.attributeSearch = attributeSearch;
     }
 
     public String getIpAddress() {

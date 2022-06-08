@@ -20,7 +20,8 @@ import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.api.servlets.SystemServletInterface;
@@ -34,7 +35,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class SystemServlet extends MirthServlet implements SystemServletInterface {
 
-    private static final Logger logger = Logger.getLogger(SystemServlet.class);
+    private static final Logger logger = LogManager.getLogger(SystemServlet.class);
     private static final ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     public SystemServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {

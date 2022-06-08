@@ -25,8 +25,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Channel;
@@ -54,7 +54,7 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
     private static final String TASK_ADD_D_MM_INDEX3 = "addMetadataIndex3";
 
     private static DatabaseTaskController instance = null;
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
 

@@ -18,15 +18,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
-import com.mirth.connect.donkey.server.message.batch.BatchAdaptor;
-import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageException;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReader;
 import com.mirth.connect.donkey.server.message.batch.BatchMessageReceiver;
@@ -34,6 +33,8 @@ import com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties.Sp
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.message.DebuggableBatchAdaptor;
+import com.mirth.connect.server.message.DebuggableBatchAdaptorFactory;
 import com.mirth.connect.server.userutil.SourceMap;
 import com.mirth.connect.server.util.CompiledScriptCache;
 import com.mirth.connect.server.util.javascript.JavaScriptExecutorException;
@@ -43,18 +44,17 @@ import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.util.StringUtil;
 
-public class DelimitedBatchAdaptor extends BatchAdaptor {
-    private Logger logger = Logger.getLogger(this.getClass());
+public class DelimitedBatchAdaptor extends DebuggableBatchAdaptor {
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private DelimitedSerializationProperties serializationProperties;
-    private DelimitedBatchProperties batchProperties;
     private DelimitedReader delimitedReader = null;
     private BufferedReader bufferedReader;
     private boolean skipHeader;
     private Integer groupingColumnIndex;
     private String batchMessageDelimiter = null;
 
-    public DelimitedBatchAdaptor(BatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
+    public DelimitedBatchAdaptor(DebuggableBatchAdaptorFactory factory, SourceConnector sourceConnector, BatchRawMessage batchRawMessage) {
         super(factory, sourceConnector, batchRawMessage);
     }
 
@@ -64,14 +64,6 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
 
     public void setSerializationProperties(DelimitedSerializationProperties serializationProperties) {
         this.serializationProperties = serializationProperties;
-    }
-
-    public DelimitedBatchProperties getBatchProperties() {
-        return batchProperties;
-    }
-
-    public void setBatchProperties(DelimitedBatchProperties batchProperties) {
-        this.batchProperties = batchProperties;
     }
 
     public DelimitedReader getDelimitedReader() {
@@ -127,6 +119,7 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
         String recDelim = delimitedReader.getRecordDelimiter();
         int ch;
         String lookAhead = "";
+        DelimitedBatchProperties batchProperties = (DelimitedBatchProperties) getBatchProperties();
         // If skipping the header, and the option is configured, consume all the skip records,
         // including the record delimiters
         if (skipHeader && batchProperties.getBatchSkipRecords() > 0) {
@@ -235,18 +228,11 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
             try {
                 final int batchSkipRecords = batchProperties.getBatchSkipRecords();
                 final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
+                final Boolean debug = ((DebuggableBatchAdaptorFactory) getFactory()).isDebug();
+                MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchProperties.getBatchScript());
 
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
-                if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
-                    synchronized (factory) {
-                        contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
-                        if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
-                            JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
-                            factory.setContextFactoryId(contextFactory.getId());
-                        }
-                    }
-                }
-
+                triggerDebug(debug);
+                
                 String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "Delimited Batch Adaptor", sourceConnector) {
                     @Override
                     public String doCall() throws Exception {
@@ -256,7 +242,7 @@ public class DelimitedBatchAdaptor extends BatchAdaptor {
                             logger.error("Batch script could not be found in cache");
                             return null;
                         } else {
-                            Logger scriptLogger = Logger.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
+                            Logger scriptLogger = LogManager.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
 
                             try {
                                 Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(getContextFactory(), scriptLogger, sourceConnector.getChannelId(), sourceConnector.getChannel().getName(), getScopeObjects(in, serializationProperties, skipHeader, batchSkipRecords));

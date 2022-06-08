@@ -15,7 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.util.Serializer;
@@ -26,7 +27,7 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
  * metadata ID, status, and various content types.
  */
 public class ImmutableConnectorMessage {
-    private static Logger logger = Logger.getLogger(ImmutableConnectorMessage.class);
+    private static Logger logger = LogManager.getLogger(ImmutableConnectorMessage.class);
 
     private ConnectorMessage connectorMessage;
     private boolean modifiableMaps;

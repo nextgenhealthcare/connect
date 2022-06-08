@@ -19,12 +19,13 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.model.util.MessageVocabulary;
 
 public class X12Vocabulary extends MessageVocabulary {
-    private Logger logger = Logger.getLogger(X12Vocabulary.class);
+    private Logger logger = LogManager.getLogger(X12Vocabulary.class);
     private Map<String, Object> vocab;
     private static final String JAXB_CONTEXT = "com.mirth.connect.plugins.datatypes.edi";
     private static final String XML_PATH = "xml";
