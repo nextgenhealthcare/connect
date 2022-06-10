@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.util.Calendar;
 import java.util.HashMap;
 
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -60,15 +61,19 @@ public class DefaultDebugUsageController extends DebugUsageController {
     public HashMap<String, Object> getDebugUsageMap(DebugUsage debugUsage) {
         HashMap<String, Object> map = new HashMap<>();
         map.put("serverId", debugUsage.getServerId());
+        map.put("duppCount", debugUsage.getDuppCount());
+        map.put("attachBatchCount", debugUsage.getAttachBatchCount());
+        map.put("sourceConnectorCount", debugUsage.getSourceConnectorCount());
+        map.put("sourceFilterTransCount", debugUsage.getSourceFilterTransCount());
+        map.put("destinationFilterTransCount", debugUsage.getDestinationFilterTransCount());
+        map.put("destinationConnectorCount", debugUsage.getDestinationFilterTransCount());
+        map.put("responseCount", debugUsage.getResponseCount());
         map.put("invocationCount", debugUsage.getInvocationCount());
-        map.put("postprocessorCount", debugUsage.getPostprocessorCount());
-        map.put("preprocessorCount", debugUsage.getPostprocessorCount());
-        map.put("deployCount", debugUsage.getDeployCount());
-        map.put("undeployCount", debugUsage.getUndeployCount());
         map.put("lastSent", debugUsage.getLastSent());
         return map;
     }
 
+ 
     public synchronized void upsertDebugUsage(DebugUsage debugUsage) throws ControllerException {
 
 //            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
@@ -76,17 +81,13 @@ public class DefaultDebugUsageController extends DebugUsageController {
 
             DebugUsage persistedDebugUsage = getDebugUsage(configurationController.getServerId());
 
-            //if server id exists, update 
+            // if server id record exists, update current record
             if (persistedDebugUsage != null) {
                 logger.debug("updating debug usage statistics for serverId" + debugUsage.getServerId());
                 SqlConfig.getInstance().getSqlSessionManager().update("DebugUsage.updateDebugUsageStatistics", getDebugUsageMap(debugUsage));
 
-                //otherwise, insert 
+                // otherwise, insert a new record
             } else {
-                
-                debugUsage = new DebugUsage();
-                debugUsage.setServerId(configurationController.getServerId());
-                debugUsage.setInvocationCount(1);
                 
                 logger.debug("inserting debug usage statistics for serverId" + debugUsage.getServerId());
                 SqlConfig.getInstance().getSqlSessionManager().insert("DebugUsage.insertDebugUsageStatistics", getDebugUsageMap(debugUsage));
@@ -120,10 +121,10 @@ public class DefaultDebugUsageController extends DebugUsageController {
 //            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
         }
     }
+    
+    public void resetDebugUsage(String serverId) throws ControllerException {
 
-    public void deleteDebugUsage(String serverId) throws ControllerException {
-
-        logger.debug("deleting debug usage for serverId: " + serverId);
+        logger.debug("resetting debug usage for serverId: " + serverId);
 
         if (serverId == null) {
             throw new ControllerException("Error getting usage for serverId: serverId cannot be null.");
@@ -133,8 +134,8 @@ public class DefaultDebugUsageController extends DebugUsageController {
         try {
             DebugUsage debugUsage = new DebugUsage();
             debugUsage.setServerId(serverId);
-
-            SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("DebugUsage.deleteDebugUsageStatistics", debugUsage);
+            debugUsage.setLastSent(Calendar.getInstance());
+            SqlConfig.getInstance().getSqlSessionManager().update("DebugUsage.resetDebugUsageStatistics", debugUsage);
 
         } catch (PersistenceException e) {
             throw new ControllerException(e);

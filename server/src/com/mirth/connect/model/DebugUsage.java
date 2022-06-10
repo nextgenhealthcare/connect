@@ -25,25 +25,33 @@ public class DebugUsage implements Serializable {
     private static final long serialVersionUID = 1L;
     private Integer id;
     private String serverId;
-    private Integer deployCount;
+    private Integer duppCount;
+    private Integer attachBatchCount;
+    private Integer sourceConnectorCount;
+    private Integer sourceFilterTransCount;
+    private Integer destinationFilterTransCount;
+    private Integer destinationConnectorCount;
+    private Integer responseCount;
     private Integer invocationCount;
-    private Integer postprocessorCount;
-    private Integer preprocessorCount;
-    private Integer undeployCount;
-    private Calendar lastSent;
-    
-    
 
-    public DebugUsage() {
-        this.id = 0;
-        this.deployCount = 0;
-        this.invocationCount = 0;
-        this.postprocessorCount = 0;
-        this.preprocessorCount = 0;
-        this.undeployCount = 0;
-    }
 
-    public Integer getId() {
+	private Calendar lastSent;
+
+	public DebugUsage() {
+		this.id = 0;
+		this.serverId = null;
+		this.duppCount = 0;
+		this.attachBatchCount = 0;
+		this.sourceConnectorCount = 0;
+		this.sourceFilterTransCount = 0;
+		this.destinationFilterTransCount = 0;
+		this.destinationConnectorCount = 0;
+		this.responseCount = 0;
+		this.invocationCount = 0;
+		this.lastSent = null;
+	}
+
+	public Integer getId() {
         return id;
     }
 
@@ -59,14 +67,63 @@ public class DebugUsage implements Serializable {
         this.serverId = serverId;
     }
 
-    public Integer getDeployCount() {
-        return deployCount;
+    public Integer getDuppCount() {
+        return duppCount;
     }
 
-    public void setDeployCount(Integer deployCount) {
-        this.deployCount = deployCount;
+    public void setDuppCount(Integer deployCount) {
+        this.duppCount = deployCount;
     }
+    
+    public Integer getAttachBatchCount() {
+		return attachBatchCount;
+	}
 
+	public void setAttachBatchCount(Integer attachBatchCount) {
+		this.attachBatchCount = attachBatchCount;
+	}
+
+	public Integer getSourceConnectorCount() {
+		return sourceConnectorCount;
+	}
+
+	public void setSourceConnectorCount(Integer sourceConnectorCount) {
+		this.sourceConnectorCount = sourceConnectorCount;
+	}
+
+
+    public Integer getSourceFilterTransCount() {
+		return sourceFilterTransCount;
+	}
+
+	public void setSourceFilterTransCount(Integer sourceFilterTransCount) {
+		this.sourceFilterTransCount = sourceFilterTransCount;
+	}
+
+	public Integer getDestinationFilterTransCount() {
+		return destinationFilterTransCount;
+	}
+
+	public void setDestinationFilterTransCount(Integer destinationFilterTransCount) {
+		this.destinationFilterTransCount = destinationFilterTransCount;
+	}
+
+	public Integer getDestinationConnectorCount() {
+		return destinationConnectorCount;
+	}
+
+	public void setDestinationConnectorCount(Integer destinationConnectorCount) {
+		this.destinationConnectorCount = destinationConnectorCount;
+	}
+
+	public Integer getResponseCount() {
+		return responseCount;
+	}
+
+	public void setResponseCount(Integer responseCount) {
+		this.responseCount = responseCount;
+	}
+	
     public Integer getInvocationCount() {
         return invocationCount;
     }
@@ -74,32 +131,8 @@ public class DebugUsage implements Serializable {
     public void setInvocationCount(Integer invocationCount) {
         this.invocationCount = invocationCount;
     }
-
-    public Integer getPostprocessorCount() {
-        return postprocessorCount;
-    }
-
-    public void setPostprocessorCount(Integer postprocessorCount) {
-        this.postprocessorCount = postprocessorCount;
-    }
-
-    public Integer getPreprocessorCount() {
-        return preprocessorCount;
-    }
-
-    public void setPreprocessorCount(Integer preprocessorCount) {
-        this.preprocessorCount = preprocessorCount;
-    }
-
-    public Integer getUndeployCount() {
-        return undeployCount;
-    }
-
-    public void setUndeployCount(Integer undeployCount) {
-        this.undeployCount = undeployCount;
-    }
-
-    public Calendar getLastSent() {
+    
+	public Calendar getLastSent() {
         return lastSent;
     }
 

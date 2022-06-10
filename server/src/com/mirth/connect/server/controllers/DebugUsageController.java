@@ -28,7 +28,7 @@ public abstract class DebugUsageController extends Controller {
         
     public abstract void upsertDebugUsage(DebugUsage debugUsage) throws ControllerException;
     
-    public abstract void deleteDebugUsage(String serverId) throws ControllerException;
+    public abstract void resetDebugUsage(String serverId) throws ControllerException;
     
     public abstract DebugUsage getDebugUsage(String serverId) throws ControllerException;
     

@@ -227,12 +227,12 @@ public class DefaultUsageController extends UsageController {
     
     private void getDebugData(PurgedDocument purgedDocument) throws ControllerException {
         
-        //retrieve debug usage stats from db 
+        // retrieve debug usage metrics from the database 
         DebugUsage debugUsage = debugUsageController.getDebugUsage(configurationController.getServerId());
         Map<String, Object> debugStatsMap = debugUsageController.getDebugUsageMap(debugUsage);
         
-        //delete debug usage stats for this serverId from db 
-        debugUsageController.deleteDebugUsage(configurationController.getServerId());
+        // removing debug usage metrics for this serverId from database
+        debugUsageController.resetDebugUsage(configurationController.getServerId());
         
         purgedDocument.setDebugStatistics(debugStatsMap);
     }

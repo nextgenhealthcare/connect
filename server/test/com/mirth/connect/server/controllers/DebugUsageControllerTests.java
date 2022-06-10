@@ -11,6 +11,7 @@ package com.mirth.connect.server.controllers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -26,36 +27,37 @@ import junit.framework.TestCase;
 public class DebugUsageControllerTests extends TestCase {
     private DebugUsageController debugUsageController = ControllerFactory.getFactory().createDebugUsageController();
     private List<DebugUsage> sampleDebugStatsList;
+    UUID uuid = UUID.randomUUID();
 
     protected void setUp() throws Exception {
         super.setUp();
         // clear all database tables
-        ScriptRunner.runScript(new File("conf/" + ControllerTestSuite.database + "/" + ControllerTestSuite.database + "-database.sql"));
+//        ScriptRunner.runScript(new File("dbconf/" + ControllerTestSuite.database + "/" + ControllerTestSuite.database + "-database.sql"));
         sampleDebugStatsList = new ArrayList<DebugUsage>();
         int minCount = 0;
         int maxCount = 100;
         
-        for (int i = 0; i < 3; i++) {
-            DebugUsage sampleDebugUsage = new DebugUsage();
-            UUID uuid = UUID.randomUUID();
-            Random random = new Random();
-            
-            sampleDebugUsage.setServerId(uuid.toString());
-
-            sampleDebugUsage.setInvocationCount(random.nextInt(maxCount - minCount + 1) + minCount);
-            sampleDebugUsage.setPostprocessorCount(random.nextInt(maxCount - minCount + 1) + minCount);
-            sampleDebugUsage.setPreprocessorCount(random.nextInt(maxCount - minCount + 1) + minCount);
-            sampleDebugUsage.setDeployCount(random.nextInt(maxCount - minCount + 1) + minCount);
-            sampleDebugUsage.setUndeployCount(random.nextInt(maxCount - minCount + 1) + minCount);
-            
+        // is this three to mimic advanced clustering?
+//        for (int i = 0; i < 3; i++) {
+//            DebugUsage sampleDebugUsage = new DebugUsage();
+//            UUID uuid = UUID.randomUUID();
+//            Random random = new Random();
+//            
+//            sampleDebugUsage.setServerId(uuid.toString());
+//            sampleDebugUsage.setDuppCount(random.nextInt(maxCount - minCount + 1) + minCount);
+//            sampleDebugUsage.setAttachBatchCount(random.nextInt(maxCount - minCount + 1) + minCount);
+//            sampleDebugUsage.setSourceFilterTransCount(random.nextInt(maxCount - minCount + 1) + minCount);
+//            sampleDebugUsage.setResponseCount(random.nextInt(maxCount - minCount + 1) + minCount);
+//            sampleDebugUsage.setInvocationCount(random.nextInt(maxCount - minCount + 1) + minCount);
+//            
 //            sampleDebugUsage.setLastSent();
-            sampleDebugStatsList.add(sampleDebugUsage);
-        }
+//            sampleDebugStatsList.add(sampleDebugUsage);
+//        }
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+//    protected void tearDown() throws Exception {
+//        super.tearDown();
+//    }
 
 //    public void testUpdateUser() throws ControllerException {
 //        User sampleUser = sampleUserList.get(0);
@@ -66,15 +68,65 @@ public class DebugUsageControllerTests extends TestCase {
 //        Assert.assertEquals(sampleUser.getUsername(), testUser.getUsername());
 //    }
 
-    public void testGetDebugUsage() throws ControllerException {
-        
-        insertSampleDebugStats();
+    public void testGetDebugUsageIsNull() throws ControllerException {
+        DebugUsage testDebugUsage = debugUsageController.getDebugUsage(uuid.toString());
+        Assert.assertEquals(testDebugUsage, null);
+    }
+    
+    public void TestInsertDebugUsage() throws ControllerException {
+        DebugUsage testDebugUsage = debugUsageController.getDebugUsage(uuid.toString());
+        testDebugUsage.setAttachBatchCount(1);
+        testDebugUsage.setDestinationFilterTransCount(1);
+        testDebugUsage.setInvocationCount(1);
+        debugUsageController.upsertDebugUsage(testDebugUsage);
+        DebugUsage testGetDebugUsage = debugUsageController.getDebugUsage(uuid.toString());
 
-        for (Iterator<DebugUsage> iter = sampleDebugStatsList.iterator(); iter.hasNext();) {
-            DebugUsage sampleDebugUsage = (DebugUsage) iter.next();
-            DebugUsage testDebugUsage = debugUsageController.getDebugUsage(sampleDebugUsage.getServerId());
-            Assert.assertNotNull(testDebugUsage);
-        }
+        Assert.assertEquals((int) testGetDebugUsage.getDuppCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getAttachBatchCount(), 1);
+        Assert.assertEquals((int) testGetDebugUsage.getSourceConnectorCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getSourceFilterTransCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getDestinationFilterTransCount(), 1);
+        Assert.assertEquals((int) testGetDebugUsage.getDestinationConnectorCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getResponseCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getInvocationCount(), 1);
+        Assert.assertEquals((Calendar) testGetDebugUsage.getLastSent(), null);
+        
+    }  
+    
+    public void TestUpdateDebugUsage() throws ControllerException {
+        DebugUsage testDebugUsage = debugUsageController.getDebugUsage(uuid.toString());
+        testDebugUsage.setAttachBatchCount(1);
+        testDebugUsage.setSourceConnectorCount(1);
+        testDebugUsage.setInvocationCount(1);
+        debugUsageController.upsertDebugUsage(testDebugUsage);
+        DebugUsage testGetDebugUsage = debugUsageController.getDebugUsage(uuid.toString());
+
+        Assert.assertEquals((int) testGetDebugUsage.getDuppCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getAttachBatchCount(), 2);
+        Assert.assertEquals((int) testGetDebugUsage.getSourceConnectorCount(), 1);
+        Assert.assertEquals((int) testGetDebugUsage.getSourceFilterTransCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getDestinationFilterTransCount(), 1);
+        Assert.assertEquals((int) testGetDebugUsage.getDestinationConnectorCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getResponseCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getInvocationCount(), 2);
+        Assert.assertEquals((Calendar) testGetDebugUsage.getLastSent(), null);
+        
+    } 
+    
+    public void TestResetDebugUsage() throws ControllerException {
+        debugUsageController.resetDebugUsage(uuid.toString());
+        DebugUsage testGetDebugUsage = debugUsageController.getDebugUsage(uuid.toString());
+
+        Assert.assertEquals((int) testGetDebugUsage.getDuppCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getAttachBatchCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getSourceConnectorCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getSourceFilterTransCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getDestinationFilterTransCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getDestinationConnectorCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getResponseCount(), 0);
+        Assert.assertEquals((int) testGetDebugUsage.getInvocationCount(), 0);
+        Assert.assertNotNull(testGetDebugUsage.getLastSent());
+        
     }
 
 //    public void testRemoveUser() throws ControllerException {

@@ -12,37 +12,71 @@
    <select id='getDebugUsageStatistics'
            parameterType='java.lang.String'
            resultMap='get-debug-usage-result'>
-	SELECT ID, 
-		SERVER_ID, 
-		DEPLOY_COUNT, 
-		INVOCATION_COUNT,  
-		POSTPROCESSOR_COUNT, 
-		PREPROCESSOR_COUNT, 
-		UNDEPLOY_COUNT, 
-		LAST_SENT
-	FROM PUBLIC.DEBUGGER_USAGE
-	WHERE SERVER_ID = #{serverId}
+		SELECT ID, 
+			server_id,
+			dupp_count,
+		    attach_batch_count,
+		    source_connector_count,
+		    source_filter_trans_count,
+		    destination_filter_trans_count,
+		    destination_connector_count,
+		    response_count,
+		    invocation_count,
+		    last_sent
+		FROM PUBLIC.DEBUGGER_USAGE
+		WHERE SERVER_ID = #{serverId}
 	</select>
    <insert id='insertDebugUsageStatistics' parameterType='java.util.Map'>
 		INSERT INTO 
-		DEBUGGER_USAGE(SERVER_ID, DEPLOY_COUNT, INVOCATION_COUNT, POSTPROCESSOR_COUNT, PREPROCESSOR_COUNT, UNDEPLOY_COUNT, LAST_SENT)
-			VALUES (#{serverId,jdbcType=VARCHAR}, #{deployCount, jdbcType=INTEGER}, #{invocationCount, jdbcType=INTEGER}, #{postprocessorCount, jdbcType=INTEGER},  #{preprocessorCount, jdbcType=INTEGER}, #{undeployCount, jdbcType=INTEGER}, NULL);	
+		DEBUGGER_USAGE(server_id,
+			dupp_count,
+		    attach_batch_count,
+		    source_connector_count,
+		    source_filter_trans_count,
+		    destination_filter_trans_count,
+		    destination_connector_count,
+		    response_count,
+		    invocation_count)
+		VALUES (#{serverId,jdbcType=VARCHAR},
+		    #{duppCount, jdbcType=INTEGER},
+		    #{attachBatchCount, jdbcType=INTEGER},
+		    #{sourceConnectorCount, jdbcType=INTEGER},
+		    #{sourceFilterTransCount, jdbcType=INTEGER},
+		    #{destinationFilterTransCount, jdbcType=INTEGER},
+		    #{destinationConnectorCount, jdbcType=INTEGER},
+		    #{responseCount, jdbcType=INTEGER},
+		    #{invocationCount, jdbcType=INTEGER})	
    </insert>
 
    <update id='updateDebugUsageStatistics' parameterType='java.util.Map'>
-   	UPDATE DEBUGGER_USAGE
-	SET SERVER_ID=#{serverId,jdbcType=VARCHAR}, 
-		DEPLOY_COUNT=#{deployCount, jdbcType=INTEGER}, 
-		INVOCATION_COUNT=#{invocationCount, jdbcType=INTEGER}, 
-		POSTPROCESSOR_COUNT=#{postprocessorCount, jdbcType=INTEGER}, 
-		PREPROCESSOR_COUNT=#{preprocessorCount, jdbcType=INTEGER}, 
-		UNDEPLOY_COUNT=#{undeployCount, jdbcType=INTEGER}, 
-		LAST_SENT=#{lastSent, jdbcType=TIMESTAMP}
-	WHERE SERVER_ID = #{serverId}
+	   	UPDATE DEBUGGER_USAGE
+	   	SET dupp_count = dupp_count + #{duppCount, jdbcType=INTEGER},
+		    attach_batch_count = attach_batch_count + #{attachBatchCount, jdbcType=INTEGER},
+		    source_connector_count = source_connector_count + #{sourceConnectorCount, jdbcType=INTEGER},
+		    source_filter_trans_count = source_filter_trans_count + #{sourceFilterTransCount, jdbcType=INTEGER},
+		    destination_filter_trans_count = destination_filter_trans_count + #{destinationFilterTransCount, jdbcType=INTEGER},
+		    destination_connector_count = destination_connector_count + #{destinationConnectorCount, jdbcType=INTEGER},
+		    response_count = response_count + #{responseCount, jdbcType=INTEGER},
+		    invocation_count = invocation_count + #{invocationCount, jdbcType=INTEGER}
+		WHERE SERVER_ID = #{serverId}
 	</update>
 	
-   <update id='deleteDebugUsageStatistics' parameterType='java.lang.String'>
-	DELETE FROM DEBUGGER_USAGE
-	WHERE SERVER_ID = #{value};
+	<update id='resetDebugUsageStatistics' parameterType='java.lang.String'>
+		UPDATE FROM DEBUGGER_USAGE
+		SET	dupp_count = 0,
+		    attach_batch_count = 0,
+		    source_connector_count = 0,
+		    source_filter_trans_count = 0,
+		    destination_filter_trans_count = 0,
+		    destination_connector_count = 0,
+		    response_count = 0,
+		    invocation_count = 0,
+		    last_sent = #{lastSent}
+		WHERE SERVER_ID = #{serverId};
+	</update>
+	
+	<update id='deleteDebugUsageStatistics' parameterType='java.lang.String'>
+		DELETE FROM DEBUGGER_USAGE
+		WHERE SERVER_ID = #{value};
 	</update>
 </mapper>
