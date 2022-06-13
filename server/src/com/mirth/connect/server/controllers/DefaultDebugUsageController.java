@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import org.apache.ibatis.exceptions.PersistenceException;
+import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
@@ -113,7 +114,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
             DebugUsage debugUsage = new DebugUsage();
             debugUsage.setServerId(serverId);
 
-            return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("DebugUsage.getDebugUsageStatistics", debugUsage);
+            return getReadOnlySqlSessionManager().selectOne("DebugUsage.getDebugUsageStatistics", debugUsage);
 
         } catch (PersistenceException e) {
             throw new ControllerException(e);
@@ -142,6 +143,10 @@ public class DefaultDebugUsageController extends DebugUsageController {
         } finally {
 //          StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
         }
+    }
+    
+    protected SqlSessionManager getReadOnlySqlSessionManager() {
+    	return SqlConfig.getInstance().getReadOnlySqlSessionManager();
     }
 
 }
