@@ -20,6 +20,7 @@ import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.DebugUsage;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.server.util.StatementLock;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.
@@ -27,7 +28,8 @@ import com.mirth.connect.server.util.SqlConfig;
  */
 public class DefaultDebugUsageController extends DebugUsageController {
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private static final String VACUUM_LOCK_ID = "DebugUsage.vacuumDebuggerUsageTable";
+	private Logger logger = Logger.getLogger(this.getClass());
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     // singleton pattern
     private static DebugUsageController instance = null;
@@ -77,7 +79,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
  
     public synchronized void upsertDebugUsage(DebugUsage debugUsage) throws ControllerException {
 
-//            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
+        StatementLock.getInstance(VACUUM_LOCK_ID).readLock();
         try {
 
             DebugUsage persistedDebugUsage = getDebugUsage(configurationController.getServerId());
@@ -87,7 +89,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
                 logger.debug("updating debug usage statistics for serverId" + debugUsage.getServerId());
                 SqlConfig.getInstance().getSqlSessionManager().update("DebugUsage.updateDebugUsageStatistics", getDebugUsageMap(debugUsage));
 
-                // otherwise, insert a new record
+            // otherwise, insert a new record
             } else {
                 
                 logger.debug("inserting debug usage statistics for serverId" + debugUsage.getServerId());
@@ -97,7 +99,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         } finally {
-//                StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
+        StatementLock.getInstance(VACUUM_LOCK_ID).readUnlock();
         }
     }
 
@@ -109,7 +111,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
             throw new ControllerException("Error getting usage for serverId: serverId cannot be null.");
         }
 
-//        StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
+        StatementLock.getInstance(VACUUM_LOCK_ID).readLock();
         try {
             DebugUsage debugUsage = new DebugUsage();
             debugUsage.setServerId(serverId);
@@ -119,7 +121,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         } finally {
-//            StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
+        StatementLock.getInstance(VACUUM_LOCK_ID).readUnlock();
         }
     }
     
@@ -131,7 +133,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
             throw new ControllerException("Error getting usage for serverId: serverId cannot be null.");
         }
 
-//      StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
+        StatementLock.getInstance(VACUUM_LOCK_ID).readLock();
         try {
             DebugUsage debugUsage = new DebugUsage();
             debugUsage.setServerId(serverId);
@@ -141,7 +143,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
         } catch (PersistenceException e) {
             throw new ControllerException(e);
         } finally {
-//          StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readUnlock();
+        StatementLock.getInstance(VACUUM_LOCK_ID).readUnlock();
         }
     }
     

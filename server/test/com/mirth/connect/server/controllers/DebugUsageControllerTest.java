@@ -37,7 +37,6 @@ public class DebugUsageControllerTest extends TestCase {
 
     UUID uuid = UUID.randomUUID();
     
-    
     protected void setUp() throws Exception {
     	
     }
@@ -60,8 +59,8 @@ public class DebugUsageControllerTest extends TestCase {
     	dummyDebugUsage.setDestinationFilterTransCount(1);
     	dummyDebugUsage.setInvocationCount(1);
     	when(debugUsageController.getDebugUsage(anyString())).thenReturn(dummyDebugUsage);
-        DebugUsage testDebugUsage = debugUsageController.getDebugUsage(uuid.toString());
         when(debugUsageController.upsertDebugUsage(any())).thenReturn(true);
+        DebugUsage testDebugUsage = debugUsageController.getDebugUsage(uuid.toString());
         debugUsageController.upsertDebugUsage(testDebugUsage);
 
         Assert.assertEquals((int) testDebugUsage.getDuppCount(), 0);
