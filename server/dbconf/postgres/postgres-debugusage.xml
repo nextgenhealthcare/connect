@@ -2,28 +2,29 @@
    <resultMap id='get-debug-usage-result' type='com.mirth.connect.model.DebugUsage'>
       <result property='id' column='ID' jdbcType='INTEGER'/>
       <result property='serverId' column='SERVER_ID'/>
-      <result property='deployCount' column='DEPLOY_COUNT'/>
-      <result property='invocationCount' column='INVOCATION_COUNT'/>
-      <result property='postprocessorCount' column='POSTPROCESSOR_COUNT'/>
-      <result property='preprocessorCount' column='PREPROCESSOR_COUNT'/>
-      <result property='undeployCount' column='UNDEPLOY_COUNT'/>
-      <result property='lastSent' column='LAST_SENT'/>
+      <result property='duppCount' column='DUPP_COUNT'/>
+      <result property='attachBatchCount' column='ATTACH_BATCH_COUNT'/>
+      <result property='sourceConnectorCount' column='SOURCE_CONNECTOR_COUNT'/>
+      <result property='sourceFilterTransCount' column='SOURCE_FILTER_TRANS_COUNT'/>
+      <result property='destinationFilterTransCount' column='DESTINATION_FILTER_TRANS_COUNT'/>
+      <result property='destinationConnectorCount' column='DESTINATION_CONNECTOR_COUNT'/>
+      <result property='responseCount' column='RESPONSE_COUNT'/>
+      <result property='invocationCount' column='INVOCATION_COUNT'/>  
    </resultMap>
    <select id='getDebugUsageStatistics'
            parameterType='java.lang.String'
            resultMap='get-debug-usage-result'>
 		SELECT ID, 
-			server_id,
-			dupp_count,
-		    attach_batch_count,
-		    source_connector_count,
-		    source_filter_trans_count,
-		    destination_filter_trans_count,
-		    destination_connector_count,
-		    response_count,
-		    invocation_count,
-		    last_sent
-		FROM PUBLIC.DEBUGGER_USAGE
+			SERVER_ID,
+			DUPP_COUNT,
+		    ATTACH_BATCH_COUNT,
+		    SOURCE_CONNECTOR_COUNT,
+		    SOURCE_FILTER_TRANS_COUNT,
+		    DESTINATION_FILTER_TRANS_COUNT,
+		    DESTINATION_CONNECTOR_COUNT,
+		    RESPONSE_COUNT,
+		    INVOCATION_COUNT
+		FROM DEBUGGER_USAGE
 		WHERE SERVER_ID = #{serverId}
 	</select>
    <insert id='insertDebugUsageStatistics' parameterType='java.util.Map'>
@@ -61,22 +62,8 @@
 		WHERE SERVER_ID = #{serverId}
 	</update>
 	
-	<update id='resetDebugUsageStatistics' parameterType='java.lang.String'>
-		UPDATE FROM DEBUGGER_USAGE
-		SET	dupp_count = 0,
-		    attach_batch_count = 0,
-		    source_connector_count = 0,
-		    source_filter_trans_count = 0,
-		    destination_filter_trans_count = 0,
-		    destination_connector_count = 0,
-		    response_count = 0,
-		    invocation_count = 0,
-		    last_sent = #{lastSent}
-		WHERE SERVER_ID = #{serverId};
-	</update>
-	
-	<update id='deleteDebugUsageStatistics' parameterType='java.lang.String'>
+	<delete id='deleteDebugUsageStatistics' parameterType='java.lang.String'>
 		DELETE FROM DEBUGGER_USAGE
-		WHERE SERVER_ID = #{value};
-	</update>
+		WHERE SERVER_ID = #{serverId};
+	</delete>
 </mapper>

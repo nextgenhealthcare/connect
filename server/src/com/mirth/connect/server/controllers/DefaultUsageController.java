@@ -235,7 +235,7 @@ public class DefaultUsageController extends UsageController {
         
         // removing debug usage metrics for this serverId from database and updating last sent date
         try {
-            debugUsageController.resetDebugUsage(configurationController.getServerId());
+            debugUsageController.deleteDebugUsage(configurationController.getServerId());
         } catch (Exception s) {}
         
         purgedDocument.setDebugStatistics(debugStatsMap);

@@ -10,7 +10,6 @@
 package com.mirth.connect.model;
 
 import java.io.Serializable;
-import java.util.Calendar;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -34,9 +33,6 @@ public class DebugUsage implements Serializable {
     private Integer responseCount;
     private Integer invocationCount;
 
-
-	private Calendar lastSent;
-
 	public DebugUsage() {
 		this.id = 0;
 		this.serverId = null;
@@ -48,7 +44,6 @@ public class DebugUsage implements Serializable {
 		this.destinationConnectorCount = 0;
 		this.responseCount = 0;
 		this.invocationCount = 0;
-		this.lastSent = null;
 	}
 
 	public Integer getId() {
@@ -130,14 +125,6 @@ public class DebugUsage implements Serializable {
 
     public void setInvocationCount(Integer invocationCount) {
         this.invocationCount = invocationCount;
-    }
-    
-	public Calendar getLastSent() {
-        return lastSent;
-    }
-
-    public void setLastSent(Calendar lastSent) {
-        this.lastSent = lastSent;
     }
 
     public boolean equals(Object obj) {

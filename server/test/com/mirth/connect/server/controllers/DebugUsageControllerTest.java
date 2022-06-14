@@ -63,7 +63,6 @@ public class DebugUsageControllerTest extends TestCase {
         Assert.assertEquals((int) testDebugUsage.getDestinationConnectorCount(), 0);
         Assert.assertEquals((int) testDebugUsage.getResponseCount(), 0);
         Assert.assertEquals((int) testDebugUsage.getInvocationCount(), 1);
-        Assert.assertEquals((Calendar) testDebugUsage.getLastSent(), null);
         
     }  
 

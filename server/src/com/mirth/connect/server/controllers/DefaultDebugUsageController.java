@@ -9,7 +9,6 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.util.Calendar;
 import java.util.HashMap;
 
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -70,10 +69,9 @@ public class DefaultDebugUsageController extends DebugUsageController {
             map.put("sourceConnectorCount", debugUsage.getSourceConnectorCount());
             map.put("sourceFilterTransCount", debugUsage.getSourceFilterTransCount());
             map.put("destinationFilterTransCount", debugUsage.getDestinationFilterTransCount());
-            map.put("destinationConnectorCount", debugUsage.getDestinationFilterTransCount());
+            map.put("destinationConnectorCount", debugUsage.getDestinationConnectorCount());
             map.put("responseCount", debugUsage.getResponseCount());
             map.put("invocationCount", debugUsage.getInvocationCount());
-            map.put("lastSent", debugUsage.getLastSent());
         }
         return map;
     }
@@ -127,9 +125,10 @@ public class DefaultDebugUsageController extends DebugUsageController {
         }
     }
     
-    public void resetDebugUsage(String serverId) throws ControllerException {
 
-        logger.debug("resetting debug usage for serverId: " + serverId);
+    public int deleteDebugUsage(String serverId) throws ControllerException {
+
+        logger.debug("deleting debug usage for serverId: " + serverId);
 
         if (serverId == null) {
             throw new ControllerException("Error getting usage for serverId: serverId cannot be null.");
@@ -139,8 +138,8 @@ public class DefaultDebugUsageController extends DebugUsageController {
         try {
             DebugUsage debugUsage = new DebugUsage();
             debugUsage.setServerId(serverId);
-            debugUsage.setLastSent(Calendar.getInstance());
-            SqlConfig.getInstance().getSqlSessionManager().update("DebugUsage.resetDebugUsageStatistics", debugUsage);
+
+            return SqlConfig.getInstance().getSqlSessionManager().delete("DebugUsage.deleteDebugUsageStatistics", debugUsage);
 
         } catch (PersistenceException e) {
             throw new ControllerException(e);
@@ -148,6 +147,8 @@ public class DefaultDebugUsageController extends DebugUsageController {
         StatementLock.getInstance(VACUUM_LOCK_ID).readUnlock();
         }
     }
+    
+    
     
     protected SqlSessionManager getReadOnlySqlSessionManager() {
     	return SqlConfig.getInstance().getReadOnlySqlSessionManager();
