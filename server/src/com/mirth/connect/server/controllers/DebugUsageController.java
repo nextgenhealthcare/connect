@@ -26,7 +26,7 @@ public abstract class DebugUsageController extends Controller {
     
     public abstract HashMap<String, Object> getDebugUsageMap(DebugUsage debugUsage);
         
-    public abstract void upsertDebugUsage(DebugUsage debugUsage) throws ControllerException;
+    public abstract boolean upsertDebugUsage(DebugUsage debugUsage) throws ControllerException;
     
     public abstract void resetDebugUsage(String serverId) throws ControllerException;
     

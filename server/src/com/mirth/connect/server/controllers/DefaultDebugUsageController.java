@@ -63,21 +63,23 @@ public class DefaultDebugUsageController extends DebugUsageController {
 
     public HashMap<String, Object> getDebugUsageMap(DebugUsage debugUsage) {
         HashMap<String, Object> map = new HashMap<>();
-        map.put("serverId", debugUsage.getServerId());
-        map.put("duppCount", debugUsage.getDuppCount());
-        map.put("attachBatchCount", debugUsage.getAttachBatchCount());
-        map.put("sourceConnectorCount", debugUsage.getSourceConnectorCount());
-        map.put("sourceFilterTransCount", debugUsage.getSourceFilterTransCount());
-        map.put("destinationFilterTransCount", debugUsage.getDestinationFilterTransCount());
-        map.put("destinationConnectorCount", debugUsage.getDestinationFilterTransCount());
-        map.put("responseCount", debugUsage.getResponseCount());
-        map.put("invocationCount", debugUsage.getInvocationCount());
-        map.put("lastSent", debugUsage.getLastSent());
+        if (debugUsage!=null) {
+            map.put("serverId", debugUsage.getServerId());
+            map.put("duppCount", debugUsage.getDuppCount());
+            map.put("attachBatchCount", debugUsage.getAttachBatchCount());
+            map.put("sourceConnectorCount", debugUsage.getSourceConnectorCount());
+            map.put("sourceFilterTransCount", debugUsage.getSourceFilterTransCount());
+            map.put("destinationFilterTransCount", debugUsage.getDestinationFilterTransCount());
+            map.put("destinationConnectorCount", debugUsage.getDestinationFilterTransCount());
+            map.put("responseCount", debugUsage.getResponseCount());
+            map.put("invocationCount", debugUsage.getInvocationCount());
+            map.put("lastSent", debugUsage.getLastSent());
+        }
         return map;
     }
 
  
-    public synchronized void upsertDebugUsage(DebugUsage debugUsage) throws ControllerException {
+    public synchronized boolean upsertDebugUsage(DebugUsage debugUsage) throws ControllerException {
 
         StatementLock.getInstance(VACUUM_LOCK_ID).readLock();
         try {
@@ -88,13 +90,13 @@ public class DefaultDebugUsageController extends DebugUsageController {
             if (persistedDebugUsage != null) {
                 logger.debug("updating debug usage statistics for serverId" + debugUsage.getServerId());
                 SqlConfig.getInstance().getSqlSessionManager().update("DebugUsage.updateDebugUsageStatistics", getDebugUsageMap(debugUsage));
-
+                return true;
             // otherwise, insert a new record
             } else {
                 
                 logger.debug("inserting debug usage statistics for serverId" + debugUsage.getServerId());
                 SqlConfig.getInstance().getSqlSessionManager().insert("DebugUsage.insertDebugUsageStatistics", getDebugUsageMap(debugUsage));
-
+                return true;
             }
         } catch (PersistenceException e) {
             throw new ControllerException(e);

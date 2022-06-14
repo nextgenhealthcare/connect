@@ -36,7 +36,6 @@ import com.mirth.connect.server.ExtensionLoader;
 
 public class DefaultUsageController extends UsageController {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    private DebugUsageController debugUsageController = ControllerFactory.getFactory().createDebugUsageController();
     private Map<String, Object> lastClientStats = new HashMap<String, Object>();
 
     private static UsageController instance = null;
@@ -226,13 +225,18 @@ public class DefaultUsageController extends UsageController {
     }
     
     private void getDebugData(PurgedDocument purgedDocument) throws ControllerException {
-        
+        DebugUsageController debugUsageController = ControllerFactory.getFactory().createDebugUsageController();
+        Map<String, Object> debugStatsMap = new HashMap<String, Object>();
         // retrieve debug usage metrics from the database for this server id
-        DebugUsage debugUsage = debugUsageController.getDebugUsage(configurationController.getServerId());
-        Map<String, Object> debugStatsMap = debugUsageController.getDebugUsageMap(debugUsage);
+        try {
+            DebugUsage debugUsage = debugUsageController.getDebugUsage(configurationController.getServerId());
+            debugStatsMap = debugUsageController.getDebugUsageMap(debugUsage);
+        } catch (Exception e) {}
         
         // removing debug usage metrics for this serverId from database and updating last sent date
-        debugUsageController.resetDebugUsage(configurationController.getServerId());
+        try {
+            debugUsageController.resetDebugUsage(configurationController.getServerId());
+        } catch (Exception s) {}
         
         purgedDocument.setDebugStatistics(debugStatsMap);
     }

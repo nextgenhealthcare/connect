@@ -14,21 +14,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSessionManager;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.DebugUsage;
-import com.mirth.connect.server.tools.ScriptRunner;
-import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.PropertyLoader;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -58,8 +50,8 @@ public class DebugUsageControllerTest extends TestCase {
     	dummyDebugUsage.setAttachBatchCount(1);
     	dummyDebugUsage.setDestinationFilterTransCount(1);
     	dummyDebugUsage.setInvocationCount(1);
-    	when(debugUsageController.getDebugUsage(anyString())).thenReturn(dummyDebugUsage);
         when(debugUsageController.upsertDebugUsage(any())).thenReturn(true);
+    	when(debugUsageController.getDebugUsage(anyString())).thenReturn(dummyDebugUsage);
         DebugUsage testDebugUsage = debugUsageController.getDebugUsage(uuid.toString());
         debugUsageController.upsertDebugUsage(testDebugUsage);
 
