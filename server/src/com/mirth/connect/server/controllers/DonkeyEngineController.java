@@ -1859,7 +1859,7 @@ public class DonkeyEngineController implements EngineController {
                 //DEPLOY DEBUGGER
                 try {
                  
-                    Boolean debug = debugOptions != null && debugOptions.isDeployUndeployPreAndPostProcessorScripts();
+                    Boolean debug = debugOptions != null;
 
                     if (debug) {
         	            try {
