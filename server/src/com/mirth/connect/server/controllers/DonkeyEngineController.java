@@ -1858,39 +1858,42 @@ public class DonkeyEngineController implements EngineController {
 
                 //DEPLOY DEBUGGER
                 try {
-                 
-                    Boolean debug = !debugOptions.isEmpty();
+                
+                    if (debugOptions != null && !debugOptions.isEmpty()) {
+                          try {
+                            DebugUsage debugUsage = new DebugUsage();
+                            debugUsage.setServerId(configurationController.getServerId());
+                            if (debugOptions.isDeployUndeployPreAndPostProcessorScripts()) {
+                                debugUsage.setDuppCount(1);
+                            }
+                            if (debugOptions.isAttachmentBatchScripts()) {
+                                debugUsage.setAttachBatchCount(1);
+                            }
+                            if (debugOptions.isSourceConnectorScripts()) {
+                                debugUsage.setSourceConnectorCount(1);
+                            }
+                            if (debugOptions.isSourceFilterTransformer()) {
+                                debugUsage.setSourceFilterTransCount(1);
+                            }
+                            if (debugOptions.isDestinationFilterTransformer()) {
+                                debugUsage.setDestinationFilterTransCount(1);
+                            }
+                            if (debugOptions.isDestinationConnectorScripts()) {
+                                debugUsage.setDestinationConnectorCount(1);
+                            }
+                            if (debugOptions.isDestinationResponseTransformer()) {
+                                debugUsage.setResponseCount(1);
+                            }
+                            debugUsage.setInvocationCount(1);
+                            getDebugUsageController().upsertDebugUsage(debugUsage);
+                        } catch (ControllerException e) {
+                        }
+                    }
+                    
+                    Boolean debug = debugOptions != null && debugOptions.isDeployUndeployPreAndPostProcessorScripts();
+
 
                     if (debug) {
-        	            try {
-        	            	DebugUsage debugUsage = new DebugUsage();
-        	            	debugUsage.setServerId(configurationController.getServerId());
-        	                if (debugOptions.isDeployUndeployPreAndPostProcessorScripts()) {
-        	                    debugUsage.setDuppCount(1);
-        	                }
-        	                if (debugOptions.isAttachmentBatchScripts()) {
-        	                    debugUsage.setAttachBatchCount(1);
-        	                }
-        	                if (debugOptions.isSourceConnectorScripts()) {
-        	                    debugUsage.setSourceConnectorCount(1);
-        	                }
-        	                if (debugOptions.isSourceFilterTransformer()) {
-        	                    debugUsage.setSourceFilterTransCount(1);
-        	                }
-        	                if (debugOptions.isDestinationFilterTransformer()) {
-        	                    debugUsage.setDestinationFilterTransCount(1);
-        	                }
-        	                if (debugOptions.isDestinationConnectorScripts()) {
-        	                    debugUsage.setDestinationConnectorCount(1);
-        	                }
-        	                if (debugOptions.isDestinationResponseTransformer()) {
-        	                    debugUsage.setResponseCount(1);
-        	                }
-        	                debugUsage.setInvocationCount(1);
-        	            	getDebugUsageController().upsertDebugUsage(debugUsage);
-        	            } catch (ControllerException e) {
-                        }
-        	            
                         //DEPLOY
                         String deployScriptId = ScriptController.getScriptId(ScriptController.DEPLOY_SCRIPT_KEY, getChannelId());
                         contextFactory = contextFactoryController.getDebugContextFactory(channelModel.getProperties().getResourceIds().keySet(),getChannelId(), deployScriptId);
@@ -1969,7 +1972,11 @@ public class DonkeyEngineController implements EngineController {
                 donkey.getDeployedChannels().put(channelId, channel);
 
                 try {
-                     channel.debugDeploy(debugOptions);
+                    if (debugOptions != null) {
+                        channel.debugDeploy(debugOptions);
+                    } else {
+                        channel.deploy();
+                    }
                 } catch (DeployException e) {
                     donkey.getDeployedChannels().remove(channelId);
                     throw e;
