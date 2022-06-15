@@ -1859,7 +1859,7 @@ public class DonkeyEngineController implements EngineController {
                 //DEPLOY DEBUGGER
                 try {
                  
-                    Boolean debug = debugOptions != null;
+                    Boolean debug = !debugOptions.isEmpty();
 
                     if (debug) {
         	            try {
@@ -1969,11 +1969,7 @@ public class DonkeyEngineController implements EngineController {
                 donkey.getDeployedChannels().put(channelId, channel);
 
                 try {
-                    if (debugOptions != null) {
-                        channel.debugDeploy(debugOptions);
-                    } else {
-                        channel.deploy();
-                    }
+                     channel.debugDeploy(debugOptions);
                 } catch (DeployException e) {
                     donkey.getDeployedChannels().remove(channelId);
                     throw e;
