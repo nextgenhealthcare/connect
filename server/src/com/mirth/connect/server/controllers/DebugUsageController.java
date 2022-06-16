@@ -10,12 +10,13 @@
 package com.mirth.connect.server.controllers;
 
 import java.util.HashMap;
+import java.util.List;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.DebugUsage;
 
 /**
- * The ConfigurationController provides access to the Mirth configuration.
+ * The DebugUsageController provides access to the Mirth debug usage.
  * 
  */
 public abstract class DebugUsageController extends Controller {
@@ -31,5 +32,7 @@ public abstract class DebugUsageController extends Controller {
     public abstract int deleteDebugUsage(String serverId) throws ControllerException;
     
     public abstract DebugUsage getDebugUsage(String serverId) throws ControllerException;
+
+	public abstract List<DebugUsage> getDebugUsages() throws ControllerException;
     
 }

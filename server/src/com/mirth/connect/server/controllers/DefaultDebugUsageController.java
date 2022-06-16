@@ -9,7 +9,10 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSessionManager;
@@ -17,6 +20,7 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.DebugUsage;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.StatementLock;
@@ -103,6 +107,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
         }
     }
 
+    // returns debug usage for each server id
     public DebugUsage getDebugUsage(String serverId) throws ControllerException {
 
         logger.debug("getting debug usage for serverId: " + serverId);
@@ -117,6 +122,34 @@ public class DefaultDebugUsageController extends DebugUsageController {
             debugUsage.setServerId(serverId);
 
             return getReadOnlySqlSessionManager().selectOne("DebugUsage.getDebugUsageStatistics", debugUsage);
+
+        } catch (PersistenceException e) {
+            throw new ControllerException(e);
+        } finally {
+        StatementLock.getInstance(VACUUM_LOCK_ID).readUnlock();
+        }
+    }
+    
+    // returns object for all server id's in the debugger_usage table
+    public List<DebugUsage> getDebugUsages() throws ControllerException {
+
+        logger.debug("getting debug usage for all serverIds");
+        
+        StatementLock.getInstance(VACUUM_LOCK_ID).readLock();
+        try {
+            ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+            List<Map<String, Object>> rows = SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("DebugUsage.getDebugUsageStatistics", null);
+            List<DebugUsage> debugUsages = new ArrayList<DebugUsage>();
+
+            for (Map<String, Object> row : rows) {
+                try {
+                    debugUsages.add(serializer.deserialize((String) row.get("debugUsage"), DebugUsage.class));
+                } catch (Exception e) {
+                    logger.warn("Failed to load debugUsage " + row.get("id"), e);
+                }
+            }
+
+            return debugUsages;
 
         } catch (PersistenceException e) {
             throw new ControllerException(e);

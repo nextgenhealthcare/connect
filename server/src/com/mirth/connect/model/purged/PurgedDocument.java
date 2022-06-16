@@ -29,7 +29,7 @@ public class PurgedDocument implements Serializable {
     private List<Map<String, Object>> connectorMetaData;
     private Map<String, Object> serverSettings;
     private Map<String, Object> updateSettings;
-    private Map<String, Object> debugStats;
+    private List<Map<String,Object>> debugStats;
 
     private int users;
 
@@ -161,11 +161,11 @@ public class PurgedDocument implements Serializable {
         this.connectorMetaData = connectorMetaData;
     }
     
-    public void setDebugStatistics(Map<String, Object> debugStats) {
-        this.debugStats = debugStats;
+    public void setDebugStatistics(List<Map<String,Object>> purgedDebugUsages) {
+        this.debugStats = purgedDebugUsages;
     }
     
-    public Map<String, Object> getDebugStats() {
+    public List<Map<String,Object>> getDebugStats() {
         return debugStats;
     }
 

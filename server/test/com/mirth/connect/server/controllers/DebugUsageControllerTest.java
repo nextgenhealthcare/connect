@@ -41,7 +41,7 @@ public class DebugUsageControllerTest extends TestCase {
     	DebugUsageController debugUsageController = mock(DebugUsageController.class);
     	when(debugUsageController.getDebugUsage(anyString())).thenReturn(null);
         DebugUsage testDebugUsage = debugUsageController.getDebugUsage(uuid.toString());
-        Assert.assertEquals(testDebugUsage, null);
+        Assert.assertEquals(null, testDebugUsage);
     }
     
     public void TestInsertDebugUsage() throws ControllerException {
@@ -55,14 +55,14 @@ public class DebugUsageControllerTest extends TestCase {
         DebugUsage testDebugUsage = debugUsageController.getDebugUsage(uuid.toString());
         debugUsageController.upsertDebugUsage(testDebugUsage);
 
-        Assert.assertEquals((int) testDebugUsage.getDuppCount(), 0);
-        Assert.assertEquals((int) testDebugUsage.getAttachBatchCount(), 1);
-        Assert.assertEquals((int) testDebugUsage.getSourceConnectorCount(), 0);
-        Assert.assertEquals((int) testDebugUsage.getSourceFilterTransCount(), 0);
-        Assert.assertEquals((int) testDebugUsage.getDestinationFilterTransCount(), 1);
-        Assert.assertEquals((int) testDebugUsage.getDestinationConnectorCount(), 0);
-        Assert.assertEquals((int) testDebugUsage.getResponseCount(), 0);
-        Assert.assertEquals((int) testDebugUsage.getInvocationCount(), 1);
+        Assert.assertEquals(0, (int) testDebugUsage.getDuppCount());
+        Assert.assertEquals(1, (int) testDebugUsage.getAttachBatchCount());
+        Assert.assertEquals(0, (int) testDebugUsage.getSourceConnectorCount());
+        Assert.assertEquals(0, (int) testDebugUsage.getSourceFilterTransCount());
+        Assert.assertEquals(1, (int) testDebugUsage.getDestinationFilterTransCount());
+        Assert.assertEquals(0, (int) testDebugUsage.getDestinationConnectorCount());
+        Assert.assertEquals(0, (int) testDebugUsage.getResponseCount());
+        Assert.assertEquals(1, (int) testDebugUsage.getInvocationCount());
         
     }  
 

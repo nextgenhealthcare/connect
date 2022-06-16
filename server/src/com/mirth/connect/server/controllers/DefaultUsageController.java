@@ -227,17 +227,17 @@ public class DefaultUsageController extends UsageController {
     private void getDebugData(PurgedDocument purgedDocument) throws ControllerException {
         DebugUsageController debugUsageController = ControllerFactory.getFactory().createDebugUsageController();
         Map<String, Object> debugStatsMap = new HashMap<String, Object>();
-        // retrieve debug usage metrics from the database for this server id
-        try {
-            DebugUsage debugUsage = debugUsageController.getDebugUsage(configurationController.getServerId());
-            debugStatsMap = debugUsageController.getDebugUsageMap(debugUsage);
-        } catch (Exception e) {}
-        
-        // removing debug usage metrics for this serverId from database and updating last sent date
-        try {
-            debugUsageController.deleteDebugUsage(configurationController.getServerId());
-        } catch (Exception s) {}
-        
-        purgedDocument.setDebugStatistics(debugStatsMap);
+        List<Map<String, Object>> purgedDebugUsages = new ArrayList<Map<String, Object>>();
+        // retrieve debug usage metrics from the debugger_usage table for each server id
+        List<DebugUsage> debugUsages = debugUsageController.getDebugUsages();
+        for (DebugUsage debugUsage : debugUsages) {
+	        try {
+	        	purgedDebugUsages.add(debugUsageController.getDebugUsageMap(debugUsage));
+		        // removing debug usage metrics each serverId from debugger_usage table
+	            debugUsageController.deleteDebugUsage(debugUsage.getServerId());
+	        } catch (Exception e) {}
+
+	        purgedDocument.setDebugStatistics(purgedDebugUsages);
+        }
     }
 }

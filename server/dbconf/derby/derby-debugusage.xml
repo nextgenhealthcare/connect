@@ -25,7 +25,11 @@
 		    RESPONSE_COUNT,
 		    INVOCATION_COUNT
 		FROM DEBUGGER_USAGE
-		WHERE SERVER_ID = #{serverId}
+		<where>
+			<if test='serverId != null'>
+				SERVER_ID = #{serverId}
+			</if>
+		</where>
 	</select>
    <insert id='insertDebugUsageStatistics' parameterType='java.util.Map'>
 		INSERT INTO 
