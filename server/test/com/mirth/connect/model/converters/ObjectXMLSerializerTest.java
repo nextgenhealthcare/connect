@@ -45,215 +45,243 @@ public class ObjectXMLSerializerTest {
 
     // @formatter:off
     private static final String CACHED_ROW_SET_XML = 
-            "<com.mirth.connect.server.userutil.MirthCachedRowSet serialization=\"custom\">"+
-            "    <javax.sql.rowset.BaseRowSet>"+
-            "        <default>"+
-            "            <concurrency>1008</concurrency>"+
-            "            <escapeProcessing>true</escapeProcessing>"+
-            "            <fetchDir>1000</fetchDir>"+
-            "            <fetchSize>0</fetchSize>"+
-            "            <isolation>2</isolation>"+
-            "            <maxFieldSize>0</maxFieldSize>"+
-            "            <maxRows>0</maxRows>"+
-            "            <queryTimeout>0</queryTimeout>"+
-            "            <readOnly>true</readOnly>"+
-            "            <rowSetType>1004</rowSetType>"+
-            "            <showDeleted>false</showDeleted>"+
-            "            <listeners/>"+
-            "            <params/>"+
-            "        </default>"+
-            "    </javax.sql.rowset.BaseRowSet>"+
-            "    <com.sun.rowset.CachedRowSetImpl>"+
-            "        <default>"+
-            "            <absolutePos>0</absolutePos>"+
-            "            <callWithCon>false</callWithCon>"+
-            "            <currentRow>0</currentRow>"+
-            "            <cursorPos>0</cursorPos>"+
-            "            <dbmslocatorsUpdateCopy>false</dbmslocatorsUpdateCopy>"+
-            "            <endPos>0</endPos>"+
-            "            <iMatchColumn>-1</iMatchColumn>"+
-            "            <lastValueNull>false</lastValueNull>"+
-            "            <maxRowsreached>0</maxRowsreached>"+
-            "            <numDeleted>0</numDeleted>"+
-            "            <numRows>4373</numRows>"+
-            "            <onFirstPage>false</onFirstPage>"+
-            "            <onInsertRow>false</onInsertRow>"+
-            "            <onLastPage>false</onLastPage>"+
-            "            <pageSize>0</pageSize>"+
-            "            <pagenotend>true</pagenotend>"+
-            "            <populatecallcount>0</populatecallcount>"+
-            "            <prevEndPos>0</prevEndPos>"+
-            "            <startPos>0</startPos>"+
-            "            <startPrev>0</startPrev>"+
-            "            <tXWriter>true</tXWriter>"+
-            "            <totalRows>0</totalRows>"+
-            "            <updateOnInsert>false</updateOnInsert>"+
-            "            <DEFAULT__SYNC__PROVIDER>com.sun.rowset.providers.RIOptimisticProvider</DEFAULT__SYNC__PROVIDER>"+
-            "            <RowSetMD>"+
-            "                <colCount>1</colCount>"+
-            "                <colInfo>"+
-            "                    <null/>"+
-            "                    <javax.sql.rowset.RowSetMetaDataImpl_-ColInfo>"+
-            "                        <autoIncrement>false</autoIncrement>"+
-            "                        <caseSensitive>true</caseSensitive>"+
-            "                        <currency>false</currency>"+
-            "                        <nullable>1</nullable>"+
-            "                        <signed>false</signed>"+
-            "                        <searchable>true</searchable>"+
-            "                        <columnDisplaySize>2147483647</columnDisplaySize>"+
-            "                        <columnLabel>col1</columnLabel>"+
-            "                        <columnName>col1</columnName>"+
-            "                        <schemaName/>"+
-            "                        <colPrecision>2147483647</colPrecision>"+
-            "                        <colScale>0</colScale>"+
-            "                        <tableName>testtable</tableName>"+
-            "                        <catName/>"+
-            "                        <colType>12</colType>"+
-            "                        <colTypeName>varchar</colTypeName>"+
-            "                        <readOnly>false</readOnly>"+
-            "                        <writable>true</writable>"+
-            "                        <outer-class reference=\"../../..\"/>"+
-            "                    </javax.sql.rowset.RowSetMetaDataImpl_-ColInfo>"+
-            "                </colInfo>"+
-            "            </RowSetMD>"+
-            "            <iMatchColumns>"+
-            "                <int>-1</int>"+
-            "                <int>-1</int>"+
-            "                <int>-1</int>"+
-            "                <int>-1</int>"+
-            "                <int>-1</int>"+
-            "                <int>-1</int>"+
-            "                <int>-1</int>"+
-            "                <int>-1</int>"+
-            "                <int>-1</int>"+
-            "                <int>-1</int>"+
-            "            </iMatchColumns>"+
-            "            <provider class=\"com.sun.rowset.providers.RIOptimisticProvider\" serialization=\"custom\">"+
-            "                <unserializable-parents/>"+
-            "                <com.sun.rowset.providers.RIOptimisticProvider>"+
-            "                    <default>"+
-            "                        <providerID>com.sun.rowset.providers.RIOptimisticProvider</providerID>"+
-            "                        <reader serialization=\"custom\">"+
-            "                            <com.sun.rowset.internal.CachedRowSetReader>"+
-            "                                <default>"+
-            "                                    <startPosition>0</startPosition>"+
-            "                                    <userCon>false</userCon>"+
-            "                                    <writerCalls>0</writerCalls>"+
-            "                                    <resBundle/>"+
-            "                                </default>"+
-            "                            </com.sun.rowset.internal.CachedRowSetReader>"+
-            "                        </reader>"+
-            "                        <resBundle reference=\"../reader/com.sun.rowset.internal.CachedRowSetReader/default/resBundle\"/>"+
-            "                        <vendorName>Oracle Corporation</vendorName>"+
-            "                        <versionNumber>1.0</versionNumber>"+
-            "                        <writer serialization=\"custom\">"+
-            "                            <com.sun.rowset.internal.CachedRowSetWriter>"+
-            "                                <default>"+
-            "                                    <callerColumnCount>0</callerColumnCount>"+
-            "                                    <iChangedValsInDbAndCRS>0</iChangedValsInDbAndCRS>"+
-            "                                    <iChangedValsinDbOnly>0</iChangedValsinDbOnly>"+
-            "                                    <reader reference=\"../../../../reader\"/>"+
-            "                                    <resBundle reference=\"../../../../reader/com.sun.rowset.internal.CachedRowSetReader/default/resBundle\"/>"+
-            "                                </default>"+
-            "                            </com.sun.rowset.internal.CachedRowSetWriter>"+
-            "                        </writer>"+
-            "                    </default>"+
-            "                </com.sun.rowset.providers.RIOptimisticProvider>"+
-            "            </provider>"+
-            "            <rowSetReader class=\"com.sun.rowset.internal.CachedRowSetReader\" reference=\"../provider/com.sun.rowset.providers.RIOptimisticProvider/default/reader\"/>"+
-            "            <rowSetWriter class=\"com.sun.rowset.internal.CachedRowSetWriter\" reference=\"../provider/com.sun.rowset.providers.RIOptimisticProvider/default/writer\"/>"+
-            "            <rowsetWarning>"+
-            "                <stackTrace>"+
-            "                    <trace>com.sun.rowset.CachedRowSetImpl.&lt;init&gt;(CachedRowSetImpl.java:384)</trace>"+
-            "                    <trace>com.mirth.connect.server.userutil.MirthCachedRowSet.&lt;init&gt;(MirthCachedRowSet.java:37)</trace>"+
-            "                    <trace>com.mirth.connect.server.userutil.DatabaseConnection.executeCachedQuery(DatabaseConnection.java:128)</trace>"+
-            "                    <trace>sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</trace>"+
-            "                    <trace>sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)</trace>"+
-            "                    <trace>sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</trace>"+
-            "                    <trace>java.lang.reflect.Method.invoke(Method.java:498)</trace>"+
-            "                    <trace>org.mozilla.javascript.MemberBox.invoke(MemberBox.java:126)</trace>"+
-            "                    <trace>org.mozilla.javascript.NativeJavaMethod.call(NativeJavaMethod.java:225)</trace>"+
-            "                    <trace>org.mozilla.javascript.Interpreter.interpretLoop(Interpreter.java:1479)</trace>"+
-            "                    <trace>org.mozilla.javascript.Interpreter.interpret(Interpreter.java:815)</trace>"+
-            "                    <trace>org.mozilla.javascript.InterpretedFunction.call(InterpretedFunction.java:109)</trace>"+
-            "                    <trace>org.mozilla.javascript.ContextFactory.doTopCall(ContextFactory.java:405)</trace>"+
-            "                    <trace>org.mozilla.javascript.ScriptRuntime.doTopCall(ScriptRuntime.java:3508)</trace>"+
-            "                    <trace>org.mozilla.javascript.InterpretedFunction.exec(InterpretedFunction.java:120)</trace>"+
-            "                    <trace>com.mirth.connect.server.util.javascript.JavaScriptTask.executeScript(JavaScriptTask.java:150)</trace>"+
-            "                    <trace>com.mirth.connect.server.transformers.JavaScriptFilterTransformer$FilterTransformerTask.doCall(JavaScriptFilterTransformer.java:143)</trace>"+
-            "                    <trace>com.mirth.connect.server.transformers.JavaScriptFilterTransformer$FilterTransformerTask.doCall(JavaScriptFilterTransformer.java:1)</trace>"+
-            "                    <trace>com.mirth.connect.server.util.javascript.JavaScriptTask.call(JavaScriptTask.java:113)</trace>"+
-            "                    <trace>java.util.concurrent.FutureTask.run(FutureTask.java:266)</trace>"+
-            "                    <trace>java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)</trace>"+
-            "                    <trace>java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)</trace>"+
-            "                    <trace>java.lang.Thread.run(Thread.java:748)</trace>"+
-            "                </stackTrace>"+
-            "                <suppressedExceptions class=\"java.util.Collections$UnmodifiableRandomAccessList\" resolves-to=\"java.util.Collections$UnmodifiableList\">"+
-            "                    <c class=\"list\"/>"+
-            "                    <list reference=\"../c\"/>"+
-            "                </suppressedExceptions>"+
-            "                <vendorCode>0</vendorCode>"+
-            "            </rowsetWarning>"+
-            "            <rvh>"+
-            "                <com.sun.rowset.internal.Row>"+
-            "                    <origVals>"+
-            "                        <string>dummy</string>"+
-            "                    </origVals>"+
-            "                    <currentVals>"+
-            "                        <null/>"+
-            "                    </currentVals>"+
-            "                    <colsChanged/>"+
-            "                    <deleted>false</deleted>"+
-            "                    <updated>false</updated>"+
-            "                    <inserted>false</inserted>"+
-            "                    <numCols>1</numCols>"+
-            "                </com.sun.rowset.internal.Row>"+
-            "            </rvh>"+
-            "            <sqlwarn>"+
-            "                <stackTrace>"+
-            "                    <trace>com.sun.rowset.CachedRowSetImpl.&lt;init&gt;(CachedRowSetImpl.java:383)</trace>"+
-            "                    <trace>com.mirth.connect.server.userutil.MirthCachedRowSet.&lt;init&gt;(MirthCachedRowSet.java:37)</trace>"+
-            "                    <trace>com.mirth.connect.server.userutil.DatabaseConnection.executeCachedQuery(DatabaseConnection.java:128)</trace>"+
-            "                    <trace>sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</trace>"+
-            "                    <trace>sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)</trace>"+
-            "                    <trace>sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</trace>"+
-            "                    <trace>java.lang.reflect.Method.invoke(Method.java:498)</trace>"+
-            "                    <trace>org.mozilla.javascript.MemberBox.invoke(MemberBox.java:126)</trace>"+
-            "                    <trace>org.mozilla.javascript.NativeJavaMethod.call(NativeJavaMethod.java:225)</trace>"+
-            "                    <trace>org.mozilla.javascript.Interpreter.interpretLoop(Interpreter.java:1479)</trace>"+
-            "                    <trace>org.mozilla.javascript.Interpreter.interpret(Interpreter.java:815)</trace>"+
-            "                    <trace>org.mozilla.javascript.InterpretedFunction.call(InterpretedFunction.java:109)</trace>"+
-            "                    <trace>org.mozilla.javascript.ContextFactory.doTopCall(ContextFactory.java:405)</trace>"+
-            "                    <trace>org.mozilla.javascript.ScriptRuntime.doTopCall(ScriptRuntime.java:3508)</trace>"+
-            "                    <trace>org.mozilla.javascript.InterpretedFunction.exec(InterpretedFunction.java:120)</trace>"+
-            "                    <trace>com.mirth.connect.server.util.javascript.JavaScriptTask.executeScript(JavaScriptTask.java:150)</trace>"+
-            "                    <trace>com.mirth.connect.server.transformers.JavaScriptFilterTransformer$FilterTransformerTask.doCall(JavaScriptFilterTransformer.java:143)</trace>"+
-            "                    <trace>com.mirth.connect.server.transformers.JavaScriptFilterTransformer$FilterTransformerTask.doCall(JavaScriptFilterTransformer.java:1)</trace>"+
-            "                    <trace>com.mirth.connect.server.util.javascript.JavaScriptTask.call(JavaScriptTask.java:113)</trace>"+
-            "                    <trace>java.util.concurrent.FutureTask.run(FutureTask.java:266)</trace>"+
-            "                    <trace>java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)</trace>"+
-            "                    <trace>java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)</trace>"+
-            "                    <trace>java.lang.Thread.run(Thread.java:748)</trace>"+
-            "                </stackTrace>"+
-            "                <suppressedExceptions class=\"java.util.Collections$UnmodifiableRandomAccessList\" reference=\"../../rowsetWarning/suppressedExceptions\"/>"+
-            "                <vendorCode>0</vendorCode>"+
-            "            </sqlwarn>"+
-            "            <strMatchColumn/>"+
-            "            <strMatchColumns>"+
-            "                <null/>"+
-            "                <null/>"+
-            "                <null/>"+
-            "                <null/>"+
-            "                <null/>"+
-            "                <null/>"+
-            "                <null/>"+
-            "                <null/>"+
-            "                <null/>"+
-            "                <null/>"+
-            "            </strMatchColumns>"+
-            "            <tWriter class=\"com.sun.rowset.internal.CachedRowSetWriter\" reference=\"../provider/com.sun.rowset.providers.RIOptimisticProvider/default/writer\"/>"+
-            "        </default>"+
-            "    </com.sun.rowset.CachedRowSetImpl>"+
-            "</com.mirth.connect.server.userutil.MirthCachedRowSet>";
+    		"<com.mirth.connect.server.userutil.MirthCachedRowSet>\n" + 
+    		"  <delegate class=\"com.sun.rowset.CachedRowSetImpl\" serialization=\"custom\">\n" + 
+    		"    <javax.sql.rowset.BaseRowSet>\n" + 
+    		"      <default>\n" + 
+    		"        <concurrency>1008</concurrency>\n" + 
+    		"        <escapeProcessing>true</escapeProcessing>\n" + 
+    		"        <fetchDir>1000</fetchDir>\n" + 
+    		"        <fetchSize>0</fetchSize>\n" + 
+    		"        <isolation>2</isolation>\n" + 
+    		"        <maxFieldSize>0</maxFieldSize>\n" + 
+    		"        <maxRows>0</maxRows>\n" + 
+    		"        <queryTimeout>0</queryTimeout>\n" + 
+    		"        <readOnly>true</readOnly>\n" + 
+    		"        <rowSetType>1004</rowSetType>\n" + 
+    		"        <showDeleted>false</showDeleted>\n" + 
+    		"        <listeners/>\n" + 
+    		"        <params/>\n" + 
+    		"      </default>\n" + 
+    		"    </javax.sql.rowset.BaseRowSet>\n" + 
+    		"    <com.sun.rowset.CachedRowSetImpl>\n" + 
+    		"      <default>\n" + 
+    		"        <absolutePos>0</absolutePos>\n" + 
+    		"        <callWithCon>false</callWithCon>\n" + 
+    		"        <currentRow>0</currentRow>\n" + 
+    		"        <cursorPos>0</cursorPos>\n" + 
+    		"        <dbmslocatorsUpdateCopy>false</dbmslocatorsUpdateCopy>\n" + 
+    		"        <endPos>0</endPos>\n" + 
+    		"        <iMatchColumn>-1</iMatchColumn>\n" + 
+    		"        <lastValueNull>false</lastValueNull>\n" + 
+    		"        <maxRowsreached>0</maxRowsreached>\n" + 
+    		"        <numDeleted>0</numDeleted>\n" + 
+    		"        <numRows>0</numRows>\n" + 
+    		"        <onFirstPage>false</onFirstPage>\n" + 
+    		"        <onInsertRow>false</onInsertRow>\n" + 
+    		"        <onLastPage>false</onLastPage>\n" + 
+    		"        <pageSize>0</pageSize>\n" + 
+    		"        <pagenotend>true</pagenotend>\n" + 
+    		"        <populatecallcount>0</populatecallcount>\n" + 
+    		"        <prevEndPos>0</prevEndPos>\n" + 
+    		"        <startPos>0</startPos>\n" + 
+    		"        <startPrev>0</startPrev>\n" + 
+    		"        <tXWriter>true</tXWriter>\n" + 
+    		"        <totalRows>0</totalRows>\n" + 
+    		"        <updateOnInsert>false</updateOnInsert>\n" + 
+    		"        <DEFAULT__SYNC__PROVIDER>com.sun.rowset.providers.RIOptimisticProvider</DEFAULT__SYNC__PROVIDER>\n" + 
+    		"        <iMatchColumns>\n" + 
+    		"          <int>-1</int>\n" + 
+    		"          <int>-1</int>\n" + 
+    		"          <int>-1</int>\n" + 
+    		"          <int>-1</int>\n" + 
+    		"          <int>-1</int>\n" + 
+    		"          <int>-1</int>\n" + 
+    		"          <int>-1</int>\n" + 
+    		"          <int>-1</int>\n" + 
+    		"          <int>-1</int>\n" + 
+    		"          <int>-1</int>\n" + 
+    		"        </iMatchColumns>\n" + 
+    		"        <provider class=\"com.sun.rowset.providers.RIOptimisticProvider\" serialization=\"custom\">\n" + 
+    		"          <unserializable-parents/>\n" + 
+    		"          <com.sun.rowset.providers.RIOptimisticProvider>\n" + 
+    		"            <default>\n" + 
+    		"              <providerID>com.sun.rowset.providers.RIOptimisticProvider</providerID>\n" + 
+    		"              <reader serialization=\"custom\">\n" + 
+    		"                <com.sun.rowset.internal.CachedRowSetReader>\n" + 
+    		"                  <default>\n" + 
+    		"                    <startPosition>0</startPosition>\n" + 
+    		"                    <userCon>false</userCon>\n" + 
+    		"                    <writerCalls>0</writerCalls>\n" + 
+    		"                    <resBundle/>\n" + 
+    		"                  </default>\n" + 
+    		"                </com.sun.rowset.internal.CachedRowSetReader>\n" + 
+    		"              </reader>\n" + 
+    		"              <resBundle/>\n" + 
+    		"              <vendorName>Oracle Corporation</vendorName>\n" + 
+    		"              <versionNumber>1.0</versionNumber>\n" + 
+    		"              <writer serialization=\"custom\">\n" + 
+    		"                <com.sun.rowset.internal.CachedRowSetWriter>\n" + 
+    		"                  <default>\n" + 
+    		"                    <callerColumnCount>0</callerColumnCount>\n" + 
+    		"                    <iChangedValsInDbAndCRS>0</iChangedValsInDbAndCRS>\n" + 
+    		"                    <iChangedValsinDbOnly>0</iChangedValsinDbOnly>\n" + 
+    		"                    <reader serialization=\"custom\">\n" + 
+    		"                      <com.sun.rowset.internal.CachedRowSetReader>\n" + 
+    		"                        <default>\n" + 
+    		"                          <startPosition>0</startPosition>\n" + 
+    		"                          <userCon>false</userCon>\n" + 
+    		"                          <writerCalls>0</writerCalls>\n" + 
+    		"                          <resBundle/>\n" + 
+    		"                        </default>\n" + 
+    		"                      </com.sun.rowset.internal.CachedRowSetReader>\n" + 
+    		"                    </reader>\n" + 
+    		"                    <resBundle/>\n" + 
+    		"                  </default>\n" + 
+    		"                </com.sun.rowset.internal.CachedRowSetWriter>\n" + 
+    		"              </writer>\n" + 
+    		"            </default>\n" + 
+    		"          </com.sun.rowset.providers.RIOptimisticProvider>\n" + 
+    		"        </provider>\n" + 
+    		"        <rowSetReader class=\"com.sun.rowset.internal.CachedRowSetReader\" serialization=\"custom\">\n" + 
+    		"          <com.sun.rowset.internal.CachedRowSetReader>\n" + 
+    		"            <default>\n" + 
+    		"              <startPosition>0</startPosition>\n" + 
+    		"              <userCon>false</userCon>\n" + 
+    		"              <writerCalls>0</writerCalls>\n" + 
+    		"              <resBundle/>\n" + 
+    		"            </default>\n" + 
+    		"          </com.sun.rowset.internal.CachedRowSetReader>\n" + 
+    		"        </rowSetReader>\n" + 
+    		"        <rowSetWriter class=\"com.sun.rowset.internal.CachedRowSetWriter\" serialization=\"custom\">\n" + 
+    		"          <com.sun.rowset.internal.CachedRowSetWriter>\n" + 
+    		"            <default>\n" + 
+    		"              <callerColumnCount>0</callerColumnCount>\n" + 
+    		"              <iChangedValsInDbAndCRS>0</iChangedValsInDbAndCRS>\n" + 
+    		"              <iChangedValsinDbOnly>0</iChangedValsinDbOnly>\n" + 
+    		"              <reader serialization=\"custom\">\n" + 
+    		"                <com.sun.rowset.internal.CachedRowSetReader>\n" + 
+    		"                  <default>\n" + 
+    		"                    <startPosition>0</startPosition>\n" + 
+    		"                    <userCon>false</userCon>\n" + 
+    		"                    <writerCalls>0</writerCalls>\n" + 
+    		"                    <resBundle/>\n" + 
+    		"                  </default>\n" + 
+    		"                </com.sun.rowset.internal.CachedRowSetReader>\n" + 
+    		"              </reader>\n" + 
+    		"              <resBundle/>\n" + 
+    		"            </default>\n" + 
+    		"          </com.sun.rowset.internal.CachedRowSetWriter>\n" + 
+    		"        </rowSetWriter>\n" + 
+    		"        <rowsetWarning>\n" + 
+    		"          <stackTrace>\n" + 
+    		"            <trace>com.sun.rowset.CachedRowSetImpl.&lt;init&gt;(CachedRowSetImpl.java:384)</trace>\n" + 
+    		"            <trace>com.sun.rowset.RowSetFactoryImpl.createCachedRowSet(RowSetFactoryImpl.java:49)</trace>\n" + 
+    		"            <trace>com.mirth.connect.server.userutil.MirthCachedRowSet.&lt;init&gt;(MirthCachedRowSet.java:57)</trace>\n" + 
+    		"            <trace>com.mirth.connect.model.converters.ObjectXMLSerializerTest.myTest(ObjectXMLSerializerTest.java:48)</trace>\n" + 
+    		"            <trace>sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</trace>\n" + 
+    		"            <trace>sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)</trace>\n" + 
+    		"            <trace>sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</trace>\n" + 
+    		"            <trace>java.lang.reflect.Method.invoke(Method.java:498)</trace>\n" + 
+    		"            <trace>org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:44)</trace>\n" + 
+    		"            <trace>org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15)</trace>\n" + 
+    		"            <trace>org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:41)</trace>\n" + 
+    		"            <trace>org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:20)</trace>\n" + 
+    		"            <trace>org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:76)</trace>\n" + 
+    		"            <trace>org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)</trace>\n" + 
+    		"            <trace>org.junit.runners.ParentRunner$3.run(ParentRunner.java:193)</trace>\n" + 
+    		"            <trace>org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:52)</trace>\n" + 
+    		"            <trace>org.junit.runners.ParentRunner.runChildren(ParentRunner.java:191)</trace>\n" + 
+    		"            <trace>org.junit.runners.ParentRunner.access$000(ParentRunner.java:42)</trace>\n" + 
+    		"            <trace>org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:184)</trace>\n" + 
+    		"            <trace>org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:28)</trace>\n" + 
+    		"            <trace>org.junit.runners.ParentRunner.run(ParentRunner.java:236)</trace>\n" + 
+    		"            <trace>org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:89)</trace>\n" + 
+    		"            <trace>org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:41)</trace>\n" + 
+    		"            <trace>org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:542)</trace>\n" + 
+    		"            <trace>org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:770)</trace>\n" + 
+    		"            <trace>org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:464)</trace>\n" + 
+    		"            <trace>org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:210)</trace>\n" + 
+    		"          </stackTrace>\n" + 
+    		"          <suppressedExceptions class=\"java.util.Collections$UnmodifiableRandomAccessList\" resolves-to=\"java.util.Collections$UnmodifiableList\">\n" + 
+    		"            <c class=\"list\"/>\n" + 
+    		"            <list/>\n" + 
+    		"          </suppressedExceptions>\n" + 
+    		"          <vendorCode>0</vendorCode>\n" + 
+    		"        </rowsetWarning>\n" + 
+    		"        <rvh/>\n" + 
+    		"        <sqlwarn>\n" + 
+    		"          <stackTrace>\n" + 
+    		"            <trace>com.sun.rowset.CachedRowSetImpl.&lt;init&gt;(CachedRowSetImpl.java:383)</trace>\n" + 
+    		"            <trace>com.sun.rowset.RowSetFactoryImpl.createCachedRowSet(RowSetFactoryImpl.java:49)</trace>\n" + 
+    		"            <trace>com.mirth.connect.server.userutil.MirthCachedRowSet.&lt;init&gt;(MirthCachedRowSet.java:57)</trace>\n" + 
+    		"            <trace>com.mirth.connect.model.converters.ObjectXMLSerializerTest.myTest(ObjectXMLSerializerTest.java:48)</trace>\n" + 
+    		"            <trace>sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</trace>\n" + 
+    		"            <trace>sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)</trace>\n" + 
+    		"            <trace>sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</trace>\n" + 
+    		"            <trace>java.lang.reflect.Method.invoke(Method.java:498)</trace>\n" + 
+    		"            <trace>org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:44)</trace>\n" + 
+    		"            <trace>org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15)</trace>\n" + 
+    		"            <trace>org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:41)</trace>\n" + 
+    		"            <trace>org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:20)</trace>\n" + 
+    		"            <trace>org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:76)</trace>\n" + 
+    		"            <trace>org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)</trace>\n" + 
+    		"            <trace>org.junit.runners.ParentRunner$3.run(ParentRunner.java:193)</trace>\n" + 
+    		"            <trace>org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:52)</trace>\n" + 
+    		"            <trace>org.junit.runners.ParentRunner.runChildren(ParentRunner.java:191)</trace>\n" + 
+    		"            <trace>org.junit.runners.ParentRunner.access$000(ParentRunner.java:42)</trace>\n" + 
+    		"            <trace>org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:184)</trace>\n" + 
+    		"            <trace>org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:28)</trace>\n" + 
+    		"            <trace>org.junit.runners.ParentRunner.run(ParentRunner.java:236)</trace>\n" + 
+    		"            <trace>org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:89)</trace>\n" + 
+    		"            <trace>org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:41)</trace>\n" + 
+    		"            <trace>org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:542)</trace>\n" + 
+    		"            <trace>org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:770)</trace>\n" + 
+    		"            <trace>org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:464)</trace>\n" + 
+    		"            <trace>org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:210)</trace>\n" + 
+    		"          </stackTrace>\n" + 
+    		"          <suppressedExceptions class=\"java.util.Collections$UnmodifiableRandomAccessList\" resolves-to=\"java.util.Collections$UnmodifiableList\">\n" + 
+    		"            <c class=\"list\"/>\n" + 
+    		"            <list/>\n" + 
+    		"          </suppressedExceptions>\n" + 
+    		"          <vendorCode>0</vendorCode>\n" + 
+    		"        </sqlwarn>\n" + 
+    		"        <strMatchColumn></strMatchColumn>\n" + 
+    		"        <strMatchColumns>\n" + 
+    		"          <null/>\n" + 
+    		"          <null/>\n" + 
+    		"          <null/>\n" + 
+    		"          <null/>\n" + 
+    		"          <null/>\n" + 
+    		"          <null/>\n" + 
+    		"          <null/>\n" + 
+    		"          <null/>\n" + 
+    		"          <null/>\n" + 
+    		"          <null/>\n" + 
+    		"        </strMatchColumns>\n" + 
+    		"        <tWriter class=\"com.sun.rowset.internal.CachedRowSetWriter\" serialization=\"custom\">\n" + 
+    		"          <com.sun.rowset.internal.CachedRowSetWriter>\n" + 
+    		"            <default>\n" + 
+    		"              <callerColumnCount>0</callerColumnCount>\n" + 
+    		"              <iChangedValsInDbAndCRS>0</iChangedValsInDbAndCRS>\n" + 
+    		"              <iChangedValsinDbOnly>0</iChangedValsinDbOnly>\n" + 
+    		"              <reader serialization=\"custom\">\n" + 
+    		"                <com.sun.rowset.internal.CachedRowSetReader>\n" + 
+    		"                  <default>\n" + 
+    		"                    <startPosition>0</startPosition>\n" + 
+    		"                    <userCon>false</userCon>\n" + 
+    		"                    <writerCalls>0</writerCalls>\n" + 
+    		"                    <resBundle/>\n" + 
+    		"                  </default>\n" + 
+    		"                </com.sun.rowset.internal.CachedRowSetReader>\n" + 
+    		"              </reader>\n" + 
+    		"              <resBundle/>\n" + 
+    		"            </default>\n" + 
+    		"          </com.sun.rowset.internal.CachedRowSetWriter>\n" + 
+    		"        </tWriter>\n" + 
+    		"      </default>\n" + 
+    		"    </com.sun.rowset.CachedRowSetImpl>\n" + 
+    		"  </delegate>\n" + 
+    		"</com.mirth.connect.server.userutil.MirthCachedRowSet>";
     // @formatter:on
 }
