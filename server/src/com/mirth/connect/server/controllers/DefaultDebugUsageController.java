@@ -9,10 +9,8 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSessionManager;
@@ -20,7 +18,6 @@ import org.apache.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.DebugUsage;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.StatementLock;

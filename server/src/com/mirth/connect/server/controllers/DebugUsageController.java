@@ -9,7 +9,7 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 import com.mirth.connect.client.core.ControllerException;
@@ -25,7 +25,7 @@ public abstract class DebugUsageController extends Controller {
         return ControllerFactory.getFactory().createDebugUsageController();
     }
     
-    public abstract HashMap<String, Object> getDebugUsageMap(DebugUsage debugUsage);
+    public abstract Map<String, Object> getDebugUsageMap(DebugUsage debugUsage);
         
     public abstract boolean upsertDebugUsage(DebugUsage debugUsage) throws ControllerException;
     
