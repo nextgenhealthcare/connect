@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
@@ -61,8 +62,8 @@ public class DefaultDebugUsageController extends DebugUsageController {
 
     }
 
-    public HashMap<String, Object> getDebugUsageMap(DebugUsage debugUsage) {
-        HashMap<String, Object> map = new HashMap<>();
+    public Map<String, Object> getDebugUsageMap(DebugUsage debugUsage) {
+        Map<String, Object> map = new HashMap<String, Object>();
         if (debugUsage!=null) {
             map.put("serverId", debugUsage.getServerId());
             map.put("duppCount", debugUsage.getDuppCount());
