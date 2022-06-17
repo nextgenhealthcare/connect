@@ -2058,8 +2058,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see MessageServletInterface#auditQueriedPHIMessage
      */
     @Override
-    public synchronized void auditQueriedPHIMessage(String query) throws ClientException {
-        getServlet(MessageServletInterface.class).auditQueriedPHIMessage(query);
+    public synchronized void auditQueriedPHIMessage(LinkedHashMap<String, String> auditMessageAttributesMap) throws ClientException {
+        getServlet(MessageServletInterface.class).auditQueriedPHIMessage(auditMessageAttributesMap);
     }
 
     /*****************

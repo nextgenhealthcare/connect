@@ -603,7 +603,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @Operation(summary = "Audit that the user has accessed a channel message that contains PHI.")
     @MirthOperation(name = "auditAccessedPHIMessage", display = "Accessed PHI")
     public void auditAccessedPHIMessage(
-            @Param("auditMessageAttributesMap") @Parameter(description = "The patient ID of the channel message.", required = false) LinkedHashMap<String, String> auditMessageAttributesMap) throws ClientException;
+            @Param("auditMessageAttributesMap") @Parameter(description = "The attributes map of the channel message.", required = false) LinkedHashMap<String, String> auditMessageAttributesMap) throws ClientException;
     
     
     @POST
@@ -611,5 +611,5 @@ public interface MessageServletInterface extends BaseServletInterface {
     @Operation(summary = "Audit that the user has queried the channel messages panel that contains PHI.")
     @MirthOperation(name = "auditQueriedPHIMessage", display = "Queried PHI")
     public void auditQueriedPHIMessage(
-            @Param("query") @Parameter(description = "The query string of the channel messages panel text search.", required = false) String query) throws ClientException;
+            @Param("auditMessageAttributesMap") @Parameter(description = "The attributes map of the channel messages filter.", required = false) LinkedHashMap<String, String> auditMessageAttributesMap) throws ClientException;
 }

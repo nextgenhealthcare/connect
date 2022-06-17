@@ -354,8 +354,8 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
     
     @Override
     @DontCheckAuthorized
-    public void auditQueriedPHIMessage(String query) {
-        sendServerEventWithAttributes(Collections.singletonMap("query", query));
+    public void auditQueriedPHIMessage(LinkedHashMap<String, String> auditMessageAttributesMap) {
+        sendServerEventWithAttributes(auditMessageAttributesMap);
     }
     
     @DontCheckAuthorized
