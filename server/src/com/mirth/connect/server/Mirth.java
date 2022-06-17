@@ -398,7 +398,7 @@ public class Mirth extends Thread {
         configurationController.setStatus(ConfigurationController.STATUS_OK);
         printSplashScreen();
 
-        // Send usage stats once a day.
+        // schedule usage statistics to be sent at startup and every 24 hours
         Timer timer = new Timer();
         timer.schedule(new UsageSenderTask(), 0, ConnectServiceUtil.MILLIS_PER_DAY);
     }
