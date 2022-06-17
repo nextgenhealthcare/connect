@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Calendar;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -602,7 +603,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @Operation(summary = "Audit that the user has accessed a channel message that contains PHI.")
     @MirthOperation(name = "auditAccessedPHIMessage", display = "Accessed PHI")
     public void auditAccessedPHIMessage(
-            @Param("patientID") @Parameter(description = "The patient ID of the channel message.", required = false) String patientID) throws ClientException;
+            @Param("auditMessageAttributesMap") @Parameter(description = "The patient ID of the channel message.", required = false) LinkedHashMap<String, String> auditMessageAttributesMap) throws ClientException;
     
     
     @POST

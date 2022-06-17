@@ -24,6 +24,7 @@ import java.security.Provider;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -2047,8 +2048,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see MessageServletInterface#auditAccessedPHIMessage
      */
     @Override
-    public synchronized void auditAccessedPHIMessage(String patientID) throws ClientException {
-        getServlet(MessageServletInterface.class).auditAccessedPHIMessage(patientID);
+    public synchronized void auditAccessedPHIMessage(LinkedHashMap<String, String> auditMessageAttributesMap) throws ClientException {
+        getServlet(MessageServletInterface.class).auditAccessedPHIMessage(auditMessageAttributesMap);
     }
     
     /**
