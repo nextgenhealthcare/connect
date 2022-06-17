@@ -135,7 +135,4 @@ public class DebugUsage implements Serializable {
         return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
     }
 
-//    public String toAuditString() {
-//        return new ToStringBuilder(this, CalendarToStringStyle.instance()).append("id", id).append("username", username).toString();
-//    }
 }

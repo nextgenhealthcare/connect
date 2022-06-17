@@ -80,7 +80,6 @@ public class DefaultDebugUsageController extends DebugUsageController {
         return map;
     }
 
- 
     public synchronized boolean upsertDebugUsage(DebugUsage debugUsage) throws ControllerException {
 
         StatementLock.getInstance(VACUUM_LOCK_ID).readLock();
@@ -137,19 +136,8 @@ public class DefaultDebugUsageController extends DebugUsageController {
         
         StatementLock.getInstance(VACUUM_LOCK_ID).readLock();
         try {
-            ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-            List<Map<String, Object>> rows = SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("DebugUsage.getDebugUsageStatistics", null);
-            List<DebugUsage> debugUsages = new ArrayList<DebugUsage>();
-
-            for (Map<String, Object> row : rows) {
-                try {
-                    debugUsages.add(serializer.deserialize((String) row.get("debugUsage"), DebugUsage.class));
-                } catch (Exception e) {
-                    logger.warn("Failed to load debugUsage " + row.get("id"), e);
-                }
-            }
-
-            return debugUsages;
+        	
+        	return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("DebugUsage.getDebugUsageStatistics", null);
 
         } catch (PersistenceException e) {
             throw new ControllerException(e);
@@ -158,7 +146,6 @@ public class DefaultDebugUsageController extends DebugUsageController {
         }
     }
     
-
     public int deleteDebugUsage(String serverId) throws ControllerException {
 
         logger.debug("deleting debug usage for serverId: " + serverId);
@@ -179,9 +166,7 @@ public class DefaultDebugUsageController extends DebugUsageController {
         } finally {
         StatementLock.getInstance(VACUUM_LOCK_ID).readUnlock();
         }
-    }
-    
-    
+    }  
     
     protected SqlSessionManager getReadOnlySqlSessionManager() {
     	return SqlConfig.getInstance().getReadOnlySqlSessionManager();
