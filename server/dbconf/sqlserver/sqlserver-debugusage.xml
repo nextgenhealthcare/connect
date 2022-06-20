@@ -68,6 +68,6 @@
 	
 	<delete id='deleteDebugUsageStatistics' parameterType='java.lang.String'>
 		DELETE FROM DEBUGGER_USAGE
-		WHERE SERVER_ID = #{serverId};
+		WHERE SERVER_ID = #{serverId}
 	</delete>
 </mapper>
