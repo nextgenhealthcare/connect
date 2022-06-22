@@ -432,8 +432,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 	    		patientId = (String) connectorMessage.getMetaDataMap().get("PATIENT_ID").toString();
 	    	}
 		} catch (ClientException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            logger.error("Invalid patient ID.", e);
 		}
 		return patientId;
     }
