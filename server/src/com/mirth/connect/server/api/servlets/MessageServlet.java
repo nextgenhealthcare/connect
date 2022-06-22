@@ -247,7 +247,7 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
 
     @Override
     @CheckAuthorizedChannelId
-    public void removeMessage(String channelId, Long messageId, Integer metaDataId) {
+    public void removeMessage(String channelId, Long messageId, Integer metaDataId, String patientId) {
         MessageFilter filter = new MessageFilter();
         filter.setMinMessageId(messageId);
         filter.setMaxMessageId(messageId);

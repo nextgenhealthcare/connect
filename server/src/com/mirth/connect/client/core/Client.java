@@ -1949,8 +1949,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see MessageServletInterface#removeMessage
      */
     @Override
-    public void removeMessage(String channelId, Long messageId, Integer metaDataId) throws ClientException {
-        getServlet(MessageServletInterface.class).removeMessage(channelId, messageId, metaDataId);
+    public void removeMessage(String channelId, Long messageId, Integer metaDataId, String patientId) throws ClientException {
+        getServlet(MessageServletInterface.class).removeMessage(channelId, messageId, metaDataId, patientId);
     }
 
     /**

@@ -3917,9 +3917,12 @@ public class Frame extends JXFrame {
     }
 
     public void doRemoveMessage() {
+        List<Integer> selectedMetaDataIds = new ArrayList<Integer>();
         final Integer metaDataId = messageBrowser.getSelectedMetaDataId();
         final Long messageId = messageBrowser.getSelectedMessageId();
         final String channelId = messageBrowser.getChannelId();
+        selectedMetaDataIds.add(metaDataId);
+        final String patientId = messageBrowser.getPatientId(messageId, metaDataId, selectedMetaDataIds);
 
         if (alertOption(this, "<html>Are you sure you would like to remove the selected message?<br>Channel must be stopped for an unfinished message to be removed.<br><font size='1'><br></font>WARNING: Removing a Source message will remove all of its destinations.</html>")) {
             final String workingId = startWorking("Removing message...");
@@ -3928,7 +3931,7 @@ public class Frame extends JXFrame {
 
                 public Void doInBackground() {
                     try {
-                        mirthClient.removeMessage(channelId, messageId, metaDataId);
+                        mirthClient.removeMessage(channelId, messageId, metaDataId, patientId);
                     } catch (ClientException e) {
                         SwingUtilities.invokeLater(() -> {
                             alertThrowable(PlatformUI.MIRTH_FRAME, e);
