@@ -423,6 +423,23 @@ public class MessageBrowser extends javax.swing.JPanel {
         return messageFilter;
     }
 
+    public String getPatientId(Long messageId, Integer metaDataId, List<Integer> selectedMetaDataIds) {
+    	String patientId = null;
+        Message message = messageCache.get(messageId);
+		try {
+	        if (message == null) {
+					message = parent.mirthClient.getMessageContent(channelId, messageId, selectedMetaDataIds);
+	        	}
+			ConnectorMessage connectorMessage = message.getConnectorMessages().get(metaDataId);
+	    	if (connectorMessage.getMetaDataMap().get("PATIENT_ID") != null) {
+	    		patientId = (String) connectorMessage.getMetaDataMap().get("PATIENT_ID").toString();
+	    	}
+		} catch (ClientException e) {
+            logger.error("Invalid patient ID.", e);
+		}
+		return patientId;
+    }
+
     public int getPageSize() {
         return NumberUtils.toInt(pageSizeField.getText());
     }
