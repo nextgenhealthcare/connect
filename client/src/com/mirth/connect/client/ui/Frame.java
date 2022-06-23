@@ -245,7 +245,6 @@ public class Frame extends JXFrame {
     private KeyEventDispatcher keyEventDispatcher = null;
     private int deployedChannelCount;
     private DebugOptions debugOptions;
-    
     private static final int REFRESH_BLOCK_SIZE = 100;
 
     public Frame() {
@@ -567,7 +566,8 @@ public class Frame extends JXFrame {
 
         mirthClient.setRecorder(LoadedExtensions.getInstance().getRecorder());
 
-        statusBar = new StatusBar();
+        User currentUser = getCurrentUser(this);
+        statusBar = new StatusBar(currentUser);
         statusBar.setBorder(BorderFactory.createEmptyBorder());
 
         channelPanel.initPanelPlugins();
@@ -600,7 +600,6 @@ public class Frame extends JXFrame {
         // Determine background color from user preference if available
         Color backgroundColor = PlatformUI.DEFAULT_BACKGROUND_COLOR;
         try {
-            User currentUser = getCurrentUser(this);
             if (currentUser != null) {
                 String backgroundColorStr = mirthClient.getUserPreference(currentUser.getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR);
                 if (StringUtils.isNotBlank(backgroundColorStr)) {
