@@ -16,7 +16,8 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Channel;
@@ -32,7 +33,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 public class DefaultScriptController extends ScriptController {
     public static final String VACUUM_LOCK_SCRIPT_STATEMENT_ID = "Script.vacuumScriptTable";
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private static ScriptController instance = null;
 
     protected DefaultScriptController() {

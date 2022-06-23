@@ -43,7 +43,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
 import org.glassfish.jersey.client.spi.Connector;
@@ -131,7 +132,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
 
     public static final int MAX_QUERY_PARAM_COLLECTION_SIZE = 100;
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ServerConnection serverConnection;
     private javax.ws.rs.client.Client client;
     private URI api;
@@ -2039,6 +2040,26 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     public void exportAttachmentServer(String channelId, Long messageId, String attachmentId, String filePath, boolean binary) throws ClientException {
         getServlet(MessageServletInterface.class).exportAttachmentServer(channelId, messageId, attachmentId, filePath, binary);
     }
+    
+    /**
+     * Audit that the user has accessed a channel message that contains PHI.
+     * 
+     * @see MessageServletInterface#auditAccessedPHIMessage
+     */
+    @Override
+    public synchronized void auditAccessedPHIMessage(String patientID) throws ClientException {
+        getServlet(MessageServletInterface.class).auditAccessedPHIMessage(patientID);
+    }
+    
+    /**
+     * Audit that the user has queried the channel messages panel that contains PHI.
+     * 
+     * @see MessageServletInterface#auditQueriedPHIMessage
+     */
+    @Override
+    public synchronized void auditQueriedPHIMessage(String query) throws ClientException {
+        getServlet(MessageServletInterface.class).auditQueriedPHIMessage(query);
+    }
 
     /*****************
      * Event Servlet *
@@ -2080,8 +2101,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EventServletInterface#getEvents
      */
     @Override
-    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String ipAddress, String serverId, Integer offset, Integer limit) throws ClientException {
-        return getServlet(EventServletInterface.class).getEvents(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, ipAddress, serverId, offset, limit);
+    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String attributeSearch, String ipAddress, String serverId, Integer offset, Integer limit) throws ClientException {
+        return getServlet(EventServletInterface.class).getEvents(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, attributeSearch, ipAddress, serverId, offset, limit);
     }
 
     /**
@@ -2100,8 +2121,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EventServletInterface#getEventCount
      */
     @Override
-    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String ipAddress, String serverId) throws ClientException {
-        return getServlet(EventServletInterface.class).getEventCount(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, ipAddress, serverId);
+    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String attributeSearch, String ipAddress, String serverId) throws ClientException {
+        return getServlet(EventServletInterface.class).getEventCount(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, attributeSearch, ipAddress, serverId);
     }
 
     /**

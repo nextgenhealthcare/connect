@@ -21,7 +21,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.ibatis.exceptions.PersistenceException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.model.event.Event;
@@ -40,7 +41,7 @@ import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
 
 public class DefaultEventController extends EventController {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     private static EventController instance = null;
 
@@ -211,6 +212,7 @@ public class DefaultEventController extends EventController {
 
         params.put("outcome", filter.getOutcome());
         params.put("userId", filter.getUserId());
+        params.put("attributeSearch", filter.getAttributeSearch());
         params.put("ipAddress", filter.getIpAddress());
         params.put("serverId", filter.getServerId());
 

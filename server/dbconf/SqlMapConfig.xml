@@ -52,6 +52,7 @@
 		<mapper resource="${database}/${database}-configuration.xml" />
 		<mapper resource="${database}/${database}-event.xml" />
 		<mapper resource="${database}/${database}-alert.xml" />
+		<mapper resource="${database}/${database}-debugusage.xml" />
 		<mapper resource="${database}/${database}-codeTemplate.xml" />
 	</mappers>
 </configuration>

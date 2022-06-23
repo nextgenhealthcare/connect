@@ -17,7 +17,8 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.ssl.SSLContexts;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MirthSSLUtil {
 
@@ -49,7 +50,7 @@ public class MirthSSLUtil {
 			"TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA", "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
 			"TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" };
 
-    private static Logger logger = Logger.getLogger(MirthSSLUtil.class);
+    private static Logger logger = LogManager.getLogger(MirthSSLUtil.class);
 
     public static String[] getSupportedHttpsProtocols() {
         return SSLContexts.createDefault().getSupportedSSLParameters().getProtocols();

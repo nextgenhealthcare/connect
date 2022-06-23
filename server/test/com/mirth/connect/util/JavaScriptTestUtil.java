@@ -11,8 +11,9 @@ package com.mirth.connect.util;
 
 import java.util.UUID;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
@@ -47,7 +48,7 @@ public class JavaScriptTestUtil {
     public static final String MSG = "<HL7Message><MSH><MSH.1>|</MSH.1><MSH.2>^~\\&amp;</MSH.2></MSH><PID><PID.1><PID.1.1>1</PID.1.1></PID.1><PID.2/><PID.3><PID.3.1>1</PID.3.1><PID.3.2>a</PID.3.2></PID.3><PID.3><PID.3.1>2</PID.3.1><PID.3.2>b</PID.3.2></PID.3></PID><PID><PID.1><PID.1.1>2</PID.1.1></PID.1><PID.2/><PID.3><PID.3.1>3</PID.3.1><PID.3.2>c</PID.3.2></PID.3><PID.3><PID.3.1>4</PID.3.1><PID.3.2>d</PID.3.2></PID.3></PID><OBR><OBR.1><OBR.1.1>1</OBR.1.1></OBR.1><OBR.2/><OBR.3><OBR.3.1><OBR.3.1.1>1</OBR.3.1.1><OBR.3.1.2>a</OBR.3.1.2></OBR.3.1><OBR.3.2>b</OBR.3.2></OBR.3><OBR.3><OBR.3.1><OBR.3.1.1>2</OBR.3.1.1><OBR.3.1.2>c</OBR.3.1.2></OBR.3.1><OBR.3.2>d</OBR.3.2></OBR.3></OBR><OBX><OBX.1><OBX.1.1>1</OBX.1.1></OBX.1><OBX.2><OBX.2.1>ST</OBX.2.1></OBX.2><OBX.3/><OBX.4/><OBX.5><OBX.5.1>1</OBX.5.1><OBX.5.2>a</OBX.5.2></OBX.5><OBX.5><OBX.5.1>2</OBX.5.1><OBX.5.2>b</OBX.5.2></OBX.5></OBX><OBX><OBX.1><OBX.1.1>2</OBX.1.1></OBX.1><OBX.2><OBX.2.1>TX</OBX.2.1></OBX.2><OBX.3/><OBX.4/><OBX.5><OBX.5.1>3</OBX.5.1><OBX.5.2>c</OBX.5.2></OBX.5><OBX.5><OBX.5.1>4</OBX.5.1><OBX.5.2>d</OBX.5.2></OBX.5></OBX><OBR><OBR.1><OBR.1.1>2</OBR.1.1></OBR.1><OBR.2/><OBR.3><OBR.3.1><OBR.3.1.1>3</OBR.3.1.1><OBR.3.1.2>e</OBR.3.1.2></OBR.3.1><OBR.3.2>f</OBR.3.2></OBR.3><OBR.3><OBR.3.1><OBR.3.1.1>4</OBR.3.1.1><OBR.3.1.2>g</OBR.3.1.2></OBR.3.1><OBR.3.2>h</OBR.3.2></OBR.3></OBR><OBX><OBX.1><OBX.1.1>1</OBX.1.1></OBX.1><OBX.2/><OBX.3/><OBX.4/><OBX.5><OBX.5.1>5</OBX.5.1><OBX.5.2>e</OBX.5.2></OBX.5><OBX.5><OBX.5.1>6</OBX.5.1><OBX.5.2>f</OBX.5.2></OBX.5></OBX><OBX><OBX.1><OBX.1.1>2</OBX.1.1></OBX.1><OBX.2/><OBX.3/><OBX.4/><OBX.5><OBX.5.1>7</OBX.5.1><OBX.5.2>g</OBX.5.2></OBX.5><OBX.5><OBX.5.1>8</OBX.5.1><OBX.5.2>h</OBX.5.2></OBX.5></OBX></HL7Message>";
     public static final String TMP = "<HL7Message><MSH><MSH.1>|</MSH.1><MSH.2>^~\\&amp;</MSH.2></MSH></HL7Message>";
 
-    private static Logger logger = Logger.getLogger(JavaScriptTestUtil.class);
+    private static Logger logger = LogManager.getLogger(JavaScriptTestUtil.class);
     private static ScriptableObject sealedSharedScope;
 
     public static void setup() throws Exception {

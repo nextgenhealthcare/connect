@@ -64,7 +64,8 @@ import javax.swing.text.DateFormatter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
@@ -132,7 +133,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     protected static final int IMPORT_ID_COLUMN = 12;
     protected static final int IMPORT_CHANNEL_ID_COLUMN = 13;
 
-    protected final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
+    protected final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
     private final String SCOPE_COLUMN_NAME = "Scope";
     private final String KEY_COLUMN_NAME = "Variable";
@@ -147,6 +148,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private Frame parent;
     private String channelId;
     private boolean isChannelDeployed;
+    private boolean isCURESPHILoggingOn;
+    private boolean isChannelMessagesPanelFirstLoadSearch;
     private Map<Integer, String> connectors;
     private List<MetaDataColumn> metaDataColumns;
     private MessageBrowserTableModel tableModel;
@@ -160,7 +163,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private Set<String> defaultVisibleColumns;
     // Worker used for loading a page and counting the total number of messages
     private SwingWorker<Void, Void> worker;
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ExecutorService executor;
     private List<Future<Void>> prettyPrintWorkers = new ArrayList<Future<Void>>();
 
@@ -329,6 +332,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         Set<String> metaDataColumnNames = new LinkedHashSet<String>();
 
         for (MetaDataColumn column : metaDataColumns) {
+            // if channel has patient_id metadata, turn on CURES PHI logging
+            isCURESPHILoggingOn = column.getName().toLowerCase().equals("patient_id") ? true : false;
+            
             metaDataColumnNames.add(column.getName());
         }
 
@@ -360,7 +366,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageTreeTable.setMetaDataColumns(metaDataColumnNames, channelId);
         messageTreeTable.restoreColumnPreferences();
 
+        isChannelMessagesPanelFirstLoadSearch = true;
         runSearch();
+        isChannelMessagesPanelFirstLoadSearch = false;
     }
 
     public Set<Operation> getAbortOperations() {
@@ -583,6 +591,15 @@ public class MessageBrowser extends javax.swing.JPanel {
             loadPageNumber(1);
 
             updateSearchCriteriaPane();
+            
+            // if CURES PHI logging is on and channel messages have been loaded, audit the event
+            if (isCURESPHILoggingOn && !isChannelMessagesPanelFirstLoadSearch) {
+                try {
+                    parent.mirthClient.auditQueriedPHIMessage(messageFilter.getTextSearch());
+                } catch (ClientException e) {
+                    logger.error("Unable to audit the CURES queried PHI event.", e);
+                }
+            }
         }
     }
 
@@ -1738,13 +1755,21 @@ public class MessageBrowser extends javax.swing.JPanel {
                         if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
                             parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 10, false);
                         }
+                        
+                        // if CURES PHI logging is on and a channel message has been accessed, audit the event
+                        if (isCURESPHILoggingOn) {
+                            try {
+                                parent.mirthClient.auditAccessedPHIMessage(connectorMessage.getMetaDataMap() != null && connectorMessage.getMetaDataMap().get("PATIENT_ID") != null ? connectorMessage.getMetaDataMap().get("PATIENT_ID").toString() : "");
+                            } catch (ClientException e) {
+                                logger.error("Unable to audit the CURES accessed PHI event.", e);
+                            }
+                        }
                     }
                 } else {
                     clearDescription(null);
                 }
 
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
             }
         }
     }

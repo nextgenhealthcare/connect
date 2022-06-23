@@ -23,6 +23,7 @@ import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.DebugUsage;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.UpdateSettings;
@@ -91,7 +92,8 @@ public class DefaultUsageController extends UsageController {
                 getScriptData(purgedDocument);
                 getAlertData(purgedDocument);
                 getUserData(purgedDocument);
-
+                getDebugData(purgedDocument);
+                
                 // Convert to JSON
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
@@ -220,5 +222,20 @@ public class DefaultUsageController extends UsageController {
             }
         }
         purgedDocument.setConnectorMetaData(purgedConnectorMetaData);
+    }
+    
+    private void getDebugData(PurgedDocument purgedDocument) throws ControllerException {
+        DebugUsageController debugUsageController = ControllerFactory.getFactory().createDebugUsageController();
+        List<Map<String, Object>> purgedDebugUsages = new ArrayList<Map<String, Object>>();
+        // retrieve debug usage metrics from the debugger_usage table for each server id
+        List<DebugUsage> debugUsages = debugUsageController.getDebugUsages();
+        for (DebugUsage debugUsage : debugUsages) {
+	        try {
+	        	purgedDebugUsages.add(debugUsageController.getDebugUsageMap(debugUsage));
+		        // removing debug usage metrics each serverId from debugger_usage table
+	            debugUsageController.deleteDebugUsage(debugUsage.getServerId());
+	        } catch (Exception e) {}
+        }
+        purgedDocument.setDebugStatistics(purgedDebugUsages);
     }
 }

@@ -596,4 +596,19 @@ public interface MessageServletInterface extends BaseServletInterface {
                             @ExampleObject(name = "filePath", value = "/path/to/file") }) }) String filePath,
             @Param("binary") @Parameter(description = "Indicates that the attachment is binary and should be Base64 decoded before writing to file.", schema = @Schema(defaultValue = "false")) @QueryParam("binary") boolean binary) throws ClientException;
     // @formatter:on
+    
+    @POST
+    @Path("/_auditAccessedPHIMessage")
+    @Operation(summary = "Audit that the user has accessed a channel message that contains PHI.")
+    @MirthOperation(name = "auditAccessedPHIMessage", display = "Accessed PHI")
+    public void auditAccessedPHIMessage(
+            @Param("patientID") @Parameter(description = "The patient ID of the channel message.", required = false) String patientID) throws ClientException;
+    
+    
+    @POST
+    @Path("/_auditQueriedPHIMessage")
+    @Operation(summary = "Audit that the user has queried the channel messages panel that contains PHI.")
+    @MirthOperation(name = "auditQueriedPHIMessage", display = "Queried PHI")
+    public void auditQueriedPHIMessage(
+            @Param("query") @Parameter(description = "The query string of the channel messages panel text search.", required = false) String query) throws ClientException;
 }

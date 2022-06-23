@@ -24,7 +24,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
@@ -50,7 +51,7 @@ public class JmsDispatcher extends DestinationConnector {
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     private Map<String, JmsConnection> jmsConnections = new ConcurrentHashMap<String, JmsConnection>();
     private static final int maxConnections = 1000;

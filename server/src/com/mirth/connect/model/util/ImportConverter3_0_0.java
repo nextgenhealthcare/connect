@@ -22,10 +22,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.util.DateParser;
 import com.mirth.connect.donkey.util.DateParser.DateParserException;
@@ -53,7 +54,7 @@ public class ImportConverter3_0_0 {
     private final static String VERSION_STRING = "3.0.0";
     private final static Pattern STRING_NODE_PATTERN = Pattern.compile("(?<=<(string)>).*(?=</string>)|<null/>");
 
-    private static Logger logger = Logger.getLogger(ImportConverter3_0_0.class);
+    private static Logger logger = LogManager.getLogger(ImportConverter3_0_0.class);
 
     /**
      * Tell whether or not serialized data for the given class is migratable to version 3.0.0.

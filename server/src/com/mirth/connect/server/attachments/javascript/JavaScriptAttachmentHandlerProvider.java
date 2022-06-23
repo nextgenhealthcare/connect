@@ -12,7 +12,8 @@ package com.mirth.connect.server.attachments.javascript;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
@@ -30,7 +31,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerProvider {
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private ContextFactoryController contextFactoryController = getContextFactoryController();
     private String scriptId;
     private Set<String> resourceIds;
@@ -115,7 +116,7 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
     
     protected MirthMain getDebugger(MirthContextFactory contextFactory, Channel channel) {
         if (debug) {
-            return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, channel.getName() + "-" + channel.getChannelId(), scriptId);
+            return JavaScriptUtil.getDebugger(contextFactory, scopeProvider, channel, scriptId, false);
         } else {
             return null;
         }
@@ -123,7 +124,7 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
     
     protected void showDebugger() {
         if (debug) {
-            if (debugger != null) {
+            if (debugger != null && JavaScriptUtil.getCompiledScript(scriptId) != null) {
                 debugger.doBreak();
 
                 if (!debugger.isVisible()) {

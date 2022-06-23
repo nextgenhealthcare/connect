@@ -25,7 +25,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -34,7 +35,7 @@ import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.util.MigrationException;
 
 public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     @Override
     public void migrate() throws MigrationException {
@@ -186,7 +187,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
     }
 
     private void migrateAlertTable() {
-        Logger logger = Logger.getLogger(getClass());
+        Logger logger = LogManager.getLogger(getClass());
         PreparedStatement statement = null;
         ResultSet results = null;
 
@@ -341,7 +342,7 @@ public class Migrate3_0_0 extends Migrator implements ConfigurationMigrator {
     }
 
     private void migrateCodeTemplateTable() {
-        Logger logger = Logger.getLogger(getClass());
+        Logger logger = LogManager.getLogger(getClass());
         PreparedStatement preparedStatement = null;
         ResultSet results = null;
 

@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.Layout;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import com.mirth.connect.client.core.api.util.OperationUtil;
 import com.mirth.connect.model.ExtensionPermission;
@@ -42,11 +42,12 @@ public class ServerLogProvider implements ServicePlugin {
 
     private void initialize() {
         // add the new appender
-        Appender arrayAppender = new ArrayAppender(this);
-        Layout patternLayout = new PatternLayout("[%d]  %-5p (%c:%L): %m%n");
-        arrayAppender.setLayout(patternLayout);
-        patternLayout.activateOptions();
-        Logger.getRootLogger().addAppender(arrayAppender);
+        Appender arrayAppender = new ArrayAppender(this, PatternLayout.newBuilder().withPattern("[%d]  %-5p (%c:%L): %m%n").build());
+        arrayAppender.start();
+        LoggerContext context = (LoggerContext) LogManager.getContext(false);
+        context.getConfiguration().addAppender(arrayAppender);
+        context.getRootLogger().addAppender(context.getConfiguration().getAppender(arrayAppender.getName()));
+        context.updateLoggers();
         serverId = ControllerFactory.getFactory().createConfigurationController().getServerId();
         logController = ServerLogController.getInstance();
     }
@@ -89,10 +90,10 @@ public class ServerLogProvider implements ServicePlugin {
         ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_VIEW, "Displays the contents of the Server Log on the Dashboard.", OperationUtil.getOperationNamesForPermission(PERMISSION_VIEW, ServerLogServletInterface.class), new String[] {});
         return new ExtensionPermission[] { viewPermission };
     }
-    
+
     @Override
     public Map<String, Object> getObjectsForSwaggerExamples() {
-    	// TODO Auto-generated method stub
-    	return null;
+        // TODO Auto-generated method stub
+        return null;
     }
 }
