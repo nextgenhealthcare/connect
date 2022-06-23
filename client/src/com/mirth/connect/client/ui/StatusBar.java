@@ -37,9 +37,9 @@ public class StatusBar extends javax.swing.JPanel {
         initComponents();
         workingText.setText("");
         StringBuilder statusBarText = new StringBuilder();
-        String username = currentUser.getUsername() != null ? currentUser.getUsername() : "";
-        String userFirstName = currentUser.getFirstName() != null ? currentUser.getFirstName() : "";
-        String userLastName = currentUser.getLastName() != null ? currentUser.getLastName() : "";
+        String username = currentUser != null ? currentUser.getUsername() : "";
+        String userFirstName = currentUser != null ? currentUser.getFirstName() : "";
+        String userLastName = currentUser != null ? currentUser.getLastName() : "";
         statusBarText.append("Connected to: ");
        
         if (!StringUtils.isBlank(PlatformUI.ENVIRONMENT_NAME)) {
