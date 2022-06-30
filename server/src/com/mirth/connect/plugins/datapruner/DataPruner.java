@@ -349,6 +349,8 @@ public class DataPruner implements Runnable {
                     attributes.put("Messages Pruned", Long.toString(result.numMessagesPruned));
                     attributes.put("Content Rows Pruned", Long.toString(result.numContentPruned));
                     attributes.put("Time Elapsed", getTimeElapsed());
+                    attributes.put("Message Date Threshold", String.valueOf(task.getMessageDateThreshold().getTime()));
+                    attributes.put("Content Date Threshold", String.valueOf(task.getContentDateThreshold().getTime()));
                     eventController.dispatchEvent(new ServerEvent(serverId, DataPrunerService.PLUGINPOINT, Level.INFORMATION, Outcome.SUCCESS, attributes));
                 } catch (InterruptedException e) {
                     throw e;
