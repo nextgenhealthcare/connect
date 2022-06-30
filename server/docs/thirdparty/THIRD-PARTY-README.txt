@@ -21,6 +21,7 @@ APACHE-LICENSE-2.0.txt):
 	Bean Validation API 1.1.0 (http://beanvalidation.org/)
 	Error Prone Annotations 2.3.4 [Mirth Connect only] (https://github.com/google/error-prone)
 	Fast Infoset Project 1.2.13 [Mirth Connect only] (https://github.com/javaee/metro-fi/tree/fastinfoset-project-1.2.13)
+	Google Code libphonenumber [Mirth Connect only] (https://github.com/google/libphonenumber)
 	Google Code Prettify [Mirth Connect only] (https://github.com/google/code-prettify)
 	Guava 28.2 (https://code.google.com/p/guava-libraries)
 	Guice 4.1 (https://github.com/google/guice)
