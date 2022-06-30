@@ -11,11 +11,15 @@ package com.mirth.connect.client.ui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.model.User;
 
@@ -25,9 +29,12 @@ public class UserEditPanel extends javax.swing.JPanel {
     private UserDialogInterface dialog;
     private Frame parent;
     private final String DEFAULT_OPTION = "--Select an option--";
+    private List<String> countryCodes;
 
     public UserEditPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
+        
+        initializeCountryCodes();
         initComponents();
 
         username.setDocument(new MirthFieldConstraints(40, false, false, false));
@@ -66,6 +73,19 @@ public class UserEditPanel extends javax.swing.JPanel {
 
         // Disable scroll bar
         industry.setMaximumRowCount(industry.getModel().getSize());
+    }
+    
+    private void initializeCountryCodes() {
+    	PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+    	Set<String> countryCodeSet = phoneUtil.getSupportedRegions();
+    	
+    	// Sort list in alphabetical order
+    	countryCodes = new ArrayList<>(countryCodeSet);
+    	java.util.Collections.sort(countryCodes);
+    }
+    
+    protected List<String> getCountryCodes() {
+    	return countryCodes;
     }
 
     public void setUser(UserDialogInterface dialog, User user) {
@@ -167,7 +187,23 @@ public class UserEditPanel extends javax.swing.JPanel {
             dialog.triggerFinishButton();
         }
     }
-
+    
+    /***
+     * 
+     * @param phoneNumber
+     * @param countryCode
+     * @return Whether the phone number is valid for the given country code
+     */
+    protected boolean validatePhoneNumber(String phoneNumber, String countryCode) {
+    	PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+    	try {
+    		PhoneNumber parsedPhoneNumber = phoneUtil.parse(phoneNumber, countryCode);
+    		return phoneUtil.isValidNumber(parsedPhoneNumber);
+		} catch (NumberParseException e) {
+			return false;
+		}
+    }
+    
     // @formatter:off
     /**
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT
