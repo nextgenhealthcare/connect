@@ -10,6 +10,7 @@
 package com.mirth.connect.client.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -25,12 +26,16 @@ import com.mirth.connect.model.User;
 
 public class UserEditPanel extends javax.swing.JPanel {
 
+	private static List<String> STATE_TERRITORY_CODES = Arrays.asList("AL", "AK", "AS", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "GU", "HI", 
+    		"ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MP", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", 
+    		"ND", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "VI", "WA", "WV", "WI", "WY" );
+	
     private User user;
     private UserDialogInterface dialog;
     private Frame parent;
     private final String DEFAULT_OPTION = "--Select an option--";
     private List<String> countryCodes;
-
+    
     public UserEditPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         
