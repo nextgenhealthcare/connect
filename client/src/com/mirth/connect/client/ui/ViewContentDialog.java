@@ -9,6 +9,7 @@
 
 package com.mirth.connect.client.ui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 
@@ -22,6 +23,7 @@ public class ViewContentDialog extends MirthDialog {
         initComponents();
         messageContent.setText(text.replaceAll("\\t", "\n"));
         messageContent.setCaretPosition(0);
+        messageContent.setLineWrap(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
         pack();
@@ -50,7 +52,7 @@ public class ViewContentDialog extends MirthDialog {
 
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        messageContent = new javax.swing.JTextPane();
+        messageContent = new javax.swing.JTextArea();
         jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -59,6 +61,7 @@ public class ViewContentDialog extends MirthDialog {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
         messageContent.setEditable(false);
+        messageContent.setBackground(Color.WHITE);
         jScrollPane1.setViewportView(messageContent);
 
         jButton1.setText("Close");
@@ -113,6 +116,6 @@ public class ViewContentDialog extends MirthDialog {
     private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextPane messageContent;
+    private javax.swing.JTextArea messageContent;
     // End of variables declaration//GEN-END:variables
 }
