@@ -466,6 +466,9 @@ public class DefaultUserController extends UserController {
         parameterMap.put("email", user.getEmail());
         parameterMap.put("phoneNumber", user.getPhoneNumber());
         parameterMap.put("description", user.getDescription());
+        parameterMap.put("country",user.getCountry());
+        parameterMap.put("stateTerritory",user.getStateTerritory());
+        parameterMap.put("role",user.getRole());
         return parameterMap;
     }
 
