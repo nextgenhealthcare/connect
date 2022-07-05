@@ -196,9 +196,10 @@
 	<classpathentry kind="lib" path="/Donkey/lib/guava/j2objc-annotations-1.3.jar"/>
 	<classpathentry kind="lib" path="/Donkey/lib/guava/jsr305-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/Donkey/lib/guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"/>
-	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
+	<classpathentry kind="lib" path="lib/bcpkix-jdk18on-171.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-ext-jdk18on-171.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk18on-171.jar"/>
+	<classpathentry kind="lib" path="lib/bcutil-jdk18on-171.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-vfs2-2.1.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/proper/commons-vfs/apidocs"/>
