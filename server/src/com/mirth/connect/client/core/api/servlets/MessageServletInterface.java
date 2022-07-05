@@ -19,8 +19,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Calendar;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -603,7 +603,7 @@ public interface MessageServletInterface extends BaseServletInterface {
     @Operation(summary = "Audit that the user has accessed a channel message that contains PHI.")
     @MirthOperation(name = "auditAccessedPHIMessage", display = "Accessed PHI")
     public void auditAccessedPHIMessage(
-            @Param("auditMessageAttributesMap") @Parameter(description = "The attributes map of the channel message.", required = false) LinkedHashMap<String, String> auditMessageAttributesMap) throws ClientException;
+            @Param("auditMessageAttributesMap") @Parameter(description = "The attributes map of the channel message.", required = false) Map<String, String> auditMessageAttributesMap) throws ClientException;
     
     
     @POST
@@ -611,5 +611,5 @@ public interface MessageServletInterface extends BaseServletInterface {
     @Operation(summary = "Audit that the user has queried the channel messages panel that contains PHI.")
     @MirthOperation(name = "auditQueriedPHIMessage", display = "Queried PHI")
     public void auditQueriedPHIMessage(
-            @Param("auditMessageAttributesMap") @Parameter(description = "The attributes map of the channel messages filter.", required = false) LinkedHashMap<String, String> auditMessageAttributesMap) throws ClientException;
+            @Param("auditMessageAttributesMap") @Parameter(description = "The attributes map of the channel messages filter.", required = false) Map<String, String> auditMessageAttributesMap) throws ClientException;
 }

@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -348,13 +347,13 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
     
     @Override
     @DontCheckAuthorized
-    public void auditAccessedPHIMessage(LinkedHashMap<String, String> auditMessageAttributesMap) {
+    public void auditAccessedPHIMessage(Map<String, String> auditMessageAttributesMap) {
         sendServerEventWithAttributes(auditMessageAttributesMap);
     }
     
     @Override
     @DontCheckAuthorized
-    public void auditQueriedPHIMessage(LinkedHashMap<String, String> auditMessageAttributesMap) {
+    public void auditQueriedPHIMessage(Map<String, String> auditMessageAttributesMap) {
         sendServerEventWithAttributes(auditMessageAttributesMap);
     }
     

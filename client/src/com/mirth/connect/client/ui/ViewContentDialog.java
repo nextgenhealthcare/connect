@@ -61,7 +61,7 @@ public class ViewContentDialog extends MirthDialog {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
         messageContent.setEditable(false);
-        messageContent.setBackground(Color.WHITE);
+        messageContent.setBackground(UIConstants.BACKGROUND_COLOR);
         jScrollPane1.setViewportView(messageContent);
 
         jButton1.setText("Close");
