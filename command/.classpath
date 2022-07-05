@@ -81,9 +81,10 @@
 	<classpathentry kind="lib" path="lib/velocity-engine-core-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-generic-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration2-2.7.jar"/>
-	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
+	<classpathentry kind="lib" path="lib/bcpkix-jdk18on-171.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-ext-jdk18on-171.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk18on-171.jar"/>
+	<classpathentry kind="lib" path="lib/bcutil-jdk18on-171.jar"/>
 	<classpathentry kind="lib" path="lib/commons-vfs2-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-util-9.4.44.v20210927.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
