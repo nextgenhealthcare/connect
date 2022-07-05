@@ -347,14 +347,14 @@ public class MessageServlet extends MirthServlet implements MessageServletInterf
     
     @Override
     @DontCheckAuthorized
-    public void auditAccessedPHIMessage(String patientID) {
-        sendServerEventWithAttributes(Collections.singletonMap("patient_id", patientID));
+    public void auditAccessedPHIMessage(Map<String, String> auditMessageAttributesMap) {
+        sendServerEventWithAttributes(auditMessageAttributesMap);
     }
     
     @Override
     @DontCheckAuthorized
-    public void auditQueriedPHIMessage(String query) {
-        sendServerEventWithAttributes(Collections.singletonMap("query", query));
+    public void auditQueriedPHIMessage(Map<String, String> auditMessageAttributesMap) {
+        sendServerEventWithAttributes(auditMessageAttributesMap);
     }
     
     @DontCheckAuthorized
