@@ -36,6 +36,10 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         finishButton.setEnabled(false);
 
         userEditPanel.setUser(this, currentUser);
+        userEditPanel.setRequiredFields(true, true);
+        if (currentUser.getId() == 1) {
+            registerCheckBox.setEnabled(false);
+        }
 
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setModal(true);
@@ -106,7 +110,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Welcome to Mirth Connect");
+        jLabel2.setText("Welcome to Mirth Connect by NextGen Healthcare");
 
         javax.swing.GroupLayout mirthHeadingPanel1Layout = new javax.swing.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);
@@ -133,9 +137,10 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         jTextPane1.setEnabled(false);
         jScrollPane1.setViewportView(jTextPane1);
 
+        
         registerCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         registerCheckBox.setSelected(true);
-        registerCheckBox.setText("Register user with NextGen Healthcare");
+        registerCheckBox.setText("Register user with NextGen Healthcare - all fields are required");
         registerCheckBox.setToolTipText("<html>Register your user information with NextGen Healthcare to help us<br>improve the product and provide better service.</html>");
         registerCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -230,8 +235,8 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
     }//GEN-LAST:event_finishButtonActionPerformed
 
     private void registerCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerCheckBoxActionPerformed
-        boolean selected = registerCheckBox.isSelected();
-        userEditPanel.setRequiredFields(selected, selected, selected, selected, true, selected);
+        boolean allRequired = registerCheckBox.isSelected();
+        userEditPanel.setRequiredFields(allRequired, true);
     }//GEN-LAST:event_registerCheckBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

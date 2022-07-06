@@ -9,63 +9,97 @@
 
 package com.mirth.connect.client.ui;
 
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javax.mail.internet.InternetAddress;
+import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.model.User;
+
+import net.miginfocom.swing.MigLayout;
 
 public class UserEditPanel extends javax.swing.JPanel {
 
+	private static List<String> STATE_TERRITORY_CODES = Arrays.asList("AL", "AK", "AS", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "GU", "HI", 
+    		"ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MP", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", 
+    		"ND", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "VI", "WA", "WV", "WI", "WY" );
+	
+	private static  List<String> INDUSTRIES = Arrays.asList("ACO",
+        "CHC/FQHC",
+        "Clinic",
+        "HIE",
+        "HIT Consulting",
+        "HIT Software",
+        "Hospital",
+        "Lab",
+        "Network",
+        "Other",
+        "Payer",
+        "Physicians Group",
+        "Private Practice",
+        "Public Health Agency",
+        "Radiology Center",
+        "University");
+	
+	private static List<String> ROLES = Arrays.asList("Primary Role*",
+		"C-Suite",
+		"Consultant - Advisor",
+		"Consultant - Engineer",
+		"Consultant - Implementer",
+		"Employee - Engineer",
+		"Employee - Manager",
+		"Employee - Director",
+		"Employee - VP",
+		"Independent Contractor",
+		"Other");
+	
     private User user;
     private UserDialogInterface dialog;
     private Frame parent;
     private final String DEFAULT_OPTION = "--Select an option--";
+    private List<String> countryCodes;
 
     public UserEditPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
+        
+        initializeCountryCodes();
         initComponents();
+        initLayout();
 
-        username.setDocument(new MirthFieldConstraints(40, false, false, false));
-        password.setDocument(new MirthFieldConstraints(40, false, false, false));
-        confirmPassword.setDocument(new MirthFieldConstraints(40, false, false, false));
-        firstName.setDocument(new MirthFieldConstraints(40, false, false, false));
-        lastName.setDocument(new MirthFieldConstraints(40, false, false, false));
-        organization.setDocument(new MirthFieldConstraints(255, false, false, false));
-        email.setDocument(new MirthFieldConstraints(255, false, false, false));
-        phone.setDocument(new MirthFieldConstraints(40, false, false, false));
-        description.setDocument(new MirthFieldConstraints(255, false, false, false));
-
-        industry.getModel().setSelectedItem(DEFAULT_OPTION);
-
-        List<String> industries = new ArrayList<String>();
-        industries.add("ACO");
-        industries.add("CHC/FQHC");
-        industries.add("Clinic");
-        industries.add("HIE");
-        industries.add("HIT Consulting");
-        industries.add("HIT Software");
-        industries.add("Hospital");
-        industries.add("Lab");
-        industries.add("Network");
-        industries.add("Other");
-        industries.add("Payer");
-        industries.add("Physicians Group");
-        industries.add("Private Practice");
-        industries.add("Public Health Agency");
-        industries.add("Radiology Center");
-        industries.add("University");
-
-        for (String item : industries) {
-            industry.addItem(item);
-        }
-
-        // Disable scroll bar
-        industry.setMaximumRowCount(industry.getModel().getSize());
+    }
+    
+    private void initializeCountryCodes() {
+    	PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+    	Set<String> countryCodeSet = phoneUtil.getSupportedRegions();
+    	
+    	// Sort list in alphabetical order
+    	countryCodes = new ArrayList<>(countryCodeSet);
+    	java.util.Collections.sort(countryCodes);
+    }
+    
+    protected List<String> getCountryCodes() {
+    	return countryCodes;
     }
 
     public void setUser(UserDialogInterface dialog, User user) {
@@ -84,6 +118,15 @@ public class UserEditPanel extends javax.swing.JPanel {
         if (!StringUtils.isBlank(user.getIndustry())) {
             industry.setSelectedItem(user.getIndustry());
         }
+        if (!StringUtils.isBlank(user.getCountry())) {
+            country.setSelectedItem(user.getCountry());
+        }
+        if (!StringUtils.isBlank(user.getStateTerritory())) {
+            stateTerritory.setSelectedItem(user.getStateTerritory());
+        }
+        if (!StringUtils.isBlank(user.getRole())) {
+            role.setSelectedItem(user.getRole());
+        }
     }
 
     public User getUser() {
@@ -95,8 +138,17 @@ public class UserEditPanel extends javax.swing.JPanel {
         user.setEmail(email.getText());
         user.setPhoneNumber(phone.getText());
         user.setDescription(description.getText());
+        if (!country.getSelectedItem().equals(DEFAULT_OPTION)) {
+            user.setIndustry((String) industry.getSelectedItem());
+        }
         if (!industry.getSelectedItem().equals(DEFAULT_OPTION)) {
             user.setIndustry((String) industry.getSelectedItem());
+        }
+        if (!role.getSelectedItem().equals(DEFAULT_OPTION)) {
+            user.setIndustry((String) role.getSelectedItem());
+        }
+        if (!stateTerritory.getSelectedItem().equals(DEFAULT_OPTION)) {
+            user.setIndustry((String) stateTerritory.getSelectedItem());
         }
 
         return user;
@@ -112,23 +164,45 @@ public class UserEditPanel extends javax.swing.JPanel {
     public boolean checkIfAbleToFinish() {
         boolean finishEnabled = true;
         // Any of the following clauses cause the finish button to be disabled
-        if ((StringUtils.isBlank(username.getText())) || (firstNameAsteriskLabel.isVisible() && StringUtils.isBlank(firstName.getText())) || (lastNameAsteriskLabel.isVisible() && StringUtils.isBlank(lastName.getText())) || (emailAsteriskLabel.isVisible() && StringUtils.isBlank(email.getText())) || (industryAsteriskLabel.isVisible() && industry.getSelectedItem().equals(DEFAULT_OPTION)) || (organizationAsteriskLabel.isVisible() && StringUtils.isBlank(organization.getText())) || (passwordAsteriskLabel.isVisible() && (StringUtils.isBlank(String.valueOf(password.getPassword())) || StringUtils.isBlank(String.valueOf(confirmPassword.getPassword()))))) {
+        if ((StringUtils.isBlank(username.getText())) || 
+        	 firstNameIsRequired && StringUtils.isBlank(firstName.getText()) || 
+        	 lastNameIsRequired && StringUtils.isBlank(lastName.getText()) || 
+        	 emailIsRequired && StringUtils.isBlank(email.getText()) || 
+        	 industryIsRequired && industry.getSelectedItem().equals(DEFAULT_OPTION) || 
+        	 organizationIsRequired && StringUtils.isBlank(organization.getText()) || 
+        	 passwordIsRequired && (StringUtils.isBlank(String.valueOf(password.getPassword())) || 
+        	 confirmPasswordIsRequired && StringUtils.isBlank(String.valueOf(confirmPassword.getPassword())))) {
             finishEnabled = false;
         }
-
         dialog.setFinishButtonEnabled(finishEnabled);
         return finishEnabled;
     }
 
-    public void setRequiredFields(boolean firstName, boolean lastName, boolean email, boolean organization, boolean password, boolean industry) {
-        firstNameAsteriskLabel.setVisible(firstName);
-        lastNameAsteriskLabel.setVisible(lastName);
-        emailAsteriskLabel.setVisible(email);
-        organizationAsteriskLabel.setVisible(organization);
-        passwordAsteriskLabel.setVisible(password);
-        confirmPasswordAsteriskLabel.setVisible(password);
-        industryAsteriskLabel.setVisible(industry);
-
+    // allRequired = all fields are required
+    // passwordRequired = password fields are required for new users screen and first time login
+    // for all users
+    // passwordRequired = false when editing a user
+    public void setRequiredFields(boolean allRequired, boolean passwordRequired) {
+        confirmPasswordIsRequired = passwordRequired;
+        countryIsRequired = allRequired;
+        emailIsRequired = allRequired;
+        firstNameIsRequired = allRequired;
+        industryIsRequired = allRequired;
+        lastNameIsRequired = allRequired;
+        organizationIsRequired = allRequired;
+        passwordIsRequired = passwordRequired;
+        phoneIsRequired = allRequired;
+        roleIsRequired = allRequired;
+        // if allRequired then do not show any asterisks
+        if (allRequired) {
+            passwordAsteriskLabel.setVisible(false);
+            confirmPasswordAsteriskLabel.setVisible(false);
+        	usernameAsteriskLabel.setVisible(false);
+        } else {        	
+            passwordAsteriskLabel.setVisible(passwordRequired);
+            confirmPasswordAsteriskLabel.setVisible(passwordRequired);
+        	usernameAsteriskLabel.setVisible(true);
+        }
         checkIfAbleToFinish();
     }
 
@@ -137,7 +211,7 @@ public class UserEditPanel extends javax.swing.JPanel {
             return "Please fill in all required information.";
         }
 
-        // If it's a new user or the username was changed, make sure the username isn't already used.
+        // if it's a new user or the username was changed, make sure the username isn't already used.
         if (user.getId() == null || !user.getUsername().equals(username.getText())) {
             for (int i = 0; i < parent.users.size(); i++) {
                 if (parent.users.get(i).getUsername().equals(username.getText())) {
@@ -162,325 +236,292 @@ public class UserEditPanel extends javax.swing.JPanel {
         return null;
     }
 
-    private void checkAndTriggerFinishButton(java.awt.event.KeyEvent evt) {
-        if (checkIfAbleToFinish() && (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER)) {
+    private void checkAndTriggerFinishButton(KeyEvent evt) {
+        if (checkIfAbleToFinish() && (evt.getKeyCode() == KeyEvent.VK_ENTER)) {
             dialog.triggerFinishButton();
         }
     }
-
-    // @formatter:off
-    /**
-     * This method is called from within the constructor to initialize the form. WARNING: Do NOT
-     * modify this code. The content of this method is always regenerated by the Form Editor.
+    
+    /***
+     * 
+     * @param phoneNumber
+     * @param countryCode
+     * @return Whether the phone number is valid for the given country code
      */
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    protected boolean validatePhoneNumber(String phoneNumber, String countryCode) {
+    	PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+    	try {
+    		PhoneNumber parsedPhoneNumber = phoneUtil.parse(phoneNumber, countryCode);
+    		return phoneUtil.isValidNumber(parsedPhoneNumber);
+		} catch (NumberParseException e) {
+			return false;
+		}
+    }
+    
+
     private void initComponents() {
+    	setBackground(UIConstants.BACKGROUND_COLOR);
+    	
+    	usernameAsteriskLabel = new JLabel();
+    	usernameAsteriskLabel.setForeground(new Color(255, 0, 0));
+    	usernameAsteriskLabel.setText("*");
+    	usernameAsteriskLabel.setVisible(false);
+    	
+    	passwordAsteriskLabel = new JLabel();
+    	passwordAsteriskLabel.setForeground(new Color(255, 0, 0));
+    	passwordAsteriskLabel.setText("*");
+    	passwordAsteriskLabel.setVisible(false);
+    	
+    	confirmPasswordAsteriskLabel = new JLabel();
+    	confirmPasswordAsteriskLabel.setForeground(new Color(255, 0, 0));
+    	confirmPasswordAsteriskLabel.setText("*");
+    	confirmPasswordAsteriskLabel.setVisible(false);
 
-        firstName = new com.mirth.connect.client.ui.components.MirthTextField();
-        firstNameLabel = new javax.swing.JLabel();
-        lastNameLabel = new javax.swing.JLabel();
-        lastName = new com.mirth.connect.client.ui.components.MirthTextField();
-        organization = new com.mirth.connect.client.ui.components.MirthTextField();
-        organizationLabel = new javax.swing.JLabel();
-        emailLabel = new javax.swing.JLabel();
-        email = new com.mirth.connect.client.ui.components.MirthTextField();
-        phone = new com.mirth.connect.client.ui.components.MirthTextField();
-        phoneLabel = new javax.swing.JLabel();
-        usernameAsteriskLabel = new javax.swing.JLabel();
-        passwordAsteriskLabel = new javax.swing.JLabel();
-        organizationAsteriskLabel = new javax.swing.JLabel();
-        username = new javax.swing.JTextField();
-        usernameLabel = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        description = new javax.swing.JTextArea();
-        descriptionLabel = new javax.swing.JLabel();
-        password = new javax.swing.JPasswordField();
-        passwordLabel = new javax.swing.JLabel();
-        confirmPasswordLabel = new javax.swing.JLabel();
-        confirmPassword = new javax.swing.JPasswordField();
-        confirmPasswordAsteriskLabel = new javax.swing.JLabel();
-        emailAsteriskLabel = new javax.swing.JLabel();
-        firstNameAsteriskLabel = new javax.swing.JLabel();
-        lastNameAsteriskLabel = new javax.swing.JLabel();
-        industry = new javax.swing.JComboBox();
-        industryLabel = new javax.swing.JLabel();
-        industryAsteriskLabel = new javax.swing.JLabel();
-
-        setBackground(new java.awt.Color(255, 255, 255));
-
-        firstName.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                firstNameKeyReleased(evt);
-            }
-        });
-
-        firstNameLabel.setText("First Name:");
-
-        lastNameLabel.setText("Last Name:");
-
-        lastName.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                lastNameKeyReleased(evt);
-            }
-        });
-
-        organization.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                organizationKeyReleased(evt);
-            }
-        });
-
-        organizationLabel.setText("Organization:");
-
-        emailLabel.setText("Email:");
-
-        email.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                emailKeyReleased(evt);
-            }
-        });
-
-        phone.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                phoneKeyReleased(evt);
-            }
-        });
-
-        phoneLabel.setText("Phone:");
-
-        usernameAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
-        usernameAsteriskLabel.setText("*");
-
-        passwordAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
-        passwordAsteriskLabel.setText("*");
-
-        organizationAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
-        organizationAsteriskLabel.setText("*");
-
-        username.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+        usernameLabel = new JLabel("Username:");
+        username = new JTextField();
+        username.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
                 usernameKeyReleased(evt);
             }
         });
+        
+        passwordLabel = new JLabel("New Password:");
+        password = new JPasswordField();
+        password.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                passwordKeyReleased(evt);
+            }
+        });
+        
+        confirmPasswordLabel = new JLabel("Confirm New Password:");
+        confirmPassword = new JPasswordField();
+        confirmPassword.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                confirmPasswordKeyReleased(evt);
+            }
+        });
+        
+        firstNameLabel = new JLabel("First Name:");
+        firstName = new MirthTextField();
+        firstName.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                firstNameKeyReleased(evt);
+            }
+        });
+        
+        lastNameLabel = new JLabel("Last Name:");
+        lastName = new MirthTextField();
+        lastName.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                lastNameKeyReleased(evt);
+            }
+        });
+        
+        emailLabel = new JLabel("Email:");
+        email = new MirthTextField();
+        email.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                emailKeyReleased(evt);
+            }
+        });
+        
+        countryLabel = new JLabel("Country:");
+        country = new JComboBox<String>();
+        for (String item : getCountryCodes()) {
+            country.addItem(item);
+        }        
+        country.getModel().setSelectedItem(DEFAULT_OPTION);
+        
+        stateTerritoryLabel = new JLabel("State/Territory:");
+        stateTerritory = new JComboBox<String>();
+        for (String item : STATE_TERRITORY_CODES) {
+            stateTerritory.addItem(item);
+        }
+        
+        phoneLabel = new JLabel("Phone:");
+        phone = new MirthTextField();
+        phone.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                phoneKeyReleased(evt);
+            }
+        });
+        
+        organizationLabel = new JLabel("Organization:");
+        organization = new MirthTextField();
+        organization.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                organizationKeyReleased(evt);
+            }
+        });
+        
+        roleLabel = new JLabel("State/Territory:");
+        role = new JComboBox<String>();
+        for (String item : ROLES) {
+        	role.addItem(item);
+        }
+        
+        industryLabel = new JLabel("Business:");
+        industry = new JComboBox<String>();
+        for (String item : INDUSTRIES) {
+            industry.addItem(item);
+        }
+        industry.getModel().setSelectedItem(DEFAULT_OPTION);        // Disable scroll bar
+        industry.setMaximumRowCount(industry.getModel().getSize());
+        industry.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                industryActionPerformed(evt);
+            }
+        });  
 
-        usernameLabel.setText("Username:");
-
+        descriptionLabel = new JLabel("Description:");
+        description = new JTextArea();
         description.setColumns(20);
         description.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         description.setLineWrap(true);
         description.setRows(4);
         description.setWrapStyleWord(true);
         description.setAutoscrolls(false);
+        jScrollPane1 = new JScrollPane();
         jScrollPane1.setViewportView(description);
 
-        descriptionLabel.setText("Description:");
+    }
+    
+    private void initLayout() {        
+    	JPanel editUserPanel = new JPanel(new MigLayout("novisualpadding, hidemode 0, align center, insets 0 0 0 0, fill", "25[right][fill][]"));
+    	editUserPanel.setBackground(UIConstants.BACKGROUND_COLOR);
+    	editUserPanel.setBorder(BorderFactory.createEmptyBorder());
+    	editUserPanel.setMinimumSize(getMinimumSize());
+    	editUserPanel.setMaximumSize(getMaximumSize());
+    	editUserPanel.add(usernameLabel);
+		editUserPanel.add(username);
+    	editUserPanel.add(usernameAsteriskLabel, "wrap");
+    	editUserPanel.add(passwordLabel);
+    	editUserPanel.add(password);
+    	editUserPanel.add(passwordAsteriskLabel, "wrap");
+    	editUserPanel.add(confirmPasswordLabel);
+    	editUserPanel.add(confirmPassword);
+    	editUserPanel.add(confirmPasswordAsteriskLabel, "wrap");
+    	editUserPanel.add(firstNameLabel);
+    	editUserPanel.add(firstName, "wrap");
+    	editUserPanel.add(lastNameLabel);
+    	editUserPanel.add(lastName, "wrap");
+    	editUserPanel.add(emailLabel);
+    	editUserPanel.add(email, "wrap");
+    	editUserPanel.add(countryLabel);
+    	editUserPanel.add(country, "wrap");
+		editUserPanel.add(stateTerritoryLabel);
+		editUserPanel.add(stateTerritory, "wrap");
+    	editUserPanel.add(phoneLabel);
+    	editUserPanel.add(phone, "wrap");
+    	editUserPanel.add(organizationLabel);
+    	editUserPanel.add(organization, "wrap");
+		editUserPanel.add(roleLabel);
+		editUserPanel.add(role, "wrap");
+    	editUserPanel.add(industryLabel);
+    	editUserPanel.add(industry, "wrap");
+    	editUserPanel.add(descriptionLabel);
+    	editUserPanel.add(jScrollPane1, "wrap");
+    	
+    	add(editUserPanel);
 
-        password.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                passwordKeyReleased(evt);
-            }
-        });
-
-        passwordLabel.setText("New Password:");
-
-        confirmPasswordLabel.setText("Confirm New Password:");
-
-        confirmPassword.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                confirmPasswordKeyReleased(evt);
-            }
-        });
-
-        confirmPasswordAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
-        confirmPasswordAsteriskLabel.setText("*");
-
-        emailAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
-        emailAsteriskLabel.setText("*");
-
-        firstNameAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
-        firstNameAsteriskLabel.setText("*");
-
-        lastNameAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
-        lastNameAsteriskLabel.setText("*");
-
-        industry.setToolTipText("");
-        industry.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                industryActionPerformed(evt);
-            }
-        });
-
-        industryLabel.setText("Industry:");
-
-        industryAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
-        industryAsteriskLabel.setText("*");
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(usernameLabel)
-                    .addComponent(passwordLabel)
-                    .addComponent(confirmPasswordLabel)
-                    .addComponent(firstNameLabel)
-                    .addComponent(lastNameLabel)
-                    .addComponent(organizationLabel)
-                    .addComponent(descriptionLabel)
-                    .addComponent(phoneLabel)
-                    .addComponent(industryLabel)
-                    .addComponent(emailLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(confirmPassword)
-                    .addComponent(username)
-                    .addComponent(password)
-                    .addComponent(lastName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(organization, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(email, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(phone, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(firstName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1)
-                    .addComponent(industry, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(lastNameAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(organizationAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(passwordAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(usernameAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(confirmPasswordAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(firstNameAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(industryAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(emailAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(23, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(usernameLabel)
-                    .addComponent(usernameAsteriskLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(passwordLabel)
-                    .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(passwordAsteriskLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(confirmPasswordLabel)
-                    .addComponent(confirmPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(confirmPasswordAsteriskLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(firstNameLabel)
-                    .addComponent(firstName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(firstNameAsteriskLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lastNameLabel)
-                    .addComponent(lastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lastNameAsteriskLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(emailLabel)
-                    .addComponent(emailAsteriskLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(phone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(phoneLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(organizationLabel)
-                    .addComponent(organization, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(organizationAsteriskLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(industry, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(industryLabel)
-                    .addComponent(industryAsteriskLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(descriptionLabel)
-                        .addGap(0, 65, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1))
-                .addGap(4, 4, 4))
-        );
-    }// </editor-fold>//GEN-END:initComponents
-    // @formatter:on
-
-    private void usernameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_usernameKeyReleased
+    }
+    
+    private void usernameKeyReleased(KeyEvent evt) {
         checkAndTriggerFinishButton(evt);
-    }//GEN-LAST:event_usernameKeyReleased
+    }
 
-    private void passwordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordKeyReleased
+    private void passwordKeyReleased(KeyEvent evt) {
         checkAndTriggerFinishButton(evt);
-    }//GEN-LAST:event_passwordKeyReleased
+    }
 
-    private void confirmPasswordKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_confirmPasswordKeyReleased
+    private void confirmPasswordKeyReleased(KeyEvent evt) {
         checkAndTriggerFinishButton(evt);
-    }//GEN-LAST:event_confirmPasswordKeyReleased
+    }
 
-    private void firstNameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_firstNameKeyReleased
+    private void firstNameKeyReleased(KeyEvent evt) {
         checkAndTriggerFinishButton(evt);
-    }//GEN-LAST:event_firstNameKeyReleased
+    }
 
-    private void lastNameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lastNameKeyReleased
+    private void lastNameKeyReleased(KeyEvent evt) {
         checkAndTriggerFinishButton(evt);
-    }//GEN-LAST:event_lastNameKeyReleased
+    }
 
-    private void organizationKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_organizationKeyReleased
+    private void organizationKeyReleased(KeyEvent evt) {
         checkAndTriggerFinishButton(evt);
-    }//GEN-LAST:event_organizationKeyReleased
+    }
 
-    private void emailKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_emailKeyReleased
+    private void emailKeyReleased(KeyEvent evt) {
         checkAndTriggerFinishButton(evt);
-    }//GEN-LAST:event_emailKeyReleased
+    }
 
-    private void phoneKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_phoneKeyReleased
+    private void phoneKeyReleased(KeyEvent evt) {
         checkAndTriggerFinishButton(evt);
-    }//GEN-LAST:event_phoneKeyReleased
+    }
 
-    private void industryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_industryActionPerformed
+    private void countryActionPerformed(ActionEvent evt) {
         if (dialog != null) {
             checkIfAbleToFinish();
         }
-    }//GEN-LAST:event_industryActionPerformed
+    }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPasswordField confirmPassword;
-    private javax.swing.JLabel confirmPasswordAsteriskLabel;
-    private javax.swing.JLabel confirmPasswordLabel;
-    private javax.swing.JTextArea description;
-    private javax.swing.JLabel descriptionLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField email;
-    private javax.swing.JLabel emailAsteriskLabel;
-    private javax.swing.JLabel emailLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField firstName;
-    private javax.swing.JLabel firstNameAsteriskLabel;
-    private javax.swing.JLabel firstNameLabel;
-    private javax.swing.JComboBox industry;
-    private javax.swing.JLabel industryAsteriskLabel;
-    private javax.swing.JLabel industryLabel;
-    private javax.swing.JScrollPane jScrollPane1;
-    private com.mirth.connect.client.ui.components.MirthTextField lastName;
-    private javax.swing.JLabel lastNameAsteriskLabel;
-    private javax.swing.JLabel lastNameLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField organization;
-    private javax.swing.JLabel organizationAsteriskLabel;
-    private javax.swing.JLabel organizationLabel;
-    private javax.swing.JPasswordField password;
-    private javax.swing.JLabel passwordAsteriskLabel;
-    private javax.swing.JLabel passwordLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField phone;
-    private javax.swing.JLabel phoneLabel;
-    private javax.swing.JTextField username;
-    private javax.swing.JLabel usernameAsteriskLabel;
-    private javax.swing.JLabel usernameLabel;
-    // End of variables declaration//GEN-END:variables
+    private void stateTerritoryActionPerformed(ActionEvent evt) {
+        if (dialog != null) {
+            checkIfAbleToFinish();
+        }
+    }
+
+    private void roleActionPerformed(ActionEvent evt) {
+        if (dialog != null) {
+            checkIfAbleToFinish();
+        }
+    }
+    
+    private void industryActionPerformed(ActionEvent evt) {
+        if (dialog != null) {
+            checkIfAbleToFinish();
+        }
+    }
+
+    private JPasswordField confirmPassword;
+    private JLabel confirmPasswordAsteriskLabel;
+    private Boolean confirmPasswordIsRequired = false;
+    private JLabel confirmPasswordLabel;
+    private JComboBox<String> country;
+    private Boolean countryIsRequired = false;
+    private JLabel countryLabel;
+    private JTextArea description;
+    private JLabel descriptionLabel;
+    private MirthTextField email;
+    private Boolean emailIsRequired = false;
+    private JLabel emailLabel;
+    private MirthTextField firstName;
+    private Boolean firstNameIsRequired = false;
+    private JLabel firstNameLabel;
+    private JComboBox<String> industry;
+    private Boolean industryIsRequired = false;
+    private JLabel industryLabel;
+    private JScrollPane jScrollPane1;
+    private MirthTextField lastName;
+    private Boolean lastNameIsRequired = false;
+    private JLabel lastNameLabel;
+    private MirthTextField organization;
+    private Boolean organizationIsRequired = false;
+    private JLabel organizationLabel;
+    private JPasswordField password;
+    private JLabel passwordAsteriskLabel;
+    private Boolean passwordIsRequired = false;
+    private JLabel passwordLabel;
+    private MirthTextField phone;
+    private Boolean phoneIsRequired = false;
+    private JLabel phoneLabel;
+    private JComboBox<String> role;
+    private Boolean roleIsRequired = false;
+    private JLabel roleLabel;
+    private JComboBox<String> stateTerritory;
+    private Boolean stateTerritoryIsRequired = false;
+    private JLabel stateTerritoryLabel;
+    private JTextField username;
+    private JLabel usernameAsteriskLabel;
+    private Boolean usernameIsRequired = false;
+    private JLabel usernameLabel;
 }
