@@ -64,7 +64,10 @@
 			INDUSTRY = #{industry,jdbcType=VARCHAR},
 			EMAIL = #{email,jdbcType=VARCHAR},
 			PHONENUMBER = #{phoneNumber,jdbcType=VARCHAR},
-			DESCRIPTION = #{description,jdbcType=VARCHAR}
+			DESCRIPTION = #{description,jdbcType=VARCHAR},
+			ROLE = #{role,jdbcType=VARCHAR},
+			COUNTRY = #{country,jdbcType=VARCHAR},
+			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR}
 		WHERE ID = #{id}
 	</update>
    <insert id='updateUserPassword' parameterType='java.util.Map'>

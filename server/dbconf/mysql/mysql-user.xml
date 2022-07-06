@@ -71,10 +71,9 @@
 			EMAIL = #{email,jdbcType=VARCHAR},
 			PHONENUMBER = #{phoneNumber,jdbcType=VARCHAR},
 			DESCRIPTION = #{description,jdbcType=VARCHAR},
-			#{role,jdbcType=VARCHAR},
-			#{country,jdbcType=VARCHAR},
-			#{stateTerritory,jdbcType=VARCHAR}
-
+			ROLE = #{role,jdbcType=VARCHAR},
+			COUNTRY = #{country,jdbcType=VARCHAR},
+			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR}
 		WHERE ID = #{id}
 	</update>
 	
