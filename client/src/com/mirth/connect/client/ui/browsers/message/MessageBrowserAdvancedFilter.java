@@ -306,7 +306,8 @@ public class MessageBrowserAdvancedFilter extends MirthDialog {
         messageFilter.setError(errorCheckBox.isSelected());
         messageFilter.setSendAttemptsLower(sendAttemptsLower);
         messageFilter.setSendAttemptsUpper(sendAttemptsUpper);
-        messageFilter.setContentSearch(getContentSearch());
+        List<ContentSearchElement> contentSearch = getContentSearch();
+        messageFilter.setContentSearch(contentSearch.isEmpty() ? null : contentSearch);
 
         try {
             messageFilter.setMetaDataSearch(getMetaDataSearch());

@@ -2047,8 +2047,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see MessageServletInterface#auditAccessedPHIMessage
      */
     @Override
-    public synchronized void auditAccessedPHIMessage(String patientID) throws ClientException {
-        getServlet(MessageServletInterface.class).auditAccessedPHIMessage(patientID);
+    public synchronized void auditAccessedPHIMessage(Map<String, String> auditMessageAttributesMap) throws ClientException {
+        getServlet(MessageServletInterface.class).auditAccessedPHIMessage(auditMessageAttributesMap);
     }
     
     /**
@@ -2057,8 +2057,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see MessageServletInterface#auditQueriedPHIMessage
      */
     @Override
-    public synchronized void auditQueriedPHIMessage(String query) throws ClientException {
-        getServlet(MessageServletInterface.class).auditQueriedPHIMessage(query);
+    public synchronized void auditQueriedPHIMessage(Map<String, String> auditMessageAttributesMap) throws ClientException {
+        getServlet(MessageServletInterface.class).auditQueriedPHIMessage(auditMessageAttributesMap);
     }
 
     /*****************

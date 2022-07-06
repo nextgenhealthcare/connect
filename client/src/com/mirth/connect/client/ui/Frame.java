@@ -3356,6 +3356,7 @@ public class Frame extends JXFrame {
         setFocus(messageTasks);
 
         final String channelId = id;
+        final String finalChannelName = channelName;
         final boolean isChannelDeployed = channelDeployed;
 
         final String workingId = startWorking("Retrieving channel metadata...");
@@ -3381,7 +3382,7 @@ public class Frame extends JXFrame {
                 if (connectors == null || metaDataColumns == null) {
                     alertError(PlatformUI.MIRTH_FRAME, "Could not retrieve metadata for channel.");
                 } else {
-                    messageBrowser.loadChannel(channelId, connectors, metaDataColumns, metaDataIds, isChannelDeployed);
+                    messageBrowser.loadChannel(channelId, finalChannelName, connectors, metaDataColumns, metaDataIds, isChannelDeployed);
                 }
             }
         };
