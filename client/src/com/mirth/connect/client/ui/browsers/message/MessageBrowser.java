@@ -147,6 +147,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private String lastUserSelectedErrorType = "Processing Error";
     private Frame parent;
     private String channelId;
+    private String channelName;
     private boolean isChannelDeployed;
     private boolean isCURESPHILoggingOn;
     private boolean isChannelMessagesPanelFirstLoadSearch;
@@ -301,7 +302,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         });
     }
 
-    public void loadChannel(String channelId, Map<Integer, String> connectors, List<MetaDataColumn> metaDataColumns, List<Integer> selectedMetaDataIds, boolean isChannelDeployed) {
+    public void loadChannel(String channelId, String channelName, Map<Integer, String> connectors, List<MetaDataColumn> metaDataColumns, List<Integer> selectedMetaDataIds, boolean isChannelDeployed) {
         this.isChannelDeployed = isChannelDeployed;
         this.selectedMetaDataIds = selectedMetaDataIds;
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 1, 1, isChannelDeployed);
@@ -311,6 +312,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         formatMessageCheckBox.setSelected(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserFormat", true));
 
         this.channelId = channelId;
+        this.channelName = channelName;
         this.connectors = connectors;
         this.connectors.put(null, "Deleted Connectors");
         this.metaDataColumns = metaDataColumns;
@@ -612,7 +614,10 @@ public class MessageBrowser extends javax.swing.JPanel {
             // if CURES PHI logging is on and channel messages have been loaded, audit the event
             if (isCURESPHILoggingOn && !isChannelMessagesPanelFirstLoadSearch) {
                 try {
-                    parent.mirthClient.auditQueriedPHIMessage(messageFilter.getTextSearch());
+                    LinkedHashMap<String, String> auditMessageAttributesMap = new LinkedHashMap<String, String>();
+                    auditMessageAttributesMap.put("channel", "Channel[id=" + channelId + ",name=" + channelName + "]");
+                    auditMessageAttributesMap.put("filter", messageFilter.toString());
+                    parent.mirthClient.auditQueriedPHIMessage(auditMessageAttributesMap);
                 } catch (ClientException e) {
                     logger.error("Unable to audit the CURES queried PHI event.", e);
                 }
@@ -1776,7 +1781,11 @@ public class MessageBrowser extends javax.swing.JPanel {
                         // if CURES PHI logging is on and a channel message has been accessed, audit the event
                         if (isCURESPHILoggingOn) {
                             try {
-                                parent.mirthClient.auditAccessedPHIMessage(connectorMessage.getMetaDataMap() != null && connectorMessage.getMetaDataMap().get("PATIENT_ID") != null ? connectorMessage.getMetaDataMap().get("PATIENT_ID").toString() : "");
+                                LinkedHashMap<String, String> auditMessageAttributesMap = new LinkedHashMap<String, String>();
+                                auditMessageAttributesMap.put("patient_id", connectorMessage.getMetaDataMap() != null && connectorMessage.getMetaDataMap().get("PATIENT_ID") != null ? connectorMessage.getMetaDataMap().get("PATIENT_ID").toString() : "");
+                                auditMessageAttributesMap.put("channel", "Channel[id=" + channelId + ",name=" + channelName + "]");
+                                auditMessageAttributesMap.put("message_id", String.valueOf(connectorMessage.getMessageId()));
+                                parent.mirthClient.auditAccessedPHIMessage(auditMessageAttributesMap);
                             } catch (ClientException e) {
                                 logger.error("Unable to audit the CURES accessed PHI event.", e);
                             }

@@ -16,8 +16,12 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.mail.internet.InternetAddress;
 import javax.swing.BorderFactory;
@@ -45,7 +49,7 @@ public class UserEditPanel extends javax.swing.JPanel {
     		"ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MP", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", 
     		"ND", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "VI", "WA", "WV", "WI", "WY" );
 	
-	private static  List<String> INDUSTRIES = Arrays.asList("ACO",
+	private static List<String> INDUSTRIES = Arrays.asList("ACO",
         "CHC/FQHC",
         "Clinic",
         "HIE",
@@ -78,7 +82,9 @@ public class UserEditPanel extends javax.swing.JPanel {
     private UserDialogInterface dialog;
     private Frame parent;
     private final String DEFAULT_OPTION = "--Select an option--";
+    Map<String, String> countryMap = new HashMap<String, String>(); 
     private List<String> countryCodes;
+    private List<String> countryNames;
 
     public UserEditPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -96,10 +102,24 @@ public class UserEditPanel extends javax.swing.JPanel {
     	// Sort list in alphabetical order
     	countryCodes = new ArrayList<>(countryCodeSet);
     	java.util.Collections.sort(countryCodes);
+    	
+    	// get country names for pull down and sort in alphabetical order
+        for (String item : countryCodeSet) {
+            phoneUtil.getCountryCodeForRegion(item);
+            Locale obj = new Locale("", item);
+            String countryName = obj.getDisplayCountry();
+            countryMap.put(item, countryName);
+        }
+    	countryNames = countryMap.values().stream().collect(Collectors.toCollection(ArrayList :: new));
+    	java.util.Collections.sort(countryNames);
     }
     
     protected List<String> getCountryCodes() {
     	return countryCodes;
+    }
+    
+    protected List<String> getCountryNames() {
+    	return countryNames;
     }
 
     public void setUser(UserDialogInterface dialog, User user) {
@@ -118,15 +138,15 @@ public class UserEditPanel extends javax.swing.JPanel {
         if (!StringUtils.isBlank(user.getIndustry())) {
             industry.setSelectedItem(user.getIndustry());
         }
-        if (!StringUtils.isBlank(user.getCountry())) {
-            country.setSelectedItem(user.getCountry());
-        }
-        if (!StringUtils.isBlank(user.getStateTerritory())) {
-            stateTerritory.setSelectedItem(user.getStateTerritory());
-        }
-        if (!StringUtils.isBlank(user.getRole())) {
-            role.setSelectedItem(user.getRole());
-        }
+//        if (!StringUtils.isBlank(user.getCountry())) {
+//            country.setSelectedItem(user.getCountry());
+//        }
+//        if (!StringUtils.isBlank(user.getStateTerritory())) {
+//            stateTerritory.setSelectedItem(user.getStateTerritory());
+//        }
+//        if (!StringUtils.isBlank(user.getRole())) {
+//            role.setSelectedItem(user.getRole());
+//        }
     }
 
     public User getUser() {
@@ -138,18 +158,18 @@ public class UserEditPanel extends javax.swing.JPanel {
         user.setEmail(email.getText());
         user.setPhoneNumber(phone.getText());
         user.setDescription(description.getText());
-        if (!country.getSelectedItem().equals(DEFAULT_OPTION)) {
-            user.setIndustry((String) industry.getSelectedItem());
-        }
-        if (!industry.getSelectedItem().equals(DEFAULT_OPTION)) {
-            user.setIndustry((String) industry.getSelectedItem());
-        }
-        if (!role.getSelectedItem().equals(DEFAULT_OPTION)) {
-            user.setIndustry((String) role.getSelectedItem());
-        }
-        if (!stateTerritory.getSelectedItem().equals(DEFAULT_OPTION)) {
-            user.setIndustry((String) stateTerritory.getSelectedItem());
-        }
+//        if (!country.getSelectedItem().equals(DEFAULT_OPTION)) {
+//            user.setCountry((String) country.getSelectedItem());
+//        }
+//        if (!industry.getSelectedItem().equals(DEFAULT_OPTION)) {
+//            user.setIndustry((String) industry.getSelectedItem());
+//        }
+//        if (!role.getSelectedItem().equals(DEFAULT_OPTION)) {
+//            user.setRole((String) role.getSelectedItem());
+//        }
+//        if (!stateTerritory.getSelectedItem().equals(DEFAULT_OPTION)) {
+//            user.setStateTerritory((String) stateTerritory.getSelectedItem());
+//        }
 
         return user;
     }
@@ -164,14 +184,19 @@ public class UserEditPanel extends javax.swing.JPanel {
     public boolean checkIfAbleToFinish() {
         boolean finishEnabled = true;
         // Any of the following clauses cause the finish button to be disabled
+        // how do we force the state territory??
         if ((StringUtils.isBlank(username.getText())) || 
+           	 passwordIsRequired && (StringUtils.isBlank(String.valueOf(password.getPassword())) || 
+             confirmPasswordIsRequired && StringUtils.isBlank(String.valueOf(confirmPassword.getPassword())) ||
         	 firstNameIsRequired && StringUtils.isBlank(firstName.getText()) || 
         	 lastNameIsRequired && StringUtils.isBlank(lastName.getText()) || 
         	 emailIsRequired && StringUtils.isBlank(email.getText()) || 
-        	 industryIsRequired && industry.getSelectedItem().equals(DEFAULT_OPTION) || 
+        	 countryIsRequired && country.getSelectedItem().equals(DEFAULT_OPTION) ||
+        	 phoneIsRequired && StringUtils.isBlank(phone.getText()) || 
         	 organizationIsRequired && StringUtils.isBlank(organization.getText()) || 
-        	 passwordIsRequired && (StringUtils.isBlank(String.valueOf(password.getPassword())) || 
-        	 confirmPasswordIsRequired && StringUtils.isBlank(String.valueOf(confirmPassword.getPassword())))) {
+        	 roleIsRequired && role.getSelectedItem().equals(DEFAULT_OPTION) ||
+        	 stateTerritoryIsRequired && stateTerritory.getSelectedItem().equals(DEFAULT_OPTION) ||
+        	 industryIsRequired && industry.getSelectedItem().equals(DEFAULT_OPTION))) {
             finishEnabled = false;
         }
         dialog.setFinishButtonEnabled(finishEnabled);
@@ -233,6 +258,15 @@ public class UserEditPanel extends javax.swing.JPanel {
             return "The email address is invalid: " + e.getMessage();
         }
 
+        if (StringUtils.isNotBlank(phone.getText())) {
+        	if (country.getSelectedItem().equals(DEFAULT_OPTION)) {
+        		return "Country field is required to validate phone number.";
+        	} else {
+        		if (!validatePhoneNumber(phone.getText(), getKeyFromValue(countryMap, country.getSelectedItem()).toString())) {
+            		return "The phone number is invalid for the given Country and/or State/Territory.";
+        		}
+        	}
+        }
         return null;
     }
 
@@ -255,6 +289,17 @@ public class UserEditPanel extends javax.swing.JPanel {
     		return phoneUtil.isValidNumber(parsedPhoneNumber);
 		} catch (NumberParseException e) {
 			return false;
+		}
+    }
+    
+    protected String formatPhoneNumber(String phoneNumber, String countryCode) {
+    	PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+    	try {
+    		String originalPhoneNumber = Long.toString(phoneUtil.parse(phoneNumber, countryCode).getNationalNumber());
+    		PhoneNumber parsedPhoneNumber = phoneUtil.parse(originalPhoneNumber, countryCode);
+    		return phoneUtil.format(parsedPhoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+		} catch (NumberParseException e) {
+			return phoneNumber;
 		}
     }
     
@@ -327,16 +372,27 @@ public class UserEditPanel extends javax.swing.JPanel {
         
         countryLabel = new JLabel("Country:");
         country = new JComboBox<String>();
-        for (String item : getCountryCodes()) {
+        for (String item : getCountryNames()) {
             country.addItem(item);
         }        
         country.getModel().setSelectedItem(DEFAULT_OPTION);
-        
+        country.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                countryActionPerformed(evt);
+            }
+        });  
+
         stateTerritoryLabel = new JLabel("State/Territory:");
         stateTerritory = new JComboBox<String>();
         for (String item : STATE_TERRITORY_CODES) {
             stateTerritory.addItem(item);
         }
+        stateTerritory.getModel().setSelectedItem(DEFAULT_OPTION);
+        stateTerritory.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+            	stateTerritoryActionPerformed(evt);
+            }
+        });  
         
         phoneLabel = new JLabel("Phone:");
         phone = new MirthTextField();
@@ -354,18 +410,25 @@ public class UserEditPanel extends javax.swing.JPanel {
             }
         });
         
-        roleLabel = new JLabel("State/Territory:");
+        roleLabel = new JLabel("Role:");
         role = new JComboBox<String>();
         for (String item : ROLES) {
         	role.addItem(item);
         }
+        role.getModel().setSelectedItem(DEFAULT_OPTION);
+        role.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                roleActionPerformed(evt);
+            }
+        });  
         
         industryLabel = new JLabel("Business:");
         industry = new JComboBox<String>();
         for (String item : INDUSTRIES) {
             industry.addItem(item);
         }
-        industry.getModel().setSelectedItem(DEFAULT_OPTION);        // Disable scroll bar
+        industry.getModel().setSelectedItem(DEFAULT_OPTION);
+        // Disable scroll bar
         industry.setMaximumRowCount(industry.getModel().getSize());
         industry.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
@@ -373,7 +436,7 @@ public class UserEditPanel extends javax.swing.JPanel {
             }
         });  
 
-        descriptionLabel = new JLabel("Description:");
+        descriptionLabel = new JLabel("Description (Optional):");
         description = new JTextArea();
         description.setColumns(20);
         description.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
@@ -455,11 +518,24 @@ public class UserEditPanel extends javax.swing.JPanel {
     }
 
     private void phoneKeyReleased(KeyEvent evt) {
+    	// this commented code will add the country code in front of the phone number - like +1 for the US
+    	phone.setText(formatPhoneNumber(phone.getText(), getKeyFromValue(countryMap, country.getSelectedItem()).toString()));
         checkAndTriggerFinishButton(evt);
     }
 
     private void countryActionPerformed(ActionEvent evt) {
         if (dialog != null) {
+        	if (country.getSelectedItem() == "United States") {
+        		stateTerritory.setEnabled(true);
+        		if (firstNameIsRequired) {
+        			stateTerritoryIsRequired = true;
+        		}
+        	} else {
+                stateTerritory.getModel().setSelectedItem(DEFAULT_OPTION);
+        		stateTerritory.setEnabled(false);
+        		stateTerritoryIsRequired = false;
+        	}
+        	phone.setText(formatPhoneNumber(phone.getText(), getKeyFromValue(countryMap, country.getSelectedItem()).toString()));
             checkIfAbleToFinish();
         }
     }
@@ -480,6 +556,15 @@ public class UserEditPanel extends javax.swing.JPanel {
         if (dialog != null) {
             checkIfAbleToFinish();
         }
+    }
+    
+    public Object getKeyFromValue(Map map, Object value) {
+    	for (Object item : map.keySet()) {
+    		if (map.get(item).equals(value)) {
+    			return item;
+    		}
+    	}
+    	return null;
     }
 
     private JPasswordField confirmPassword;
