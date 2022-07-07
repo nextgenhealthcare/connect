@@ -54,10 +54,10 @@
 	</delete>
 
 	<insert id="insertUser" parameterType="java.util.Map">
-		INSERT INTO PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN)
+		INSERT INTO PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN, ROLE, COUNTRY, STATETERRITORY, USERCONSENT)
 		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR},
 		#{organization,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
-		#{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 0, NULL)
+		#{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 0, NULL, #{role,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, #{stateTerritory,jdbcType=VARCHAR}, #{userConsent,jdbcType=boolean})
 	</insert>
 
 	<update id="updateUser" parameterType="java.util.Map">
@@ -69,7 +69,11 @@
 			INDUSTRY = #{industry,jdbcType=VARCHAR},
 			EMAIL = #{email,jdbcType=VARCHAR},
 			PHONENUMBER = #{phoneNumber,jdbcType=VARCHAR},
-			DESCRIPTION = #{description,jdbcType=VARCHAR}
+			DESCRIPTION = #{description,jdbcType=VARCHAR},
+			ROLE = #{role,jdbcType=VARCHAR},
+			COUNTRY = #{country,jdbcType=VARCHAR},
+			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR},
+			USERCONSENT = #{userConsent,jdbcType=boolean}
 		WHERE ID = #{id}
 	</update>
 
