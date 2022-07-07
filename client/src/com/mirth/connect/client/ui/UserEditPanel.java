@@ -158,18 +158,18 @@ public class UserEditPanel extends javax.swing.JPanel {
         user.setEmail(email.getText());
         user.setPhoneNumber(phone.getText());
         user.setDescription(description.getText());
-        if (!country.getSelectedItem().equals(DEFAULT_OPTION)) {
-            user.setCountry((String) country.getSelectedItem());
-        }
-        if (!industry.getSelectedItem().equals(DEFAULT_OPTION)) {
-            user.setIndustry((String) industry.getSelectedItem());
-        }
-        if (!role.getSelectedItem().equals(DEFAULT_OPTION)) {
-            user.setRole((String) role.getSelectedItem());
-        }
-        if (!stateTerritory.getSelectedItem().equals(DEFAULT_OPTION)) {
-            user.setStateTerritory((String) stateTerritory.getSelectedItem());
-        }
+//        if (!country.getSelectedItem().equals(DEFAULT_OPTION)) {
+//            user.setCountry((String) country.getSelectedItem());
+//        }
+//        if (!industry.getSelectedItem().equals(DEFAULT_OPTION)) {
+//            user.setIndustry((String) industry.getSelectedItem());
+//        }
+//        if (!role.getSelectedItem().equals(DEFAULT_OPTION)) {
+//            user.setRole((String) role.getSelectedItem());
+//        }
+//        if (!stateTerritory.getSelectedItem().equals(DEFAULT_OPTION)) {
+//            user.setStateTerritory((String) stateTerritory.getSelectedItem());
+//        }
 
         return user;
     }
@@ -258,10 +258,14 @@ public class UserEditPanel extends javax.swing.JPanel {
             return "The email address is invalid: " + e.getMessage();
         }
 
-        if (StringUtils.isNotBlank(phone.getText()) && !country.getSelectedItem().equals(DEFAULT_OPTION)) {
-            if (!validatePhoneNumber(phone.getText(), getKeyFromValue(countryMap, country.getSelectedItem()).toString())) {
-            		return "The phone number is invalid for the given country.";
-            }
+        if (StringUtils.isNotBlank(phone.getText())) {
+        	if (country.getSelectedItem().equals(DEFAULT_OPTION)) {
+        		return "Country field is required to validate phone number.";
+        	} else {
+        		if (!validatePhoneNumber(phone.getText(), getKeyFromValue(countryMap, country.getSelectedItem()).toString())) {
+            		return "The phone number is invalid for the given Country and/or State/Territory.";
+        		}
+        	}
         }
         return null;
     }
@@ -291,8 +295,9 @@ public class UserEditPanel extends javax.swing.JPanel {
     protected String formatPhoneNumber(String phoneNumber, String countryCode) {
     	PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
     	try {
-    		PhoneNumber parsedPhoneNumber = phoneUtil.parse(phoneNumber, countryCode);
-    		return phoneUtil.format(parsedPhoneNumber, PhoneNumberUtil.PhoneNumberFormat.RFC3966);
+    		String originalPhoneNumber = Long.toString(phoneUtil.parse(phoneNumber, countryCode).getNationalNumber());
+    		PhoneNumber parsedPhoneNumber = phoneUtil.parse(originalPhoneNumber, countryCode);
+    		return phoneUtil.format(parsedPhoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
 		} catch (NumberParseException e) {
 			return phoneNumber;
 		}
@@ -383,6 +388,11 @@ public class UserEditPanel extends javax.swing.JPanel {
             stateTerritory.addItem(item);
         }
         stateTerritory.getModel().setSelectedItem(DEFAULT_OPTION);
+        stateTerritory.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+            	stateTerritoryActionPerformed(evt);
+            }
+        });  
         
         phoneLabel = new JLabel("Phone:");
         phone = new MirthTextField();
@@ -406,6 +416,11 @@ public class UserEditPanel extends javax.swing.JPanel {
         	role.addItem(item);
         }
         role.getModel().setSelectedItem(DEFAULT_OPTION);
+        role.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                roleActionPerformed(evt);
+            }
+        });  
         
         industryLabel = new JLabel("Business:");
         industry = new JComboBox<String>();
@@ -421,7 +436,7 @@ public class UserEditPanel extends javax.swing.JPanel {
             }
         });  
 
-        descriptionLabel = new JLabel("Description:");
+        descriptionLabel = new JLabel("Description (Optional):");
         description = new JTextArea();
         description.setColumns(20);
         description.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
@@ -516,9 +531,11 @@ public class UserEditPanel extends javax.swing.JPanel {
         			stateTerritoryIsRequired = true;
         		}
         	} else {
+                stateTerritory.getModel().setSelectedItem(DEFAULT_OPTION);
         		stateTerritory.setEnabled(false);
         		stateTerritoryIsRequired = false;
         	}
+        	phone.setText(formatPhoneNumber(phone.getText(), getKeyFromValue(countryMap, country.getSelectedItem()).toString()));
             checkIfAbleToFinish();
         }
     }
