@@ -469,6 +469,7 @@ public class DefaultUserController extends UserController {
         parameterMap.put("country",user.getCountry());
         parameterMap.put("stateTerritory",user.getStateTerritory());
         parameterMap.put("role",user.getRole());
+        parameterMap.put("userConsent", user.getUserConsent());
         return parameterMap;
     }
 

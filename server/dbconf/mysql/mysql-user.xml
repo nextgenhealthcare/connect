@@ -56,8 +56,8 @@
 	</delete>
 	
 	<insert id='insertUser' parameterType='java.util.Map'>
-		INSERT INTO PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN, ROLE, COUNTRY, STATETERRITORY)
-		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, FALSE, NULL, #{role,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, #{stateTerritory,jdbcType=VARCHAR})
+		INSERT INTO PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN, ROLE, COUNTRY, STATETERRITORY, USERCONSENT)
+		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, FALSE, NULL, #{role,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, #{stateTerritory,jdbcType=VARCHAR}, #{userConsent, jdbcType=boolean})
 	</insert>
 	
 	<update id='updateUser' parameterType='java.util.Map'>
@@ -73,7 +73,8 @@
 			DESCRIPTION = #{description,jdbcType=VARCHAR},
 			ROLE = #{role,jdbcType=VARCHAR},
 			COUNTRY = #{country,jdbcType=VARCHAR},
-			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR}
+			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR},
+			USERCONSENT = #{userConsent,jdbcType=boolean}
 		WHERE ID = #{id}
 	</update>
 	

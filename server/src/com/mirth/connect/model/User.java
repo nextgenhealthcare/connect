@@ -35,6 +35,15 @@ public class User implements Serializable, Auditable {
     private String country;
     private String stateTerritory;
     private String role;
+    private Boolean userConsent;
+
+    public Boolean getUserConsent() {
+        return userConsent;
+    }
+
+    public void setUserConsent(Boolean userConsent) {
+        this.userConsent = userConsent;
+    }
 
     public String getCountry() {
         return country;
