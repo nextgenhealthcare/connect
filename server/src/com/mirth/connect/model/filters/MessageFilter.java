@@ -17,7 +17,7 @@ import java.util.Set;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.model.CalendarToStringStyle;
+import com.mirth.connect.model.MessageFilterToStringStyle;
 import com.mirth.connect.model.filters.elements.ContentSearchElement;
 import com.mirth.connect.model.filters.elements.MetaDataSearchElement;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -224,6 +224,6 @@ public class MessageFilter implements Serializable {
 
     @Override
     public String toString() {
-        return ToStringBuilder.reflectionToString(this, CalendarToStringStyle.instance());
+        return ToStringBuilder.reflectionToString(this, MessageFilterToStringStyle.instance());
     }
 }
