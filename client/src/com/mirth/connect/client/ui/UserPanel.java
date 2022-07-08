@@ -40,6 +40,10 @@ public class UserPanel extends javax.swing.JPanel {
     private final String USERPHONENUMBER_COLUMN_NAME = "Phone Number";
     private final String USERDESCRIPTION_COLUMN_NAME = "Description";
     private final String USERLASTLOGIN_COLUMN_NAME = "Last Login";
+    private final String USER_COUNTRY_COLUMN_NAME = "Country";
+    private final String USER_STATETERRITORY_COLUMN_NAME = "State/Territory";
+    private final String USER_ROLE_COLUMN_NAME = "Role";
+    private final String USERCONSENT_COLUMN_NAME = "Consent";
 
     private final int USERNAME_COLUMN_NUMBER = 0;
     private final int USER_EMAIL_COLUMN_NUMBER = 4;
@@ -79,7 +83,16 @@ public class UserPanel extends javax.swing.JPanel {
         usersTable.getColumnExt(USERPHONENUMBER_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         usersTable.getColumnExt(USERLASTLOGIN_COLUMN_NAME).setMinWidth(125);
         usersTable.getColumnExt(USERLASTLOGIN_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USER_COUNTRY_COLUMN_NAME).setMinWidth(125);
+        usersTable.getColumnExt(USER_COUNTRY_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USER_STATETERRITORY_COLUMN_NAME).setMinWidth(125);
+        usersTable.getColumnExt(USER_STATETERRITORY_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USER_ROLE_COLUMN_NAME).setMinWidth(125);
+        usersTable.getColumnExt(USER_ROLE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USERCONSENT_COLUMN_NAME).setMinWidth(125);
+        usersTable.getColumnExt(USERCONSENT_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
 
+        
         usersTable.packTable(UIConstants.COL_MARGIN);
 
         usersTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -149,7 +162,7 @@ public class UserPanel extends javax.swing.JPanel {
         Object[][] tableData = null;
 
         if (parent.users != null) {
-            tableData = new Object[parent.users.size()][9];
+            tableData = new Object[parent.users.size()][13];
 
             for (int i = 0; i < parent.users.size(); i++) {
                 User temp = parent.users.get(i);
@@ -158,15 +171,19 @@ public class UserPanel extends javax.swing.JPanel {
                 tableData[i][1] = temp.getFirstName();
                 tableData[i][2] = temp.getLastName();
                 tableData[i][3] = temp.getEmail();
-                tableData[i][4] = temp.getPhoneNumber();
-                tableData[i][5] = temp.getOrganization();
-                tableData[i][6] = temp.getIndustry();
+                tableData[i][4] = temp.getCountry();
+                tableData[i][5] = temp.getStateTerritory();
+                tableData[i][6] = temp.getPhoneNumber();
+                tableData[i][7] = temp.getOrganization();
+                tableData[i][8] = temp.getRole();
+                tableData[i][9] = temp.getIndustry();
 
                 if (temp.getLastLogin() != null) {
-                    tableData[i][7] = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(temp.getLastLogin().getTime());
+                    tableData[i][10] = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(temp.getLastLogin().getTime());
                 }
 
-                tableData[i][8] = temp.getDescription();
+                tableData[i][11] = temp.getDescription();
+                tableData[i][12] = temp.getUserConsent();
             }
         }
 
@@ -178,9 +195,10 @@ public class UserPanel extends javax.swing.JPanel {
             usersTable = new MirthTable();
             usersTable.setModel(new RefreshTableModel(tableData, new String[] {
                     USERNAME_COLUMN_NAME, USERFIRSTNAME_COLUMN_NAME, USERLASTNAME_COLUMN_NAME,
-                    USER_EMAIL_COLUMN_NAME, USERPHONENUMBER_COLUMN_NAME,
-                    USERORGANIZATION_COLUMN_NAME, USERINDUSTRY_COLUMN_NAME,
-                    USERLASTLOGIN_COLUMN_NAME, USERDESCRIPTION_COLUMN_NAME }) {
+                    USER_EMAIL_COLUMN_NAME, USER_COUNTRY_COLUMN_NAME, USER_STATETERRITORY_COLUMN_NAME,
+                    USERPHONENUMBER_COLUMN_NAME,
+                    USERORGANIZATION_COLUMN_NAME, USER_ROLE_COLUMN_NAME, USERINDUSTRY_COLUMN_NAME,
+                    USERLASTLOGIN_COLUMN_NAME, USERDESCRIPTION_COLUMN_NAME, USERCONSENT_COLUMN_NAME }) {
 
                 boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false,
                         false, false };

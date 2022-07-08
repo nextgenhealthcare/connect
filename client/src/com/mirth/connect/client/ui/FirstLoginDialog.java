@@ -120,7 +120,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("<html>Welcome to Mirth&#174; Connect by NextGen&#174; Healthcare</html>");
+        jLabel2.setText("<html>Welcome to Mirth<sup>&#174;</sup> Connect by NextGen<sup>&#174;</sup> Healthcare</html>");
 
         javax.swing.GroupLayout mirthHeadingPanel1Layout = new javax.swing.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);

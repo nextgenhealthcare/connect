@@ -13,6 +13,11 @@
       <result property='strikeCount' column='STRIKE_COUNT'/>
       <result property='lastStrikeTime' column='LAST_STRIKE_TIME'/>
       <result property='description' column='DESCRIPTION'/>
+      <result property='role' column='ROLE'/>
+      <result property='country' column='COUNTRY'/>
+      <result property='stateTerritory' column='STATETERRITORY'/>
+      <result property='userContent' column='USERCONTENT'/>
+   </resultMap>
    </resultMap>
    <resultMap id='get-user-credentials' type='com.mirth.connect.model.Credentials'>
       <result property='password' column='PASSWORD'/>
