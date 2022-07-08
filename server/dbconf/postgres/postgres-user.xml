@@ -21,7 +21,7 @@
    <select id='getUser'
            parameterType='com.mirth.connect.model.User'
            resultMap='get-user-result'>
-		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, STRIKE_COUNT, LAST_STRIKE_TIME, DESCRIPTION, ROLE, COUNTRY, STATETERRITORY
+		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, STRIKE_COUNT, LAST_STRIKE_TIME, DESCRIPTION, ROLE, COUNTRY, STATETERRITORY, USERCONSENT
 		FROM PERSON
 		<where>
          <if test='id != null'>AND ID = #{id}</if>
@@ -67,7 +67,7 @@
 			DESCRIPTION = #{description,jdbcType=VARCHAR},
 			ROLE = #{role,jdbcType=VARCHAR},
 			COUNTRY = #{country,jdbcType=VARCHAR},
-			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR},
+			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR}
 		WHERE ID = #{id}
 	</update>
    <insert id='updateUserPassword' parameterType='java.util.Map'>
@@ -125,7 +125,7 @@
 		UPDATE PERSON
 		SET LOGGED_IN = FALSE
 	</update>
-	
+
 	<select id='selectPreferencesForUser' parameterType='java.lang.String' resultType='KeyValuePair'>
 		SELECT NAME AS "key", VALUE AS "value"
 		FROM PERSON_PREFERENCE

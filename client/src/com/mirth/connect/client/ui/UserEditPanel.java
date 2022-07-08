@@ -158,18 +158,18 @@ public class UserEditPanel extends javax.swing.JPanel {
         user.setEmail(email.getText());
         user.setPhoneNumber(phone.getText());
         user.setDescription(description.getText());
-//        if (!country.getSelectedItem().equals(DEFAULT_OPTION)) {
-//            user.setCountry((String) country.getSelectedItem());
-//        }
-//        if (!industry.getSelectedItem().equals(DEFAULT_OPTION)) {
-//            user.setIndustry((String) industry.getSelectedItem());
-//        }
-//        if (!role.getSelectedItem().equals(DEFAULT_OPTION)) {
-//            user.setRole((String) role.getSelectedItem());
-//        }
-//        if (!stateTerritory.getSelectedItem().equals(DEFAULT_OPTION)) {
-//            user.setStateTerritory((String) stateTerritory.getSelectedItem());
-//        }
+        if (!country.getSelectedItem().equals(DEFAULT_OPTION)) {
+            user.setCountry((String) country.getSelectedItem());
+        }
+        if (!industry.getSelectedItem().equals(DEFAULT_OPTION)) {
+            user.setIndustry((String) industry.getSelectedItem());
+        }
+        if (!role.getSelectedItem().equals(DEFAULT_OPTION)) {
+            user.setRole((String) role.getSelectedItem());
+        }
+        if (!stateTerritory.getSelectedItem().equals(DEFAULT_OPTION)) {
+            user.setStateTerritory((String) stateTerritory.getSelectedItem());
+        }
 
         return user;
     }
