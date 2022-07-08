@@ -36,7 +36,7 @@ public class UserPanel extends javax.swing.JPanel {
     private final String USERFIRSTNAME_COLUMN_NAME = "First Name";
     private final String USERLASTNAME_COLUMN_NAME = "Last Name";
     private final String USERORGANIZATION_COLUMN_NAME = "Organization";
-    private final String USERINDUSTRY_COLUMN_NAME = "Industry";
+    private final String USERINDUSTRY_COLUMN_NAME = "Business";
     private final String USERPHONENUMBER_COLUMN_NAME = "Phone Number";
     private final String USERDESCRIPTION_COLUMN_NAME = "Description";
     private final String USERLASTLOGIN_COLUMN_NAME = "Last Login";

@@ -32,6 +32,42 @@ public class User implements Serializable, Auditable {
     private Calendar gracePeriodStart;
     private Integer strikeCount;
     private Calendar lastStrikeTime;
+    private String country;
+    private String stateTerritory;
+    private String role;
+    private Boolean userConsent;
+
+    public Boolean getUserConsent() {
+        return userConsent;
+    }
+
+    public void setUserConsent(Boolean userConsent) {
+        this.userConsent = userConsent;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getStateTerritory() {
+        return stateTerritory;
+    }
+
+    public void setStateTerritory(String stateTerritory) {
+        this.stateTerritory = stateTerritory;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     public Integer getId() {
         return this.id;
