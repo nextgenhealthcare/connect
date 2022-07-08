@@ -25,7 +25,7 @@
 	
 	<select id='getUser' parameterType='com.mirth.connect.model.User' resultMap='get-user-result'>
 		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL,
-		PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, STRIKE_COUNT, LAST_STRIKE_TIME, DESCRIPTION,ROLE, COUNTRY, STATETERRITORY
+		PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, STRIKE_COUNT, LAST_STRIKE_TIME, DESCRIPTION,ROLE, COUNTRY, STATETERRITORY, USERCONSENT
 		FROM PERSON
 		<where>
 			<if test='id != null'>AND ID = #{id}</if>
@@ -73,8 +73,7 @@
 			DESCRIPTION = #{description,jdbcType=VARCHAR},
 			ROLE = #{role,jdbcType=VARCHAR},
 			COUNTRY = #{country,jdbcType=VARCHAR},
-			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR},
-			USERCONSENT = #{userConsent,jdbcType=boolean}
+			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR}
 		WHERE ID = #{id}
 	</update>
 	
