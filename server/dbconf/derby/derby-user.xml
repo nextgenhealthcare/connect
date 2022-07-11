@@ -17,6 +17,10 @@
 		<result property='strikeCount' column='STRIKE_COUNT'/>
       	<result property='lastStrikeTime' column='LAST_STRIKE_TIME'/>
 		<result property="description" column="DESCRIPTION" />
+		<result property='role' column='ROLE' />
+		<result property='country' column='COUNTRY' />
+		<result property='stateTerritory' column='STATETERRITORY' />
+		<result property='userConsent' column='USERCONSENT' />
 	</resultMap>
 	
 	<resultMap type="com.mirth.connect.model.Credentials" id="get-user-credentials">
@@ -72,7 +76,8 @@
 			DESCRIPTION = #{description,jdbcType=VARCHAR},
 			ROLE = #{role,jdbcType=VARCHAR},
 			COUNTRY = #{country,jdbcType=VARCHAR},
-			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR}
+			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR},
+			USERCONSENT = #{userConsent, jdbcType=BOOLEAN}	
 		WHERE ID = #{id}
 	</update>
 	
