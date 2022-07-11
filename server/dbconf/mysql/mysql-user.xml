@@ -16,34 +16,34 @@
       	<result property='strikeCount' column='STRIKE_COUNT'/>
       	<result property='lastStrikeTime' column='LAST_STRIKE_TIME'/>
 		<result property='description' column='DESCRIPTION' />
-		<result property='role' column='ROLE'/>
-        <result property='country' column='COUNTRY'/>
-        <result property='stateTerritory' column='STATETERRITORY'/>
-        <result property='userContent' column='USERCONTENT'/>
+		<result property='role' column='ROLE' />
+		<result property='country' column='COUNTRY' />
+		<result property='stateTerritory' column='STATETERRITORY' />
+		<result property='userConsent' column='USERCONSENT' />
 	</resultMap>
-	
+
 	<resultMap id='get-user-credentials' type='com.mirth.connect.model.Credentials'>
 		<result property='password' column='PASSWORD' />
 		<result property='passwordDate' column='PASSWORD_DATE' />
 	</resultMap>
-	
+
 	<select id='getUser' parameterType='com.mirth.connect.model.User' resultMap='get-user-result'>
 		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL,
-		PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, STRIKE_COUNT, LAST_STRIKE_TIME, DESCRIPTION
+		PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, STRIKE_COUNT, LAST_STRIKE_TIME, DESCRIPTION,ROLE, COUNTRY, STATETERRITORY, USERCONSENT
 		FROM PERSON
 		<where>
 			<if test='id != null'>AND ID = #{id}</if>
 			<if test='username != null'>AND USERNAME = #{username}</if>
 		</where>
 	</select>
-	
+
 	<select id='getUserCredentials' parameterType='java.lang.Integer' resultMap='get-user-credentials'>
 		SELECT PASSWORD, PASSWORD_DATE
 		FROM PERSON_PASSWORD
 		WHERE PERSON_ID = #{value}
 		ORDER BY PASSWORD_DATE DESC
 	</select>
-	
+
 	<select id='getLatestUserCredentials' parameterType='java.lang.Integer' resultMap='get-user-credentials'>
 		SELECT PASSWORD, PASSWORD_DATE
 		FROM PERSON_PASSWORD
@@ -51,19 +51,19 @@
 		ORDER BY PASSWORD_DATE DESC
 		LIMIT 1
 	</select>
-	
+
 	<delete id='prunePasswords' parameterType='java.util.Map'>
 		DELETE FROM
 		PERSON_PASSWORD
 		WHERE PERSON_ID = #{id}
 		AND (PASSWORD_DATE <![CDATA[ <= ]]> #{pruneDate} OR PASSWORD_DATE IS NULL)
 	</delete>
-	
+
 	<insert id='insertUser' parameterType='java.util.Map'>
 		INSERT INTO PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN, ROLE, COUNTRY, STATETERRITORY, USERCONSENT)
 		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, FALSE, NULL, #{role,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, #{stateTerritory,jdbcType=VARCHAR}, #{userConsent, jdbcType=BOOLEAN})
 	</insert>
-	
+
 	<update id='updateUser' parameterType='java.util.Map'>
 		UPDATE PERSON
 		SET
@@ -78,73 +78,73 @@
 			ROLE = #{role,jdbcType=VARCHAR},
 			COUNTRY = #{country,jdbcType=VARCHAR},
 			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR},
-			USERCONSENT = #{userConsent,jdbcType=BOOLEAN}
+			USERCONSENT = #{userConsent, jdbcType=BOOLEAN}
 		WHERE ID = #{id}
 	</update>
-	
+
 	<insert id='updateUserPassword' parameterType='java.util.Map'>
 		INSERT INTO
 		PERSON_PASSWORD (PERSON_ID, PASSWORD, PASSWORD_DATE)
 		VALUES (#{id}, #{password}, #{passwordDate})
 	</insert>
-	
+
 	<delete id='deleteUser' parameterType='com.mirth.connect.model.User'>
 		DELETE FROM PERSON
 		<where>
 			<if test='id != null'>AND ID=#{id}</if>
 		</where>
 	</delete>
-	
+
 	<update id='startGracePeriod' parameterType='java.util.Map'>
 		UPDATE PERSON
 		SET GRACE_PERIOD_START = #{gracePeriodStart}
 		WHERE ID = #{id}
 	</update>
-	
+
 	<update id='clearGracePeriod' parameterType='java.lang.Integer'>
 		UPDATE PERSON
 		SET GRACE_PERIOD_START = NULL
 		WHERE ID = #{value}
 	</update>
-	
+
 	<update id='incrementStrikes' parameterType='java.lang.Integer'>
 		UPDATE PERSON
 		SET STRIKE_COUNT = COALESCE(STRIKE_COUNT, 0) + 1,
 		LAST_STRIKE_TIME = NOW()
 		WHERE ID = #{value}
 	</update>
-	
+
 	<update id='resetStrikes' parameterType='java.lang.Integer'>
 		UPDATE PERSON
 		SET STRIKE_COUNT = 0,
 		LAST_STRIKE_TIME = NULL
 		WHERE ID = #{value}
 	</update>
-	
+
 	<!-- Login/Logout Procedures -->
 	<update id='loginUser' parameterType='java.util.Map'>
 		UPDATE PERSON
 		SET LOGGED_IN = TRUE, LAST_LOGIN = #{lastLogin}
 		WHERE ID = #{id}
 	</update>
-	
+
 	<update id='logoutUser' parameterType='java.lang.Integer'>
 		UPDATE PERSON
 		SET LOGGED_IN = FALSE
 		WHERE ID = #{value}
 	</update>
-	
+
 	<select id='isUserLoggedIn' parameterType='java.lang.Integer' resultType='java.lang.Boolean'>
 		SELECT LOGGED_IN
 		FROM PERSON
 		WHERE ID = #{value}
 	</select>
-	
+
 	<update id='resetUserStatus'>
 		UPDATE PERSON
 		SET LOGGED_IN = FALSE
 	</update>
-	
+
 	<select id='selectPreferencesForUser' parameterType='java.lang.String' resultType='KeyValuePair'>
 		SELECT NAME AS "key", VALUE AS "value"
 		FROM PERSON_PREFERENCE

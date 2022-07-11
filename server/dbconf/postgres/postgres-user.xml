@@ -13,11 +13,10 @@
       <result property='strikeCount' column='STRIKE_COUNT'/>
       <result property='lastStrikeTime' column='LAST_STRIKE_TIME'/>
       <result property='description' column='DESCRIPTION'/>
-      <result property='role' column='ROLE'/>
-      <result property='country' column='COUNTRY'/>
-      <result property='stateTerritory' column='STATETERRITORY'/>
-      <result property='userContent' column='USERCONTENT'/>
-   </resultMap>
+      <result property='role' column='ROLE' />
+	  <result property='country' column='COUNTRY' />
+	  <result property='stateTerritory' column='STATETERRITORY' />
+	  <result property='userConsent' column='USERCONSENT' />
    </resultMap>
    <resultMap id='get-user-credentials' type='com.mirth.connect.model.Credentials'>
       <result property='password' column='PASSWORD'/>
@@ -73,7 +72,7 @@
 			ROLE = #{role,jdbcType=VARCHAR},
 			COUNTRY = #{country,jdbcType=VARCHAR},
 			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR},
-			USERCONSENT = #{userConsent,jdbcType=BOOLEAN}
+			USERCONSENT = #{userConsent, jdbcType=BOOLEAN}
 		WHERE ID = #{id}
 	</update>
    <insert id='updateUserPassword' parameterType='java.util.Map'>
@@ -131,7 +130,7 @@
 		UPDATE PERSON
 		SET LOGGED_IN = FALSE
 	</update>
-	
+
 	<select id='selectPreferencesForUser' parameterType='java.lang.String' resultType='KeyValuePair'>
 		SELECT NAME AS "key", VALUE AS "value"
 		FROM PERSON_PREFERENCE
