@@ -17,8 +17,12 @@
 		<result property='strikeCount' column='STRIKE_COUNT'/>
       	<result property='lastStrikeTime' column='LAST_STRIKE_TIME'/>
 		<result property="description" column="DESCRIPTION" />
+		<result property='role' column='ROLE' />
+		<result property='country' column='COUNTRY' />
+		<result property='stateTerritory' column='STATETERRITORY' />
+		<result property='userConsent' column='USERCONSENT' />
 	</resultMap>
-	
+
 	<resultMap type="com.mirth.connect.model.Credentials" id="get-user-credentials">
 		<result property="password" column="PASSWORD" />
 		<result property="passwordDate" column="PASSWORD_DATE" />
@@ -39,7 +43,7 @@
 		WHERE PERSON_ID = #{id}
 		ORDER BY PASSWORD_DATE DESC NULLS LAST
 	</select>
-	
+
 	<select id="getLatestUserCredentials" parameterType="java.lang.Integer" resultMap="get-user-credentials">
 		SELECT PASSWORD, PASSWORD_DATE
 		FROM PERSON_PASSWORD
@@ -47,19 +51,19 @@
 		ORDER BY PASSWORD_DATE DESC NULLS LAST
 		FETCH FIRST ROW ONLY
 	</select>
-	
+
 	<delete id="prunePasswords" parameterType="java.util.Map">
 		DELETE FROM PERSON_PASSWORD
 		WHERE PERSON_ID = #{id}
 		AND (PASSWORD_DATE <![CDATA[ <= ]]> #{pruneDate} OR PASSWORD_DATE IS NULL)
 	</delete>
-	
+
 	<insert id="insertUser" parameterType="java.util.Map">
 		INSERT INTO
 		PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN, ROLE, COUNTRY, STATETERRITORY,USERCONSENT)
 		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 0, NULL, , #{role,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, #{stateTerritory,jdbcType=VARCHAR}, #{userConsent,jdbcType=BOOLEAN})
 	</insert>
-	
+
 	<update id="updateUser" parameterType="java.util.Map">
 		UPDATE PERSON
 		SET USERNAME = #{username},
@@ -72,49 +76,50 @@
 			DESCRIPTION = #{description,jdbcType=VARCHAR},
 			ROLE = #{role,jdbcType=VARCHAR},
 			COUNTRY = #{country,jdbcType=VARCHAR},
-			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR}
+			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR},
+			USERCONSENT = #{userConsent, jdbcType=BOOLEAN}
 		WHERE ID = #{id}
 	</update>
-	
+
 	<insert id="updateUserPassword" parameterType="java.util.Map">
 		INSERT INTO
 		PERSON_PASSWORD (PERSON_ID, PASSWORD, PASSWORD_DATE)
 		VALUES (#{id}, #{password}, #{passwordDate})
 	</insert>
-	
+
 	<delete id="deleteUser" parameterType="com.mirth.connect.model.User">
 		DELETE FROM PERSON
 		<where>
         	<if test='id != null'>ID=#{id}</if>
       	</where>
 	</delete>
-	
+
 	<update id="startGracePeriod" parameterType="java.util.Map">
 		UPDATE PERSON
 		SET GRACE_PERIOD_START = #{gracePeriodStart}
 		WHERE ID = #{id}
 	</update>
-	
+
 	<update id="clearGracePeriod" parameterType="java.lang.Integer">
 		UPDATE PERSON
 		SET GRACE_PERIOD_START = NULL
 		WHERE ID = #{id}
 	</update>
-	
+
 	<update id='incrementStrikes' parameterType='java.lang.Integer'>
 		UPDATE PERSON
 		SET STRIKE_COUNT = COALESCE(STRIKE_COUNT, 0) + 1,
 		LAST_STRIKE_TIME = CURRENT_TIMESTAMP
 		WHERE ID = #{value}
 	</update>
-	
+
 	<update id='resetStrikes' parameterType='java.lang.Integer'>
 		UPDATE PERSON
 		SET STRIKE_COUNT = 0,
 		LAST_STRIKE_TIME = NULL
 		WHERE ID = #{value}
 	</update>
-	
+
 	<!-- Login/Logout Procedures -->
 
 	<update id="loginUser" parameterType="java.util.Map">
@@ -135,44 +140,44 @@
 		FROM PERSON
 		WHERE ID = #{id}
 	</select>
-	
+
 	<update id="resetUserStatus">
 		UPDATE PERSON
 		SET LOGGED_IN = 0
 	</update>
-	
+
 	<update id="lockPersonTable">
         LOCK TABLE PERSON IN EXCLUSIVE MODE
     </update>
-	
+
 	<select id="vacuumPersonTable" statementType="CALLABLE">
 		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'PERSON', 0)}
 	</select>
-	
+
 	<select id='selectPreferencesForUser' parameterType='java.lang.String' resultType='KeyValuePair'>
 		SELECT NAME AS "key", VALUE AS "value"
 		FROM PERSON_PREFERENCE
 		WHERE PERSON_ID = #{value}
 	</select>
-	
+
 	<select id='selectPreference' parameterType='java.util.Map' resultType='java.lang.String'>
 		SELECT VALUE
 		FROM PERSON_PREFERENCE
 		WHERE PERSON_ID = #{person_id} AND NAME = #{name}
 	</select>
-	
+
 	<insert id='insertPreference' parameterType='java.util.Map'>
 		INSERT INTO
 		PERSON_PREFERENCE (PERSON_ID, NAME, VALUE)
 		VALUES (#{person_id}, #{name}, #{value})
 	</insert>
-	
+
 	<update id='updatePreference' parameterType='java.util.Map'>
 		UPDATE PERSON_PREFERENCE
 		SET VALUE = #{value}
 		WHERE PERSON_ID = #{person_id} AND NAME = #{name}
 	</update>
-	
+
 	<delete id='deletePreference' parameterType='java.util.Map'>
 		DELETE FROM PERSON_PREFERENCE
 		WHERE PERSON_ID = #{person_id}
@@ -180,7 +185,7 @@
 			AND NAME = #{name}
 		</if>
 	</delete>
-	
+
 	<update id="lockPersonPreferencesTable">
 		LOCK TABLE PERSON_PREFERENCE IN EXCLUSIVE MODE
 	</update>

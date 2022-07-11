@@ -38,11 +38,12 @@ public class User implements Serializable, Auditable {
     private Boolean userConsent;
 
     public Boolean getUserConsent() {
-        return userConsent;
+        if (this.userConsent==null) return false;
+        else return userConsent;
     }
 
     public void setUserConsent(Boolean userConsent) {
-        this.userConsent = userConsent;
+        this.userConsent = userConsent==null?false:userConsent;
     }
 
     public String getCountry() {

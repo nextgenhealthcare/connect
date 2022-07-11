@@ -138,15 +138,15 @@ public class UserEditPanel extends javax.swing.JPanel {
         if (!StringUtils.isBlank(user.getIndustry())) {
             industry.setSelectedItem(user.getIndustry());
         }
-//        if (!StringUtils.isBlank(user.getCountry())) {
-//            country.setSelectedItem(user.getCountry());
-//        }
-//        if (!StringUtils.isBlank(user.getStateTerritory())) {
-//            stateTerritory.setSelectedItem(user.getStateTerritory());
-//        }
-//        if (!StringUtils.isBlank(user.getRole())) {
-//            role.setSelectedItem(user.getRole());
-//        }
+        if (!StringUtils.isBlank(user.getCountry())) {
+            country.setSelectedItem(user.getCountry());
+        }
+        if (!StringUtils.isBlank(user.getStateTerritory())) {
+            stateTerritory.setSelectedItem(user.getStateTerritory());
+        }
+        if (!StringUtils.isBlank(user.getRole())) {
+            role.setSelectedItem(user.getRole());
+        }
     }
 
     public User getUser() {
