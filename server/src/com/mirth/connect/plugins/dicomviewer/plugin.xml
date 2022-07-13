@@ -2,7 +2,7 @@
 	<name>DICOM Viewer</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>4.0.1</mirthVersion>
+	<mirthVersion>4.1.0</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This plugin provides DICOM attachment viewing capability in message browser</description>
 	<clientClasses>
