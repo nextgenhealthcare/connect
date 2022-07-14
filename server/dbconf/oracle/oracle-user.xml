@@ -16,6 +16,10 @@
     	<result property='strikeCount' column='STRIKE_COUNT'/>
 	    <result property='lastStrikeTime' column='LAST_STRIKE_TIME'/>
 		<result property="description" column="DESCRIPTION" />
+        <result property='role' column='ROLE' />
+		<result property='country' column='COUNTRY' />
+		<result property='stateTerritory' column='STATETERRITORY' />
+		<result property='userConsent' column='USERCONSENT' />
 	</resultMap>
 
 	<resultMap id="get-user-credentials" type="com.mirth.connect.model.Credentials">
@@ -58,7 +62,7 @@
 		INSERT INTO PERSON (ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN, ROLE, COUNTRY, STATETERRITORY, USERCONSENT)
 		VALUES (PERSON_SEQUENCE.NEXTVAL, #{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR},
 		#{organization,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
-		#{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 0, NULL, #{role,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, #{stateTerritory,jdbcType=VARCHAR}, #{userConsent,jdbcType=BOOLEAN})
+		#{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 0, NULL, #{role,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, #{stateTerritory,jdbcType=VARCHAR}, 0)
 	</insert>
 
 	<update id="updateUser" parameterType="java.util.Map">
@@ -73,7 +77,8 @@
             DESCRIPTION = #{description,jdbcType=VARCHAR},
             ROLE = #{role,jdbcType=VARCHAR},
             COUNTRY = #{country,jdbcType=VARCHAR},
-            STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR}
+            STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR},
+            USERCONSENT = #{userConsent,jdbcType=BIT}
 		WHERE ID = #{id}
 	</update>
 
