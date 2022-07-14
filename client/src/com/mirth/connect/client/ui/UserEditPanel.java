@@ -375,7 +375,7 @@ public class UserEditPanel extends javax.swing.JPanel {
         for (String item : getCountryNames()) {
             country.addItem(item);
         }        
-        country.getModel().setSelectedItem(country.getSelectedItem() == "United States");
+        country.getModel().setSelectedItem("United States");
         country.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 countryActionPerformed(evt);
