@@ -105,7 +105,6 @@ public class UserEditPanel extends javax.swing.JPanel {
     	
     	// get country names for pull down and sort in alphabetical order
         for (String item : countryCodeSet) {
-            phoneUtil.getCountryCodeForRegion(item);
             Locale obj = new Locale("", item);
             String countryName = obj.getDisplayCountry();
             countryMap.put(item, countryName);
@@ -527,6 +526,11 @@ public class UserEditPanel extends javax.swing.JPanel {
         if (dialog != null) {
         	if (country.getSelectedItem() == "United States") {
         		stateTerritory.setEnabled(true);
+        		// currently the three options of required fields are
+        		//   1. new user or first time login without registering (user name, password, and password verification are required)
+        		//   2. edit user (user name is required)
+        		//   3. first time login with registering (all fields are required but description)
+        		// based on this, if the first name is required then all fields are required
         		if (firstNameIsRequired) {
         			stateTerritoryIsRequired = true;
         		}

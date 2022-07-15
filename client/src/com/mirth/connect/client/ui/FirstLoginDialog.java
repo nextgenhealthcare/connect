@@ -159,7 +159,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         
         userConsentCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         userConsentCheckBox.setSelected(true);
-        userConsentCheckBox.setText("I consent to recieve email updates and marketing messages from NextGen Healthcare.");
+        userConsentCheckBox.setText("I consent to receive email updates and marketing messages from NextGen Healthcare.");
         userConsentCheckBox.setToolTipText("<html></html>"); 
 
         contentTextPane.setContentType("text/html");
@@ -287,7 +287,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
     private void registerCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerCheckBoxActionPerformed
         boolean allRequired = registerCheckBox.isSelected();
-        if (allRequired == true) {
+        if (allRequired) {
             userEditPanel.setRequiredFields(allRequired, true);
             userConsentCheckBox.setSelected(true);
             userConsentCheckBox.setEnabled(true);
