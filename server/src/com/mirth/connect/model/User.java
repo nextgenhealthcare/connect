@@ -38,8 +38,7 @@ public class User implements Serializable, Auditable {
     private Boolean userConsent;
 
     public Boolean getUserConsent() {
-        if (this.userConsent==null) return false;
-        else return userConsent;
+        return this.userConsent == null ? false : this.userConsent;
     }
 
     public void setUserConsent(Boolean userConsent) {

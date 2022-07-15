@@ -101,7 +101,6 @@ public class UserEditPanel extends javax.swing.JPanel {
     	
     	// Sort list in alphabetical order
     	countryCodes = new ArrayList<>(countryCodeSet);
-    	java.util.Collections.sort(countryCodes);
     	
     	// get country names for pull down and sort in alphabetical order
         for (String item : countryCodeSet) {
