@@ -272,7 +272,7 @@ public class UserEditPanel extends javax.swing.JPanel {
      * @param countryCode
      * @return Whether the phone number is valid for the given country code
      */
-    protected boolean validatePhoneNumber(String phoneNumber, String countryCode) {
+    public static boolean validatePhoneNumber(String phoneNumber, String countryCode) {
     	PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
     	try {
     		PhoneNumber parsedPhoneNumber = phoneUtil.parse(phoneNumber, countryCode);
