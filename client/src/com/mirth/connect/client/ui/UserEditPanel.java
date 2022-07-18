@@ -213,6 +213,10 @@ public class UserEditPanel extends javax.swing.JPanel {
             passwordAsteriskLabel.setVisible(false);
             confirmPasswordAsteriskLabel.setVisible(false);
         	usernameAsteriskLabel.setVisible(false);
+        	// if United States is entered, require stateTerritory
+    		if (country.getSelectedItem() == "United States") {
+    			stateTerritoryIsRequired = true;
+    		}
         } else {        	
             passwordAsteriskLabel.setVisible(passwordRequired);
             confirmPasswordAsteriskLabel.setVisible(passwordRequired);
