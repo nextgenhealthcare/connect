@@ -45,16 +45,5 @@ public class UserEditPanelTest {
 		assertFalse(userEditPanel.validatePhoneNumber("04555555555", "AU"));		// Too many digits
 		assertFalse(userEditPanel.validatePhoneNumber("00455 555 555", "AU"));	// Too many leading zeroes
 	}
-	
-	@Test
-	public void testGetCountryCodes() {
-		List<String> countryCodes = userEditPanel.getCountryCodes();
-		assertEquals(NUM_OF_COUNTRY_CODES, countryCodes.size());
 		
-		// Verify the list is ordered
-		for (int i = 0; i < countryCodes.size() - 1; i++) {
-			assertTrue(countryCodes.get(i).compareTo(countryCodes.get(i+1)) < 0);
-		}
-	}
-	
 }

@@ -112,10 +112,6 @@ public class UserEditPanel extends javax.swing.JPanel {
     	java.util.Collections.sort(countryNames);
     }
     
-    protected List<String> getCountryCodes() {
-    	return countryCodes;
-    }
-    
     protected List<String> getCountryNames() {
     	return countryNames;
     }
