@@ -83,7 +83,6 @@ public class UserEditPanel extends javax.swing.JPanel {
     private Frame parent;
     private final String DEFAULT_OPTION = "--Select an option--";
     Map<String, String> countryMap = new HashMap<String, String>(); 
-    private List<String> countryCodes;
     private List<String> countryNames;
 
     public UserEditPanel() {
@@ -98,9 +97,6 @@ public class UserEditPanel extends javax.swing.JPanel {
     private void initializeCountryCodes() {
     	PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
     	Set<String> countryCodeSet = phoneUtil.getSupportedRegions();
-    	
-    	// Sort list in alphabetical order
-    	countryCodes = new ArrayList<>(countryCodeSet);
     	
     	// get country names for pull down and sort in alphabetical order
         for (String item : countryCodeSet) {
