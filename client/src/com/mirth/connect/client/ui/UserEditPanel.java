@@ -159,6 +159,8 @@ public class UserEditPanel extends javax.swing.JPanel {
         }
         if (!stateTerritory.getSelectedItem().equals(DEFAULT_OPTION)) {
             user.setStateTerritory((String) stateTerritory.getSelectedItem());
+        } else {
+        	user.setStateTerritory(null);
         }
 
         return user;
