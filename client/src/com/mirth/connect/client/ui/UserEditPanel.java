@@ -159,6 +159,8 @@ public class UserEditPanel extends javax.swing.JPanel {
         }
         if (!stateTerritory.getSelectedItem().equals(DEFAULT_OPTION)) {
             user.setStateTerritory((String) stateTerritory.getSelectedItem());
+        } else {
+        	user.setStateTerritory(null);
         }
 
         return user;
@@ -208,15 +210,16 @@ public class UserEditPanel extends javax.swing.JPanel {
         passwordIsRequired = passwordRequired;
         phoneIsRequired = allRequired;
         roleIsRequired = allRequired;
+		if (country.getSelectedItem() == "United States") {
+			stateTerritoryIsRequired = allRequired;
+		} else {
+			stateTerritoryIsRequired = false;
+		}
         // if allRequired then do not show any asterisks
         if (allRequired) {
             passwordAsteriskLabel.setVisible(false);
             confirmPasswordAsteriskLabel.setVisible(false);
         	usernameAsteriskLabel.setVisible(false);
-        	// if United States is entered, require stateTerritory
-    		if (country.getSelectedItem() == "United States") {
-    			stateTerritoryIsRequired = true;
-    		}
         } else {        	
             passwordAsteriskLabel.setVisible(passwordRequired);
             confirmPasswordAsteriskLabel.setVisible(passwordRequired);

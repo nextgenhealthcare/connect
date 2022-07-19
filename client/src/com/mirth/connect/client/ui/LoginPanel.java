@@ -569,7 +569,11 @@ public class LoginPanel extends javax.swing.JFrame {
                     // Display registration dialog if it's the user's first time logging in
                     String firstlogin = userPreferences.getProperty("firstlogin");
                     if (firstlogin == null || BooleanUtils.toBoolean(firstlogin)) {
-                        new FirstLoginDialog(currentUser);
+                        FirstLoginDialog firstLoginDialog = new FirstLoginDialog(currentUser);
+                        // if leaving the first login dialog without saving
+                        if (!firstLoginDialog.getResult()) {
+                        	return false;
+                        }
                     } else if (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD) {
                         new ChangePasswordDialog(currentUser, loginStatus.getMessage());
                     }
