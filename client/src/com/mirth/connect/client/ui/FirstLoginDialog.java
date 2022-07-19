@@ -34,6 +34,7 @@ import com.mirth.connect.model.User;
 public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogInterface {
 
     private Frame parent;
+    private boolean result = false;
 
     /** Creates new form UserDialog */
     public FirstLoginDialog(User currentUser) {
@@ -57,7 +58,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         this.addWindowListener(new WindowAdapter() {
 
             public void windowClosing(WindowEvent e) {
-                finishButtonActionPerformed(null);
+                parent.logout(false, true);
             }
         });
 
@@ -281,6 +282,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
                 parent.alertThrowable(this, e);
             }
 
+            result = true;
             this.dispose();
         }
     }//GEN-LAST:event_finishButtonActionPerformed
@@ -296,6 +298,10 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         }
         userEditPanel.setRequiredFields(allRequired, true);
     }//GEN-LAST:event_registerCheckBoxActionPerformed
+    
+    public boolean getResult() {
+    	return this.result;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel channelOverview;
