@@ -44,6 +44,7 @@ import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
+import com.mirth.connect.client.ui.util.PortUsageDialog;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
@@ -655,7 +656,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         add(remoteAddressField, "w 200!, split 2, spanx");
         add(testConnection, "gapleft 6");
         add(remotePortLabel, "newline, right");
-        add(remotePortField, "w 50!");
+        add(remotePortField, "w 50!, split 2, spanx");
         add(portsInUse, "gapleft 6");
         add(overrideLocalBindingLabel, "newline, right");
         add(overrideLocalBindingYesRadio, "split 2");
@@ -859,7 +860,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     }
 
 	private void portsInUseActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
+		PortUsageDialog dialog = new PortUsageDialog(parent);
 		
 	}
 

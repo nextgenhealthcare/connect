@@ -18,9 +18,12 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
 import com.mirth.connect.client.ui.components.MirthTextField;
+import com.mirth.connect.client.ui.util.PortUsageDialog;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorProperties;
 import com.mirth.connect.donkey.model.channel.ListenerConnectorPropertiesInterface;
 
@@ -29,8 +32,10 @@ import net.miginfocom.swing.MigLayout;
 public class ListenerSettingsPanel extends JPanel {
 
     public static final String FIELD_PORT = ListenerSettingsPanel.class.getSimpleName() + ".PORT";
+    private Frame parent;
 
     public ListenerSettingsPanel() {
+        this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         initLayout();
     }
@@ -152,53 +157,16 @@ public class ListenerSettingsPanel extends JPanel {
     }
     
     private void initLayout() {        
-    	JPanel listenerSettingsLayout = new JPanel(new MigLayout("novisualpadding, insets 0 0 0 320", "[right]12[fill]12[left, fill]"));
-    	listenerSettingsLayout.setBackground(UIConstants.BACKGROUND_COLOR);
-    	listenerSettingsLayout.add(addressLabel);
-    	listenerSettingsLayout.add(allRadio);
-    	listenerSettingsLayout.add(specificRadio);
-    	listenerSettingsLayout.add(addressField, "width 150");
-    	listenerSettingsLayout.add(portLabel, "newline");
-    	listenerSettingsLayout.add(portField, "grow");
-    	listenerSettingsLayout.add(portsInUse);
-    	
-    	add(listenerSettingsLayout);
-    	
-//        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-//        this.setLayout(layout);
-//        layout.setHorizontalGroup(
-//            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//            .addGroup(layout.createSequentialGroup()
-//                .addContainerGap()
-//                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-//                    .addComponent(portLabel)
-//                    .addComponent(addressLabel))
-//                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-//                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//                    .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-//                    .addGroup(layout.createSequentialGroup()
-//                        .addComponent(allRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-//                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-//                        .addComponent(specificRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-//                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-//                        .addComponent(addressField, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)))
-//                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-//        );
-//        layout.setVerticalGroup(
-//            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//            .addGroup(layout.createSequentialGroup()
-//                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-//                    .addComponent(addressLabel)
-//                    .addComponent(allRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-//                    .addComponent(specificRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-//                    .addComponent(addressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-//                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-//                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-//                    .addComponent(portLabel)
-//                    .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-//        );
-//
-//        getAccessibleContext().setAccessibleName("Listener Settings");
+    	setLayout(new MigLayout("novisualpadding", "[right]12[fill]12[left, fill]"));
+    	setBackground(UIConstants.BACKGROUND_COLOR);
+    	add(addressLabel);
+    	add(allRadio);
+    	add(specificRadio);
+    	add(addressField, "width 150");
+    	add(portLabel, "newline");
+    	add(portField, "grow");
+    	add(portsInUse);
+
     }
     
     private void allRadioActionPerformed(java.awt.event.ActionEvent evt) {
@@ -215,7 +183,7 @@ public class ListenerSettingsPanel extends JPanel {
     }
 
 	private void portsInUseActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
+		PortUsageDialog dialog = new PortUsageDialog(parent);
 		
 	}
 
