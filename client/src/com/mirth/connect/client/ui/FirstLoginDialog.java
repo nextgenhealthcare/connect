@@ -288,13 +288,13 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
     private void registerCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerCheckBoxActionPerformed
         boolean allRequired = registerCheckBox.isSelected();
         if (allRequired) {
-            userEditPanel.setRequiredFields(allRequired, true);
             userConsentCheckBox.setSelected(true);
             userConsentCheckBox.setEnabled(true);
         } else {
         	userConsentCheckBox.setSelected(false);
         	userConsentCheckBox.setEnabled(false);
         }
+        userEditPanel.setRequiredFields(allRequired, true);
     }//GEN-LAST:event_registerCheckBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
