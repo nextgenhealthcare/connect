@@ -653,18 +653,18 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         add(modeClientRadio, "split 2");
         add(modeServerRadio);
         add(remoteAddressLabel, "newline, right");
-        add(remoteAddressField, "w 200!, split 2, spanx");
+        add(remoteAddressField, "w 200!, split 2, sx");
         add(testConnection, "gapleft 6");
         add(remotePortLabel, "newline, right");
-        add(remotePortField, "w 50!, split 2, spanx");
-        add(portsInUse, "gapleft 6");
+        add(remotePortField, "w 50!, sx");
         add(overrideLocalBindingLabel, "newline, right");
         add(overrideLocalBindingYesRadio, "split 2");
         add(overrideLocalBindingNoRadio);
         add(localAddressLabel, "newline, right");
         add(localAddressField, "w 200!, sx");
         add(localPortLabel, "newline, right");
-        add(localPortField, "w 50!, sx");
+        add(localPortField, "w 50!, split 2, sx");
+        add(portsInUse, "gapleft 6");
         add(maxConnectionsLabel, "newline, right");
         add(maxConnectionsField, "w 75!, sx");
         add(keepConnectionOpenLabel, "newline, right");
@@ -830,6 +830,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         localAddressField.setEnabled(true);
         localPortLabel.setEnabled(true);
         localPortField.setEnabled(true);
+        portsInUse.setEnabled(true);
         maxConnectionsLabel.setEnabled(true);
         maxConnectionsField.setEnabled(true);
     }
@@ -847,6 +848,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         localAddressLabel.setEnabled(true);
         localPortField.setEnabled(true);
         localPortLabel.setEnabled(true);
+        portsInUse.setEnabled(true);
     }
 
     private void overrideLocalBindingNoRadioActionPerformed(ActionEvent evt) {
@@ -854,6 +856,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         localAddressLabel.setEnabled(false);
         localPortField.setEnabled(false);
         localPortLabel.setEnabled(false);
+        portsInUse.setEnabled(false);
     }
 
     private void charsetEncodingComboboxActionPerformed(ActionEvent evt) {
