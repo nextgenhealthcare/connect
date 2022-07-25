@@ -1390,6 +1390,9 @@ public class SwaggerExamplesServlet extends HttpServlet {
         user.setUsername("newuser");
         user.setDescription("");
         user.setIndustry("");
+        user.setCountry("United States");
+        user.setStateTerritory("");
+        user.setRole("");
         user.setLastLogin(dateNow);
         user.setLastStrikeTime(dateNow);
         user.setOrganization("");
