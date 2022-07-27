@@ -165,6 +165,7 @@ public class ChannelSetup extends JPanel {
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
     private boolean channelValidationFailed = false;
+    private Calendar dateStartEdit;
 
     private int previousTab = -1;
 
@@ -511,6 +512,7 @@ public class ChannelSetup extends JPanel {
     /** Sets the overall panel to edit the channel with the given channel index. */
     public void editChannel(Channel channel) {
         loadingChannel = true;
+        dateStartEdit = Calendar.getInstance();
 
         Set<FilterCompletion> channelTags = new HashSet<FilterCompletion>();
         for (ChannelTag channelTag : parent.channelPanel.getCachedChannelTags()) {
@@ -1089,6 +1091,7 @@ public class ChannelSetup extends JPanel {
 
     public void saveSourcePanel() {
         currentChannel.getSourceConnector().setProperties(sourceConnectorPanel.getProperties());
+        
 
         if (!loadingChannel && resourceIds.containsKey(currentChannel.getSourceConnector().getMetaDataId())) {
             ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().setResourceIds(resourceIds.get(currentChannel.getSourceConnector().getMetaDataId()));
@@ -1183,7 +1186,14 @@ public class ChannelSetup extends JPanel {
         }
 
         boolean enabled = summaryEnabledCheckBox.isSelected();
-
+        Calendar lastModifiedDate = currentChannel.getExportData().getMetadata().getLastModified();
+        if (lastModifiedDate.after(dateStartEdit)) {
+            if (!parent.alertOption(parent, "Another user has made changes to this channel since you started editing and\nyour changes will overwrite theirs. Are you sure you want to save your changes?")) {
+                return false;
+            }        	
+        }
+        
+        setLastModified();
         saveSourcePanel();
 
         if (parent.currentContentPage == transformerPane) {
@@ -1208,7 +1218,6 @@ public class ChannelSetup extends JPanel {
         currentChannel.setDescription(summaryDescriptionText.getText());
 
         updateScripts();
-        setLastModified();
 
         currentChannel.getProperties().setClearGlobalChannelMap(clearGlobalChannelMapCheckBox.isSelected());
         currentChannel.getProperties().setEncryptData(encryptMessagesCheckBox.isSelected());
