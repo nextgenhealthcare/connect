@@ -152,6 +152,19 @@ public interface ChannelServletInterface extends BaseServletInterface {
 	@MirthOperation(name = "getChannelIdsAndNames", display = "Get channel IDs and names", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
 	public Map<String, String> getChannelIdsAndNames() throws ClientException;
 
+
+    @GET
+    @Path("/portsUsed")
+    @Operation(summary = "Returns a map of all ports used throughout the channels.")
+    @ApiResponse(content = {
+            @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                    @ExampleObject(name = "channelPortsUsedMap", ref = "../apiexamples/ports_used_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "channelPortsUsedMap", ref = "../apiexamples/ports_used_json") }) })
+    @MirthOperation(name = "getChannelPortsUsed", display = "Get Ports Used", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    public Map<String, String> getChannelPortsUsed() throws ClientException;
+
+	
 	@POST
 	@Path("/_getSummary")
 	@Operation(summary = "Returns a list of channel summaries, indicating to a client which channels have changed (been updated, deleted, undeployed, etc.). If a channel was modified, the entire Channel object will be returned.")

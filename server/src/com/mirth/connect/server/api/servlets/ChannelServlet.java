@@ -182,6 +182,19 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
         }
         return channelIdsAndNames;
     }
+    
+    @Override
+    @DontCheckAuthorized
+    public Map<String, String> getChannelPortsUsed() throws ClientException {
+        Map<String, String> channelPortsUsed = new HashMap<String, String>();
+        if (isUserAuthorized()) {
+             // todo
+            // 1 query DB for list of channels whom has listenerProperties
+            // 2 load Map
+            // 3 return channelPortUsed Map
+        }
+        return channelPortsUsed;
+    }
 
     @Override
     @DontCheckAuthorized

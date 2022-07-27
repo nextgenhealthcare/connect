@@ -187,6 +187,8 @@ public class ChannelPanel extends AbstractFramePanel {
     private Frame parent;
 
     private Map<String, String> channelIdsAndNames = new HashMap<String, String>();
+    private Map<String, String> channelPortsUsed = new HashMap<String, String>();
+    
     private Map<String, ChannelStatus> channelStatuses = new LinkedHashMap<String, ChannelStatus>();
     private Map<String, ChannelGroupStatus> groupStatuses = new LinkedHashMap<String, ChannelGroupStatus>();
     private Set<ChannelDependency> channelDependencies = new HashSet<ChannelDependency>();
@@ -392,6 +394,10 @@ public class ChannelPanel extends AbstractFramePanel {
     public Map<String, String> getCachedChannelIdsAndNames() {
         return channelIdsAndNames;
     }
+    
+    public Map<String, String> getCachedChannelPortsUsed() {
+        return channelPortsUsed;
+    }
 
     public Map<String, ChannelStatus> getCachedChannelStatuses() {
         return channelStatuses;
@@ -588,6 +594,16 @@ public class ChannelPanel extends AbstractFramePanel {
     public void retrieveChannelIdsAndNames() {
         try {
             channelIdsAndNames = parent.mirthClient.getChannelIdsAndNames();
+        } catch (ClientException e) {
+            SwingUtilities.invokeLater(() -> {
+                parent.alertThrowable(parent, e, false);
+            });
+        }
+    }
+    
+    public void retrievePortsUsed() {
+        try {
+            channelPortsUsed = parent.mirthClient.getChannelPortsUsed();
         } catch (ClientException e) {
             SwingUtilities.invokeLater(() -> {
                 parent.alertThrowable(parent, e, false);

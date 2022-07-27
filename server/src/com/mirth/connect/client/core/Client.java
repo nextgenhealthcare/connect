@@ -1033,6 +1033,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     public Map<String, String> getChannelIdsAndNames() throws ClientException {
         return getServlet(ChannelServletInterface.class).getChannelIdsAndNames();
     }
+    
+    /**
+     * Returns a map of all channel Ports Used.
+     * 
+     * @see ChannelServletInterface#getChannelPortsUsed
+     */
+    @Override
+    public Map<String, String> getChannelPortsUsed() throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannelPortsUsed();
+    }
 
     /**
      * Returns a list of channel summaries, indicating to a client which channels have changed (been
