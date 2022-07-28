@@ -1732,8 +1732,10 @@ public class Frame extends JXFrame {
      * @throws ClientException
      */
     public boolean updateChannel(Channel curr, boolean overwriting) throws ClientException {
-        if (overwriting ? !mirthClient.updateChannel(curr, false) : !mirthClient.createChannel(curr)) {
-            if (alertOption(this, "This channel has been modified since you first opened it.\nWould you like to overwrite it?")) {
+        if (overwriting ? !mirthClient.updateChannel(curr, false) : !mirthClient.createChannel(curr)) {            	
+        	Integer userId = curr.getExportData().getMetadata().getUserId();
+			User otherUser = mirthClient.getUser(userId);
+            if (alertOption(this, "Username: " + otherUser.getUsername() + " has made changes to this channel since you started editing and\nyour changes will overwrite theirs. Are you sure you want to save your changes?")) {
                 mirthClient.updateChannel(curr, true);
             } else {
                 return false;

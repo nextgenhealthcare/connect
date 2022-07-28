@@ -704,6 +704,16 @@ public class ChannelSetup extends JPanel {
         currentChannel.getExportData().getMetadata().setLastModified(Calendar.getInstance());
     }
 
+    private void setUserId() {
+    	try {
+			currentChannel.getExportData().getMetadata().setUserId(parent.mirthClient.getCurrentUser().getId());
+		} catch (ClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
     private void updateChannelId() {
         channelIdField.setText("Id: " + currentChannel.getId());
     }
@@ -1184,16 +1194,7 @@ public class ChannelSetup extends JPanel {
                 return false;
             }
         }
-
-        boolean enabled = summaryEnabledCheckBox.isSelected();
-        Calendar lastModifiedDate = currentChannel.getExportData().getMetadata().getLastModified();
-        if (lastModifiedDate.after(dateStartEdit)) {
-            if (!parent.alertOption(parent, "Another user has made changes to this channel since you started editing and\nyour changes will overwrite theirs. Are you sure you want to save your changes?")) {
-                return false;
-            }        	
-        }
         
-        setLastModified();
         saveSourcePanel();
 
         if (parent.currentContentPage == transformerPane) {
@@ -1205,6 +1206,8 @@ public class ChannelSetup extends JPanel {
         }
 
         saveDestinationPanel();
+        setLastModified();
+        setUserId();
 
         MessageStorageMode messageStorageMode = MessageStorageMode.fromInt(messageStorageSlider.getValue());
         String errorString = getQueueErrorString(messageStorageMode);
