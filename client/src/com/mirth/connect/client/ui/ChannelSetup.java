@@ -165,7 +165,6 @@ public class ChannelSetup extends JPanel {
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
     private boolean channelValidationFailed = false;
-    private Calendar dateStartEdit;
 
     private int previousTab = -1;
 
@@ -512,7 +511,6 @@ public class ChannelSetup extends JPanel {
     /** Sets the overall panel to edit the channel with the given channel index. */
     public void editChannel(Channel channel) {
         loadingChannel = true;
-        dateStartEdit = Calendar.getInstance();
 
         Set<FilterCompletion> channelTags = new HashSet<FilterCompletion>();
         for (ChannelTag channelTag : parent.channelPanel.getCachedChannelTags()) {
@@ -1102,7 +1100,6 @@ public class ChannelSetup extends JPanel {
     public void saveSourcePanel() {
         currentChannel.getSourceConnector().setProperties(sourceConnectorPanel.getProperties());
         
-
         if (!loadingChannel && resourceIds.containsKey(currentChannel.getSourceConnector().getMetaDataId())) {
             ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().setResourceIds(resourceIds.get(currentChannel.getSourceConnector().getMetaDataId()));
         }
@@ -1195,6 +1192,8 @@ public class ChannelSetup extends JPanel {
             }
         }
         
+        boolean enabled = summaryEnabledCheckBox.isSelected();
+        
         saveSourcePanel();
 
         if (parent.currentContentPage == transformerPane) {
@@ -1206,8 +1205,6 @@ public class ChannelSetup extends JPanel {
         }
 
         saveDestinationPanel();
-        setLastModified();
-        setUserId();
 
         MessageStorageMode messageStorageMode = MessageStorageMode.fromInt(messageStorageSlider.getValue());
         String errorString = getQueueErrorString(messageStorageMode);
@@ -1221,6 +1218,8 @@ public class ChannelSetup extends JPanel {
         currentChannel.setDescription(summaryDescriptionText.getText());
 
         updateScripts();
+        setLastModified();
+        setUserId();
 
         currentChannel.getProperties().setClearGlobalChannelMap(clearGlobalChannelMapCheckBox.isSelected());
         currentChannel.getProperties().setEncryptData(encryptMessagesCheckBox.isSelected());
@@ -1306,7 +1305,7 @@ public class ChannelSetup extends JPanel {
         return updated;
     }
 
-    private void saveMessageStorage(MessageStorageMode messageStorageMode) {
+	private void saveMessageStorage(MessageStorageMode messageStorageMode) {
         ChannelProperties properties = currentChannel.getProperties();
         properties.setMessageStorageMode(messageStorageMode);
         properties.setEncryptData(encryptMessagesCheckBox.isSelected());

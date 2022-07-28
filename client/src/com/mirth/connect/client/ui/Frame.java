@@ -1735,7 +1735,7 @@ public class Frame extends JXFrame {
         if (overwriting ? !mirthClient.updateChannel(curr, false) : !mirthClient.createChannel(curr)) {            	
         	Integer userId = curr.getExportData().getMetadata().getUserId();
 			User otherUser = mirthClient.getUser(userId);
-            if (alertOption(this, "Username: " + otherUser.getUsername() + " has made changes to this channel since you started editing and\nyour changes will overwrite theirs. Are you sure you want to save your changes?")) {
+            if (alertOption(this, "Another user (" + otherUser.getUsername() + ") has made changes to this channel since you started editing and\nyour changes will overwrite theirs. Are you sure you want to save your changes?")) {
                 mirthClient.updateChannel(curr, true);
             } else {
                 return false;
