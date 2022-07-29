@@ -603,7 +603,7 @@ public class ChannelPanel extends AbstractFramePanel {
     
     public void retrievePortsUsed() {
         try {
-            channelPortsUsed = parent.mirthClient.getChannelPortsUsed();
+            channelPortsUsed = parent.mirthClient.getChannelPortsInUse();
         } catch (ClientException e) {
             SwingUtilities.invokeLater(() -> {
                 parent.alertThrowable(parent, e, false);

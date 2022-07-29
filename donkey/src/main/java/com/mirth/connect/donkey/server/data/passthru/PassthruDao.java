@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -347,5 +348,10 @@ public class PassthruDao implements DonkeyDao {
     @Override
     public List<ConnectorMessage> getConnectorMessages(String channelId, long messageId, Set<Integer> metaDataIds, boolean includeContent) {
         return null;
+    }
+
+    @Override
+    public List<Ports> getPortsInUse() {
+        return new ArrayList<Ports>();
     }
 }

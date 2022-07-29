@@ -36,6 +36,7 @@ import com.mirth.connect.client.core.api.servlets.ChannelServletInterface;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelHeader;
@@ -185,15 +186,15 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
     
     @Override
     @DontCheckAuthorized
-    public Map<String, String> getChannelPortsUsed() throws ClientException {
-        Map<String, String> channelPortsUsed = new HashMap<String, String>();
+    public Map<String, String> getChannelPortsInUse() throws ClientException {
+        Map<String, String> channelPortsInUse = new HashMap<String, String>();
         if (isUserAuthorized()) {
-             // todo
-            // 1 query DB for list of channels whom has listenerProperties
-            // 2 load Map
-            // 3 return channelPortUsed Map
+            List<Ports> ports = channelController.getPortsInUse();
+            for (Ports port : ports) {
+                channelPortsInUse.put(port.getPort().toString(), port.getId() + ": " + port.getName());
+            }
         }
-        return channelPortsUsed;
+        return channelPortsInUse;
     }
 
     @Override

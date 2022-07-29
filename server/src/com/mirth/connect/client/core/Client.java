@@ -1035,13 +1035,13 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
     
     /**
-     * Returns a map of all channel Ports Used.
+     * Returns a map of all channel Ports In Use.
      * 
-     * @see ChannelServletInterface#getChannelPortsUsed
+     * @see ChannelServletInterface#getChannelPortsInUse
      */
     @Override
-    public Map<String, String> getChannelPortsUsed() throws ClientException {
-        return getServlet(ChannelServletInterface.class).getChannelPortsUsed();
+    public Map<String, String> getChannelPortsInUse() throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannelPortsInUse();
     }
 
     /**
