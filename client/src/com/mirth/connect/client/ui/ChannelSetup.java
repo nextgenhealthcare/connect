@@ -702,18 +702,17 @@ public class ChannelSetup extends JPanel {
         currentChannel.getExportData().getMetadata().setLastModified(Calendar.getInstance());
     }
 
-    private void setUserId() {
-    	try {
+    private void setUserId() {       
+		try {
 			currentChannel.getExportData().getMetadata().setUserId(parent.mirthClient.getCurrentUser().getId());
 		} catch (ClientException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            parent.alertThrowable(this.parent, e);
 		}
-		
+	
 	}
 
     private void updateChannelId() {
-        channelIdField.setText("Id: " + currentChannel.getId());
+        channelIdField.setText(" Id: " + currentChannel.getId());
     }
 
     private void updateRevision() {
