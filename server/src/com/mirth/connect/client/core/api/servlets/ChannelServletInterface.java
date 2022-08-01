@@ -42,6 +42,7 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelSummary;
@@ -155,14 +156,14 @@ public interface ChannelServletInterface extends BaseServletInterface {
 
     @GET
     @Path("/portsInUse")
-    @Operation(summary = "Returns a map of all ports in use throughout the channels.")
+    @Operation(summary = "Returns a list of all ports in use throughout the channels.")
     @ApiResponse(content = {
             @Content(mediaType = MediaType.APPLICATION_XML, examples = {
                     @ExampleObject(name = "channelPortsInUseMap", ref = "../apiexamples/ports_used_xml") }),
             @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
                     @ExampleObject(name = "channelPortsInUseMap", ref = "../apiexamples/ports_used_json") }) })
     @MirthOperation(name = "getChannelPortsInUse", display = "Get Ports In Use", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
-    public Map<String, String> getChannelPortsInUse() throws ClientException;
+    public List<Ports> getChannelPortsInUse() throws ClientException;
 
 	
 	@POST

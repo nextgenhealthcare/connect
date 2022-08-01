@@ -14,10 +14,8 @@ import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.prefs.Preferences;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
@@ -25,51 +23,36 @@ import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.mirth.connect.client.ui.CellData;
-import com.mirth.connect.client.ui.ChannelPanel;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.MirthDialog;
+import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
-import com.mirth.connect.connectors.jdbc.DatabaseReceiverProperties;
-import com.mirth.connect.model.DriverInfo;
-import com.mirth.connect.model.User;
+import com.mirth.connect.donkey.model.channel.Ports;
+import com.mirth.connect.model.Channel;
 
 import net.miginfocom.swing.MigLayout;
 
 public class PortUsageDialog extends MirthDialog {
 	
-    private List<DriverInfo> portsInUse;
-    private boolean saved;
+    private Frame parent;
     
     public PortUsageDialog(Window owner) {
         super(owner, "Ports in Use", true);
-        if (portsInUse == null) {
-        	portsInUse = new ArrayList<DriverInfo>();
-        } else {
-        	portsInUse = new ArrayList<DriverInfo>(portsInUse);
-        }
-        if (portsInUse.size() > 0) {
-            if (StringUtils.equals(portsInUse.get(0).getName(), DatabaseReceiverProperties.DRIVER_DEFAULT)) {
-            	portsInUse.remove(0);
-            }
-            if (StringUtils.equals(portsInUse.get(portsInUse.size() - 1).getName(), DatabaseReceiverProperties.DRIVER_CUSTOM)) {
-            	portsInUse.remove(portsInUse.size() - 1);
-            }
-        }
-        this.portsInUse = portsInUse;
+        this.parent = PlatformUI.MIRTH_FRAME;
         
         initComponents();
         initToolTips();
         initLayout();
-        setPorts(portsInUse);
+        setPorts();
         
-        setPreferredSize(new Dimension(250, 216));
+        
+        setPreferredSize(new Dimension(600, 216));
         pack();
         setLocationRelativeTo(owner);
         setVisible(true);
@@ -96,7 +79,7 @@ public class PortUsageDialog extends MirthDialog {
         }
 
         portsTable.getColumnExt(0).setPreferredWidth(25);
-        portsTable.getColumnExt(1).setPreferredWidth(200);
+        portsTable.getColumnExt(1).setPreferredWidth(300);
         portsTable.getColumnExt(2).setPreferredWidth(25);
 
         portsScrollPane = new JScrollPane(portsTable);
@@ -107,8 +90,6 @@ public class PortUsageDialog extends MirthDialog {
         closeButton.addActionListener(evt -> close());
         getRootPane().registerKeyboardAction(evt -> close(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-        // fill the table with data
-//        Map portsInUse = getChannelPortsUsed();
 	}	
 
 
@@ -125,29 +106,45 @@ public class PortUsageDialog extends MirthDialog {
         add(closeButton, "right");
     }
     
-    private void setPorts(List<DriverInfo> ports) {
-//        if (ports == null) {
-//        	ports = new ArrayList<DriverInfo>();
-//        }
-//
-//        Object[][] data = new Object[ports.size()][4];
-//
-//        for (int i = 0; i < ports.size(); i++) {
-//            DriverInfo info = ports.get(i);
-//            data[i][0] = StringUtils.trim(StringUtils.defaultString(info.getPort()));
-//            data[i][1] = StringUtils.trim(StringUtils.defaultString(info.getName()));
-//            data[i][2] = StringUtils.trim(StringUtils.defaultString(info.getStatus()));
-//
-//            String alternativeClassNamesStr = "";
-//            List<String> alternativeClassNames = info.getAlternativeClassNames();
-//            if (CollectionUtils.isNotEmpty(alternativeClassNames)) {
-//                alternativeClassNamesStr = StringUtils.join(alternativeClassNames, ',');
-//            }
-//            data[i][4] = alternativeClassNamesStr;
-//        }
-//
-//        ((RefreshTableModel) portsTable.getModel()).refreshDataVector(data);
+    private void setPorts() {
+    	List<Ports> ports = new ArrayList<Ports>();
+    	try {
+			ports = parent.mirthClient.getChannelPortsInUse();
+		} catch (ClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        Object[][] data = new Object[ports.size()][4];
+
+        for (int i = 0; i < ports.size(); i++) {
+            Ports port = ports.get(i);
+            
+            data[i][0] = port.getPort().toString();
+            data[i][1] = port.getName();          
+            Channel channel;
+            String enabled = "";
+			try {
+				channel = getChannelById(port.getId().toString());
+	            enabled = channel.getExportData().getMetadata().isEnabled() ? "Enabled" : "Disabled";
+			} catch (ClientException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            data[i][2] = enabled;
+        }
+
+        ((RefreshTableModel) portsTable.getModel()).refreshDataVector(data);
     }
+
+    public Channel getChannelById(String id) throws ClientException {
+        for (Channel channel : parent.mirthClient.getAllChannels()) {
+            if (channel.getId().equalsIgnoreCase(id)) {
+                return channel;
+            }
+        }
+        return null;
+    }  
 
     private void close() {
             dispose();

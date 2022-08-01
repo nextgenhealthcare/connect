@@ -27,9 +27,9 @@ public class Ports implements Serializable {
     }
 
     public Ports(String id, String name, Integer port) {
-        this.name = name.toUpperCase();
-        this.id = id;
-        this.port = port;
+        this.name = name.toUpperCase();			// channel name
+        this.id = id;							// channel id
+        this.port = port;						// listener port
     }
 
     public String getName() {

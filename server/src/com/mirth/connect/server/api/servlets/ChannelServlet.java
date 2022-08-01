@@ -186,15 +186,12 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
     
     @Override
     @DontCheckAuthorized
-    public Map<String, String> getChannelPortsInUse() throws ClientException {
-        Map<String, String> channelPortsInUse = new HashMap<String, String>();
+    public List<Ports> getChannelPortsInUse() throws ClientException {
+        List<Ports> ports = new ArrayList<Ports>();
         if (isUserAuthorized()) {
-            List<Ports> ports = channelController.getPortsInUse();
-            for (Ports port : ports) {
-                channelPortsInUse.put(port.getPort().toString(), port.getId() + ": " + port.getName());
-            }
+        	ports = channelController.getPortsInUse();
         }
-        return channelPortsInUse;
+        return ports;
     }
 
     @Override
