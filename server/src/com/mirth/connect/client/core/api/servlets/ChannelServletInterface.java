@@ -154,15 +154,15 @@ public interface ChannelServletInterface extends BaseServletInterface {
 
 
     @GET
-    @Path("/portsUsed")
-    @Operation(summary = "Returns a map of all ports used throughout the channels.")
+    @Path("/portsInUse")
+    @Operation(summary = "Returns a map of all ports in use throughout the channels.")
     @ApiResponse(content = {
             @Content(mediaType = MediaType.APPLICATION_XML, examples = {
-                    @ExampleObject(name = "channelPortsUsedMap", ref = "../apiexamples/ports_used_xml") }),
+                    @ExampleObject(name = "channelPortsInUseMap", ref = "../apiexamples/ports_used_xml") }),
             @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
-                    @ExampleObject(name = "channelPortsUsedMap", ref = "../apiexamples/ports_used_json") }) })
-    @MirthOperation(name = "getChannelPortsUsed", display = "Get Ports Used", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
-    public Map<String, String> getChannelPortsUsed() throws ClientException;
+                    @ExampleObject(name = "channelPortsInUseMap", ref = "../apiexamples/ports_used_json") }) })
+    @MirthOperation(name = "getChannelPortsInUse", display = "Get Ports In Use", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    public Map<String, String> getChannelPortsInUse() throws ClientException;
 
 	
 	@POST

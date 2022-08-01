@@ -373,4 +373,14 @@
 		WHERE METADATA_ID = ?
 		AND SERVER_ID = ?
 	</query>
+	
+		
+	<query id="getPortsInUse">
+		SELECT ID, NAME, 
+        SUBSTR(CHANNEL.CHANNEL, LOCATE (<![CDATA['<port>']]>, CHANNEL.CHANNEL )+6, 
+        (LOCATE (<![CDATA['</port>']]>, CHANNEL.CHANNEL) - LOCATE (<![CDATA['<port>']]>, CHANNEL.CHANNEL)) - 6) AS PORTSTRING
+        FROM CHANNEL
+        JOIN D_CHANNELS ON CHANNEL.ID = D_CHANNELS.CHANNEL_ID
+        WHERE CHANNEL.CHANNEL LIKE '%listenerConnectorProperties%'
+	</query>
 </queries>

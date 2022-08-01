@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.model.Channel;
@@ -97,4 +98,6 @@ public abstract class ChannelController extends Controller {
     public abstract List<ChannelGroup> getChannelGroups(Set<String> channelGroupIds);
 
     public abstract boolean updateChannelGroups(Set<ChannelGroup> channelGroups, Set<String> removedChannelGroupIds, boolean override) throws ControllerException;
+
+    public abstract List<Ports> getPortsInUse();
 }
