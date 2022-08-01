@@ -35,6 +35,7 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.model.Channel;
+import com.mirth.connect.plugins.DashboardPanelPlugin;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -94,9 +95,11 @@ public class PortUsageDialog extends MirthDialog {
 
 
     private void initToolTips() {
-        portsTable.getColumnExt(0).setToolTipText("<html>The port number in use.</html>");
-        portsTable.getColumnExt(1).setToolTipText("<html>The channel name to which the port is assigned.</html>");
-        portsTable.getColumnExt(2).setToolTipText("<html>The status of the port, such as deployed, undeployed, or disabled.</html>");
+        portsTable.getColumnExt(0).setToolTipText("<html>The listener port number in use.</html>");
+        portsTable.getColumnExt(1).setToolTipText("<html>The channel name to which the listenser port is assigned.</html>");
+        portsTable.getColumnExt(2).setToolTipText("<html>The status of the listener port, such as:"
+        		+ "<br> - started or stopped for deployed channels"
+        		+ "<br> - enabled or disabled for undeployed channels</html>");
     }
 
     private void initLayout() {
@@ -127,6 +130,9 @@ public class PortUsageDialog extends MirthDialog {
 			try {
 				channel = getChannelById(port.getId().toString());
 	            enabled = channel.getExportData().getMetadata().isEnabled() ? "Enabled" : "Disabled";
+	            if (enabled == "Enabled") {
+	            	enabled = parent.mirthClient.getChannelStatus(port.getId().toString()).getState().toString();
+	            }
 			} catch (ClientException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

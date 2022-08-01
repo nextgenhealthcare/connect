@@ -1036,7 +1036,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     }
     
     /**
-     * Returns a map of all channel Ports In Use.
+     * Returns a list of all channel listener Ports In Use.
      * 
      * @see ChannelServletInterface#getChannelPortsInUse
      */

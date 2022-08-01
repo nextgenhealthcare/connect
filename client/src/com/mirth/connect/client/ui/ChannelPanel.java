@@ -394,10 +394,6 @@ public class ChannelPanel extends AbstractFramePanel {
     public Map<String, String> getCachedChannelIdsAndNames() {
         return channelIdsAndNames;
     }
-    
-    public Map<String, String> getCachedChannelPortsUsed() {
-        return channelPortsUsed;
-    }
 
     public Map<String, ChannelStatus> getCachedChannelStatuses() {
         return channelStatuses;
@@ -594,16 +590,6 @@ public class ChannelPanel extends AbstractFramePanel {
     public void retrieveChannelIdsAndNames() {
         try {
             channelIdsAndNames = parent.mirthClient.getChannelIdsAndNames();
-        } catch (ClientException e) {
-            SwingUtilities.invokeLater(() -> {
-                parent.alertThrowable(parent, e, false);
-            });
-        }
-    }
-    
-    public void retrievePortsUsed() {
-        try {
-            channelPortsUsed = parent.mirthClient.getChannelPortsInUse();
         } catch (ClientException e) {
             SwingUtilities.invokeLater(() -> {
                 parent.alertThrowable(parent, e, false);

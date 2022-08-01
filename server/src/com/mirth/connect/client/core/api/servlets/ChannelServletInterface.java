@@ -156,7 +156,7 @@ public interface ChannelServletInterface extends BaseServletInterface {
 
     @GET
     @Path("/portsInUse")
-    @Operation(summary = "Returns a list of all ports in use throughout the channels.")
+    @Operation(summary = "Returns a list of all listener ports in use throughout the channels.")
     @ApiResponse(content = {
             @Content(mediaType = MediaType.APPLICATION_XML, examples = {
                     @ExampleObject(name = "channelPortsInUseMap", ref = "../apiexamples/ports_used_xml") }),
