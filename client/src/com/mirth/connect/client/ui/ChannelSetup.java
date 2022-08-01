@@ -702,8 +702,17 @@ public class ChannelSetup extends JPanel {
         currentChannel.getExportData().getMetadata().setLastModified(Calendar.getInstance());
     }
 
+    private void setUserId() {       
+		try {
+			currentChannel.getExportData().getMetadata().setUserId(parent.mirthClient.getCurrentUser().getId());
+		} catch (ClientException e) {
+            parent.alertThrowable(this.parent, e);
+		}
+	
+	}
+
     private void updateChannelId() {
-        channelIdField.setText("Id: " + currentChannel.getId());
+        channelIdField.setText(" Id: " + currentChannel.getId());
     }
 
     private void updateRevision() {
@@ -1089,7 +1098,7 @@ public class ChannelSetup extends JPanel {
 
     public void saveSourcePanel() {
         currentChannel.getSourceConnector().setProperties(sourceConnectorPanel.getProperties());
-
+        
         if (!loadingChannel && resourceIds.containsKey(currentChannel.getSourceConnector().getMetaDataId())) {
             ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().setResourceIds(resourceIds.get(currentChannel.getSourceConnector().getMetaDataId()));
         }
@@ -1181,9 +1190,9 @@ public class ChannelSetup extends JPanel {
                 return false;
             }
         }
-
+        
         boolean enabled = summaryEnabledCheckBox.isSelected();
-
+        
         saveSourcePanel();
 
         if (parent.currentContentPage == transformerPane) {
@@ -1209,6 +1218,7 @@ public class ChannelSetup extends JPanel {
 
         updateScripts();
         setLastModified();
+        setUserId();
 
         currentChannel.getProperties().setClearGlobalChannelMap(clearGlobalChannelMapCheckBox.isSelected());
         currentChannel.getProperties().setEncryptData(encryptMessagesCheckBox.isSelected());
@@ -1294,7 +1304,7 @@ public class ChannelSetup extends JPanel {
         return updated;
     }
 
-    private void saveMessageStorage(MessageStorageMode messageStorageMode) {
+	private void saveMessageStorage(MessageStorageMode messageStorageMode) {
         ChannelProperties properties = currentChannel.getProperties();
         properties.setMessageStorageMode(messageStorageMode);
         properties.setEncryptData(encryptMessagesCheckBox.isSelected());
