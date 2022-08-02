@@ -187,8 +187,6 @@ public class ChannelPanel extends AbstractFramePanel {
     private Frame parent;
 
     private Map<String, String> channelIdsAndNames = new HashMap<String, String>();
-    private Map<String, String> channelPortsUsed = new HashMap<String, String>();
-    
     private Map<String, ChannelStatus> channelStatuses = new LinkedHashMap<String, ChannelStatus>();
     private Map<String, ChannelGroupStatus> groupStatuses = new LinkedHashMap<String, ChannelGroupStatus>();
     private Set<ChannelDependency> channelDependencies = new HashSet<ChannelDependency>();

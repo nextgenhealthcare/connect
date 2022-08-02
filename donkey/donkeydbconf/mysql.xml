@@ -251,4 +251,12 @@
 	<query id="removeMetaDataColumn">
 		ALTER TABLE D_MCM${localChannelId} DROP COLUMN `${columnName}`
 	</query>
+	
+	<query id="getPortsInUse">
+		SELECT ID, NAME, 
+        SUBSTRING(CHANNEL.CHANNEL, LOCATE (<![CDATA['<port>']]>, CHANNEL.CHANNEL )+6, 
+        (LOCATE (<![CDATA['</port>']]>, CHANNEL.CHANNEL) - LOCATE (<![CDATA['<port>']]>, CHANNEL.CHANNEL)) - 6) AS PORTSTRING
+        FROM CHANNEL
+        WHERE CHANNEL.CHANNEL LIKE '%listenerConnectorProperties%';
+	</query>
 </queries>
