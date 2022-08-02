@@ -203,7 +203,6 @@
 		<jar destfile="${connectors.file}/file-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/file/**" />
-				<include name="jcifs/**" />
 				<exclude name="com/mirth/connect/connectors/file/SchemeProperties.class" />
 				<exclude name="com/mirth/connect/connectors/file/FTPSchemeProperties.class" />
 				<exclude name="com/mirth/connect/connectors/file/SftpSchemeProperties.class" />
