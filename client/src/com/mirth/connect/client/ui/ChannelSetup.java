@@ -1119,6 +1119,21 @@ public class ChannelSetup extends JPanel {
      * Save all of the current channel information in the editor to the actual channel
      */
     public boolean saveChanges() {
+    	String otherUsername = "unknown";
+    	Channel originalStateChannel = null;
+    	
+        try {
+			originalStateChannel = parent.mirthClient.getChannel(currentChannel.getId(), false);
+        	if (originalStateChannel != null) {
+        		Integer userId = originalStateChannel.getExportData().getMetadata().getUserId();
+    			if (userId != 0 && userId != null) {
+    				otherUsername = parent.mirthClient.getUser(userId).getUsername();
+    			}
+        	}
+		} catch (ClientException e1) {
+			
+		}
+
         if (!parent.checkChannelName(nameField.getText(), currentChannel.getId())) {
             return false;
         }
@@ -1190,7 +1205,7 @@ public class ChannelSetup extends JPanel {
                 return false;
             }
         }
-        
+
         boolean enabled = summaryEnabledCheckBox.isSelected();
         
         saveSourcePanel();
@@ -1265,7 +1280,7 @@ public class ChannelSetup extends JPanel {
         try {
             // Will throw exception if the connection died or there was an exception
             // saving the channel, skipping the rest of this code.
-            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()));
+            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()), otherUsername);
 
             try {
                 currentChannel = (Channel) SerializationUtils.clone(parent.channelPanel.getCachedChannelStatuses().get(currentChannel.getId()).getChannel());
