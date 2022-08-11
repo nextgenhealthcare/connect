@@ -159,9 +159,9 @@ public interface ChannelServletInterface extends BaseServletInterface {
     @Operation(summary = "Returns a list of all listener ports in use throughout the channels.")
     @ApiResponse(content = {
             @Content(mediaType = MediaType.APPLICATION_XML, examples = {
-                    @ExampleObject(name = "channelPortsInUseMap", ref = "../apiexamples/ports_used_xml") }),
+                    @ExampleObject(name = "ports_used", ref = "../apiexamples/ports_used_xml") }),
             @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
-                    @ExampleObject(name = "channelPortsInUseMap", ref = "../apiexamples/ports_used_json") }) })
+                    @ExampleObject(name = "ports_used", ref = "../apiexamples/ports_used_json") }) })
     @MirthOperation(name = "getChannelPortsInUse", display = "Get Ports In Use", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
     public List<Ports> getChannelPortsInUse() throws ClientException;
 
