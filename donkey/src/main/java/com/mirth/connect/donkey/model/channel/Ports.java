@@ -27,9 +27,9 @@ public class Ports implements Serializable {
     }
 
     public Ports(String id, String name, Integer port) {
-        this.name = name.toUpperCase();			// channel name
-        this.id = id;							// channel id
-        this.port = port;						// listener port
+        this.name = name==null ? "" : name.toUpperCase();
+        this.id = id;
+        this.port = port;
     }
 
     public String getName() {
@@ -37,7 +37,7 @@ public class Ports implements Serializable {
     }
 
     public void setName(String name) {
-        this.name = name.toUpperCase();
+        this.name = name==null ? "" : name.toUpperCase();
     }
     
     public void setId(String _id) {
@@ -64,9 +64,9 @@ public class Ports implements Serializable {
 
         Ports newPortsObject = (Ports) object;
         if (newPortsObject.getName() != null && name != null) {
-            return (newPortsObject.getName().equals(name) && newPortsObject.getId() == id && newPortsObject.getPort().equals(port));
+            return (newPortsObject.getName().equals(name) && newPortsObject.getId().equals(id) && newPortsObject.getPort().equals(port));
         } else if (newPortsObject.getName() == null && name == null) {
-            return (newPortsObject.getName().equals(name) && newPortsObject.getId() == id);
+            return (newPortsObject.getName().equals(name) && newPortsObject.getId().equals(id));
         } else {
             return false;
         }

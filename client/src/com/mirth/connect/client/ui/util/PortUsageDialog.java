@@ -35,7 +35,6 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.plugins.DashboardPanelPlugin;
 
 import net.miginfocom.swing.MigLayout;
 
