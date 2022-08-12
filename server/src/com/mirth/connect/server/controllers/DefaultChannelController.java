@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Statistics;
@@ -1086,4 +1087,11 @@ public class DefaultChannelController extends ChannelController {
             }
         }
     }
+
+    @Override
+    public List<Ports> getPortsInUse() {
+        logger.debug("getting ports in use");
+        return com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getPortsInUse();
+    }
+    
 }

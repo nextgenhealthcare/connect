@@ -192,4 +192,14 @@
 	<query id="deleteAllMessages">
         TRUNCATE TABLE D_M${localChannelId} CASCADE;
 	</query>
+	
+	
+	<query id="getPortsInUse">
+		SELECT ID, NAME, 
+        SUBSTRING(CHANNEL.CHANNEL, POSITION (<![CDATA['<port>']]> IN CHANNEL.CHANNEL )+6, 
+        (POSITION (<![CDATA['</port>']]> IN CHANNEL.CHANNEL) - POSITION (<![CDATA['<port>']]> IN CHANNEL.CHANNEL)) - 6) AS PORTSTRING
+        FROM CHANNEL
+        WHERE CHANNEL.CHANNEL LIKE '%listenerConnectorProperties%';
+	</query>
+	
 </queries>

@@ -44,6 +44,7 @@ import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.client.ui.components.MirthTextField;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
+import com.mirth.connect.client.ui.util.PortUsageDialog;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
@@ -369,6 +370,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         remotePortLabel = new JLabel();
         remoteAddressLabel = new JLabel();
         remotePortField = new MirthTextField();
+        portsInUse = new JButton();
         sendTimeoutField = new MirthTextField();
         bufferSizeField = new MirthTextField();
         keepConnectionOpenYesRadio = new MirthRadioButton();
@@ -418,6 +420,16 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         remoteAddressLabel.setText("Remote Address:");
 
         remotePortField.setToolTipText("<html>The port on which to connect.</html>");
+        
+        portsInUse.setText("Ports in Use");
+        portsInUse.setToolTipText("View all ports currently used by Mirth Connect.");
+        portsInUse.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                portsInUseActionPerformed(evt);
+            }
+
+
+        });
 
         sendTimeoutField.setToolTipText("<html>The number of milliseconds to keep the connection<br/>to the host open, if Keep Connection Open is enabled.<br/>If zero, the connection will be kept open indefinitely.</html>");
 
@@ -625,7 +637,6 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         maxConnectionsField = new MirthTextField();
         maxConnectionsField.setToolTipText("<html>The maximum number of client connections to accept.<br/>After this number has been reached, subsequent socket requests will result in a rejection.</html>");
     }
-    // @formatter:on
     
     private void initLayout() {
     	setLayout(new MigLayout("insets 0, novisualpadding, hidemode 3, gap 12 6", "", "[][]4[]4[][]4[]4[][][][]4[]4[]4[]4[]4[][]"));
@@ -642,7 +653,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         add(modeClientRadio, "split 2");
         add(modeServerRadio);
         add(remoteAddressLabel, "newline, right");
-        add(remoteAddressField, "w 200!, split 2, spanx");
+        add(remoteAddressField, "w 200!, split 2, sx");
         add(testConnection, "gapleft 6");
         add(remotePortLabel, "newline, right");
         add(remotePortField, "w 50!, sx");
@@ -652,7 +663,8 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         add(localAddressLabel, "newline, right");
         add(localAddressField, "w 200!, sx");
         add(localPortLabel, "newline, right");
-        add(localPortField, "w 50!, sx");
+        add(localPortField, "w 50!, split 2, sx");
+        add(portsInUse, "gapleft 6");
         add(maxConnectionsLabel, "newline, right");
         add(maxConnectionsField, "w 75!, sx");
         add(keepConnectionOpenLabel, "newline, right");
@@ -818,6 +830,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         localAddressField.setEnabled(true);
         localPortLabel.setEnabled(true);
         localPortField.setEnabled(true);
+        portsInUse.setEnabled(true);
         maxConnectionsLabel.setEnabled(true);
         maxConnectionsField.setEnabled(true);
     }
@@ -835,6 +848,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         localAddressLabel.setEnabled(true);
         localPortField.setEnabled(true);
         localPortLabel.setEnabled(true);
+        portsInUse.setEnabled(true);
     }
 
     private void overrideLocalBindingNoRadioActionPerformed(ActionEvent evt) {
@@ -842,10 +856,16 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
         localAddressLabel.setEnabled(false);
         localPortField.setEnabled(false);
         localPortLabel.setEnabled(false);
+        portsInUse.setEnabled(false);
     }
 
     private void charsetEncodingComboboxActionPerformed(ActionEvent evt) {
     }
+
+	private void portsInUseActionPerformed(ActionEvent evt) {
+		PortUsageDialog dialog = new PortUsageDialog(parent);
+		
+	}
 
     private JLabel modeLabel;
     public MirthRadioButton modeServerRadio;
@@ -880,6 +900,7 @@ public class TcpSender extends ConnectorSettingsPanel implements ActionListener 
     private ButtonGroup overrideLocalBindingButtonGroup;
     private MirthRadioButton overrideLocalBindingNoRadio;
     private MirthRadioButton overrideLocalBindingYesRadio;
+    private JButton portsInUse;
     private ButtonGroup queueOnResponseTimeoutButtonGroup;
     private JLabel queueOnResponseTimeoutLabel;
     private MirthRadioButton queueOnResponseTimeoutNoRadio;

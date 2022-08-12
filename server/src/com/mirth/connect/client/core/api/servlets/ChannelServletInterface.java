@@ -42,6 +42,7 @@ import com.mirth.connect.client.core.api.MirthOperation;
 import com.mirth.connect.client.core.api.Param;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelHeader;
 import com.mirth.connect.model.ChannelSummary;
@@ -152,6 +153,19 @@ public interface ChannelServletInterface extends BaseServletInterface {
 	@MirthOperation(name = "getChannelIdsAndNames", display = "Get channel IDs and names", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
 	public Map<String, String> getChannelIdsAndNames() throws ClientException;
 
+
+    @GET
+    @Path("/portsInUse")
+    @Operation(summary = "Returns a list of all listener ports in use throughout the channels.")
+    @ApiResponse(content = {
+            @Content(mediaType = MediaType.APPLICATION_XML, examples = {
+                    @ExampleObject(name = "ports_used", ref = "../apiexamples/ports_used_xml") }),
+            @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
+                    @ExampleObject(name = "ports_used", ref = "../apiexamples/ports_used_json") }) })
+    @MirthOperation(name = "getChannelPortsInUse", display = "Get Ports In Use", permission = Permissions.CHANNELS_VIEW, type = ExecuteType.ASYNC, auditable = false)
+    public List<Ports> getChannelPortsInUse() throws ClientException;
+
+	
 	@POST
 	@Path("/_getSummary")
 	@Operation(summary = "Returns a list of channel summaries, indicating to a client which channels have changed (been updated, deleted, undeployed, etc.). If a channel was modified, the entire Channel object will be returned.")
