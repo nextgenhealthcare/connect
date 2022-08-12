@@ -159,7 +159,7 @@ public class ListenerSettingsPanel extends JPanel {
     }
     
     private void initLayout() {        
-    	setLayout(new MigLayout("novisualpadding", "[right]12[fill]12[left, fill]"));
+    	setLayout(new MigLayout("insets 0 8 0 8, novisualpadding", "[right]12[fill]12[left, fill]"));
     	setBackground(UIConstants.BACKGROUND_COLOR);
     	add(addressLabel);
     	add(allRadio);
