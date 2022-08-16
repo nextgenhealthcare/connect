@@ -85,6 +85,8 @@ public class UserEditPanel extends javax.swing.JPanel {
     Map<String, String> countryMap = new HashMap<String, String>(); 
     private List<String> countryNames;
 
+
+
     public UserEditPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         
@@ -177,53 +179,52 @@ public class UserEditPanel extends javax.swing.JPanel {
         boolean finishEnabled = true;
         // Any of the following clauses cause the finish button to be disabled
         // how do we force the state territory??
-        if ((StringUtils.isBlank(username.getText())) || 
-           	 passwordIsRequired && (StringUtils.isBlank(String.valueOf(password.getPassword())) || 
+        if (StringUtils.isBlank(username.getText()) || 
+           	 passwordIsRequired && StringUtils.isBlank(String.valueOf(password.getPassword())) || 
              confirmPasswordIsRequired && StringUtils.isBlank(String.valueOf(confirmPassword.getPassword())) ||
         	 firstNameIsRequired && StringUtils.isBlank(firstName.getText()) || 
         	 lastNameIsRequired && StringUtils.isBlank(lastName.getText()) || 
         	 emailIsRequired && StringUtils.isBlank(email.getText()) || 
         	 countryIsRequired && country.getSelectedItem().equals(DEFAULT_OPTION) ||
-        	 phoneIsRequired && StringUtils.isBlank(phone.getText()) || 
-        	 organizationIsRequired && StringUtils.isBlank(organization.getText()) || 
-        	 roleIsRequired && role.getSelectedItem().equals(DEFAULT_OPTION) ||
-        	 stateTerritoryIsRequired && stateTerritory.getSelectedItem().equals(DEFAULT_OPTION) ||
-        	 industryIsRequired && industry.getSelectedItem().equals(DEFAULT_OPTION))) {
+        	 organizationIsRequired && StringUtils.isBlank(organization.getText())) {
             finishEnabled = false;
         }
         dialog.setFinishButtonEnabled(finishEnabled);
         return finishEnabled;
     }
 
-    // allRequired = all fields are required
+    // allRequired = all fields are required except state, phone, roles, business, and description
     // passwordRequired = password fields are required for new users screen and first time login
-    // for all users
+    // 			for all users
     // passwordRequired = false when editing a user
     public void setRequiredFields(boolean allRequired, boolean passwordRequired) {
         confirmPasswordIsRequired = passwordRequired;
         countryIsRequired = allRequired;
         emailIsRequired = allRequired;
         firstNameIsRequired = allRequired;
-        industryIsRequired = allRequired;
         lastNameIsRequired = allRequired;
         organizationIsRequired = allRequired;
         passwordIsRequired = passwordRequired;
         phoneIsRequired = allRequired;
         roleIsRequired = allRequired;
-		if (country.getSelectedItem() == "United States") {
-			stateTerritoryIsRequired = allRequired;
-		} else {
-			stateTerritoryIsRequired = false;
-		}
-        // if allRequired then do not show any asterisks
         if (allRequired) {
-            passwordAsteriskLabel.setVisible(false);
-            confirmPasswordAsteriskLabel.setVisible(false);
-        	usernameAsteriskLabel.setVisible(false);
+        	//usernameAsteriskLabel.setVisible(true);
+            passwordAsteriskLabel.setVisible(true);
+            confirmPasswordAsteriskLabel.setVisible(true);
+            firstNameAsteriskLabel.setVisible(true);
+            lastNameAsteriskLabel.setVisible(true);
+            emailAsteriskLabel.setVisible(true);
+            countryAsteriskLabel.setVisible(true);
+            organizationAsteriskLabel.setVisible(true);
         } else {        	
             passwordAsteriskLabel.setVisible(passwordRequired);
             confirmPasswordAsteriskLabel.setVisible(passwordRequired);
-        	usernameAsteriskLabel.setVisible(true);
+        	//usernameAsteriskLabel.setVisible(true);
+            firstNameAsteriskLabel.setVisible(false);
+            lastNameAsteriskLabel.setVisible(false);
+            emailAsteriskLabel.setVisible(false);
+            countryAsteriskLabel.setVisible(false);
+            organizationAsteriskLabel.setVisible(false);
         }
         checkIfAbleToFinish();
     }
@@ -307,7 +308,7 @@ public class UserEditPanel extends javax.swing.JPanel {
     	usernameAsteriskLabel = new JLabel();
     	usernameAsteriskLabel.setForeground(new Color(255, 0, 0));
     	usernameAsteriskLabel.setText("*");
-    	usernameAsteriskLabel.setVisible(false);
+    	usernameAsteriskLabel.setVisible(true);
     	
     	passwordAsteriskLabel = new JLabel();
     	passwordAsteriskLabel.setForeground(new Color(255, 0, 0));
@@ -318,6 +319,31 @@ public class UserEditPanel extends javax.swing.JPanel {
     	confirmPasswordAsteriskLabel.setForeground(new Color(255, 0, 0));
     	confirmPasswordAsteriskLabel.setText("*");
     	confirmPasswordAsteriskLabel.setVisible(false);
+    	
+    	firstNameAsteriskLabel = new JLabel();
+    	firstNameAsteriskLabel.setForeground(new Color(255, 0, 0));
+    	firstNameAsteriskLabel.setText("*");
+    	firstNameAsteriskLabel.setVisible(false);
+    	
+    	lastNameAsteriskLabel = new JLabel();
+    	lastNameAsteriskLabel.setForeground(new Color(255, 0, 0));
+    	lastNameAsteriskLabel.setText("*");
+    	lastNameAsteriskLabel.setVisible(false);
+    	
+    	emailAsteriskLabel = new JLabel();
+    	emailAsteriskLabel.setForeground(new Color(255, 0, 0));
+    	emailAsteriskLabel.setText("*");
+    	emailAsteriskLabel.setVisible(false);
+    	
+    	countryAsteriskLabel = new JLabel();
+    	countryAsteriskLabel.setForeground(new Color(255, 0, 0));
+    	countryAsteriskLabel.setText("*");
+    	countryAsteriskLabel.setVisible(false);
+    	
+    	organizationAsteriskLabel = new JLabel();
+    	organizationAsteriskLabel.setForeground(new Color(255, 0, 0));
+    	organizationAsteriskLabel.setText("*");
+    	organizationAsteriskLabel.setVisible(false);
 
         usernameLabel = new JLabel("Username:");
         username = new JTextField();
@@ -462,19 +488,24 @@ public class UserEditPanel extends javax.swing.JPanel {
     	editUserPanel.add(confirmPassword);
     	editUserPanel.add(confirmPasswordAsteriskLabel, "wrap");
     	editUserPanel.add(firstNameLabel);
-    	editUserPanel.add(firstName, "wrap");
+    	editUserPanel.add(firstName);
+    	editUserPanel.add(firstNameAsteriskLabel, "wrap");
     	editUserPanel.add(lastNameLabel);
-    	editUserPanel.add(lastName, "wrap");
+    	editUserPanel.add(lastName);
+    	editUserPanel.add(lastNameAsteriskLabel, "wrap");
     	editUserPanel.add(emailLabel);
-    	editUserPanel.add(email, "wrap");
+    	editUserPanel.add(email);
+    	editUserPanel.add(emailAsteriskLabel, "wrap");
     	editUserPanel.add(countryLabel);
-    	editUserPanel.add(country, "wrap");
+    	editUserPanel.add(country);
+    	editUserPanel.add(countryAsteriskLabel, "wrap");
 		editUserPanel.add(stateTerritoryLabel);
 		editUserPanel.add(stateTerritory, "wrap");
     	editUserPanel.add(phoneLabel);
     	editUserPanel.add(phone, "wrap");
     	editUserPanel.add(organizationLabel);
-    	editUserPanel.add(organization, "wrap");
+    	editUserPanel.add(organization);
+    	editUserPanel.add(organizationAsteriskLabel, "wrap");
 		editUserPanel.add(roleLabel);
 		editUserPanel.add(role, "wrap");
     	editUserPanel.add(industryLabel);
@@ -524,18 +555,9 @@ public class UserEditPanel extends javax.swing.JPanel {
         if (dialog != null) {
         	if (country.getSelectedItem() == "United States") {
         		stateTerritory.setEnabled(true);
-        		// currently the three options of required fields are
-        		//   1. new user or first time login without registering (user name, password, and password verification are required)
-        		//   2. edit user (user name is required)
-        		//   3. first time login with registering (all fields are required but description)
-        		// based on this, if the first name is required then all fields are required
-        		if (firstNameIsRequired) {
-        			stateTerritoryIsRequired = true;
-        		}
         	} else {
                 stateTerritory.getModel().setSelectedItem(DEFAULT_OPTION);
         		stateTerritory.setEnabled(false);
-        		stateTerritoryIsRequired = false;
         	}
         	phone.setText(formatPhoneNumber(phone.getText(), getKeyFromValue(countryMap, country.getSelectedItem()).toString()));
             checkIfAbleToFinish();
@@ -574,11 +596,13 @@ public class UserEditPanel extends javax.swing.JPanel {
     private Boolean confirmPasswordIsRequired = false;
     private JLabel confirmPasswordLabel;
     private JComboBox<String> country;
+    private JLabel countryAsteriskLabel;
     private Boolean countryIsRequired = false;
     private JLabel countryLabel;
     private JTextArea description;
     private JLabel descriptionLabel;
     private MirthTextField email;
+    private JLabel emailAsteriskLabel;
     private Boolean emailIsRequired = false;
     private JLabel emailLabel;
     private MirthTextField firstName;
@@ -589,9 +613,11 @@ public class UserEditPanel extends javax.swing.JPanel {
     private JLabel industryLabel;
     private JScrollPane jScrollPane1;
     private MirthTextField lastName;
+    private JLabel lastNameAsteriskLabel;
     private Boolean lastNameIsRequired = false;
     private JLabel lastNameLabel;
     private MirthTextField organization;
+    private JLabel organizationAsteriskLabel;
     private Boolean organizationIsRequired = false;
     private JLabel organizationLabel;
     private JPasswordField password;
@@ -611,4 +637,6 @@ public class UserEditPanel extends javax.swing.JPanel {
     private JLabel usernameAsteriskLabel;
     private Boolean usernameIsRequired = false;
     private JLabel usernameLabel;
+    private JLabel firstNameAsteriskLabel;
+	
 }
