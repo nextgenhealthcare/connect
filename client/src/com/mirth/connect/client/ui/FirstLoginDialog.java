@@ -14,6 +14,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.prefs.Preferences;
 
 import javax.swing.JDialog;
 import javax.swing.event.HyperlinkEvent;
@@ -35,6 +36,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
     private Frame parent;
     private boolean result = false;
+    private static Preferences preferences;
 
     /** Creates new form UserDialog */
     public FirstLoginDialog(User currentUser) {
@@ -278,6 +280,24 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
             try {
                 User currentUser = parent.getCurrentUser(parent);
                 parent.mirthClient.setUserPreference(currentUser.getId(), "firstlogin", "false");
+                // if the above doesn't error and this is user 1, create string to put in OS preferences
+                if (Integer.valueOf(currentUser.getId()) == 1) {
+                	String userInfo = currentUser.getUsername() + "," +
+                			currentUser.getFirstName() + "," + 
+                			currentUser.getLastName() + "," +
+                			currentUser.getEmail() + "," +
+                			currentUser.getCountry() + "," +
+                			currentUser.getStateTerritory() + "," +
+                			currentUser.getPhoneNumber() + "," +
+                			currentUser.getOrganization() + "," +
+                			currentUser.getRole() + "," +
+                			currentUser.getIndustry() + "," +
+                			currentUser.getDescription() + ",END";
+                	preferences = Preferences.systemRoot();
+                	preferences.put("userLoginInfo", userInfo);
+                	// used for debugging original first login screen
+                	//preferences.remove("userLoginInfo");
+                }
             } catch (ClientException e) {
                 parent.alertThrowable(this, e);
             }

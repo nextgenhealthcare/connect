@@ -459,7 +459,7 @@ public class UserEditPanel extends javax.swing.JPanel {
             }
         });  
 
-        descriptionLabel = new JLabel("Description (Optional):");
+        descriptionLabel = new JLabel("Description:");
         description = new JTextArea();
         description.setColumns(20);
         description.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
