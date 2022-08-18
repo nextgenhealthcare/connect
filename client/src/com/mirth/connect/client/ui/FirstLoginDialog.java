@@ -14,6 +14,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.prefs.Preferences;
 
 import javax.swing.JDialog;
 import javax.swing.event.HyperlinkEvent;
@@ -35,6 +36,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
     private Frame parent;
     private boolean result = false;
+    private static Preferences preferences;
 
     /** Creates new form UserDialog */
     public FirstLoginDialog(User currentUser) {
@@ -47,7 +49,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         userEditPanel.setUser(this, currentUser);
         userEditPanel.setRequiredFields(true, true);
         if (currentUser.getId() == 1) {
-            registerCheckBox.setEnabled(false);
+            registerCheckBox.setVisible(false);
         }
 
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
@@ -150,7 +152,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         
         registerCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         registerCheckBox.setSelected(true);
-        registerCheckBox.setText("Register user with NextGen Healthcare - ALL fields are required unless marked as \"Optional\"");
+        registerCheckBox.setText("Register user with NextGen Healthcare");
         registerCheckBox.setToolTipText("<html>Register your user information with NextGen Healthcare to help us<br>improve the product and provide better service.</html>");
         registerCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -278,6 +280,24 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
             try {
                 User currentUser = parent.getCurrentUser(parent);
                 parent.mirthClient.setUserPreference(currentUser.getId(), "firstlogin", "false");
+                // if the above doesn't error and this is user 1, create string to put in OS preferences
+                if (Integer.valueOf(currentUser.getId()) == 1) {
+                	String userInfo = currentUser.getUsername() + "," +
+                			currentUser.getFirstName() + "," + 
+                			currentUser.getLastName() + "," +
+                			currentUser.getEmail() + "," +
+                			currentUser.getCountry() + "," +
+                			currentUser.getStateTerritory() + "," +
+                			currentUser.getPhoneNumber() + "," +
+                			currentUser.getOrganization() + "," +
+                			currentUser.getRole() + "," +
+                			currentUser.getIndustry() + "," +
+                			currentUser.getDescription() + ",END";
+                	preferences = Preferences.systemRoot();
+                	preferences.put("userLoginInfo", userInfo);
+                	// used for debugging original first login screen
+                	//preferences.remove("userLoginInfo");
+                }
             } catch (ClientException e) {
                 parent.alertThrowable(this, e);
             }
