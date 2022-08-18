@@ -85,8 +85,6 @@ public class UserEditPanel extends javax.swing.JPanel {
     Map<String, String> countryMap = new HashMap<String, String>(); 
     private List<String> countryNames;
 
-
-
     public UserEditPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         
