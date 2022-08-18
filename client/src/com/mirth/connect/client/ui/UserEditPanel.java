@@ -206,7 +206,6 @@ public class UserEditPanel extends javax.swing.JPanel {
         phoneIsRequired = allRequired;
         roleIsRequired = allRequired;
         if (allRequired) {
-        	//usernameAsteriskLabel.setVisible(true);
             passwordAsteriskLabel.setVisible(true);
             confirmPasswordAsteriskLabel.setVisible(true);
             firstNameAsteriskLabel.setVisible(true);
