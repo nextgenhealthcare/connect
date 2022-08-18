@@ -217,7 +217,6 @@ public class UserEditPanel extends javax.swing.JPanel {
         } else {        	
             passwordAsteriskLabel.setVisible(passwordRequired);
             confirmPasswordAsteriskLabel.setVisible(passwordRequired);
-        	//usernameAsteriskLabel.setVisible(true);
             firstNameAsteriskLabel.setVisible(false);
             lastNameAsteriskLabel.setVisible(false);
             emailAsteriskLabel.setVisible(false);
