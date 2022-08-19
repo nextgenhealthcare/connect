@@ -574,7 +574,7 @@ public class LoginPanel extends javax.swing.JFrame {
                         	// if current user is user 1:
                     		// 	1. check system preferences for user information
                     		// 	2. if system preferences exist, populate screen using currentUser
-                        	Preferences preferences = Preferences.userRoot();
+                        	Preferences preferences = Preferences.userNodeForPackage(Mirth.class);
     						String systemUserInfo = preferences.get("userLoginInfo", null);
     						if (systemUserInfo != null) {
                         		String info[] = systemUserInfo.split(",", 0);

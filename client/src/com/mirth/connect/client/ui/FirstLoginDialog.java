@@ -293,7 +293,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
                 			currentUser.getRole() + "," +
                 			currentUser.getIndustry() + "," +
                 			currentUser.getDescription() + ",END";
-                	preferences = Preferences.userRoot();
+                	preferences = Preferences.userNodeForPackage(Mirth.class);
                 	preferences.put("userLoginInfo", userInfo);
                 	// used for debugging original first login screen
                 	//preferences.remove("userLoginInfo");
