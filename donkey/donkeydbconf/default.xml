@@ -487,4 +487,5 @@
 	<query id="dropStatisticsTable"></query>
 	<query id="dropMessageSequence"></query>
 	<query id="deleteChannel"></query>
+	<query id="getPortsInUse"></query>
 </queries>

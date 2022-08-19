@@ -47,6 +47,7 @@ import com.mirth.connect.connectors.ws.WebServiceDispatcherProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
@@ -174,7 +175,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getCalendarExample();
         } else if (exampleRequested.equals("channel")) {
 			requestedObject = getChannelExample();
-		} else if (exampleRequested.equals("channel_header_map")) {
+        } else if (exampleRequested.equals("channel_header_map")) {
 			requestedObject = getChannelHeaderMapExample();
 		} else if (exampleRequested.equals("channel_list")) {
 			requestedObject = getChannelListExample();
@@ -184,6 +185,8 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getChannelGroupListExample();
 		} else if (exampleRequested.equals("channel_metadata_map")) {
             requestedObject = getChannelMetadataMapExample();
+		} else if (exampleRequested.equals("ports_used")) {
+		    requestedObject = getChannelPortsInUseExample();
         } else if (exampleRequested.equals("channel_statistics")) {
 		    requestedObject = getChannelStatisticsExample();
 		} else if (exampleRequested.equals("channel_statistics_list")) {
@@ -591,6 +594,15 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    Map<String, ChannelMetadata> channelMetadataMap = new HashMap<>();
 	    channelMetadataMap.put(UUID.randomUUID().toString(), getChannelMetadataExample());
 	    return channelMetadataMap;
+	}
+	
+	private List<Ports> getChannelPortsInUseExample(){
+	    List<Ports> portsUsed = new ArrayList<Ports>();
+	    Ports ports1 = new Ports(UUID.randomUUID().toString(),"Default WebClient Port", 8080);
+	    Ports ports2 = new Ports(UUID.randomUUID().toString(),"Default Administrator Port", 8443);
+	    portsUsed.add(ports1);
+	    portsUsed.add(ports2);
+	    return portsUsed;
 	}
 	
 	private List<ChannelSummary> getChannelSummaryListExample() {

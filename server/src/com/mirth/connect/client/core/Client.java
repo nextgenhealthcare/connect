@@ -77,6 +77,7 @@ import com.mirth.connect.client.core.api.util.OperationUtil;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -1032,6 +1033,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     @Override
     public Map<String, String> getChannelIdsAndNames() throws ClientException {
         return getServlet(ChannelServletInterface.class).getChannelIdsAndNames();
+    }
+    
+    /**
+     * Returns a list of all channel listener Ports In Use.
+     * 
+     * @see ChannelServletInterface#getChannelPortsInUse
+     */
+    @Override
+    public List<Ports> getChannelPortsInUse() throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannelPortsInUse();
     }
 
     /**

@@ -36,6 +36,7 @@ import com.mirth.connect.client.core.api.servlets.ChannelServletInterface;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelHeader;
@@ -181,6 +182,16 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
             }
         }
         return channelIdsAndNames;
+    }
+    
+    @Override
+    @DontCheckAuthorized
+    public List<Ports> getChannelPortsInUse() throws ClientException {
+        List<Ports> ports = new ArrayList<Ports>();
+        if (isUserAuthorized()) {
+        	ports = channelController.getPortsInUse();
+        }
+        return ports;
     }
 
     @Override

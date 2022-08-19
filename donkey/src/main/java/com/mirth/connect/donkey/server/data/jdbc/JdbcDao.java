@@ -40,6 +40,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.ErrorContent;
@@ -3092,5 +3093,37 @@ public class JdbcDao implements DonkeyDao {
     protected String getDeployedChannelName(String channelId) {
         Channel channel = donkey.getDeployedChannels().get(channelId);
         return channel != null ? channel.getName() : "";
+    }
+
+    @Override
+    public List<Ports> getPortsInUse() {
+        String queryId = "getPortsInUse";
+        String query = querySource.getQuery(queryId);
+
+        List<Ports> ports = new ArrayList<Ports>();
+        ResultSet resultSet = null;
+
+            PreparedStatement statement = null;
+            try {
+                statement = connection.prepareStatement(query);
+                resultSet = statement.executeQuery();
+
+                while (resultSet.next()) {
+                    Ports port = new Ports();
+                    port.setId(resultSet.getString("id"));
+                    port.setName(resultSet.getString("name"));
+                    port.setPort(resultSet.getInt("portstring"));
+                    ports.add(port);
+                }
+            } catch (SQLException e) {
+                throw new DonkeyDaoException(e);
+            } finally {
+                close(resultSet);
+                closeDatabaseObjectIfNeeded(statement);
+            }
+        
+
+        return ports;
+
     }
 }
