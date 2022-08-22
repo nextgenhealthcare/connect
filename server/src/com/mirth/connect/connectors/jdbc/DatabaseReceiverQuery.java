@@ -28,9 +28,9 @@ import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.userutil.MirthCachedRowSet;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
-import com.sun.rowset.CachedRowSetImpl;
 
 public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     private PreparedStatement selectStatement;
@@ -192,7 +192,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
                 // if we are not caching the ResultSet, return it immediately
                 if (connectorProperties.isCacheResults()) {
                     // if we are caching the ResultSet, convert it into a CachedRowSet and return it
-                    cachedRowSet = new CachedRowSetImpl();
+                    cachedRowSet = new MirthCachedRowSet();
                     cachedRowSet.populate(resultSet);
                     DbUtils.closeQuietly(resultSet);
                     resultSet = cachedRowSet;
