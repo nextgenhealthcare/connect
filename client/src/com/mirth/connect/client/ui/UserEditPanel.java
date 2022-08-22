@@ -467,7 +467,7 @@ public class UserEditPanel extends javax.swing.JPanel {
     }
     
     private void initLayout() {        
-    	JPanel editUserPanel = new JPanel(new MigLayout("novisualpadding, hidemode 0, align center, insets 0 0 0 0, fill", "25[right][fill][150]"));
+    	JPanel editUserPanel = new JPanel(new MigLayout("novisualpadding, hidemode 0, align center, insets 0 0 0 0, fill", "25[right][fill][125]"));
     	editUserPanel.setBackground(UIConstants.BACKGROUND_COLOR);
     	editUserPanel.setBorder(BorderFactory.createEmptyBorder());
     	editUserPanel.setMinimumSize(getMinimumSize());
