@@ -196,15 +196,13 @@ public class UserEditPanel extends javax.swing.JPanel {
     // 			for all users
     // passwordRequired = false when editing a user
     public void setRequiredFields(boolean allRequired, boolean passwordRequired) {
-        confirmPasswordIsRequired = passwordRequired;
+    	confirmPasswordIsRequired = passwordRequired;
         countryIsRequired = allRequired;
         emailIsRequired = allRequired;
         firstNameIsRequired = allRequired;
         lastNameIsRequired = allRequired;
         organizationIsRequired = allRequired;
         passwordIsRequired = passwordRequired;
-        phoneIsRequired = allRequired;
-        roleIsRequired = allRequired;
         if (allRequired) {
             passwordAsteriskLabel.setVisible(true);
             confirmPasswordAsteriskLabel.setVisible(true);
@@ -602,10 +600,10 @@ public class UserEditPanel extends javax.swing.JPanel {
     private Boolean emailIsRequired = false;
     private JLabel emailLabel;
     private MirthTextField firstName;
+    private JLabel firstNameAsteriskLabel;
     private Boolean firstNameIsRequired = false;
     private JLabel firstNameLabel;
     private JComboBox<String> industry;
-    private Boolean industryIsRequired = false;
     private JLabel industryLabel;
     private JScrollPane jScrollPane1;
     private MirthTextField lastName;
@@ -621,18 +619,13 @@ public class UserEditPanel extends javax.swing.JPanel {
     private Boolean passwordIsRequired = false;
     private JLabel passwordLabel;
     private MirthTextField phone;
-    private Boolean phoneIsRequired = false;
     private JLabel phoneLabel;
     private JComboBox<String> role;
-    private Boolean roleIsRequired = false;
     private JLabel roleLabel;
     private JComboBox<String> stateTerritory;
-    private Boolean stateTerritoryIsRequired = false;
     private JLabel stateTerritoryLabel;
     private JTextField username;
     private JLabel usernameAsteriskLabel;
-    private Boolean usernameIsRequired = false;
     private JLabel usernameLabel;
-    private JLabel firstNameAsteriskLabel;
 	
 }
