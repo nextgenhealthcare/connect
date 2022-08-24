@@ -285,7 +285,7 @@ public class DefaultUserController extends UserController {
                  * authentication.
                  */
                 if (loginStatus != null) {
-                    return handleSecondaryAuthentication(username, loginStatus, null);
+                    return handleSecondaryAuthentication(StringUtils.defaultString(loginStatus.getUpdatedUsername(), username), loginStatus, null);
                 }
             }
 
