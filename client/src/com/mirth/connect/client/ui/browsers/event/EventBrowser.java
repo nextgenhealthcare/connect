@@ -83,6 +83,9 @@ public class EventBrowser extends javax.swing.JPanel {
     private final String EVENT_OUTCOME_COLUMN_NAME = "Outcome";
     private final String EVENT_IP_ADDRESS_COLUMN_NAME = "IP Address";
     private final String EVENT_PATIENT_ID_NAME = "Patient ID";
+    private final String EVENT_CHANNEL_MESSAGE_COLUMN_NAME = "Channel ID - Message ID";
+
+    private final String EVENT_CHANNEL_NAME_COLUMN_NAME = "Channel Name";
     private final String ATTRIBUTES_NAME_COLUMN_NAME = "Name";
     private final String ATTRIBUTES_VALUE_COLUMN_NAME = "Value";
     private final int ATTRIBUTES_VALUE_COLUMN_NUMBER = 1;
@@ -606,7 +609,7 @@ public class EventBrowser extends javax.swing.JPanel {
         Object[][] tableData = null;
 
         if (systemEventList != null) {
-            tableData = new Object[systemEventList.size()][9];
+            tableData = new Object[systemEventList.size()][11];
 
             for (int i = 0; i < systemEventList.size(); i++) {
                 ServerEvent systemEvent = systemEventList.get(i);
@@ -648,6 +651,9 @@ public class EventBrowser extends javax.swing.JPanel {
                 tableData[i][7] = systemEvent.getIpAddress();
                 
                 tableData[i][8] = systemEvent.getPatientId();
+                
+                tableData[i][9] = systemEvent.getChannelIdWithMessageId();
+                tableData[i][10] = systemEvent.getChannelName();
             }
         } else {
             tableData = new Object[0][8];
@@ -666,12 +672,15 @@ public class EventBrowser extends javax.swing.JPanel {
             defaultVisibleColumns.add(EVENT_OUTCOME_COLUMN_NAME);
             defaultVisibleColumns.add(EVENT_IP_ADDRESS_COLUMN_NAME);
             defaultVisibleColumns.add(EVENT_PATIENT_ID_NAME);
+            defaultVisibleColumns.add(EVENT_CHANNEL_MESSAGE_COLUMN_NAME);
+            defaultVisibleColumns.add(EVENT_CHANNEL_NAME_COLUMN_NAME);
 
             eventTable = new MirthTable("eventBrowser", defaultVisibleColumns);
             eventTable.setModel(new RefreshTableModel(tableData, new String[] {
                     EVENT_ID_COLUMN_NAME, EVENT_LEVEL_COLUMN_NAME, EVENT_DATE_COLUMN_NAME,
                     EVENT_NAME_COLUMN_NAME, EVENT_SERVER_ID_COLUMN_NAME, EVENT_USER_COLUMN_NAME,
-                    EVENT_OUTCOME_COLUMN_NAME, EVENT_IP_ADDRESS_COLUMN_NAME, EVENT_PATIENT_ID_NAME }) {
+                    EVENT_OUTCOME_COLUMN_NAME, EVENT_IP_ADDRESS_COLUMN_NAME, EVENT_PATIENT_ID_NAME,
+                    EVENT_CHANNEL_MESSAGE_COLUMN_NAME, EVENT_CHANNEL_NAME_COLUMN_NAME }) {
 
                 boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false,
                         false };

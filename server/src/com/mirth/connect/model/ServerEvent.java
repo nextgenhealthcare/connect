@@ -49,6 +49,7 @@ public class ServerEvent extends Event implements Serializable {
     private String ipAddress;
     private String serverId;
     private String channelId;
+    private String channelName;
     private String messageId;
 
 
@@ -137,7 +138,7 @@ public class ServerEvent extends Event implements Serializable {
     }
     
     public String getPatientId() {
-    	this.patientId = this.attributes.get("patient_id");
+    	this.patientId = this.attributes.get("patientId");
 		return patientId;
 	}
 
@@ -163,22 +164,34 @@ public class ServerEvent extends Event implements Serializable {
     public String getChannelId() {
         try {
           String channel = this.attributes.get("channel");
-          String channelId = (channel!=null && channel.contains("id")?channel.substring(11, 45):null);
+          String channelId = (channel!=null && channel.contains("id")?channel.substring(channel.indexOf("id=") + 3, channel.indexOf(",")):null);
           this.channelId = channelId;
           return channelId;
         } catch (Exception e) {
           return null;
         }
     }
-
+    
     public void setChannelId(String channelId) {
         this.channelId = channelId;
     } 
+
+    public String getChannelName() {
+        try {
+          String channel = this.attributes.get("channel");
+          
+          String channelName = (channel!=null && channel.contains("name")?channel.substring(channel.indexOf("name=") + 5, channel.indexOf("]")):null);
+          this.channelName = channelName;
+          return channelName;
+        } catch (Exception e) {
+          return null;
+        }
+    }
     
     public String getChannelIdWithMessageId() {
         String channelId = getChannelId();
         String messageId = getMessageId();
-        return (channelId !=null ? channelId + (messageId != null ? "-" + messageId : "") : null);
+        return (channelId !=null ? channelId + (messageId != null ? " - " + messageId : "") : null);
     }
 
     public String getIpAddress() {
@@ -206,7 +219,7 @@ public class ServerEvent extends Event implements Serializable {
     }
 
     public static String getExportHeader() {
-        return "ID, Date and Time, Level, Outcome, Name, User ID, IP Address, Attributes, ChannelID-MessageID, PatientID";
+        return "ID, Date and Time, Level, Outcome, Name, User ID, IP Address, Attributes, ChannelID-MessageID, ChannelName, PatientID";
     }
 
     public String toExportString() {
@@ -230,6 +243,7 @@ public class ServerEvent extends Event implements Serializable {
         IOUtils.closeQuietly(ps);
         
         builder.append("," + getChannelIdWithMessageId() + ",");
+        builder.append(getChannelName() + ",");
         builder.append(getPatientId() + "");
         builder.append(System.getProperty("line.separator"));
 
