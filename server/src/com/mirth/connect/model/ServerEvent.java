@@ -146,8 +146,14 @@ public class ServerEvent extends Event implements Serializable {
     }
     
     public String getMessageId() {
-        this.messageId = this.attributes.get("message_id");
-        return messageId;
+        try {
+            String messageId = this.attributes.get("messageId");
+            if (messageId != null) messageId.replace("\n", "");
+            this.messageId = messageId;
+            return messageId;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public void setMessageId(String messageId) {
@@ -155,12 +161,24 @@ public class ServerEvent extends Event implements Serializable {
     }
    
     public String getChannelId() {
-        String channel = this.attributes.get("channel");
-        return channel;
+        try {
+          String channel = this.attributes.get("channel");
+          String channelId = (channel!=null && channel.contains("id")?channel.substring(11, 45):null);
+          this.channelId = channelId;
+          return channelId;
+        } catch (Exception e) {
+          return null;
+        }
     }
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
+    } 
+    
+    public String getChannelIdWithMessageId() {
+        String channelId = getChannelId();
+        String messageId = getMessageId();
+        return (channelId !=null ? channelId + (messageId != null ? "-" + messageId : "") : null);
     }
 
     public String getIpAddress() {
@@ -188,7 +206,7 @@ public class ServerEvent extends Event implements Serializable {
     }
 
     public static String getExportHeader() {
-        return "ID, Date and Time, Level, Outcome, Name, User ID, IP Address, Attributes, ChannelID, MessageID, PatientID";
+        return "ID, Date and Time, Level, Outcome, Name, User ID, IP Address, Attributes, ChannelID-MessageID, PatientID";
     }
 
     public String toExportString() {
@@ -211,8 +229,7 @@ public class ServerEvent extends Event implements Serializable {
         builder.append(Base64.encodeBase64URLSafeString(baos.toByteArray()));
         IOUtils.closeQuietly(ps);
         
-        builder.append("," + getChannelId() + ",");
-        builder.append(getMessageId() + ",");
+        builder.append("," + getChannelIdWithMessageId() + ",");
         builder.append(getPatientId() + "");
         builder.append(System.getProperty("line.separator"));
 
