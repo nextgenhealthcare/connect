@@ -26,6 +26,8 @@ import org.junit.Test;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
 
+import static org.mockito.Mockito.when;
+
 public class MirthServletTest extends ServletTestBase {
 
     @BeforeClass
@@ -125,5 +127,32 @@ public class MirthServletTest extends ServletTestBase {
         assertFalse(servlet.isChannelRedacted(CHANNEL_ID2));
 
         assertTrue(servlet.isChannelRedacted(DISALLOWED_CHANNEL_ID));
+    }
+    
+    @Test
+    public void testIsRequestLocal() throws Exception {
+    	MirthServlet servlet = new MirthServlet(request, sc, controllerFactory) {
+        };
+        
+        // 127.0.0.1 and 0:0:0:0:0:0:0:1 are localhost/loopback addresses
+        when(servlet.request.getRemoteAddr()).thenReturn("127.0.0.1");
+        assertTrue(servlet.isRequestLocal());
+        
+        // The remote address can be surrounded by square brackets
+        when(servlet.request.getRemoteAddr()).thenReturn("[127.0.0.1]");
+        assertTrue(servlet.isRequestLocal());
+        
+        when(servlet.request.getRemoteAddr()).thenReturn("0:0:0:0:0:0:0:1");
+        assertTrue(servlet.isRequestLocal());
+        
+        when(servlet.request.getRemoteAddr()).thenReturn("[0:0:0:0:0:0:0:1]");
+        assertTrue(servlet.isRequestLocal());
+        
+        // Non-localhost addresses
+        when(servlet.request.getRemoteAddr()).thenReturn("10.0.0.1");
+        assertFalse(servlet.isRequestLocal());
+        
+        when(servlet.request.getRemoteAddr()).thenReturn("[10.0.0.1]");
+        assertFalse(servlet.isRequestLocal());
     }
 }
