@@ -149,7 +149,7 @@ public class ServerEvent extends Event implements Serializable {
     public String getMessageId() {
         try {
             String messageId = this.attributes.get("messageId");
-            if (messageId != null) messageId.replace("\n", "");
+            if (messageId != null) messageId.replace("\\r\\n", "").replace("\\r", "").replace("\\n", "");
             this.messageId = messageId;
             return messageId;
         } catch (Exception e) {
