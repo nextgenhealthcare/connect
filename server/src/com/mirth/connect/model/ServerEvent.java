@@ -48,6 +48,8 @@ public class ServerEvent extends Event implements Serializable {
     private String patientId;
     private String ipAddress;
     private String serverId;
+    private String channelId;
+    private String messageId;
 
 
 	public ServerEvent() {
@@ -142,6 +144,24 @@ public class ServerEvent extends Event implements Serializable {
     public void setPatientId(String patientId) {
         this.patientId = patientId;
     }
+    
+    public String getMessageId() {
+        this.messageId = this.attributes.get("message_id");
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+   
+    public String getChannelId() {
+        String channel = this.attributes.get("channel");
+        return channel;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
 
     public String getIpAddress() {
         return ipAddress;
@@ -168,7 +188,7 @@ public class ServerEvent extends Event implements Serializable {
     }
 
     public static String getExportHeader() {
-        return "ID, Date and Time, Level, Outcome, Operation, Name, User ID, IP Address, Attributes";
+        return "ID, Date and Time, Level, Outcome, Name, User ID, IP Address, Attributes, ChannelID, MessageID, PatientID";
     }
 
     public String toExportString() {
@@ -180,6 +200,7 @@ public class ServerEvent extends Event implements Serializable {
         builder.append(name + ", ");
         builder.append(userId + ", ");
         builder.append(ipAddress + ", ");
+       
 
         /*
          * Print out the attributes and Base64 encode them in case there are newlines.
@@ -188,8 +209,12 @@ public class ServerEvent extends Event implements Serializable {
         PrintStream ps = new PrintStream(baos);
         MapUtils.verbosePrint(ps, "attributes", attributes);
         builder.append(Base64.encodeBase64URLSafeString(baos.toByteArray()));
-        builder.append(System.getProperty("line.separator"));
         IOUtils.closeQuietly(ps);
+        
+        builder.append("," + getChannelId() + ",");
+        builder.append(getMessageId() + ",");
+        builder.append(getPatientId() + "");
+        builder.append(System.getProperty("line.separator"));
 
         return builder.toString();
     }
