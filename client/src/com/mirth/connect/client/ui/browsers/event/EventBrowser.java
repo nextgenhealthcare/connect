@@ -84,7 +84,6 @@ public class EventBrowser extends javax.swing.JPanel {
     private final String EVENT_IP_ADDRESS_COLUMN_NAME = "IP Address";
     private final String EVENT_PATIENT_ID_NAME = "Patient ID";
     private final String EVENT_CHANNEL_MESSAGE_COLUMN_NAME = "Channel ID - Message ID";
-
     private final String EVENT_CHANNEL_NAME_COLUMN_NAME = "Channel Name";
     private final String ATTRIBUTES_NAME_COLUMN_NAME = "Name";
     private final String ATTRIBUTES_VALUE_COLUMN_NAME = "Value";
@@ -649,14 +648,12 @@ public class EventBrowser extends javax.swing.JPanel {
                 }
 
                 tableData[i][7] = systemEvent.getIpAddress();
-                
-                tableData[i][8] = systemEvent.getPatientId();
-                
+                tableData[i][8] = systemEvent.getPatientId();              
                 tableData[i][9] = systemEvent.getChannelIdWithMessageId();
                 tableData[i][10] = systemEvent.getChannelName();
             }
         } else {
-            tableData = new Object[0][8];
+            tableData = new Object[0][11];
         }
 
         if (eventTable != null) {

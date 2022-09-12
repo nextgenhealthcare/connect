@@ -232,8 +232,7 @@ public class ServerEvent extends Event implements Serializable {
         builder.append(outcome + ", ");
         builder.append(name + ", ");
         builder.append(userId + ", ");
-        builder.append(ipAddress + ", ");
-       
+        builder.append(ipAddress + ", ");      
 
         /*
          * Print out the attributes and Base64 encode them in case there are newlines.
