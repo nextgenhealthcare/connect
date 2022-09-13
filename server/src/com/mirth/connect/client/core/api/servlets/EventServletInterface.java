@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -143,11 +142,4 @@ public interface EventServletInterface extends BaseServletInterface {
     @Operation(summary = "Exports all events to the application data directory on the server.")
     @MirthOperation(name = "exportAllEvents", display = "Export all events", permission = Permissions.EVENTS_VIEW)
     public String exportAllEvents() throws ClientException;
-
-    @DELETE
-    @Path("/")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(summary = "Remove all events.")
-    @MirthOperation(name = "removeAllEvents", display = "Remove all events", permission = Permissions.EVENTS_REMOVE, abortable = true)
-    public String removeAllEvents(@Param("export") @Parameter(description = "If true, messages will be exported into the application data directory on the server before being removed.", schema = @Schema(defaultValue = "true")) @QueryParam("export") boolean export) throws ClientException;
 }
