@@ -40,7 +40,7 @@ public class ArrayAppender extends AbstractAppender {
         Date date = new Date(logEvent.getTimeMillis());
         String threadName = logEvent.getThreadName();
         String category = logEvent.getLoggerName();
-        String message = String.valueOf(logEvent.getMessage());
+        String message = logEvent.getMessage().getFormattedMessage();
 
         String lineNumber = "?";
         StackTraceElement source = logEvent.getSource();
