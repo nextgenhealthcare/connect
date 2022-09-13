@@ -135,24 +135,4 @@ public class EventServlet extends MirthServlet implements EventServletInterface 
             throw new MirthApiException(e);
         }
     }
-
-    @Override
-    public String removeAllEvents(boolean export) {
-        try {
-            if (export) {
-                // Add file path of export and audit after removal
-                String exportPath = eventController.exportAndRemoveAllEvents();
-                parameterMap.put("file", exportPath);
-                isUserAuthorized();
-                return exportPath;
-            } else {
-                eventController.removeAllEvents();
-                // Audit after removal
-                isUserAuthorized();
-                return null;
-            }
-        } catch (ControllerException e) {
-            throw new MirthApiException(e);
-        }
-    }
 }

@@ -1142,7 +1142,6 @@ public class Frame extends JXFrame {
 
         addTask(TaskConstants.EVENT_REFRESH, "Refresh", "Refresh the list of events with the given filter.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")), eventTasks, eventPopupMenu);
         addTask(TaskConstants.EVENT_EXPORT_ALL, "Export All Events", "Export all events to a file on the server.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/report_disk.png")), eventTasks, eventPopupMenu);
-        addTask(TaskConstants.EVENT_REMOVE_ALL, "Remove All Events", "Remove all events and optionally export them to a file on the server.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
 
         setNonFocusable(eventTasks);
         taskPaneContainer.add(eventTasks);
@@ -4076,49 +4075,6 @@ public class Frame extends JXFrame {
 
     public void doRefreshEvents() {
         eventBrowser.refresh(null);
-    }
-
-    public void doRemoveAllEvents() {
-        int option = JOptionPane.showConfirmDialog(this, "All events will be removed. Would you also like them to be\n" + "exported to a file on the server?");
-        if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
-            return;
-        }
-
-        final boolean export = (option == JOptionPane.YES_OPTION);
-
-        final String workingId = startWorking("Clearing events...");
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            private String exportPath = null;
-
-            public Void doInBackground() {
-                try {
-                    if (export) {
-                        exportPath = mirthClient.exportAndRemoveAllEvents();
-                    } else {
-                        mirthClient.removeAllEvents();
-                    }
-                } catch (ClientException e) {
-                    SwingUtilities.invokeLater(() -> {
-                        alertThrowable(PlatformUI.MIRTH_FRAME, e);
-                    });
-                }
-                return null;
-            }
-
-            public void done() {
-                eventBrowser.runSearch();
-
-                if (exportPath != null) {
-                    alertInformation(PlatformUI.MIRTH_FRAME, "Events have been exported to the following server path:\n" + exportPath);
-                }
-
-                stopWorking(workingId);
-            }
-        };
-
-        worker.execute();
     }
 
     public void doExportAllEvents() {
