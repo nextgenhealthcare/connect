@@ -117,8 +117,7 @@ public class DefaultEventController extends EventController {
         try {
             Map<Object, BlockingQueue<Event>> queues = null;
             /*
-             * Using instanceof is several thousand times faster than using a map to store
-             * the
+             * Using instanceof is several thousand times faster than using a map to store the
              * different queue sets.
              */
             if (event instanceof MessageEvent) {
@@ -260,8 +259,7 @@ public class DefaultEventController extends EventController {
 
             logger.debug("events exported to file: " + exportFile.getAbsolutePath());
 
-            ServerEvent event = new ServerEvent(
-                    ControllerFactory.getFactory().createConfigurationController().getServerId(), "Successfully exported events");
+            ServerEvent event = new ServerEvent(ControllerFactory.getFactory().createConfigurationController().getServerId(), "Successfully exported events");
             event.addAttribute("file", exportFile.getAbsolutePath());
             dispatchEvent(event);
         } catch (IOException e) {
