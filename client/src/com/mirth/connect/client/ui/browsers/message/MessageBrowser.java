@@ -1782,9 +1782,9 @@ public class MessageBrowser extends javax.swing.JPanel {
                         if (isCURESPHILoggingOn) {
                             try {
                                 LinkedHashMap<String, String> auditMessageAttributesMap = new LinkedHashMap<String, String>();
-                                auditMessageAttributesMap.put("patient_id", connectorMessage.getMetaDataMap() != null && connectorMessage.getMetaDataMap().get("PATIENT_ID") != null ? connectorMessage.getMetaDataMap().get("PATIENT_ID").toString() : "");
+                                auditMessageAttributesMap.put("patientId", connectorMessage.getMetaDataMap() != null && connectorMessage.getMetaDataMap().get("PATIENT_ID") != null ? connectorMessage.getMetaDataMap().get("PATIENT_ID").toString() : "");
                                 auditMessageAttributesMap.put("channel", "Channel[id=" + channelId + ",name=" + channelName + "]");
-                                auditMessageAttributesMap.put("message_id", String.valueOf(connectorMessage.getMessageId()));
+                                auditMessageAttributesMap.put("messageId", String.valueOf(connectorMessage.getMessageId()));
                                 parent.mirthClient.auditAccessedPHIMessage(auditMessageAttributesMap);
                             } catch (ClientException e) {
                                 logger.error("Unable to audit the CURES accessed PHI event.", e);
