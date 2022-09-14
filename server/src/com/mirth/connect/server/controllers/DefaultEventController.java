@@ -52,7 +52,7 @@ public class DefaultEventController extends EventController {
     private static Map<Object, BlockingQueue<Event>> serverEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
     private static Map<Object, BlockingQueue<Event>> genericEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
 
-    private DefaultEventController() {
+    protected DefaultEventController() {
         addListener(new AuditableEventListener());
     }
 
@@ -117,7 +117,8 @@ public class DefaultEventController extends EventController {
         try {
             Map<Object, BlockingQueue<Event>> queues = null;
             /*
-             * Using instanceof is several thousand times faster than using a map to store the
+             * Using instanceof is several thousand times faster than using a map to store
+             * the
              * different queue sets.
              */
             if (event instanceof MessageEvent) {
@@ -165,7 +166,8 @@ public class DefaultEventController extends EventController {
     @Override
     public List<ServerEvent> getEvents(EventFilter filter, Integer offset, Integer limit) throws ControllerException {
         try {
-            return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("Event.searchEvents", getParameters(filter, offset, limit));
+            return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("Event.searchEvents",
+                    getParameters(filter, offset, limit));
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -173,7 +175,8 @@ public class DefaultEventController extends EventController {
 
     @Override
     public Long getEventCount(EventFilter filter) throws ControllerException {
-        return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("Event.searchEventsCount", getParameters(filter, null, null));
+        return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectOne("Event.searchEventsCount",
+                getParameters(filter, null, null));
     }
 
     @Override
@@ -259,7 +262,9 @@ public class DefaultEventController extends EventController {
 
             logger.debug("events exported to file: " + exportFile.getAbsolutePath());
 
-            ServerEvent event = new ServerEvent(ControllerFactory.getFactory().createConfigurationController().getServerId(), "Sucessfully exported events");
+            ServerEvent event = new ServerEvent(
+                    ControllerFactory.getFactory().createConfigurationController().getServerId(),
+                    "Successfully exported events");
             event.addAttribute("file", exportFile.getAbsolutePath());
             dispatchEvent(event);
         } catch (IOException e) {
