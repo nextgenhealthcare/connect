@@ -245,7 +245,7 @@ public class ServerEvent extends Event implements Serializable {
         
         builder.append("," + getChannelIdWithMessageId() + ",");
         builder.append(getChannelName() + ",");
-        builder.append(getPatientId() + "");
+        builder.append(getPatientId());
         builder.append(System.getProperty("line.separator"));
 
         return builder.toString();
