@@ -647,10 +647,10 @@ public class EventBrowser extends javax.swing.JPanel {
                     tableData[i][6] = new CellData(null, systemEvent.getOutcome().toString());
                 }
 
-                tableData[i][7] = systemEvent.getIpAddress();
-                tableData[i][8] = systemEvent.getPatientId();              
-                tableData[i][9] = systemEvent.getChannelIdWithMessageId();
-                tableData[i][10] = systemEvent.getChannelName();
+                tableData[i][7]  = systemEvent.getIpAddress();             
+                tableData[i][8]  = systemEvent.getChannelIdWithMessageId();
+                tableData[i][9]  = systemEvent.getChannelName();
+                tableData[i][10] = systemEvent.getPatientId();
             }
         } else {
             tableData = new Object[0][11];
@@ -668,19 +668,19 @@ public class EventBrowser extends javax.swing.JPanel {
             defaultVisibleColumns.add(EVENT_USER_COLUMN_NAME);
             defaultVisibleColumns.add(EVENT_OUTCOME_COLUMN_NAME);
             defaultVisibleColumns.add(EVENT_IP_ADDRESS_COLUMN_NAME);
-            defaultVisibleColumns.add(EVENT_PATIENT_ID_NAME);
             defaultVisibleColumns.add(EVENT_CHANNEL_MESSAGE_COLUMN_NAME);
             defaultVisibleColumns.add(EVENT_CHANNEL_NAME_COLUMN_NAME);
+            defaultVisibleColumns.add(EVENT_PATIENT_ID_NAME);
 
             eventTable = new MirthTable("eventBrowser", defaultVisibleColumns);
             eventTable.setModel(new RefreshTableModel(tableData, new String[] {
                     EVENT_ID_COLUMN_NAME, EVENT_LEVEL_COLUMN_NAME, EVENT_DATE_COLUMN_NAME,
                     EVENT_NAME_COLUMN_NAME, EVENT_SERVER_ID_COLUMN_NAME, EVENT_USER_COLUMN_NAME,
-                    EVENT_OUTCOME_COLUMN_NAME, EVENT_IP_ADDRESS_COLUMN_NAME, EVENT_PATIENT_ID_NAME,
-                    EVENT_CHANNEL_MESSAGE_COLUMN_NAME, EVENT_CHANNEL_NAME_COLUMN_NAME }) {
+                    EVENT_OUTCOME_COLUMN_NAME, EVENT_IP_ADDRESS_COLUMN_NAME,
+                    EVENT_CHANNEL_MESSAGE_COLUMN_NAME, EVENT_CHANNEL_NAME_COLUMN_NAME, EVENT_PATIENT_ID_NAME }) {
 
                 boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false,
-                        false };
+                        false, false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
