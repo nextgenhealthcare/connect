@@ -1587,7 +1587,7 @@ public class ChannelPanel extends AbstractFramePanel {
          */
         if (overwrite || !showAlerts || importChannel instanceof InvalidChannel) {
             try {
-                parent.updateChannel(importChannel, overwrite, otherUsername);
+                parent.updateChannel(importChannel, overwrite, otherUsername, null);
 
                 if (importChannel instanceof InvalidChannel && showAlerts) {
                     InvalidChannel invalidChannel = (InvalidChannel) importChannel;

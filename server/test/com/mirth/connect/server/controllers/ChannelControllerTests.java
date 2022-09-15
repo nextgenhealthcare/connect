@@ -64,7 +64,7 @@ public class ChannelControllerTests extends TestCase {
 
     public void testUpdateChannel() throws ControllerException {
         Channel sampleChannel = sampleChannelList.get(0);
-        channelController.updateChannel(sampleChannel, null, true);
+        channelController.updateChannel(sampleChannel, null, true, null);
 
         Set<String> channelIds = new LinkedHashSet<String>();
         channelIds.add(sampleChannel.getId());
@@ -109,7 +109,7 @@ public class ChannelControllerTests extends TestCase {
     public void insertSampleChannels() throws ControllerException {
         for (Iterator<Channel> iter = sampleChannelList.iterator(); iter.hasNext();) {
             Channel sampleChannel = iter.next();
-            channelController.updateChannel(sampleChannel, null, true);
+            channelController.updateChannel(sampleChannel, null, true, null);
         }
     }
 

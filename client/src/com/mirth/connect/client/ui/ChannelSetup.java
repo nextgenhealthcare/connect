@@ -68,8 +68,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
@@ -133,6 +131,8 @@ import com.mirth.connect.plugins.ChannelTabPlugin;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.PropertyVerifier;
 
+import net.miginfocom.swing.MigLayout;
+
 /** The channel editor panel. Majority of the client application */
 public class ChannelSetup extends JPanel {
     private static final String METADATA_NAME_COLUMN_NAME = "Column Name";
@@ -165,6 +165,7 @@ public class ChannelSetup extends JPanel {
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
     private boolean channelValidationFailed = false;
+    private Calendar dateStartEdit;
 
     private int previousTab = -1;
 
@@ -511,6 +512,7 @@ public class ChannelSetup extends JPanel {
     /** Sets the overall panel to edit the channel with the given channel index. */
     public void editChannel(Channel channel) {
         loadingChannel = true;
+        dateStartEdit = Calendar.getInstance();
 
         Set<FilterCompletion> channelTags = new HashSet<FilterCompletion>();
         for (ChannelTag channelTag : parent.channelPanel.getCachedChannelTags()) {
@@ -1280,7 +1282,7 @@ public class ChannelSetup extends JPanel {
         try {
             // Will throw exception if the connection died or there was an exception
             // saving the channel, skipping the rest of this code.
-            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()), otherUsername);
+            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()), otherUsername, dateStartEdit);
 
             try {
                 currentChannel = (Channel) SerializationUtils.clone(parent.channelPanel.getCachedChannelStatuses().get(currentChannel.getId()).getChannel());

@@ -36,7 +36,7 @@ public class StatisticsControllerTests extends TestCase {
         sampleChannel.setSourceConnector(new Connector());
         sampleChannel.setPreprocessingScript("return 1;");
 
-        channelController.updateChannel(sampleChannel, null, true);
+        channelController.updateChannel(sampleChannel, null, true, null);
     }
 
     protected void tearDown() throws Exception {

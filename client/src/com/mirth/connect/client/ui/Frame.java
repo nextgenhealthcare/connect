@@ -33,6 +33,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -1728,13 +1729,15 @@ public class Frame extends JXFrame {
 
     /**
      * Sends the channel passed in to the server, updating it or adding it.
+     * @param dateStartEdit 
      * 
      * @throws ClientException
      */
-    public boolean updateChannel(Channel curr, boolean overwriting, String otherUsername) throws ClientException {
-        if (overwriting ? !mirthClient.updateChannel(curr, false) : !mirthClient.createChannel(curr)) {
-            if (alertOption(this, "Another user (" + otherUsername + ") has made changes to this channel since you started editing and\nyour changes will overwrite theirs. Are you sure you want to save your changes?")) {
-                mirthClient.updateChannel(curr, true);
+    public boolean updateChannel(Channel curr, boolean overwriting, String otherUsername, Calendar dateStartEdit) throws ClientException {
+        if (overwriting ? !mirthClient.updateChannel(curr, false, dateStartEdit) : !mirthClient.createChannel(curr)) {
+            if (alertOption(this, "Another user (" + otherUsername + ") has made changes to this channel since you started editing and\n" +
+            						"your changes will overwrite theirs. Are you sure you want to save your changes?")) {
+                mirthClient.updateChannel(curr, true, dateStartEdit);
             } else {
                 return false;
             }

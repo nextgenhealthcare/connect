@@ -1099,21 +1099,23 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
 
     /**
      * Updates the specified channel.
+     * @param dateStartEdit 
      * 
      * @see ChannelServletInterface#updateChannel
      */
-    public synchronized boolean updateChannel(Channel channel, boolean override) throws ClientException {
-        return updateChannel(channel.getId(), channel, override);
+    public synchronized boolean updateChannel(Channel channel, boolean override, Calendar dateStartEdit) throws ClientException {
+        return updateChannel(channel.getId(), channel, override, dateStartEdit);
     }
 
     /**
      * Updates the specified channel.
+     * @param dateStartEdit 
      * 
      * @see ChannelServletInterface#updateChannel
      */
     @Override
-    public synchronized boolean updateChannel(String channelId, Channel channel, boolean override) throws ClientException {
-        return getServlet(ChannelServletInterface.class).updateChannel(channelId, channel, override);
+    public synchronized boolean updateChannel(String channelId, Channel channel, boolean override, Calendar dateStartEdit) throws ClientException {
+        return getServlet(ChannelServletInterface.class).updateChannel(channelId, channel, override, dateStartEdit);
     }
 
     /**

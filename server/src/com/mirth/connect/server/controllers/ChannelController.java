@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,7 +56,7 @@ public abstract class ChannelController extends Controller {
 
     public abstract void setChannelInitialState(Set<String> channelIds, ServerEventContext context, DeployedState initialState) throws ControllerException;
 
-    public abstract boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException;
+    public abstract boolean updateChannel(Channel channel, ServerEventContext context, boolean override, Calendar dateStartEdit) throws ControllerException;
 
     public abstract void removeChannel(Channel channel, ServerEventContext context) throws ControllerException;
 
@@ -100,4 +101,6 @@ public abstract class ChannelController extends Controller {
     public abstract boolean updateChannelGroups(Set<ChannelGroup> channelGroups, Set<String> removedChannelGroupIds, boolean override) throws ControllerException;
 
     public abstract List<Ports> getPortsInUse();
+
+
 }

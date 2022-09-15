@@ -338,9 +338,15 @@ public class DefaultChannelController extends ChannelController {
     }
 
     @Override
-    public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
+    public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override, Calendar dateStartEdit) throws ControllerException {
         // Extract metadata and then clear it from the channel model so it won't be stored in the database
         ChannelExportData exportData = channel.getExportData();
+        // need last modified date to compare with user interface Channel Edit screen and Channel History screen
+        Calendar lastModifiedDate = exportData.getMetadata().getLastModified();
+        // if dateStartEdit is null - from API or CLI - use now so that it is always greater than the modified date
+        if (dateStartEdit == null) {
+        	dateStartEdit = Calendar.getInstance();
+        }
         channel.clearExportData();
 
         /*
@@ -383,7 +389,12 @@ public class DefaultChannelController extends ChannelController {
          * case it has been changed on the server since the client started modifying it), and
          * override is not enabled
          */
-        if ((currentRevision > 0) && (currentRevision != newRevision) && !override) {
+        // lmi: this sounds like it is just adding the message if 
+        // if editing AND revisions do not equal AND override is false.
+        // seems like this is where the condition should be about the time...
+        // If the time of opening the channel history view or channel edit view should be compared with the metadata last saved time here. 
+        // removed  && (currentRevision != newRevision) for now to see....
+        if ((currentRevision > 0) && !override && (dateStartEdit.before(lastModifiedDate))) {
             return false;
         } else {
             channel.setRevision(currentRevision + 1);

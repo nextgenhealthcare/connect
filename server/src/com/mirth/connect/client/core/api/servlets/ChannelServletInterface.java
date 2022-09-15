@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -243,7 +244,8 @@ public interface ChannelServletInterface extends BaseServletInterface {
 							@ExampleObject(name = "channel", ref = "../apiexamples/channel_xml") }),
 					@Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Channel.class), examples = {
 							@ExampleObject(name = "channel", ref = "../apiexamples/channel_json") }) }) Channel channel,
-			@Param("override") @Parameter(description = "If true, the channel will be updated even if a different revision exists on the server.", schema = @Schema(defaultValue = "false")) @QueryParam("override") boolean override)
+			@Param("override") @Parameter(description = "If true, the channel will be updated even if a different revision exists on the server.", schema = @Schema(defaultValue = "false")) @QueryParam("override") boolean override,
+			@Param("dateStartEdit") @Parameter(description = "Example: 1985-10-26T09:00:00.000-0700") @QueryParam("dateStartEdit") Calendar dateStartEdit)
 			throws ClientException;
 	// @formatter:on
 

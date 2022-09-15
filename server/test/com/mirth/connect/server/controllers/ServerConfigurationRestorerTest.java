@@ -356,10 +356,10 @@ public class ServerConfigurationRestorerTest {
         Channel channel = new Channel("1");
         restorer.updateChannel(channel, new MultiException());
 
-        verify(restorer.getChannelController(), times(1)).updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
+        verify(restorer.getChannelController(), times(1)).updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true, null);
 
         ChannelController channelController = restorer.getChannelController();
-        doThrow(ControllerException.class).when(channelController).updateChannel(any(), any(), anyBoolean());
+        doThrow(ControllerException.class).when(channelController).updateChannel(any(), any(), anyBoolean(), null);
         MultiException multiException = new MultiException();
         restorer.updateChannel(channel, multiException);
         assertEquals(1, multiException.size());
