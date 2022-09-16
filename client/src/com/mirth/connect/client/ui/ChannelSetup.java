@@ -1282,7 +1282,7 @@ public class ChannelSetup extends JPanel {
         try {
             // Will throw exception if the connection died or there was an exception
             // saving the channel, skipping the rest of this code.
-            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()), otherUsername, dateStartEdit);
+            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()), otherUsername, dateStartEdit, originalStateChannel.getExportData().getMetadata().getUserId());
 
             try {
                 currentChannel = (Channel) SerializationUtils.clone(parent.channelPanel.getCachedChannelStatuses().get(currentChannel.getId()).getChannel());

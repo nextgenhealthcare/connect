@@ -245,7 +245,7 @@ public interface ChannelServletInterface extends BaseServletInterface {
 					@Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Channel.class), examples = {
 							@ExampleObject(name = "channel", ref = "../apiexamples/channel_json") }) }) Channel channel,
 			@Param("override") @Parameter(description = "If true, the channel will be updated even if a different revision exists on the server.", schema = @Schema(defaultValue = "false")) @QueryParam("override") boolean override,
-			@Param("dateStartEdit") @Parameter(description = "Example: 1985-10-26T09:00:00.000-0700") @QueryParam("dateStartEdit") Calendar dateStartEdit)
+			@Param("startEdit") @Parameter(description = "Date and time starting to edit this channel. Example: 1985-10-26T09:00:00.000-0700") @QueryParam("startEdit") String startEdit)
 			throws ClientException;
 	// @formatter:on
 

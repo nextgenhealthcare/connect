@@ -21,10 +21,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.AccessController;
 import java.security.Provider;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -1104,7 +1106,12 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelServletInterface#updateChannel
      */
     public synchronized boolean updateChannel(Channel channel, boolean override, Calendar dateStartEdit) throws ClientException {
-        return updateChannel(channel.getId(), channel, override, dateStartEdit);
+        SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault());
+        if (dateStartEdit == null) {
+        	dateStartEdit = Calendar.getInstance();
+        }
+        String startEdit = sfd.format(dateStartEdit.getTime());
+        return updateChannel(channel.getId(), channel, override, startEdit);
     }
 
     /**
@@ -1114,8 +1121,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see ChannelServletInterface#updateChannel
      */
     @Override
-    public synchronized boolean updateChannel(String channelId, Channel channel, boolean override, Calendar dateStartEdit) throws ClientException {
-        return getServlet(ChannelServletInterface.class).updateChannel(channelId, channel, override, dateStartEdit);
+    public synchronized boolean updateChannel(String channelId, Channel channel, boolean override, String startEdit) throws ClientException {
+    	return getServlet(ChannelServletInterface.class).updateChannel(channelId, channel, override, startEdit);
     }
 
     /**

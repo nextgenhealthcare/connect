@@ -50,6 +50,7 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.DeployedChannelInfo;
 import com.mirth.connect.model.InvalidChannel;
 import com.mirth.connect.model.ServerEventContext;
+import com.mirth.connect.model.User;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.plugins.ChannelPlugin;
 import com.mirth.connect.server.ExtensionLoader;
@@ -340,13 +341,11 @@ public class DefaultChannelController extends ChannelController {
     @Override
     public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override, Calendar dateStartEdit) throws ControllerException {
         // Extract metadata and then clear it from the channel model so it won't be stored in the database
-        ChannelExportData exportData = channel.getExportData();
+    	ChannelCache channelCache = new ChannelCache();
+    	channelCache.refreshCache();
+    	ChannelExportData exportData = channel.getExportData();
         // need last modified date to compare with user interface Channel Edit screen and Channel History screen
         Calendar lastModifiedDate = exportData.getMetadata().getLastModified();
-        // if dateStartEdit is null - from API or CLI - use now so that it is always greater than the modified date
-        if (dateStartEdit == null) {
-        	dateStartEdit = Calendar.getInstance();
-        }
         channel.clearExportData();
 
         /*
