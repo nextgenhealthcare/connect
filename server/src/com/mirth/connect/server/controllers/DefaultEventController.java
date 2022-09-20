@@ -52,7 +52,7 @@ public class DefaultEventController extends EventController {
     private static Map<Object, BlockingQueue<Event>> serverEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
     private static Map<Object, BlockingQueue<Event>> genericEventQueues = new ConcurrentHashMap<Object, BlockingQueue<Event>>();
 
-    private DefaultEventController() {
+    protected DefaultEventController() {
         addListener(new AuditableEventListener());
     }
 
@@ -259,7 +259,7 @@ public class DefaultEventController extends EventController {
 
             logger.debug("events exported to file: " + exportFile.getAbsolutePath());
 
-            ServerEvent event = new ServerEvent(ControllerFactory.getFactory().createConfigurationController().getServerId(), "Sucessfully exported events");
+            ServerEvent event = new ServerEvent(ControllerFactory.getFactory().createConfigurationController().getServerId(), "Successfully exported events");
             event.addAttribute("file", exportFile.getAbsolutePath());
             dispatchEvent(event);
         } catch (IOException e) {

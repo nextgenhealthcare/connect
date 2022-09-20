@@ -2155,34 +2155,6 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
         return getServlet(EventServletInterface.class).exportAllEvents();
     }
 
-    /**
-     * Remove all events, with the option to export them first.
-     * 
-     * @see EventServletInterface#removeAllEvents
-     */
-    @Override
-    public String removeAllEvents(boolean export) throws ClientException {
-        return getServlet(EventServletInterface.class).removeAllEvents(export);
-    }
-
-    /**
-     * Remove all events.
-     * 
-     * @see EventServletInterface#removeAllEvents
-     */
-    public String removeAllEvents() throws ClientException {
-        return getServlet(EventServletInterface.class).removeAllEvents(false);
-    }
-
-    /**
-     * Exports all events to the application data directory on the server, then removes all events.
-     * 
-     * @see EventServletInterface#removeAllEvents
-     */
-    public String exportAndRemoveAllEvents() throws ClientException {
-        return getServlet(EventServletInterface.class).removeAllEvents(true);
-    }
-
     /*****************
      * Alert Servlet *
      *****************/
