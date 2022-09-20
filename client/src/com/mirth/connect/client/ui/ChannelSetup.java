@@ -1121,16 +1121,19 @@ public class ChannelSetup extends JPanel {
      * Save all of the current channel information in the editor to the actual channel
      */
     public boolean saveChanges() {
+    	Integer userId = null;
     	String otherUsername = "unknown";
     	Channel originalStateChannel = null;
-    	
         try {
 			originalStateChannel = parent.mirthClient.getChannel(currentChannel.getId(), false);
         	if (originalStateChannel != null) {
-        		Integer userId = originalStateChannel.getExportData().getMetadata().getUserId();
+        		userId = originalStateChannel.getExportData().getMetadata().getUserId();
     			if (userId != 0 && userId != null) {
     				otherUsername = parent.mirthClient.getUser(userId).getUsername();
     			}
+    		// this is a new channel because the originalStateChannel is empty
+        	} else {
+        		userId = parent.mirthClient.getCurrentUser().getId();
         	}
 		} catch (ClientException e1) {
 			
@@ -1282,8 +1285,7 @@ public class ChannelSetup extends JPanel {
         try {
             // Will throw exception if the connection died or there was an exception
             // saving the channel, skipping the rest of this code.
-            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()), otherUsername, dateStartEdit, originalStateChannel.getExportData().getMetadata().getUserId());
-
+            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()), userId, otherUsername, dateStartEdit);
             try {
                 currentChannel = (Channel) SerializationUtils.clone(parent.channelPanel.getCachedChannelStatuses().get(currentChannel.getId()).getChannel());
 
