@@ -1128,7 +1128,7 @@ public class ChannelSetup extends JPanel {
 			originalStateChannel = parent.mirthClient.getChannel(currentChannel.getId(), false);
         	if (originalStateChannel != null) {
         		userId = originalStateChannel.getExportData().getMetadata().getUserId();
-    			if (userId != 0 && userId != null) {
+    			if (userId != null && userId != 0) {
     				otherUsername = parent.mirthClient.getUser(userId).getUsername();
     			}
     		// this is a new channel because the originalStateChannel is empty

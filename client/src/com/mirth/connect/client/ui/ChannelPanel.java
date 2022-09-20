@@ -1440,7 +1440,7 @@ public class ChannelPanel extends AbstractFramePanel {
 			originalStateChannel = parent.mirthClient.getChannel(importChannel.getId(), false);
         	if (originalStateChannel != null) {
         		userId = originalStateChannel.getExportData().getMetadata().getUserId();
-    			if (userId != 0 && userId != null) {
+    			if (userId != null && userId != 0) {
     				otherUsername = parent.mirthClient.getUser(userId).getUsername();
     			}
         	} else {
