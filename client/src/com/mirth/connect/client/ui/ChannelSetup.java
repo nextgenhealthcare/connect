@@ -1122,15 +1122,11 @@ public class ChannelSetup extends JPanel {
      */
     public boolean saveChanges() {
     	Integer userId = null;
-    	String otherUsername = "unknown";
     	Channel originalStateChannel = null;
         try {
 			originalStateChannel = parent.mirthClient.getChannel(currentChannel.getId(), false);
         	if (originalStateChannel != null) {
         		userId = originalStateChannel.getExportData().getMetadata().getUserId();
-    			if (userId != null && userId != 0) {
-    				otherUsername = parent.mirthClient.getUser(userId).getUsername();
-    			}
     		// this is a new channel because the originalStateChannel is empty
         	} else {
         		userId = parent.mirthClient.getCurrentUser().getId();
@@ -1285,7 +1281,7 @@ public class ChannelSetup extends JPanel {
         try {
             // Will throw exception if the connection died or there was an exception
             // saving the channel, skipping the rest of this code.
-            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()), userId, otherUsername, dateStartEdit);
+            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()), userId, dateStartEdit);
             try {
                 currentChannel = (Channel) SerializationUtils.clone(parent.channelPanel.getCachedChannelStatuses().get(currentChannel.getId()).getChannel());
 

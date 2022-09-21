@@ -1733,11 +1733,15 @@ public class Frame extends JXFrame {
      * @throws ClientException
      */
 
-    public boolean updateChannel(Channel curr, boolean overwriting, Integer userId, String otherUsername, Calendar dateStartEdit) throws ClientException {
+    public boolean updateChannel(Channel curr, boolean overwriting, Integer userId, Calendar dateStartEdit) throws ClientException {
         if (overwriting ? !mirthClient.updateChannel(curr, false, dateStartEdit) : !mirthClient.createChannel(curr)) {
             if (mirthClient.getCurrentUser().getId().equals(userId)) {
                 mirthClient.updateChannel(curr, true, dateStartEdit);
             } else {
+            	String otherUsername = "unknown";
+    			if (userId != null && userId != 0) {
+    				otherUsername = mirthClient.getUser(userId).getUsername();
+    			}
 				if (alertOption(this, "Another user (" + otherUsername + ") has made changes to this channel since you started editing and\n" +
 				"your changes will overwrite theirs. Are you sure you want to save your changes?")) {
 					mirthClient.updateChannel(curr, true, dateStartEdit);

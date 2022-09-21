@@ -1433,16 +1433,12 @@ public class ChannelPanel extends AbstractFramePanel {
     public Channel importChannel(Channel importChannel, boolean showAlerts, boolean refreshStatuses) {
         boolean overwrite = false;
         Integer userId = null;
-        String otherUsername = "unknown";
     	Channel originalStateChannel = null;
         
     	try {
 			originalStateChannel = parent.mirthClient.getChannel(importChannel.getId(), false);
         	if (originalStateChannel != null) {
         		userId = originalStateChannel.getExportData().getMetadata().getUserId();
-    			if (userId != null && userId != 0) {
-    				otherUsername = parent.mirthClient.getUser(userId).getUsername();
-    			}
         	} else {
         		userId = parent.mirthClient.getCurrentUser().getId();
         	}
@@ -1590,7 +1586,7 @@ public class ChannelPanel extends AbstractFramePanel {
          */
         if (overwrite || !showAlerts || importChannel instanceof InvalidChannel) {
             try {
-                parent.updateChannel(importChannel, overwrite, userId, otherUsername, null);
+                parent.updateChannel(importChannel, overwrite, userId, null);
 
                 if (importChannel instanceof InvalidChannel && showAlerts) {
                     InvalidChannel invalidChannel = (InvalidChannel) importChannel;
