@@ -137,8 +137,13 @@ public class ServerEvent extends Event implements Serializable {
         this.userId = userId;
     }
     
+    private String cleanString(String value) {
+        if (value==null) return value;
+        return value.trim().replaceAll("[\n\r]$", "");
+    }
+    
     public String getPatientId() {
-    	this.patientId = this.attributes.get("patientId");
+    	this.patientId = cleanString(this.attributes.get("patientId"));
 		return patientId;
 	}
 
@@ -148,11 +153,7 @@ public class ServerEvent extends Event implements Serializable {
     
     public String getMessageId() {
         try {
-            String messageId = this.attributes.get("messageId");
-            if (messageId != null) {
-                messageId = messageId.replace("\r\n", "").replace("\r", "").replace("\n", "");
-            }
-            this.messageId = messageId;
+            this.messageId = cleanString(this.attributes.get("messageId"));;
             return messageId;
         } catch (Exception e) {
             return null;
@@ -165,7 +166,7 @@ public class ServerEvent extends Event implements Serializable {
    
     public String getChannelId() {
         try {
-          String channel = this.attributes.get("channel");
+          String channel = cleanString(this.attributes.get("channel"));
           String channelId = (channel!=null && channel.contains("id")?channel.substring(channel.indexOf("id=") + 3, channel.indexOf(",")):null);
           this.channelId = channelId;
           return channelId;
