@@ -3478,6 +3478,29 @@ public class Frame extends JXFrame {
     }
 
     /**
+     * Import multiple binary files with the default defined file filter type.
+     * 
+     * @return
+     */
+    public List<byte[]> browseForMultipleFileBytes(String fileExtension) {
+    	List<byte[]> fileBytes = new ArrayList<>();  	
+        File[] files = browseForFiles(fileExtension);
+        
+        if (files != null) {
+            try {
+            	for (File file : files) {
+                    byte[] bytes = FileUtils.readFileToByteArray(file);
+            		fileBytes.add(bytes);
+            	}
+            	return fileBytes;
+            } catch (IOException e) {
+                alertError(this, "Unable to read file.");
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Import a file with the default defined file filter type.
      * 
      * @return
