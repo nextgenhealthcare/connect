@@ -35,6 +35,7 @@ import com.mirth.connect.donkey.model.message.MessageSerializer;
 import com.mirth.connect.donkey.model.message.MessageSerializerException;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.model.ServerEventContext;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.plugins.datatypes.xml.XMLSerializer;
@@ -83,7 +84,7 @@ public class TestPreProcessor {
         if (!engineController.isDeployed(CHANNEL_ID)) {
             Set<String> channelIds = new LinkedHashSet<String>();
             channelIds.add(CHANNEL_ID);
-            engineController.deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, false);
+            engineController.deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, new DebugOptions());
             Thread.sleep(200);
 
             if (!engineController.isDeployed(CHANNEL_ID)) {
@@ -100,7 +101,7 @@ public class TestPreProcessor {
 
     @Test
     public final void testPreProcessor() throws Exception {
-        final JavaScriptPreprocessor preprocessor = new JavaScriptPreprocessor(null, null);
+        final JavaScriptPreprocessor preprocessor = new JavaScriptPreprocessor(null, null, null);
         final String testResult = "test result";
         final int testSize = 100000;
 
@@ -131,7 +132,8 @@ public class TestPreProcessor {
     @Test
     public final void testFilterTransformer() throws Exception {
         final String scriptId = "testScriptId";
-        final JavaScriptFilterTransformer filterTransformer = new JavaScriptFilterTransformer(null, "test connector", scriptId, null);
+        DebugOptions  debugOptions = new DebugOptions();
+        final JavaScriptFilterTransformer filterTransformer = new JavaScriptFilterTransformer(null, "test connector", scriptId, null,debugOptions);
         final int testSize = 100000;
 
         StringBuilder script = new StringBuilder();
@@ -160,7 +162,7 @@ public class TestPreProcessor {
 
     @Test
     public final void testPostProcessor() throws Exception {
-        final JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor(null, null);
+        final JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor(null, null, null);
         final int testSize = 100000;
         final Response expectedResult = new Response(Status.SENT, "test");
 

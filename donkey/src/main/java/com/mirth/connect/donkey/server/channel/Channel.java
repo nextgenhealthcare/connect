@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,9 +38,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.DonkeyException;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
@@ -112,13 +115,14 @@ public class Channel implements Runnable {
     private int processingThreads;
 
     private SourceQueue sourceQueue;
-    private Map<Long, Thread> queueThreads = new HashMap<Long, Thread>();
+    private Map<Long, Thread> queueThreads = new ConcurrentHashMap<Long, Thread>();
     private QueueHandler queueHandler;
 
     private PreProcessor preProcessor;
     private PostProcessor postProcessor;
     private List<DestinationChainProvider> destinationChainProviders = new ArrayList<DestinationChainProvider>();
     private ResponseSelector responseSelector;
+    private DebugOptions debugOptions;
 
     /*
      * Only 2 channels can remove all messages at a time since it can be a lengthy process. We don't
@@ -128,16 +132,24 @@ public class Channel implements Runnable {
     // A cached thread pool executor that executes recovery tasks and destination chain tasks
     private ExecutorService channelExecutor;
     private Set<Thread> dispatchThreads = new HashSet<Thread>();
-    private boolean shuttingDown = false;
+    private volatile boolean shuttingDown = false;
 
-    private boolean stopSourceQueue = false;
+    private volatile boolean stopSourceQueue = false;
     private ChannelProcessLock processLock;
     private Lock removeContentLock = new ReentrantLock(true);
 
     private MessageController messageController = MessageController.getInstance();
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
+    public DebugOptions getDebugOptions() {
+        return debugOptions;
+    }
+
+    public void setDebugOptions(DebugOptions debugOptions) {
+        this.debugOptions = debugOptions;
+    }
+    
     public String getChannelId() {
         return channelId;
     }
@@ -214,6 +226,8 @@ public class Channel implements Runnable {
         return currentState;
     }
 
+
+    
     public void updateCurrentState(DeployedState currentState) {
         this.currentState = currentState;
         eventDispatcher.dispatchEvent(new DeployedStateEvent(channelId, name, null, null, DeployedStateEventType.getTypeFromDeployedState(currentState)));
@@ -450,14 +464,14 @@ public class Channel implements Runnable {
     }
 
     public synchronized void deploy() throws DeployException {
-        deploy(false);
+        deploy(null);
     }
     
-    public synchronized void debugDeploy() throws DeployException {
-    	deploy(true);
+    public synchronized void debugDeploy(DebugOptions debugOptions) throws DeployException {
+    	deploy(debugOptions);
     }
     
-    public synchronized void deploy(boolean debug) throws DeployException {
+    public synchronized void deploy(DebugOptions debugOptions) throws DeployException {
     	if (!isConfigurationValid()) {
             throw new DeployException("Failed to deploy channel. The channel configuration is incomplete.");
         }
@@ -508,8 +522,8 @@ public class Channel implements Runnable {
 
             deployedMetaDataIds.add(0);
             
-            if (debug) {
-            	sourceConnector.onDebugDeploy();
+            if (debugOptions != null) {
+            	sourceConnector.onDebugDeploy(debugOptions);
             } else {
             	sourceConnector.onDeploy();
             }
@@ -539,8 +553,8 @@ public class Channel implements Runnable {
 
                     deployedMetaDataIds.add(metaDataId);
                     
-                    if (debug) {
-                    	destinationConnector.onDebugDeploy();
+                    if (debugOptions != null) {
+                    	destinationConnector.onDebugDeploy(debugOptions);
                     } else {
                     	destinationConnector.onDeploy();
                     }
@@ -1922,7 +1936,7 @@ public class Channel implements Runnable {
         try {
             do {
                 processSourceQueue(Constants.SOURCE_QUEUE_POLL_TIMEOUT_MILLIS);
-            } while (isActive());
+            } while (isActive() && !stopSourceQueue);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -2300,4 +2314,5 @@ public class Channel implements Runnable {
             dao.close();
         }
     }
+
 }

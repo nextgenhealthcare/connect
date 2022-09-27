@@ -102,11 +102,24 @@
 			<accessrule kind="nonaccessible" pattern="*/**"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2-api-2.17.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="https://logging.apache.org/log4j/2.x/log4j-1.2-api/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/log4j-api-2.17.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="https://logging.apache.org/log4j/2.x/log4j-api/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/log4j-core-2.17.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="https://logging.apache.org/log4j/2.x/log4j-core/apidocs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/wizard.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/xstream-1.4.12.jar"/>
 	<classpathentry kind="lib" path="lib/looks-2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.6.jar"/>
@@ -160,12 +173,13 @@
 	<classpathentry kind="lib" path="lib/mimepull-1.9.7.jar"/>
 	<classpathentry kind="lib" path="lib/zip4j_1.3.3.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-2.9.9.jar"/>
-	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-157.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-ext-jdk15on-157.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-jdk15on-157.jar"/>
+	<classpathentry kind="lib" path="lib/bcpkix-jdk18on-171.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-ext-jdk18on-171.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk18on-171.jar"/>
+	<classpathentry kind="lib" path="lib/bcutil-jdk18on-171.jar"/>
 	<classpathentry kind="lib" path="lib/commons-vfs2-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/staxon-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/jetty-util-9.4.21.v20190926.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-9.4.44.v20210927.jar"/>
 	<classpathentry kind="lib" path="lib/commons-compress-1.17.jar"/>
 	<classpathentry kind="lib" path="lib/javax.activation-1.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax.activation-api-1.2.0.jar"/>
@@ -176,9 +190,8 @@
 	<classpathentry kind="lib" path="lib/commons-codec-1.13.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.4.13.jar"/>
 	<classpathentry kind="lib" path="lib/swagger-annotations-2.0.10.jar"/>
-	<classpathentry kind="lib" path="lib/jcifs-ng-2.1.3.jar"/>
+	<classpathentry kind="lib" path="lib/jcifs-ng-2.1.8.jar"/>
 	<classpathentry kind="lib" path="lib/commons-text-1.8.jar"/>
-	<classpathentry kind="lib" path="lib/rhino-1.7.12.jar"/>
 	<classpathentry kind="lib" path="lib/regions-2.15.28.jar"/>
 	<classpathentry kind="lib" path="lib/utils-2.15.28.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-annotations-2.11.3.jar"/>
@@ -200,5 +213,8 @@
 	<classpathentry kind="lib" path="lib/hapi-structures-v27-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-structures-v28-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-structures-v281-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/rhino-1.7.13.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.19.jar"/>
+	<classpathentry kind="lib" path="lib/libphonenumber-8.12.50.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

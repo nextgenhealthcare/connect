@@ -114,6 +114,7 @@
 			<include name="com/mirth/connect/userutil/**" />
 			<include name="com/mirth/connect/util/**" />
 			<include name="com/mirth/connect/server/util/ResourceUtil.class" />
+			<include name="com/mirth/connect/server/util/DebuggerUtil.class" />
 			<include name="org/mozilla/**" />
 			<include name="org/glassfish/jersey/**" />
 			<include name="de/**" />
@@ -202,7 +203,6 @@
 		<jar destfile="${connectors.file}/file-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/file/**" />
-				<include name="jcifs/**" />
 				<exclude name="com/mirth/connect/connectors/file/SchemeProperties.class" />
 				<exclude name="com/mirth/connect/connectors/file/FTPSchemeProperties.class" />
 				<exclude name="com/mirth/connect/connectors/file/SftpSchemeProperties.class" />
@@ -1022,7 +1022,7 @@
 
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
-				<attribute name="Class-Path" value="server-lib/commons/commons-io-2.6.jar server-lib/commons/commons-configuration2-2.7.jar server-lib/commons/commons-lang3-3.9.jar server-lib/commons/commons-logging-1.2.jar server-lib/commons/commons-beanutils-1.9.3.jar server-lib/commons/commons-text-1.8.jar conf/" />
+				<attribute name="Class-Path" value="server-lib/commons/commons-io-2.6.jar server-lib/commons/commons-configuration2-2.7.jar server-lib/commons/commons-lang3-3.9.jar server-lib/commons/commons-logging-1.2.jar server-lib/commons/commons-beanutils-1.9.3.jar server-lib/commons/commons-text-1.8.jar server-lib/commons/commons-collections-3.2.2.jar conf/" />
 			</manifest>
 		</jar>
 		
@@ -1044,7 +1044,7 @@
 		<!-- don't modify bcprov, since it already has the manifest changes and is signed by BC -->
 		<echo message="[Thread Count: ${manifest_thread_count}] Modifying jar manifests to add Permissions: all-permissions; Codebase: *; Application-Name: Mirth Connect" />
 		<for param="jarFile" parallel="true" threadCount="${manifest_thread_count}">
-	    	<fileset dir="${setup.client.lib}" includes="**/*.jar" excludes="bcp*.jar"/>
+	    	<fileset dir="${setup.client.lib}" includes="**/*.jar" excludes="bcp*.jar,bcutil*.jar"/>
 	    	<fileset dir="${setup.extensions}" includes="**/*.jar" />
 			<sequential>
 				<apply executable="jar">

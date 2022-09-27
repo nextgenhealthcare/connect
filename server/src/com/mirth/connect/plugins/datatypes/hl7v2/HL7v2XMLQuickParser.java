@@ -12,7 +12,8 @@ package com.mirth.connect.plugins.datatypes.hl7v2;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /*
  * The purpose of this class is to extract the data from an XML/HL7 message without parsing the
@@ -21,7 +22,7 @@ import org.apache.log4j.Logger;
 
 public class HL7v2XMLQuickParser {
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     private final String mshHeader = "MSH|^~\\&|";
     private final String fieldSeparator = "|";

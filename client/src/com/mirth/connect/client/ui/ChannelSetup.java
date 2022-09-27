@@ -702,8 +702,17 @@ public class ChannelSetup extends JPanel {
         currentChannel.getExportData().getMetadata().setLastModified(Calendar.getInstance());
     }
 
+    private void setUserId() {       
+		try {
+			currentChannel.getExportData().getMetadata().setUserId(parent.mirthClient.getCurrentUser().getId());
+		} catch (ClientException e) {
+            parent.alertThrowable(this.parent, e);
+		}
+	
+	}
+
     private void updateChannelId() {
-        channelIdField.setText("Id: " + currentChannel.getId());
+        channelIdField.setText(" Id: " + currentChannel.getId());
     }
 
     private void updateRevision() {
@@ -1089,7 +1098,7 @@ public class ChannelSetup extends JPanel {
 
     public void saveSourcePanel() {
         currentChannel.getSourceConnector().setProperties(sourceConnectorPanel.getProperties());
-
+        
         if (!loadingChannel && resourceIds.containsKey(currentChannel.getSourceConnector().getMetaDataId())) {
             ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().setResourceIds(resourceIds.get(currentChannel.getSourceConnector().getMetaDataId()));
         }
@@ -1110,6 +1119,21 @@ public class ChannelSetup extends JPanel {
      * Save all of the current channel information in the editor to the actual channel
      */
     public boolean saveChanges() {
+    	String otherUsername = "unknown";
+    	Channel originalStateChannel = null;
+    	
+        try {
+			originalStateChannel = parent.mirthClient.getChannel(currentChannel.getId(), false);
+        	if (originalStateChannel != null) {
+        		Integer userId = originalStateChannel.getExportData().getMetadata().getUserId();
+    			if (userId != 0 && userId != null) {
+    				otherUsername = parent.mirthClient.getUser(userId).getUsername();
+    			}
+        	}
+		} catch (ClientException e1) {
+			
+		}
+
         if (!parent.checkChannelName(nameField.getText(), currentChannel.getId())) {
             return false;
         }
@@ -1183,7 +1207,7 @@ public class ChannelSetup extends JPanel {
         }
 
         boolean enabled = summaryEnabledCheckBox.isSelected();
-
+        
         saveSourcePanel();
 
         if (parent.currentContentPage == transformerPane) {
@@ -1209,6 +1233,7 @@ public class ChannelSetup extends JPanel {
 
         updateScripts();
         setLastModified();
+        setUserId();
 
         currentChannel.getProperties().setClearGlobalChannelMap(clearGlobalChannelMapCheckBox.isSelected());
         currentChannel.getProperties().setEncryptData(encryptMessagesCheckBox.isSelected());
@@ -1255,7 +1280,7 @@ public class ChannelSetup extends JPanel {
         try {
             // Will throw exception if the connection died or there was an exception
             // saving the channel, skipping the rest of this code.
-            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()));
+            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()), otherUsername);
 
             try {
                 currentChannel = (Channel) SerializationUtils.clone(parent.channelPanel.getCachedChannelStatuses().get(currentChannel.getId()).getChannel());
@@ -1294,7 +1319,7 @@ public class ChannelSetup extends JPanel {
         return updated;
     }
 
-    private void saveMessageStorage(MessageStorageMode messageStorageMode) {
+	private void saveMessageStorage(MessageStorageMode messageStorageMode) {
         ChannelProperties properties = currentChannel.getProperties();
         properties.setMessageStorageMode(messageStorageMode);
         properties.setEncryptData(encryptMessagesCheckBox.isSelected());
@@ -3252,6 +3277,10 @@ public class ChannelSetup extends JPanel {
 
     public int getSelectedDestinationIndex() {
         return destinationTable.getSelectedModelIndex();
+    }
+    
+    public void setChannelEnabledField(boolean enabled) {
+    	summaryEnabledCheckBox.setSelected(enabled);
     }
 
     // Tab Container

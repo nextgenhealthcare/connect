@@ -16,7 +16,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.commons.collections4.MapUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.ImporterTopLevel;
@@ -52,7 +53,7 @@ import com.mirth.connect.userutil.Status;
 import com.mirth.connect.util.PropertyLoader;
 
 public class JavaScriptScopeUtil {
-    private static Logger logger = Logger.getLogger(JavaScriptScopeUtil.class);
+    private static Logger logger = LogManager.getLogger(JavaScriptScopeUtil.class);
     private static Integer rhinoOptimizationLevel = null;
 
     static {

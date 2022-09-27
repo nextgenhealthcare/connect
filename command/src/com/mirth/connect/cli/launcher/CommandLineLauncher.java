@@ -31,7 +31,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -42,8 +43,8 @@ public class CommandLineLauncher {
     protected static Logger logger;
 
     public static void main(String[] args) {
-        System.setProperty("log4j.configuration", "log4j-cli.properties");
-        logger = Logger.getLogger(CommandLineLauncher.class);
+        System.setProperty("log4j2.configurationFile", "log4j2-cli.properties");
+        logger = LogManager.getLogger(CommandLineLauncher.class);
 
         try {
             ManifestFile mirthCliJar = new ManifestFile("cli-lib/mirth-cli.jar");

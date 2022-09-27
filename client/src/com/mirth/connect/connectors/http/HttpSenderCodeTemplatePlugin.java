@@ -31,7 +31,7 @@ public class HttpSenderCodeTemplatePlugin extends CodeTemplatePlugin {
 
         List<CodeTemplate> httpSenderFunctionsList = new ArrayList<CodeTemplate>();
         httpSenderFunctionsList.add(new CodeTemplate("Get HTTP Response Status Line", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getConnectorContextSet(), "$('responseStatusLine')", "Retrieves the status line (e.g. \"HTTP/1.1 200 OK\") from an HTTP response, for use in the response transformer."));
-        httpSenderFunctionsList.add(new CodeTemplate("Get HTTP Response Header", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getConnectorContextSet(), "$('responseHeaders').get('Header-Name')", "Retrieves a header value from an HTTP response, for use in the response transformer."));
+        httpSenderFunctionsList.add(new CodeTemplate("Get HTTP Response Header", CodeTemplateType.DRAG_AND_DROP_CODE, CodeTemplateContextSet.getConnectorContextSet(), "$('responseHeaders').getHeader('Header-Name')", "Retrieves a header value from an HTTP response, for use in the response transformer."));
         referenceItems.put("HTTP Sender Functions", httpSenderFunctionsList);
 
         return referenceItems;

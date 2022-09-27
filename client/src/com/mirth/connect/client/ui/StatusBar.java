@@ -20,6 +20,8 @@ import javax.swing.border.BevelBorder;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.mirth.connect.model.User;
+
 /**
  * Creates the status bar for the Mirth client application.
  */
@@ -31,12 +33,15 @@ public class StatusBar extends javax.swing.JPanel {
     private Thread updater;
 
     /** Creates new form StatusBar */
-    public StatusBar() {
+    public StatusBar(User currentUser) {
         initComponents();
         workingText.setText("");
         StringBuilder statusBarText = new StringBuilder();
+        String username = currentUser != null ? currentUser.getUsername() : "";
+        String userFirstName = currentUser != null ? currentUser.getFirstName() : "";
+        String userLastName = currentUser != null ? currentUser.getLastName() : "";
         statusBarText.append("Connected to: ");
-
+       
         if (!StringUtils.isBlank(PlatformUI.ENVIRONMENT_NAME)) {
             statusBarText.append(PlatformUI.ENVIRONMENT_NAME);
             if (!StringUtils.isBlank(PlatformUI.SERVER_NAME)) {
@@ -49,6 +54,19 @@ public class StatusBar extends javax.swing.JPanel {
             statusBarText.append(PlatformUI.SERVER_NAME + " | ");
         }
         statusBarText.append(PlatformUI.SERVER_URL);
+        statusBarText.append(" as " + username);
+        if (!StringUtils.isBlank(userFirstName) || !StringUtils.isBlank(userLastName)) {
+        	if (!StringUtils.isBlank(userFirstName)) {					// first name is not blank
+        		statusBarText.append(" (" + userFirstName);				// add first name
+        		if (!StringUtils.isBlank(userLastName)) {				// last name is not blank
+        			statusBarText.append(" " + userLastName + ")");		// add last name and closing bracket
+        		} else {												// only the first name exists
+        			statusBarText.append(")");							// add the closing bracket
+        		}
+        	} else {													// only the last name exists
+        		statusBarText.append(" (" + userLastName + ")");		// format with only the last name
+        	}
+        }
         serverLabel.setText(statusBarText.toString());
         serverLabel.setIcon(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/server.png")));
         progressBar.setEnabled(false);

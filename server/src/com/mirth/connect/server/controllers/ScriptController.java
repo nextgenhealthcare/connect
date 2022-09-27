@@ -14,6 +14,7 @@ import java.util.Map;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.codetemplates.ContextType;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public abstract class ScriptController extends Controller {
@@ -27,6 +28,7 @@ public abstract class ScriptController extends Controller {
     public static final String PREPROCESSOR_SCRIPT_KEY = "Preprocessor";
     public static final String UNDEPLOY_SCRIPT_KEY = "Undeploy";
     public static final String DEPLOY_SCRIPT_KEY = "Deploy";
+    public static final String RESPONSE_TRANSFORMER = "Response_Transformer";
 
     public static final String DELIMITER = "_";
 
@@ -119,12 +121,16 @@ public abstract class ScriptController extends Controller {
     public abstract void compileGlobalScripts(MirthContextFactory contextFactory, boolean multiServer);
 
     public abstract void compileChannelScripts(MirthContextFactory contextFactory, Channel channel) throws ScriptCompileException;
+    
+    public abstract void compileChannelScripts(Map<String, MirthContextFactory> contextFactories, Channel channel) throws ScriptCompileException;
 
     public abstract void removeChannelScriptsFromCache(String channelId);
 
     // Deploy Script Execution
 
     public abstract void executeGlobalDeployScript() throws Exception;
+    
+    public abstract void executeChannelDebugDeployScript(MirthContextFactory contextFactory, String channelId, String channelName, MirthScopeProvider scopeProvider) throws Exception;
 
     public abstract void executeChannelDeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception;
 
@@ -133,4 +139,6 @@ public abstract class ScriptController extends Controller {
     public abstract void executeGlobalUndeployScript() throws Exception;
 
     public abstract void executeChannelUndeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception;
+
+    public abstract void executeChannelDebugUndeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception;
 }

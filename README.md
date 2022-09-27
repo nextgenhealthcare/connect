@@ -13,14 +13,8 @@
 <a name="useful-links"></a>
 ## 1. Useful Links
 - [Downloads](https://github.com/nextgenhealthcare/connect/releases) 
-- [User Guide](https://www.nextgen.com/-/media/Files/nextgen-connect/nextgen-connect-310-user-guide.pdf)
-- [Wiki](https://www.mirthcorp.com/community/wiki/display/mirth/Home)
-  - [System requirements](https://www.mirthcorp.com/community/wiki/display/mirth/System+Requirements)
-  - [FAQ](https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+FAQ)
-  - [What's New in NextGen Connect](https://github.com/nextgenhealthcare/connect/wiki/3.10.0---What's-New)
-  - [Developer Guide](https://www.mirthcorp.com/community/wiki/pages/viewpage.action?pageId=11174703)
-  - [Examples and Tutorials](https://www.mirthcorp.com/community/wiki/display/mirth/Examples+and+Tutorials)
-  - [FHIR Extension Guide](https://www.mirthcorp.com/community/wiki/display/mirth/User+Guide)
+- [User Guide](https://docs.nextgen.com/)
+- [Wiki](https://github.com/nextgenhealthcare/connect/wiki)
 - [Forums](https://forums.mirthproject.io/)
 - [Slack Channel](https://mirthconnect.slack.com/) 
   - [Slack Registration](https://mirthconnect.herokuapp.com)
@@ -102,6 +96,6 @@ In 2019, Oracle significantly changed licensing for official Oracle Java release
 
 <a name="license"></a>
 ## 7. License
-NextGen Connect is released under the [Mozilla Public License version 1.1](https://www.mozilla.org/en-US/MPL/1.1/ "Mozilla Public License version 1.1"). You can find a copy of the license in `server/docs/LICENSE.txt`.
+NextGen Connect is released under the [Mozilla Public License version 2.0](https://www.mozilla.org/en-US/MPL/2.0/ "Mozilla Public License version 2.0"). You can find a copy of the license in `server/docs/LICENSE.txt`.
 
 All licensing information regarding third-party libraries is located in the `server/docs/thirdparty` folder.

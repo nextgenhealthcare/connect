@@ -17,7 +17,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
@@ -34,7 +35,7 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
     private Map<Long, SimpleDataSource> dataSources = new ConcurrentHashMap<>();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
     private CustomDriver customDriver;
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private volatile String contextFactoryId;
 
     public DatabaseDispatcherQuery(DatabaseDispatcher connector) {

@@ -16,6 +16,10 @@
     	<result property='strikeCount' column='STRIKE_COUNT'/>
 	    <result property='lastStrikeTime' column='LAST_STRIKE_TIME'/>
 		<result property="description" column="DESCRIPTION" />
+        <result property='role' column='ROLE' />
+		<result property='country' column='COUNTRY' />
+		<result property='stateTerritory' column='STATETERRITORY' />
+		<result property='userConsent' column='USERCONSENT' />
 	</resultMap>
 
 	<resultMap id="get-user-credentials" type="com.mirth.connect.model.Credentials">
@@ -25,7 +29,7 @@
 
 	<select id="getUser" parameterType="com.mirth.connect.model.User" resultMap="get-user-result">
 		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL,
-		PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, STRIKE_COUNT, LAST_STRIKE_TIME, DESCRIPTION
+		PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, STRIKE_COUNT, LAST_STRIKE_TIME, DESCRIPTION, ROLE, COUNTRY, STATETERRITORY, USERCONSENT
 		FROM PERSON
 		<where>
 			<if test="id != null">ID = #{id}</if>
@@ -55,22 +59,26 @@
 	</delete>
 
 	<insert id="insertUser" parameterType="java.util.Map">
-		INSERT INTO PERSON (ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN)
+		INSERT INTO PERSON (ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN, ROLE, COUNTRY, STATETERRITORY, USERCONSENT)
 		VALUES (PERSON_SEQUENCE.NEXTVAL, #{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR},
 		#{organization,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
-		#{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 0, NULL)
+		#{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 0, NULL, #{role,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, #{stateTerritory,jdbcType=VARCHAR}, 0)
 	</insert>
 
 	<update id="updateUser" parameterType="java.util.Map">
 		UPDATE PERSON
 		SET USERNAME = #{username},
-		FIRSTNAME = #{firstName,jdbcType=VARCHAR},
-		LASTNAME = #{lastName,jdbcType=VARCHAR},
-		ORGANIZATION = #{organization,jdbcType=VARCHAR},
-		INDUSTRY = #{industry,jdbcType=VARCHAR},
-		EMAIL = #{email,jdbcType=VARCHAR},
-		PHONENUMBER = #{phoneNumber,jdbcType=VARCHAR},
-		DESCRIPTION = #{description,jdbcType=VARCHAR}
+            FIRSTNAME = #{firstName,jdbcType=VARCHAR},
+            LASTNAME = #{lastName,jdbcType=VARCHAR},
+            ORGANIZATION = #{organization,jdbcType=VARCHAR},
+            INDUSTRY = #{industry,jdbcType=VARCHAR},
+            EMAIL = #{email,jdbcType=VARCHAR},
+            PHONENUMBER = #{phoneNumber,jdbcType=VARCHAR},
+            DESCRIPTION = #{description,jdbcType=VARCHAR},
+            ROLE = #{role,jdbcType=VARCHAR},
+            COUNTRY = #{country,jdbcType=VARCHAR},
+            STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR},
+            USERCONSENT = #{userConsent,jdbcType=BIT}
 		WHERE ID = #{id}
 	</update>
 

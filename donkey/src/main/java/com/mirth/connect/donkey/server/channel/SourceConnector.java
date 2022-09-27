@@ -16,7 +16,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
@@ -44,12 +45,13 @@ import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
  * The base class for all source connectors.
  */
 public abstract class SourceConnector extends Connector {
+
     private boolean respondAfterProcessing = true;
     private MetaDataReplacer metaDataReplacer;
     private BatchAdaptorFactory batchAdaptorFactory;
     private String sourceName = "Source";
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     public boolean isRespondAfterProcessing() {
         return respondAfterProcessing;

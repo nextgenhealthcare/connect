@@ -20,7 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.util.ThreadUtils;
@@ -36,7 +37,7 @@ public class MessageImporter {
     private final static int XML_SCAN_BUFFER_SIZE = 20;
 
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     public MessageImportResult importMessages(String path, Boolean recursive, MessageWriter messageWriter, String baseDir) throws InterruptedException, MessageImportException, MessageImportInvalidPathException {
         int[] result = new int[] { 0, 0 };

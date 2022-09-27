@@ -12,7 +12,8 @@ package com.mirth.connect.donkey.server.data;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.channel.Statistics;
@@ -24,7 +25,7 @@ public class DonkeyStatisticsUpdater extends Thread implements StatisticsUpdater
     private DonkeyDaoFactory daoFactory;
     private int updateInterval;
     private Statistics statistics = new Statistics(false, true);
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     public DonkeyStatisticsUpdater(DonkeyDaoFactory daoFactory, int updateInterval) {
         setDaoFactory(daoFactory);

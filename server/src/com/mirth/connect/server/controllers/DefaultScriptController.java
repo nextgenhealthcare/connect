@@ -16,11 +16,13 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.server.ExtensionLoader;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
@@ -31,7 +33,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 public class DefaultScriptController extends ScriptController {
     public static final String VACUUM_LOCK_SCRIPT_STATEMENT_ID = "Script.vacuumScriptTable";
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private static ScriptController instance = null;
 
     protected DefaultScriptController() {
@@ -172,6 +174,12 @@ public class DefaultScriptController extends ScriptController {
     public void compileChannelScripts(MirthContextFactory contextFactory, Channel channel) throws ScriptCompileException {
         JavaScriptUtil.compileChannelScripts(contextFactory, channel);
     }
+    
+    @Override
+    public void compileChannelScripts(Map<String, MirthContextFactory> contextFactories, Channel channel) throws ScriptCompileException {
+        JavaScriptUtil.compileChannelScripts(contextFactories ,channel);
+    }
+    
 
     @Override
     public void removeChannelScriptsFromCache(String channelId) {
@@ -183,6 +191,11 @@ public class DefaultScriptController extends ScriptController {
         JavaScriptUtil.executeGlobalDeployScript(DEPLOY_SCRIPT_KEY);
     }
 
+    @Override
+    public void executeChannelDebugDeployScript(MirthContextFactory contextFactory, String channelId, String channelName, MirthScopeProvider scopeProvider) throws Exception {
+        JavaScriptUtil.executeChannelDebugDeployScript(contextFactory, getScriptId(DEPLOY_SCRIPT_KEY, channelId), DEPLOY_SCRIPT_KEY, channelId, channelName, scopeProvider);
+    }
+    
     @Override
     public void executeChannelDeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception {
         JavaScriptUtil.executeChannelDeployScript(contextFactory, getScriptId(DEPLOY_SCRIPT_KEY, channelId), DEPLOY_SCRIPT_KEY, channelId, channelName);
@@ -247,4 +260,10 @@ public class DefaultScriptController extends ScriptController {
             putScript(GLOBAL_GROUP_ID, entry.getKey().toString(), scripts.get(entry.getKey()));
         }
     }
+
+    @Override
+    public void executeChannelDebugUndeployScript(MirthContextFactory contextFactory, String channelId, String channelName) throws Exception {
+        JavaScriptUtil.executeChannelDebugUndeployScript(contextFactory, getScriptId(UNDEPLOY_SCRIPT_KEY, channelId), UNDEPLOY_SCRIPT_KEY, channelId, channelName, new MirthScopeProvider());
+    }
+
 }

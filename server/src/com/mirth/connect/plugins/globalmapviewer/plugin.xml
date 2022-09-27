@@ -2,7 +2,7 @@
 	<name>Global Map Viewer</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.12.0</mirthVersion>
+	<mirthVersion>4.1.1</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This plugin allows you to view the global map and global channel maps in the Mirth Connect Administrator.</description>
 	<serverClasses>

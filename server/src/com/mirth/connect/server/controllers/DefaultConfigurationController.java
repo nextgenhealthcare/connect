@@ -63,6 +63,7 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -71,7 +72,8 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
@@ -105,6 +107,7 @@ import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ResourcePropertiesList;
 import com.mirth.connect.model.ServerConfiguration;
@@ -143,7 +146,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     public static final String SECRET_KEY_ALIAS = "encryption";
     public static final String VACUUM_LOCK_STATEMENT_ID = "Configuration.vacuumConfigurationTable";
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private String appDataDir = null;
     private String baseDir = null;
     private String configurationFile = null;
@@ -208,7 +211,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                     try {
                         instance.getClass().getMethod("initialize").invoke(instance);
                     } catch (Exception e) {
-                    	Logger.getLogger(DefaultConfigurationController.class).error("Error calling initialize method in DefaultConfigurationController", e);
+                    	LogManager.getLogger(DefaultConfigurationController.class).error("Error calling initialize method in DefaultConfigurationController", e);
                     }
                 }
             }
@@ -502,6 +505,11 @@ public class DefaultConfigurationController extends ConfigurationController {
         Properties serverSettings = getPropertiesForGroup(PROPERTIES_CORE);
         return new ServerSettings(environmentName, serverName, serverSettings);
     }
+    
+    @Override
+    public PublicServerSettings getPublicServerSettings() throws ControllerException {
+        return new PublicServerSettings(getServerSettings());
+    }
 
     @Override
     public EncryptionSettings getEncryptionSettings() throws ControllerException {
@@ -514,7 +522,11 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     @Override
-    public void setServerSettings(ServerSettings settings) throws ControllerException {
+    public void setServerSettings(ServerSettings settings) throws ControllerException {        
+        Properties properties = settings.getProperties();
+
+        validateServerSettings(properties);
+        
         String environmentName = settings.getEnvironmentName();
         if (environmentName != null) {
             saveProperty(PROPERTIES_CORE, "environment.name", environmentName);
@@ -526,9 +538,51 @@ public class DefaultConfigurationController extends ConfigurationController {
             this.serverName = serverName;
         }
 
-        Properties properties = settings.getProperties();
         for (Object name : properties.keySet()) {
             saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));
+        }
+    }
+    
+    public void validateServerSettings(Properties properties) throws ControllerException {  
+        Boolean autoLogoutEnabled = false;
+        Integer autoLogoutTime = null;
+        
+        if (properties.getProperty("administratorautologoutinterval.enabled") != null) {
+            autoLogoutEnabled = intToBooleanObject(properties.getProperty("administratorautologoutinterval.enabled"), false);
+        }
+        
+        if (autoLogoutEnabled == true) {
+            try {
+                autoLogoutTime = Integer.parseInt(properties.getProperty("administratorautologoutinterval.field"));
+                if (autoLogoutTime <= 0 || autoLogoutTime >= 61) {
+                    throw new Exception();
+                }
+            } catch (Exception e) {
+                throw new ControllerException("Invalid auto logout interval, the value should be between 1 and 60.");
+            }
+        }
+    }
+    
+    /**
+     * Takes a String and returns a Boolean Object. "1" = true "0" = false null or not a number =
+     * defaultValue
+     * 
+     * @param str
+     * @param defaultValue
+     * @return
+     */
+    protected Boolean intToBooleanObject(String str, Boolean defaultValue) {
+        int i = NumberUtils.toInt(str, -1);
+
+        if (i == -1) {
+            // Must return null explicitly to avoid Java NPE due to autoboxing
+            if (defaultValue == null) {
+                return null;
+            } else {
+                return defaultValue;
+            }
+        } else {
+            return BooleanUtils.toBooleanObject(i);
         }
     }
 

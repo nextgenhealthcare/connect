@@ -12,10 +12,11 @@ package com.mirth.connect.server.tools;
 import java.net.URI;
 import java.net.URL;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ClassPathResource {
-    private static Logger logger = Logger.getLogger(ClassPathResource.class);
+    private static Logger logger = LogManager.getLogger(ClassPathResource.class);
 
     public static URI getResourceURI(String resource) {
         // If nothing found, null is returned

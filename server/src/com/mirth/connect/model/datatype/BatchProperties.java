@@ -24,4 +24,5 @@ public abstract class BatchProperties extends DataTypePropertiesGroup {
     @Override public void migrate3_11_0(DonkeyElement element) {}
     @Override public void migrate3_11_1(DonkeyElement element) {} 
     @Override public void migrate3_12_0(DonkeyElement element) {}// @formatter:on
+    public abstract String getBatchScript();
 }

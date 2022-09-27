@@ -11,6 +11,9 @@ package com.mirth.connect.model.filters.elements;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import com.mirth.connect.model.MetaDataSearchElementToStringStyle;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("metaDataSearchCriteria")
@@ -60,4 +63,8 @@ public class MetaDataSearchElement implements Serializable {
         this.ignoreCase = ignoreCase;
     }
 
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, MetaDataSearchElementToStringStyle.instance());
+    }
 }

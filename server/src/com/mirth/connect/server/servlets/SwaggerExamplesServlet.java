@@ -47,6 +47,7 @@ import com.mirth.connect.connectors.ws.WebServiceDispatcherProperties;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.RawMessage;
@@ -70,6 +71,7 @@ import com.mirth.connect.model.DashboardChannelInfo;
 import com.mirth.connect.model.DashboardStatus;
 import com.mirth.connect.model.DashboardStatus.StatusType;
 import com.mirth.connect.model.DatabaseTask;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.EncryptionSettings;
 import com.mirth.connect.model.ExtensionLibrary;
@@ -81,6 +83,7 @@ import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginClass;
 import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.PublicServerSettings;
 import com.mirth.connect.model.ResourceProperties;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerEvent;
@@ -172,7 +175,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getCalendarExample();
         } else if (exampleRequested.equals("channel")) {
 			requestedObject = getChannelExample();
-		} else if (exampleRequested.equals("channel_header_map")) {
+        } else if (exampleRequested.equals("channel_header_map")) {
 			requestedObject = getChannelHeaderMapExample();
 		} else if (exampleRequested.equals("channel_list")) {
 			requestedObject = getChannelListExample();
@@ -182,6 +185,8 @@ public class SwaggerExamplesServlet extends HttpServlet {
 		    requestedObject = getChannelGroupListExample();
 		} else if (exampleRequested.equals("channel_metadata_map")) {
             requestedObject = getChannelMetadataMapExample();
+		} else if (exampleRequested.equals("ports_used")) {
+		    requestedObject = getChannelPortsInUseExample();
         } else if (exampleRequested.equals("channel_statistics")) {
 		    requestedObject = getChannelStatisticsExample();
 		} else if (exampleRequested.equals("channel_statistics_list")) {
@@ -254,7 +259,9 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getDatabaseTaskExample();
 		} else if (exampleRequested.equals("database_task_map")) {
 		    requestedObject = getDatabaseTaskMapExample();
-		} else if (exampleRequested.equals("definition_service_map")) {
+		} else if (exampleRequested.equals("debug_options")) {
+            requestedObject = getDebugOptionsExample();  
+        } else if (exampleRequested.equals("definition_service_map")) {
 		    requestedObject = getDefinitionServiceMapExample();
 		} else if (exampleRequested.equals("driver_info_list")) {
             requestedObject = getDriverInfoListExample();
@@ -338,6 +345,8 @@ public class SwaggerExamplesServlet extends HttpServlet {
             requestedObject = getServerLogItemListExample();
         } else if (exampleRequested.equals("server_settings")) {
             requestedObject = getServerSettingsExample();
+        } else if (exampleRequested.equals("public_server_settings")) {
+            requestedObject = getPublicServerSettingsExample();
         } else if (exampleRequested.equals("smtp_dispatcher_properties")) {
             requestedObject = getSmtpDispatcherPropertiesExample("none");
         } else if (exampleRequested.equals("smtp_dispatcher_properties_ssl")) {
@@ -361,7 +370,6 @@ public class SwaggerExamplesServlet extends HttpServlet {
         } else if (exampleRequested.equals("ws_dispatcher_properties")) {
             requestedObject = getWsDispatcherPropertiesExample();
         }
-		
 		resp.setContentType("application/json");
 		if (req.getPathInfo().endsWith("_json")) {
 	        String serializedObject = jsonSerialize(requestedObject);
@@ -586,6 +594,15 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    Map<String, ChannelMetadata> channelMetadataMap = new HashMap<>();
 	    channelMetadataMap.put(UUID.randomUUID().toString(), getChannelMetadataExample());
 	    return channelMetadataMap;
+	}
+	
+	private List<Ports> getChannelPortsInUseExample(){
+	    List<Ports> portsUsed = new ArrayList<Ports>();
+	    Ports ports1 = new Ports(UUID.randomUUID().toString(),"Default WebClient Port", 8080);
+	    Ports ports2 = new Ports(UUID.randomUUID().toString(),"Default Administrator Port", 8443);
+	    portsUsed.add(ports1);
+	    portsUsed.add(ports2);
+	    return portsUsed;
 	}
 	
 	private List<ChannelSummary> getChannelSummaryListExample() {
@@ -885,6 +902,19 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    taskMap.put(task.getId(), task);
 	    return taskMap;
 	}
+	
+	private DebugOptions getDebugOptionsExample() {
+	    DebugOptions debugOptions=new DebugOptions();
+        debugOptions.setAttachmentBatchScripts(false);
+        debugOptions.setDeployUndeployPreAndPostProcessorScripts(false);
+        debugOptions.setDestinationConnectorScripts(false);
+        debugOptions.setDestinationFilterTransformer(false);
+        debugOptions.setDestinationResponseTransformer(false);
+        debugOptions.setDestinationResponseTransformer(false);
+        debugOptions.setSourceConnectorScripts(false);
+        debugOptions.setSourceFilterTransformer(false);
+        return debugOptions;
+    }
 	
 	private DefinitionServiceMap getDefinitionServiceMapExample() {
 	    DefinitionServiceMap definitionMap = new DefinitionServiceMap();
@@ -1300,7 +1330,13 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    serverSettings.setSmtpFrom("");
 	    serverSettings.setSmtpUsername("");
 	    serverSettings.setSmtpPassword("");
+	    serverSettings.setLoginNotificationEnabled(false);
+	    serverSettings.setLoginNotificationMessage("");
 	    return serverSettings;
+	}
+	
+	private PublicServerSettings getPublicServerSettingsExample() {
+	    return new PublicServerSettings(getServerSettingsExample());
 	}
 	
 	private SystemInfo getSystemInfoExample() {
@@ -1366,6 +1402,9 @@ public class SwaggerExamplesServlet extends HttpServlet {
         user.setUsername("newuser");
         user.setDescription("");
         user.setIndustry("");
+        user.setCountry("United States");
+        user.setStateTerritory("");
+        user.setRole("");
         user.setLastLogin(dateNow);
         user.setLastStrikeTime(dateNow);
         user.setOrganization("");

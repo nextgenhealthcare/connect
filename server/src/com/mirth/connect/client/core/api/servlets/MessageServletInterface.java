@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -447,7 +448,8 @@ public interface MessageServletInterface extends BaseServletInterface {
     public void removeMessage(// @formatter:off
             @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @PathParam("channelId") String channelId,
             @Param("messageId") @Parameter(description = "The ID of the message.", required = true) @PathParam("messageId") Long messageId,
-            @Param("metaDataId") @Parameter(description = "If present, only the specific connector message will be removed. If the metadata ID is 0, the entire message will be removed.") @QueryParam("metaDataId") Integer metaDataId) throws ClientException;
+            @Param("metaDataId") @Parameter(description = "If present, only the specific connector message will be removed. If the metadata ID is 0, the entire message will be removed.") @QueryParam("metaDataId") Integer metaDataId,
+    		@Param("patient_id") @Parameter(description = "The patient ID of the channel message.", required = false) @QueryParam("patient_id") String patientId) throws ClientException;
     // @formatter:on
 
     @DELETE
@@ -596,4 +598,19 @@ public interface MessageServletInterface extends BaseServletInterface {
                             @ExampleObject(name = "filePath", value = "/path/to/file") }) }) String filePath,
             @Param("binary") @Parameter(description = "Indicates that the attachment is binary and should be Base64 decoded before writing to file.", schema = @Schema(defaultValue = "false")) @QueryParam("binary") boolean binary) throws ClientException;
     // @formatter:on
+    
+    @POST
+    @Path("/_auditAccessedPHIMessage")
+    @Operation(summary = "Audit that the user has accessed a channel message that contains PHI.")
+    @MirthOperation(name = "auditAccessedPHIMessage", display = "Accessed PHI")
+    public void auditAccessedPHIMessage(
+            @Param("auditMessageAttributesMap") @Parameter(description = "The attributes map of the channel message.", required = false) Map<String, String> auditMessageAttributesMap) throws ClientException;
+    
+    
+    @POST
+    @Path("/_auditQueriedPHIMessage")
+    @Operation(summary = "Audit that the user has queried the channel messages panel that contains PHI.")
+    @MirthOperation(name = "auditQueriedPHIMessage", display = "Queried PHI")
+    public void auditQueriedPHIMessage(
+            @Param("auditMessageAttributesMap") @Parameter(description = "The attributes map of the channel messages filter.", required = false) Map<String, String> auditMessageAttributesMap) throws ClientException;
 }

@@ -72,7 +72,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -150,7 +151,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
     private static final int TASK_CODE_TEMPLATE_VALIDATE = 11;
 
     private Frame parent;
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private boolean firstLoad = true;
     private Map<String, CodeTemplateLibrary> codeTemplateLibraries = new LinkedHashMap<String, CodeTemplateLibrary>();
     private Map<String, CodeTemplate> codeTemplates = new LinkedHashMap<String, CodeTemplate>();

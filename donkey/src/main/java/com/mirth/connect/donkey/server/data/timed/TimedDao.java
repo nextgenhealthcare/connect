@@ -22,6 +22,7 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.StatisticsUpdater;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.util.ActionTimer;
 
 public class TimedDao implements DonkeyDao {
@@ -669,6 +670,17 @@ public class TimedDao implements DonkeyDao {
             return dao.getChannelTotalStatistics(serverId);
         } finally {
             timer.log("getChannelTotalStatistics", System.currentTimeMillis() - startTime);
+        }
+    }
+    
+    @Override
+    public List<Ports> getPortsInUse() {
+        long startTime = System.currentTimeMillis();
+
+        try {
+            return dao.getPortsInUse();
+        } finally {
+            timer.log("getPortsInUse", System.currentTimeMillis() - startTime);
         }
     }
 }

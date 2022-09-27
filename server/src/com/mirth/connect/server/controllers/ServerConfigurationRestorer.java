@@ -17,10 +17,12 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.util.MultiException;
 
 import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelGroup;
@@ -40,7 +42,7 @@ import com.mirth.connect.util.ConfigurationProperty;
 
 public class ServerConfigurationRestorer {
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     private ConfigurationController configurationController;
     private ChannelController channelController;
@@ -501,7 +503,7 @@ public class ServerConfigurationRestorer {
         try {
             // Deploy all channels
             if (deploy) {
-                engineController.deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, false);
+                engineController.deployChannels(channelController.getChannelIds(), ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, new DebugOptions());
             }
         } catch (Throwable t) {
             multiException.add(new ControllerException("Error deploying channels after restoring server configuration.", t));

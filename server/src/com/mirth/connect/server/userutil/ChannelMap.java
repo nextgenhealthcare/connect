@@ -13,7 +13,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A wrapper class for the channel map that checks against the source map in the {@link #get(Object)
@@ -21,7 +22,7 @@ import org.apache.log4j.Logger;
  */
 public class ChannelMap implements Map<String, Object> {
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private Map<String, Object> delegate;
     private Map<String, Object> sourceMap;
 

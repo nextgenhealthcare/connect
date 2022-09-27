@@ -369,7 +369,7 @@ public final class NativeDate extends IdScriptableObject
                 return js_toISOString(t);
             }
             String msg = ScriptRuntime.getMessage0("msg.invalid.date");
-            throw ScriptRuntime.constructError("RangeError", msg);
+            throw ScriptRuntime.rangeError(msg);
 
           default: throw new IllegalArgumentException(String.valueOf(id));
         }
@@ -1757,13 +1757,12 @@ public final class NativeDate extends IdScriptableObject
     /* cached values */
     private static final TimeZone thisTimeZone = TimeZone.getDefault();
     private static final double LocalTZA = thisTimeZone.getRawOffset();
+
+    //not thread safe
     private static final DateFormat timeZoneFormatter = new SimpleDateFormat("zzz");
-    private static final DateFormat localeDateTimeFormatter =
-        DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG);
-    private static final DateFormat localeDateFormatter =
-        DateFormat.getDateInstance(DateFormat.LONG);
-    private static final DateFormat localeTimeFormatter =
-        DateFormat.getTimeInstance(DateFormat.LONG);
+    private static final DateFormat localeDateTimeFormatter = new SimpleDateFormat("MMMM d, yyyy h:mm:ss a z");
+    private static final DateFormat localeDateFormatter = new SimpleDateFormat("MMMM d, yyyy");
+    private static final DateFormat localeTimeFormatter = new SimpleDateFormat("h:mm:ss a z");
 
     private double date;
 }

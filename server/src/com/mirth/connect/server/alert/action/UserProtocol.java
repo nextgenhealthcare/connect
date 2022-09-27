@@ -19,7 +19,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.User;
@@ -28,7 +29,7 @@ import com.mirth.connect.server.controllers.UserController;
 
 public class UserProtocol implements Protocol {
     private UserController userController = ControllerFactory.getFactory().createUserController();
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     @Override
     public String getName() {

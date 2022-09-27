@@ -24,7 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.NativeJavaObject;
@@ -32,6 +33,7 @@ import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
+import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
@@ -39,12 +41,14 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.ServerEvent.Level;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.MirthScopeProvider;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -57,7 +61,7 @@ import com.mirth.connect.server.util.ServerUUIDGenerator;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 public class JavaScriptUtil {
-    private static Logger logger = Logger.getLogger(JavaScriptUtil.class);
+    private static Logger logger = LogManager.getLogger(JavaScriptUtil.class);
     private static CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private static final int SOURCE_CODE_LINE_WRAPPER = 5;
     private static final RejectedExecutionHandler defaultHandler = new AbortPolicy();
@@ -111,7 +115,7 @@ public class JavaScriptUtil {
             result = execute(new JavaScriptTask<Object>(contextFactory, ScriptController.ATTACHMENT_SCRIPT_KEY, channelId, channelName) {
                 @Override
                 public Object doCall() throws Exception {
-                    Logger scriptLogger = Logger.getLogger(ScriptController.ATTACHMENT_SCRIPT_KEY.toLowerCase());
+                    Logger scriptLogger = LogManager.getLogger(ScriptController.ATTACHMENT_SCRIPT_KEY.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getAttachmentScope(getContextFactory(), scriptLogger, channelId, channelName, finalMessage, attachments, isBinary);
                         return JavaScriptUtil.executeScript(this, ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channelId), scope, null, null);
@@ -137,7 +141,7 @@ public class JavaScriptUtil {
     }
 
     /**
-     * Executes the JavaScriptTask associated with the postprocessor, if necessary.
+     * Executes the JavaScriptTask associated with the preprocessor, if necessary.
      * 
      * @param task
      * @param channelId
@@ -165,10 +169,10 @@ public class JavaScriptUtil {
      * @throws JavaScriptExecutorException
      * 
      */
-    public static String executePreprocessorScripts(JavaScriptTask<Object> task, ConnectorMessage message, Map<String, Integer> destinationIdMap) throws Exception {
+    public static String executePreprocessorScripts(JavaScriptTask<Object> task, ConnectorMessage message, Map<String, Integer> destinationIdMap, MirthScopeProvider scopeProvider) throws Exception {
         String processedMessage = null;
         String globalResult = message.getRaw().getContent();
-        Logger scriptLogger = Logger.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
+        Logger scriptLogger = LogManager.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
 
         try {
             // Execute the global preprocessor and check the result
@@ -181,6 +185,9 @@ public class JavaScriptUtil {
 
                 try {
                     Scriptable scope = JavaScriptScopeUtil.getPreprocessorScope(globalScriptContextFactory, scriptLogger, message.getChannelId(), message.getRaw().getContent(), new ImmutableConnectorMessage(message, true, destinationIdMap));
+                    if (scopeProvider != null) {
+                        scopeProvider.setScope(scope);
+                    }
                     task.setContextFactory(globalScriptContextFactory);
                     result = JavaScriptUtil.executeScript(task, ScriptController.PREPROCESSOR_SCRIPT_KEY, scope, null, null);
                 } finally {
@@ -264,7 +271,7 @@ public class JavaScriptUtil {
      * @throws Exception
      */
     public static Response executePostprocessorScripts(JavaScriptTask<Object> task, Message message) throws Exception {
-        Logger scriptLogger = Logger.getLogger(ScriptController.POSTPROCESSOR_SCRIPT_KEY.toLowerCase());
+        Logger scriptLogger = LogManager.getLogger(ScriptController.POSTPROCESSOR_SCRIPT_KEY.toLowerCase());
 
         Response channelResponse = null;
         try {
@@ -358,6 +365,39 @@ public class JavaScriptUtil {
                 return null;
         }
     }
+    
+    /**
+     * Executes channel level deploy scripts.
+     * 
+     * @param scriptId
+     * @param scriptType
+     * @param channelId
+     * @param channelName
+     * @param scopeProvider
+     * @throws InterruptedException
+     * @throws JavaScriptExecutorException
+     */
+    public static void executeChannelDebugDeployScript(MirthContextFactory contextFactory, final String scriptId, final String scriptType, final String channelId, final String channelName, MirthScopeProvider scopeProvider) throws InterruptedException, JavaScriptExecutorException {
+        try {
+            execute(new JavaScriptTask<Object>(contextFactory, scriptType, channelId, channelName) {
+                @Override
+                public Object doCall() throws Exception {
+                    Logger scriptLogger = LogManager.getLogger(scriptType.toLowerCase());
+                    try {
+                        Scriptable scope = JavaScriptScopeUtil.getDeployScope(getContextFactory(), scriptLogger, channelId, channelName);
+                        scopeProvider.setScope(scope);
+                        JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
+                        return null;
+                    } finally {
+                        Context.exit();
+                    }
+                }
+            });
+        } catch (JavaScriptExecutorException e) {
+            logScriptError(scriptId, channelId, e.getCause());
+            throw e;
+        }
+    }
 
     /**
      * Executes channel level deploy scripts.
@@ -373,7 +413,7 @@ public class JavaScriptUtil {
             execute(new JavaScriptTask<Object>(contextFactory, scriptType, channelId, channelName) {
                 @Override
                 public Object doCall() throws Exception {
-                    Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
+                    Logger scriptLogger = LogManager.getLogger(scriptType.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getDeployScope(getContextFactory(), scriptLogger, channelId, channelName);
                         JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
@@ -403,9 +443,42 @@ public class JavaScriptUtil {
             execute(new JavaScriptTask<Object>(contextFactory, scriptType, channelId, channelName) {
                 @Override
                 public Object doCall() throws Exception {
-                    Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
+                    Logger scriptLogger = LogManager.getLogger(scriptType.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getUndeployScope(getContextFactory(), scriptLogger, channelId, channelName);
+                        JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
+                        return null;
+                    } finally {
+                        Context.exit();
+                    }
+                }
+            });
+        } catch (JavaScriptExecutorException e) {
+            logScriptError(scriptId, channelId, e.getCause());
+            throw e;
+        }
+    }
+    
+    /**
+     * Executes channel level undeploy scripts.
+     * 
+     * @param scriptId
+     * @param scriptType
+     * @param channelId
+     * @param channelName
+     * @param scopeProvider
+     * @throws InterruptedException
+     * @throws JavaScriptExecutorException
+     */
+    public static void executeChannelDebugUndeployScript(MirthContextFactory contextFactory, final String scriptId, final String scriptType, final String channelId, final String channelName, MirthScopeProvider scopeProvider) throws InterruptedException, JavaScriptExecutorException {
+        try {
+            execute(new JavaScriptTask<Object>(contextFactory, scriptType, channelId, channelName) {
+                @Override
+                public Object doCall() throws Exception {
+                    Logger scriptLogger = LogManager.getLogger(scriptType.toLowerCase());
+                    try {
+                        Scriptable scope = JavaScriptScopeUtil.getUndeployScope(getContextFactory(), scriptLogger, channelId, channelName);
+                        scopeProvider.setScope(scope);
                         JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
                         return null;
                     } finally {
@@ -431,7 +504,7 @@ public class JavaScriptUtil {
             execute(new JavaScriptTask<Object>(getGlobalScriptContextFactory(), "Global Deploy") {
                 @Override
                 public Object doCall() throws Exception {
-                    Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
+                    Logger scriptLogger = LogManager.getLogger(scriptId.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getDeployScope(getContextFactory(), scriptLogger);
                         JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
@@ -462,7 +535,7 @@ public class JavaScriptUtil {
             execute(new JavaScriptTask<Object>(getGlobalScriptContextFactory(), "Global Undeploy") {
                 @Override
                 public Object doCall() throws Exception {
-                    Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
+                    Logger scriptLogger = LogManager.getLogger(scriptId.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getUndeployScope(getContextFactory(), scriptLogger);
                         JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
@@ -644,10 +717,7 @@ public class JavaScriptUtil {
 
         try {
             logger.debug("compiling script " + scriptId);
-            generatedScript = JavaScriptBuilder.generateScript(channelId, script, scriptOptions, contextType);
-            Script compiledScript = compileScript(context, generatedScript, scriptId);
-            String decompiledScript = context.decompileScript(compiledScript, 0);
-
+            
             String decompiledDefaultScript = null;
 
             if (defaultScript != null) {
@@ -655,12 +725,17 @@ public class JavaScriptUtil {
                 Script compiledDefaultScript = compileScript(context, generatedDefaultScript, scriptId);
                 decompiledDefaultScript = context.decompileScript(compiledDefaultScript, 0);
             }
+            
+            generatedScript = JavaScriptBuilder.generateScript(channelId, script, scriptOptions, contextType);
+            Script compiledScript = compileScript(context, generatedScript, scriptId);
+            String decompiledScript = context.decompileScript(compiledScript, 0);
 
             if ((defaultScript == null) || !decompiledScript.equals(decompiledDefaultScript)) {
                 logger.debug("adding script " + scriptId);
                 compiledScriptCache.putCompiledScript(scriptId, compiledScript, generatedScript);
                 scriptInserted = true;
             } else {
+                logger.debug("removing script " + scriptId);
                 compiledScriptCache.removeCompiledScript(scriptId);
             }
         } catch (EvaluatorException e) {
@@ -757,4 +832,58 @@ public class JavaScriptUtil {
         return source.toString();
     }
 
+    public static void compileChannelScripts(Map<String, MirthContextFactory> contextFactories, com.mirth.connect.model.Channel channel) {
+        for (Entry<String, MirthContextFactory> item : contextFactories.entrySet()){
+            String scriptIdString = item.getKey();
+            MirthContextFactory factory = item.getValue();
+            try {
+                JavaScriptUtil.compileAndAddScript(channel.getId(), factory, scriptIdString, factory.getScriptText(), factory.getContextType(), null, null);
+            } catch (Exception e) {
+                logger.error("Error compiling channel scripts.", e);
+            }
+        }
+        
+    }
+    public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.model.Channel channel, String scriptId) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, channel.getName() + "-" + channel.getId(), scriptId);
+    }
+    
+    public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.model.Channel channel, String scriptId, boolean showDebugger) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, channel.getName() + "-" + channel.getId(), scriptId, showDebugger);
+    }
+    
+    public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.donkey.server.channel.Channel donkeychannel, String scriptId) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, donkeychannel.getName() + "-" + donkeychannel.getChannelId(), scriptId);
+    }
+    
+    public static MirthMain getDebugger(MirthContextFactory contextFactory, MirthScopeProvider scopeProvider, com.mirth.connect.donkey.server.channel.Channel donkeychannel, String scriptId, boolean showDebugger) {
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, donkeychannel.getName() + "-" + donkeychannel.getChannelId(), scriptId, showDebugger);
+    }
+    
+    public static void removeDebuggerFromMap(String channelId) {
+        MirthMain.closeDebugger(channelId);
+        
+    }
+    
+    public static MirthContextFactory generateContextFactory(boolean debug, Set<String> libraryResourceIds, String channelId, String scriptId, String script, ContextType contextType) throws ConnectorTaskException {
+        MirthContextFactory contextFactory;
+		try {
+			if (debug) {
+				contextFactory = contextFactoryController.getDebugContextFactory(libraryResourceIds, channelId, scriptId);
+				contextFactory.setContextType(contextType);
+				contextFactory.setScriptText(script);
+				contextFactory.setDebugType(debug);
+			} else {
+	            contextFactory = contextFactoryController.getContextFactory(libraryResourceIds);
+	        }
+            JavaScriptUtil.compileAndAddScript(channelId, contextFactory, scriptId, script, contextType);
+            return contextFactory;
+	    } catch (Exception e) {
+	    	throw new ConnectorTaskException("Error compiling generating context factory.", e);
+	    }
+    }
+
+	public static Object getCompiledScript(String scriptId) {
+		return compiledScriptCache.getCompiledScript(scriptId);
+	}
 }

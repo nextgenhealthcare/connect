@@ -2,7 +2,7 @@
 	<name>JavaScript Filter Rule</name>
 	<author>NextGen Healthcare</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>3.12.0</mirthVersion>
+	<mirthVersion>4.1.1</mirthVersion>
 	<url>http://www.nextgen.com</url>
 	<description>This plugin provides a JavaScript rule-type for Mirth Connect filters</description>
 	<clientClasses>

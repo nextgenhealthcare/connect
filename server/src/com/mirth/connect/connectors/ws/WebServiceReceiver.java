@@ -32,8 +32,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.mirth.connect.donkey.model.channel.ConnectorPluginProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
@@ -72,7 +72,7 @@ public class WebServiceReceiver extends SourceConnector {
     // This determines how many client requests can queue up while waiting for the server socket to accept
     private static final int DEFAULT_BACKLOG = 256;
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
@@ -139,6 +139,17 @@ public class WebServiceReceiver extends SourceConnector {
         java.util.logging.Logger.getLogger("javax.enterprise.resource.webservices.jaxws.server").setLevel(java.util.logging.Level.OFF);
 
         try {
+            try {
+                if (System.getProperty("sun.net.httpserver.maxReqTime") == null) {
+                    System.setProperty("sun.net.httpserver.maxReqTime", "60");
+                }
+            
+                if (System.getProperty("sun.net.httpserver.maxRspTime") == null) {
+                    System.setProperty("sun.net.httpserver.maxRspTime", "60");
+                }
+            } catch (Exception e) {
+                logger.error("Failed to set properties sun.net.httpserver.maxReqTime and sun.net.httpserver.maxRspTime", e);
+            }
             configuration.configureReceiver(this);
             server.bind(new InetSocketAddress(host, port), DEFAULT_BACKLOG);
         } catch (Exception e) {

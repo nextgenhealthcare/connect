@@ -87,7 +87,8 @@ import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
@@ -115,7 +116,7 @@ public class HttpDispatcher extends DestinationConnector {
     private static final Pattern AUTH_HEADER_PATTERN = Pattern.compile("([^\\s=,]+)\\s*=\\s*([^=,;\"\\s]+|\"([^\"]|\\\\[\\s\\S])*(?<!\\\\)\")");
     private static final int MAX_MAP_SIZE = 100;
 
-    protected Logger logger = Logger.getLogger(this.getClass());
+    protected Logger logger = LogManager.getLogger(this.getClass());
 
     protected ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     protected EventController eventController = ControllerFactory.getFactory().createEventController();
@@ -364,8 +365,7 @@ public class HttpDispatcher extends DestinationConnector {
 
             // The entity could be null in certain cases such as 204 responses
             if (httpResponse.getEntity() != null) {
-                // Only parse multipart if XML Body is selected and Parse Multipart is enabled
-                if (httpDispatcherProperties.isResponseXmlBody() && httpDispatcherProperties.isResponseParseMultipart() && responseContentType.getMimeType().startsWith(FileUploadBase.MULTIPART)) {
+                if (shouldParseMultipart(httpDispatcherProperties, responseContentType.getMimeType())) {
                     responseBody = new MimeMultipart(new ByteArrayDataSource(httpResponse.getEntity().getContent(), responseContentType.toString()));
                 } else if (binaryContentTypeResolver.isBinaryContentType(responseContentType)) {
                     responseBody = IOUtils.toByteArray(httpResponse.getEntity().getContent());
@@ -423,6 +423,11 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         return new Response(responseStatus, responseData, responseStatusMessage, responseError, validateResponse);
+    }
+    
+    protected boolean shouldParseMultipart(HttpDispatcherProperties httpDispatcherProperties, String mimeType) {
+    	// Only parse multipart if XML Body is selected and Parse Multipart is enabled
+    	return httpDispatcherProperties.isResponseXmlBody() && httpDispatcherProperties.isResponseParseMultipart() && mimeType.startsWith(FileUploadBase.MULTIPART);
     }
 
     @Override
@@ -547,11 +552,19 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         // set the headers
+        boolean userAgentFound = false;
         for (Entry<String, List<String>> headerEntry : headers.entrySet()) {
             for (String value : headerEntry.getValue()) {
                 logger.debug("setting method header: [" + headerEntry.getKey() + ", " + value + "]");
-                httpMethod.addHeader(headerEntry.getKey(), value);
+                String key = headerEntry.getKey();
+                httpMethod.addHeader(key, value);
+                if (key.equalsIgnoreCase("user-agent")) {
+                	userAgentFound = true;
+                }
             }
+        }
+        if (!userAgentFound) {
+            httpMethod.addHeader("user-agent", "Mirth Connect");
         }
 
         // Only set the Content-Type for entity-enclosing methods, but not if multipart is used

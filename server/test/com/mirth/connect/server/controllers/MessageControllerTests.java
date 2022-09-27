@@ -14,7 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.model.filters.MessageFilter;
 
 public class MessageControllerTests {
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     @BeforeClass
     public final static void init() throws Exception {

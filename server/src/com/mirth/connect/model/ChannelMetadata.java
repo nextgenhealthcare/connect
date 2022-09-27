@@ -23,8 +23,17 @@ public class ChannelMetadata implements Serializable, Purgable {
     private boolean enabled;
     private Calendar lastModified;
     private ChannelPruningSettings pruningSettings;
+    private Integer userId;
 
-    public ChannelMetadata() {
+    public Integer getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+
+	public ChannelMetadata() {
         enabled = true;
     }
 
