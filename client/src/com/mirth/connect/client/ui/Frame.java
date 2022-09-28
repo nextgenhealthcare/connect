@@ -3485,16 +3485,17 @@ public class Frame extends JXFrame {
     public List<byte[]> browseForMultipleFileBytes(String fileExtension) {
     	List<byte[]> fileBytes = new ArrayList<>();  	
         File[] files = browseForFiles(fileExtension);
-        
+        String fileName = "";
         if (files != null) {
             try {
             	for (File file : files) {
+            	    fileName = file.getName();
                     byte[] bytes = FileUtils.readFileToByteArray(file);
             		fileBytes.add(bytes);
             	}
             	return fileBytes;
             } catch (IOException e) {
-                alertError(this, "Unable to read file.");
+                alertError(this, "Unable to read file: " + fileName);
             }
         }
         return null;
