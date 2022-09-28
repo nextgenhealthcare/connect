@@ -49,7 +49,7 @@ public class DefaultUserController extends UserController {
 
     private static UserController instance = null;
 
-    private DefaultUserController() {
+    public DefaultUserController() {
 
     }
 
