@@ -295,7 +295,7 @@ public class TestUtils {
     }
 
     public static void deployTestChannel(com.mirth.connect.model.Channel channel) throws Exception {
-        com.mirth.connect.server.controllers.ChannelController.getInstance().updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
+        com.mirth.connect.server.controllers.ChannelController.getInstance().updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true, null);
         Set<String> channelIds = new LinkedHashSet<String>();
         channelIds.add(channel.getId());
         ControllerFactory.getFactory().createEngineController().deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, new DebugOptions());
