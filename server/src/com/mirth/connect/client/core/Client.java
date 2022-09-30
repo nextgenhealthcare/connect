@@ -1116,7 +1116,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
 
     /**
      * Updates the specified channel.
-     * @param dateStartEdit 
+     * @param startEdit 
      * 
      * @see ChannelServletInterface#updateChannel
      */
