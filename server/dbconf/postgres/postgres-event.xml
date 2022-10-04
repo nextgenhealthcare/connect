@@ -55,6 +55,22 @@
 		</if>
 	</select>
 	
+		<select id="searchEventsByAsc" parameterType="map" resultMap="event">
+		SELECT *
+		FROM EVENT
+		
+		<include refid="searchEventsBody" />
+		
+		ORDER BY ID asc
+
+		<if test="offset != null">
+			OFFSET ${offset}
+		</if>
+		<if test="limit != null">
+			LIMIT ${limit}
+		</if>
+	</select>
+	
 	<select id="searchEventsCount" parameterType="map" resultType="long">
 		SELECT COUNT(ID)
 		FROM EVENT
