@@ -9,12 +9,16 @@
 
 package com.mirth.connect.server.api.servlets;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -72,7 +76,7 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
         }
 
         try {
-            return channelController.updateChannel(channel, context, false);
+            return channelController.updateChannel(channel, context, false, null);
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }
@@ -254,9 +258,18 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
 
     @Override
     @CheckAuthorizedChannelId
-    public boolean updateChannel(String channelId, Channel channel, boolean override) {
+    public boolean updateChannel(String channelId, Channel channel, boolean override, String startEdit) {
         try {
-            return channelController.updateChannel(channel, context, override);
+        	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault());
+    	    Calendar dateStartEdit = Calendar.getInstance();
+        	try {
+        	    if (startEdit != null) {
+                    dateStartEdit.setTime(sdf.parse(startEdit));
+        	    }
+        	} catch (ParseException e) {
+        	    e.printStackTrace();
+        	}
+            return channelController.updateChannel(channel, context, override, dateStartEdit);
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }

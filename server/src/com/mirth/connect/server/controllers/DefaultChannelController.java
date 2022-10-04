@@ -338,10 +338,11 @@ public class DefaultChannelController extends ChannelController {
     }
 
     @Override
-    public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
+    public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override, Calendar dateStartEdit) throws ControllerException {
         // Extract metadata and then clear it from the channel model so it won't be stored in the database
-        ChannelExportData exportData = channel.getExportData();
+    	ChannelExportData exportData = channel.getExportData();
         channel.clearExportData();
+        Calendar lastModifiedDate = null;
 
         /*
          * Methods that update the channel must be synchronized to ensure the channel cache and
@@ -377,18 +378,28 @@ public class DefaultChannelController extends ChannelController {
             // Use the larger nextMetaDataId to ensure a metadata ID will never be reused if an older version of a channel is imported or saved.
             channel.setNextMetaDataId(Math.max(matchingChannel.getNextMetaDataId(), channel.getNextMetaDataId()));
         }
-
-        /*
-         * If it's not a new channel, and its version is different from the one in the database (in
-         * case it has been changed on the server since the client started modifying it), and
-         * override is not enabled
-         */
-        if ((currentRevision > 0) && (currentRevision != newRevision) && !override) {
-            return false;
-        } else {
-            channel.setRevision(currentRevision + 1);
+        
+        // if this is not a new channel, get the date/time started to edit the channel and the last
+        // modified date/time of the channel to compare
+        if (currentRevision > 0) {
+        	if (dateStartEdit == null) {
+        		dateStartEdit = Calendar.getInstance();
+        	}         
+        	// need last modified date to compare with user interface Channel Edit screen and Channel History screen
+        	Map<String, ChannelMetadata> metadata = configurationController.getChannelMetadata();
+        	lastModifiedDate = metadata.get(channel.getId()).getLastModified();
         }
 
+        /*
+         * If it's not a new channel, we are not overriding the existing channel,
+         * and the last modified date/time of the channel is after the date/time of beginning to
+         * modify the channel then return false for a message if applicable
+         */
+        if ((currentRevision > 0) && !override && (dateStartEdit.before(lastModifiedDate))) {
+            return false;
+        }
+        
+        channel.setRevision(currentRevision + 1);
         ArrayList<String> destConnectorNames = new ArrayList<String>(channel.getDestinationConnectors().size());
 
         for (Connector connector : channel.getDestinationConnectors()) {

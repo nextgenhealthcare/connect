@@ -197,7 +197,7 @@ public class ServerConfigurationRestorer {
 
     void updateChannel(Channel channel, MultiException multiException) {
         try {
-            channelController.updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
+            channelController.updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true, null);
         } catch (Throwable t) {
             multiException.add(new ControllerException("Error updating channel from the new server configuration.\nName: " + channel.getName() + "\nId: " + channel.getId(), t));
         }
