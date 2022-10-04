@@ -251,4 +251,30 @@ public class ServerEvent extends Event implements Serializable {
 
         return builder.toString();
     }
+    
+    public String toExportStringWithNoId() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(new SimpleDateFormat(Exportable.DATE_TIME_FORMAT).format(eventTime.getTime()) + ", ");
+        builder.append(level + ", ");
+        builder.append(outcome + ", ");
+        builder.append(name + ", ");
+        builder.append(userId + ", ");
+        builder.append(ipAddress + ", ");      
+
+        /*
+         * Print out the attributes and Base64 encode them in case there are newlines.
+         */
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        MapUtils.verbosePrint(ps, "attributes", attributes);
+        builder.append(Base64.encodeBase64URLSafeString(baos.toByteArray()));
+        IOUtils.closeQuietly(ps);
+        
+        builder.append("," + getChannelIdWithMessageId() + ",");
+        builder.append(getChannelName() + ",");
+        builder.append(getPatientId());
+        builder.append(System.getProperty("line.separator"));
+
+        return builder.toString();
+    }
 }
