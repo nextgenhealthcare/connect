@@ -263,7 +263,9 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
         	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault());
     	    Calendar dateStartEdit = Calendar.getInstance();
         	try {
-        	    dateStartEdit.setTime(sdf.parse(startEdit));
+        	    if (startEdit != null) {
+                    dateStartEdit.setTime(sdf.parse(startEdit));
+        	    }
         	} catch (ParseException e) {
         	    e.printStackTrace();
         	}
