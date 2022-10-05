@@ -171,6 +171,7 @@ public class DefaultEventController extends EventController {
         }
     }
     
+    @Override
     public List<ServerEvent> getEventsByAsc(EventFilter filter, Integer offset, Integer limit) throws ControllerException {
         try {
             return SqlConfig.getInstance().getReadOnlySqlSessionManager().selectList("Event.searchEventsByAsc", getParameters(filter, offset, limit));
