@@ -55,6 +55,22 @@
 		</if>
 	</select>
 	
+	<select id="searchEventsByAsc" parameterType="map" resultMap="event">
+		<if test="offset != null and limit != null">
+			SELECT A.* FROM (
+		</if>
+	
+	
+		SELECT *, DENSE_RANK() OVER (ORDER BY ID ASC) AS MESSAGE_NUM
+		FROM EVENT
+		
+		<include refid="searchEventsBody" />
+		
+		<if test="offset != null and limit != null">
+			) AS A WHERE A.MESSAGE_NUM <![CDATA[ > ]]> ${offset} AND A.MESSAGE_NUM <![CDATA[ <= ]]> (${offset} + ${limit})
+		</if>
+	</select>
+	
 	<select id="searchEventsCount" parameterType="map" resultType="long">
 		SELECT COUNT(ID)
 		FROM EVENT
