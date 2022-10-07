@@ -55,7 +55,7 @@
 		</if>
 	</select>
 	
-		<select id="searchEventsByAsc" parameterType="map" resultMap="event">
+	<select id="searchEventsByAsc" parameterType="map" resultMap="event">
 		SELECT *
 		FROM EVENT
 		
