@@ -534,7 +534,7 @@ public class ChannelSetup extends JPanel {
         destinationConnectorTypeComboBox.setModel(new DefaultComboBoxModel(LoadedExtensions.getInstance().getDestinationConnectors().keySet().toArray()));
 
         try {
-            ServerSettings serverSettings = parent.mirthClient.getServerSettings();
+            ServerSettings serverSettings = parent.mirthClient.getPublicServerSettings();
             if (serverSettings.getQueueBufferSize() != null && serverSettings.getQueueBufferSize() > 0) {
                 defaultQueueBufferSize = serverSettings.getQueueBufferSize();
             }
@@ -610,7 +610,7 @@ public class ChannelSetup extends JPanel {
         setLastModified();
 
         try {
-            ServerSettings serverSettings = parent.mirthClient.getServerSettings();
+            ServerSettings serverSettings = parent.mirthClient.getPublicServerSettings();
             currentChannel.getProperties().setMetaDataColumns(serverSettings.getDefaultMetaDataColumns());
             if (serverSettings.getQueueBufferSize() != null && serverSettings.getQueueBufferSize() > 0) {
                 defaultQueueBufferSize = serverSettings.getQueueBufferSize();
