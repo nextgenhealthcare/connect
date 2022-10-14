@@ -1,6 +1,5 @@
 package com.mirth.connect.server.userutil;
 
-import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.Base64;
 
@@ -42,8 +41,8 @@ public class HashUtil {
      * @throws Exception
      *          If generating a hash of the string fails.
      */
-    public static String generate(String str, Charset encoding, String algorithm) throws Exception { 
-        return generate(str.getBytes(encoding), algorithm); 
+    public static String generate(String str, String encoding, String algorithm) throws Exception { 
+        return generate(str.getBytes(encoding), algorithm);
     }
 
     

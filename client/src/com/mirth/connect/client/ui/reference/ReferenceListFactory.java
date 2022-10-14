@@ -405,9 +405,9 @@ public class ReferenceListFactory {
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Remove Illegal XML Characters", "Removes illegal XML characters like control characters that cause a parsing error in e4x (\\x00-\\x1F besides TAB, LF, and CR)", "var ${newMessage} = ${message}.replace(/[\\x00-\\x08]|[\\x0B-\\x0C]|[\\x0E-\\x1F]/g, '');\n"));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Pretty Print XML", "Formats an XML string with indented markup.", "XmlUtil.prettyPrint(${xmlString})"));
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Pretty Print JSON", "Formats an JSON string with indented markup.", "JsonUtil.prettyPrint(${jsonString})"));
-        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Generate Hash of Object", "Returns the hash of the passed in Object", "var ${hash} = HashUtil.generate(${object});"));
-        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Generate Hash of String", "Returns the hash of the passed in String", "var ${hash} = HashUtil.generate(${string}, ${encoding}, ${algorithm});"));
-        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Generate Hash of byte[]", "Returns the hash of the passed in byte[]", "var ${hash} = HashUtil.generate(${byte[]}, ${encoding}, ${algorithm});"));
+        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Generate Hash (Object)", "Returns the hash of the passed in Object", "var ${hash} = HashUtil.generate(${object});"));
+        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Generate Hash (String)", "Returns the hash of the passed in String", "var ${hash} = HashUtil.generate(${string}, ${encoding}, ${algorithm});"));
+        addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.UTILITY.toString(), "Generate Hash (byte[])", "Returns the hash of the passed in byte[]", "var ${hash} = HashUtil.generate(${byte[]}, ${algorithm});"));
         
         // Conversion references
         addReference(new ParameterizedCodeReference(CONTEXT_GLOBAL, Category.CONVERSION.toString(), "Convert XML to JSON", "Converts an XML string to JSON.", "XmlUtil.toJson(${xmlString})"));
