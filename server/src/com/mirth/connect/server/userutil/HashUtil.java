@@ -23,9 +23,9 @@ public class HashUtil {
      */
     public static String generate(Object data) throws Exception { 
         if (data instanceof byte[]) {
-            return generate((byte[]) data, Charset.defaultCharset(), DEFAULT_ALGORITHM);
+            return generate((byte[]) data, DEFAULT_ALGORITHM);
         } else {
-            return generate(String.valueOf(data).getBytes(), Charset.defaultCharset(), DEFAULT_ALGORITHM); 
+            return generate(String.valueOf(data).getBytes(), DEFAULT_ALGORITHM); 
         }
     }
     
@@ -43,7 +43,7 @@ public class HashUtil {
      *          If generating a hash of the string fails.
      */
     public static String generate(String str, Charset encoding, String algorithm) throws Exception { 
-        return generate(str.getBytes(encoding), encoding, algorithm); 
+        return generate(str.getBytes(encoding), algorithm); 
     }
 
     
@@ -51,8 +51,6 @@ public class HashUtil {
      * Takes in a byte[], an encoding, and a hashing algorithm and generates a hash.
      * @param bytes
      *          The byte[] to hash.
-     * @param encoding
-     *          The character encoding to use.
      * @param algorithm
      *          The hashing algorithm to use.
      * @return hash
@@ -60,13 +58,12 @@ public class HashUtil {
      * @throws Exception
      *          If generating a hash of the byte[] fails.
      */
-    public static String generate(byte[] bytes, Charset encoding, String algorithm) throws Exception { 
+    public static String generate(byte[] bytes, String algorithm) throws Exception { 
         MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
         
         messageDigest.update(bytes);
         byte[] hash = messageDigest.digest();
         
-        //return Base64.getEncoder().encodeToString(hash);
-        return hash.toString();
+        return Base64.getEncoder().encodeToString(hash);
     }
 }
