@@ -17,6 +17,7 @@ import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.server.userutil.HashUtil;
 
 public class HashUtilTest {
+    private String expectedHashValue = "810ff2fb242a5dee4220f2cb0e6a519891fb67f2f828a6cab4ef8894633b1f50" ;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -27,7 +28,7 @@ public class HashUtilTest {
         String data = "testdata";
         String hashValue = HashUtil.generate(data);
         assertNotNull(hashValue);
-        assertEquals(hashValue,generateHash(String.valueOf(data).getBytes(),"SHA-256"));
+        assertEquals(hashValue,expectedHashValue);
     }
 
     @Test
@@ -36,32 +37,32 @@ public class HashUtilTest {
         String data = "";
         String hashValue = HashUtil.generate(data);
         assertNotNull(hashValue);
-        assertEquals(hashValue,generateHash(String.valueOf(data).getBytes(),"SHA-256"));
+        assertEquals(hashValue, "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
     }
 
     @Test
     public void generateHashForByte() throws Exception {
 
-        String data = "testdata for byte array";
+        String data = "testdata";
         String hashValue = HashUtil.generate(data.getBytes());
         assertNotNull(hashValue);
-        assertEquals(hashValue,generateHash(String.valueOf(data).getBytes(),"SHA-256"));
+        assertEquals(hashValue, expectedHashValue);
 
     }
 
     @Test
     public void generateHashForByteAndAlgo() throws Exception {
 
-        String data = "testdata for byte array";
+        String data = "testdata";
         String hashValue = HashUtil.generate(data.getBytes(), "SHA-256");
         assertNotNull(hashValue);
-        assertEquals(hashValue,generateHash(String.valueOf(data).getBytes(),"SHA-256"));
+        assertEquals(hashValue, expectedHashValue);
     }
 
     @Test
     public void generateHashBadAlgo() throws Exception {
 
-        String data = "testdata for byte array";
+        String data = "testdata";
         thrown.expect(NoSuchAlgorithmException.class);
         HashUtil.generate(data.getBytes(), "SHA256");
 
@@ -70,18 +71,18 @@ public class HashUtilTest {
     @Test
     public void generateHashForEncodeStringAndAlgo() throws Exception {
 
-        String data = "testdata for byte array";
+        String data = "testdata";
         String encoding = "UTF-8";
         String hashValue = HashUtil.generate(data, encoding, "SHA-256");
         assertNotNull(hashValue);
-        assertEquals(hashValue,generateHash(String.valueOf(data).getBytes(),"SHA-256"));
+        assertEquals(hashValue, expectedHashValue);
 
     }
 
     @Test
     public void generateHashForEncodeStringAndBadAlgo() throws Exception {
 
-        String data = "testdata for byte array";
+        String data = "testdata";
         String encoding = "UTF-8";
         thrown.expect(NoSuchAlgorithmException.class);
         HashUtil.generate(data, encoding, "SHA256");
@@ -90,19 +91,11 @@ public class HashUtilTest {
     @Test
     public void generateHashForBadEncodeStringAndAlgo() throws Exception {
 
-        String data = "testdata for byte array";
+        String data = "testdata";
         String encoding = "UTF";
         thrown.expect(UnsupportedEncodingException.class);
         HashUtil.generate(data, encoding, "SHA-256");
         
     }
-       
-    public static String generateHash(byte[] bytes, String algorithm) throws Exception { 
-        MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
-        
-        messageDigest.update(bytes);
-        byte[] hash = messageDigest.digest();
-        
-        return Hex.encodeHexString(hash);
-    }
+
 }
