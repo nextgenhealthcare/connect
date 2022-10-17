@@ -1,10 +1,13 @@
 package com.mirth.connect.userutil;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.commons.codec.binary.Hex;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,6 +27,7 @@ public class HashUtilTest {
         String data = "testdata";
         String hashValue = HashUtil.generate(data);
         assertNotNull(hashValue);
+        assertEquals(hashValue,generateHash(String.valueOf(data).getBytes(),"SHA-256"));
     }
 
     @Test
@@ -32,6 +36,7 @@ public class HashUtilTest {
         String data = "";
         String hashValue = HashUtil.generate(data);
         assertNotNull(hashValue);
+        assertEquals(hashValue,generateHash(String.valueOf(data).getBytes(),"SHA-256"));
     }
 
     @Test
@@ -40,6 +45,8 @@ public class HashUtilTest {
         String data = "testdata for byte array";
         String hashValue = HashUtil.generate(data.getBytes());
         assertNotNull(hashValue);
+        assertEquals(hashValue,generateHash(String.valueOf(data).getBytes(),"SHA-256"));
+
     }
 
     @Test
@@ -48,6 +55,7 @@ public class HashUtilTest {
         String data = "testdata for byte array";
         String hashValue = HashUtil.generate(data.getBytes(), "SHA-256");
         assertNotNull(hashValue);
+        assertEquals(hashValue,generateHash(String.valueOf(data).getBytes(),"SHA-256"));
     }
 
     @Test
@@ -66,6 +74,7 @@ public class HashUtilTest {
         String encoding = "UTF-8";
         String hashValue = HashUtil.generate(data, encoding, "SHA-256");
         assertNotNull(hashValue);
+        assertEquals(hashValue,generateHash(String.valueOf(data).getBytes(),"SHA-256"));
 
     }
 
@@ -85,5 +94,15 @@ public class HashUtilTest {
         String encoding = "UTF";
         thrown.expect(UnsupportedEncodingException.class);
         HashUtil.generate(data, encoding, "SHA-256");
+        
+    }
+       
+    public static String generateHash(byte[] bytes, String algorithm) throws Exception { 
+        MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
+        
+        messageDigest.update(bytes);
+        byte[] hash = messageDigest.digest();
+        
+        return Hex.encodeHexString(hash);
     }
 }
