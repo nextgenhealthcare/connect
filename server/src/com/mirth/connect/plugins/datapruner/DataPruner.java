@@ -306,9 +306,6 @@ public class DataPruner implements Runnable {
     @Override
     public void run() {
         try {
-            
-            // before action 
-            // CalculateHashAccuracyTask
             logger.debug("Executing pruner, started at " + new SimpleDateFormat("MM/dd/yyyy hh:mm aa").format(Calendar.getInstance().getTime()));
 
             if (pruneEvents) {
@@ -408,7 +405,6 @@ public class DataPruner implements Runnable {
     private void pruneEvents() {
         logger.debug("Pruning events");
         status.setPruningEvents(true);
-        
         // run before tasks through the interface
         if (dataPrunerInterface != null) {
             dataPrunerInterface.beforeDataPruner();
@@ -443,7 +439,6 @@ public class DataPruner implements Runnable {
                 dataPrunerInterface.afterDataPruner();
             }
         }
-        
     }
     
     public PruneResult pruneChannel(String channelId, String channelName, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder, boolean channelArchiveEnabled) throws InterruptedException, DataPrunerException {
