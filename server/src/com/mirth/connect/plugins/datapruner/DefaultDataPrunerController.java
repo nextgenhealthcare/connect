@@ -282,4 +282,10 @@ public class DefaultDataPrunerController extends DataPrunerController {
         long minsElapsed = (endTime.getTimeInMillis() - startTime.getTimeInMillis()) / 60000;
         return (minsElapsed + " minute" + ((minsElapsed != 1) ? "s" : ""));
     }
+
+    @Override
+    public void registerPrunerListener(DataPrunerInterface dataPrunerInterface) {
+        pruner.registerDataPrunerInterface(dataPrunerInterface);
+        
+    }
 }

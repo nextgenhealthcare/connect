@@ -89,6 +89,7 @@ public class DataPruner implements Runnable {
     private Logger logger = LogManager.getLogger(getClass());
 
     private PollConnectorProperties pollingProperties;
+    private DataPrunerInterface dataPrunerInterface;
 
     public DataPruner() {
         this.retryCount = 3;
@@ -196,6 +197,10 @@ public class DataPruner implements Runnable {
     public boolean isRunning() {
         return running.get();
     }
+    
+    public void registerDataPrunerInterface(DataPrunerInterface dataPrunerInterface) {
+        this.dataPrunerInterface = dataPrunerInterface; 
+    }
 
     public synchronized boolean start() {
         if (!running.compareAndSet(false, true)) {
@@ -301,6 +306,9 @@ public class DataPruner implements Runnable {
     @Override
     public void run() {
         try {
+            
+            // before action 
+            // CalculateHashAccuracyTask
             logger.debug("Executing pruner, started at " + new SimpleDateFormat("MM/dd/yyyy hh:mm aa").format(Calendar.getInstance().getTime()));
 
             if (pruneEvents) {
@@ -400,7 +408,12 @@ public class DataPruner implements Runnable {
     private void pruneEvents() {
         logger.debug("Pruning events");
         status.setPruningEvents(true);
-
+        
+        // run before tasks through the interface
+        if (dataPrunerInterface != null) {
+            dataPrunerInterface.beforeDataPruner();
+        }
+        
         try {
             status.setTaskStartTime(Calendar.getInstance());
 
@@ -425,7 +438,12 @@ public class DataPruner implements Runnable {
         } finally {
             status.setEndTime(Calendar.getInstance());
             status.setPruningEvents(false);
+            // run after tasks through the interface
+            if (dataPrunerInterface != null) {
+                dataPrunerInterface.afterDataPruner();
+            }
         }
+        
     }
     
     public PruneResult pruneChannel(String channelId, String channelName, Calendar messageDateThreshold, Calendar contentDateThreshold, String archiveFolder, boolean channelArchiveEnabled) throws InterruptedException, DataPrunerException {
@@ -836,10 +854,6 @@ public class DataPruner implements Runnable {
 
 		public boolean isPruneErroredMessages() {
 			return pruneErroredMessages;
-		}
-
-		public void setPruneErroredMessages(boolean pruneErroredMessages) {
-			this.pruneErroredMessages = pruneErroredMessages;
 		}
     }
 }
