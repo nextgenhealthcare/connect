@@ -287,7 +287,6 @@ public class ValueReplacer {
         context.put("channelName", connectorMessage.getChannelName());
         context.put("channelId", connectorMessage.getChannelId());
         context.put("HASH", new HashTool(connectorMessage));
-        connectorMessage.toString();
 
         // Load maps
         loadContextFromMap(context, connectorMessage.getSourceMap());
