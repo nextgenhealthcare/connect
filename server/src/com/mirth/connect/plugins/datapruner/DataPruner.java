@@ -89,6 +89,7 @@ public class DataPruner implements Runnable {
     private Logger logger = LogManager.getLogger(getClass());
 
     private PollConnectorProperties pollingProperties;
+    private DataPrunerInterface dataPrunerInterface;
 
     public DataPruner() {
         this.retryCount = 3;
@@ -195,6 +196,10 @@ public class DataPruner implements Runnable {
 
     public boolean isRunning() {
         return running.get();
+    }
+    
+    public void registerDataPrunerInterface(DataPrunerInterface dataPrunerInterface) {
+        this.dataPrunerInterface = dataPrunerInterface; 
     }
 
     public synchronized boolean start() {
@@ -400,7 +405,11 @@ public class DataPruner implements Runnable {
     private void pruneEvents() {
         logger.debug("Pruning events");
         status.setPruningEvents(true);
-
+        // run before tasks through the interface
+        if (dataPrunerInterface != null) {
+            dataPrunerInterface.beforeDataPruner();
+        }
+        
         try {
             status.setTaskStartTime(Calendar.getInstance());
 
@@ -425,6 +434,10 @@ public class DataPruner implements Runnable {
         } finally {
             status.setEndTime(Calendar.getInstance());
             status.setPruningEvents(false);
+            // run after tasks through the interface
+            if (dataPrunerInterface != null) {
+                dataPrunerInterface.afterDataPruner();
+            }
         }
     }
     
@@ -836,10 +849,6 @@ public class DataPruner implements Runnable {
 
 		public boolean isPruneErroredMessages() {
 			return pruneErroredMessages;
-		}
-
-		public void setPruneErroredMessages(boolean pruneErroredMessages) {
-			this.pruneErroredMessages = pruneErroredMessages;
 		}
     }
 }
