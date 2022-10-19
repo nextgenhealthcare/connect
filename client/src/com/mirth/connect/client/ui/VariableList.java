@@ -60,6 +60,7 @@ public class VariableList extends javax.swing.JPanel {
         variables.add("Message Source");
         variables.add("Message Type");
         variables.add("Message Version");
+        variables.add("Message Hash");
         variables.add("Date");
         variables.add("Formatted Date");
         variables.add("Timestamp");
