@@ -60,7 +60,7 @@ public class DatabaseReceiverInvalidColumnNameTests {
         when(controllerFactory.createExtensionController()).thenReturn(extensionController);
 
         ContextFactoryController contextFactoryController = mock(ContextFactoryController.class);
-        when(contextFactoryController.getContextFactory(any())).thenReturn(new MirthContextFactory(null, null));
+        when(contextFactoryController.getContextFactory(any())).thenReturn(new MirthContextFactory(null, null, false));
         when(controllerFactory.createContextFactoryController()).thenReturn(contextFactoryController);
 
         Injector injector = Guice.createInjector(new AbstractModule() {
