@@ -405,17 +405,17 @@ public class DataPruner implements Runnable {
     private void pruneEvents() {
         logger.debug("Pruning events");
         status.setPruningEvents(true);
-        // run before tasks through the interface
-        if (dataPrunerInterface != null) {
-            dataPrunerInterface.beforeDataPruner();
-        }
         
         try {
             status.setTaskStartTime(Calendar.getInstance());
 
             Calendar dateThreshold = Calendar.getInstance();
             dateThreshold.set(Calendar.DAY_OF_MONTH, dateThreshold.get(Calendar.DAY_OF_MONTH) - maxEventAge);
-
+            
+            // run before tasks through the interface
+            if (dataPrunerInterface != null) {
+                dataPrunerInterface.beforeDataPruner();
+            }
             SqlSession session = SqlConfig.getInstance().getSqlSessionManager().openSession(true);
 
             try {
