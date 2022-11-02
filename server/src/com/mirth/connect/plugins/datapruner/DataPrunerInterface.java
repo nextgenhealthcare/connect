@@ -6,4 +6,8 @@ public interface DataPrunerInterface {
     
     void afterDataPruner();
     
+    void beforeDataPrunerOffline(String serverId);
+    
+    void afterDataPrunerOffline(String serverId);
+    
 }

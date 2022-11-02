@@ -27,6 +27,7 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DefaultDataPrunerController extends DataPrunerController {
+
     private static final int MIN_PRUNING_BLOCK_SIZE = 50;
     private static final int MAX_PRUNING_BLOCK_SIZE = 10000;
     private static final int MAX_ARCHIVING_BLOCK_SIZE = 1000;
@@ -39,6 +40,7 @@ public class DefaultDataPrunerController extends DataPrunerController {
     private Scheduler scheduler;
     private PollConnectorJobHandler handler;
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
+    private boolean isPrunerInterfaceRegistered = false;
     private Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
@@ -286,6 +288,19 @@ public class DefaultDataPrunerController extends DataPrunerController {
     @Override
     public void registerPrunerListener(DataPrunerInterface dataPrunerInterface) {
         pruner.registerDataPrunerInterface(dataPrunerInterface);
-        
+        setPrunerInterfaceRegistered(true);
     }
+    
+    public DataPruner getPruner() {
+        return pruner;
+    }
+
+    public boolean isPrunerInterfaceRegistered() {
+        return isPrunerInterfaceRegistered;
+    }
+
+    public void setPrunerInterfaceRegistered(boolean isPrunerInterfaceRegistered) {
+        this.isPrunerInterfaceRegistered = isPrunerInterfaceRegistered;
+    }
+
 }
