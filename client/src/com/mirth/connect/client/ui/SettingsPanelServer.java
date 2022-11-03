@@ -36,17 +36,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
-
-import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.core.MirthClientResponse;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.ui.alert.DefaultAlertPanel;
 import com.mirth.connect.client.ui.components.MirthCheckBox;
@@ -66,6 +62,8 @@ import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ConnectionTestResponse;
+
+import net.miginfocom.swing.MigLayout;
 
 public class SettingsPanelServer extends AbstractSettingsPanel {
 
