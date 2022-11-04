@@ -100,8 +100,17 @@ public class ServerConfigurationRestorer {
         }
 
         if (multiException.size() > 0) {
-            logger.error("Error restoring server configuration.", multiException);
-            throw new ControllerException("Error restoring server configuration.", multiException);
+            logger.error("Error restoring server configuration. ", multiException);
+            for (Throwable throwable: multiException.getThrowables()) {
+                if (throwable != null) {
+                    if (throwable.getCause() != null) {
+                        logger.error(throwable.toString() + ", " + throwable.getCause().toString());
+                    } else {
+                        logger.error(throwable.toString());
+                    }
+                }
+            }
+            throw new ControllerException("Restoring server configuration did not successfully complete. Partially restored server configuration. Please see the Server Log for more information.", multiException);
         }
     }
 
@@ -134,7 +143,8 @@ public class ServerConfigurationRestorer {
                 subMultiException.ifExceptionThrowMulti();
             }
         } catch (Throwable t) {
-            multiException.add(new ControllerException("Error restoring channels.", t));
+            multiException.add(new ControllerException("Error restoring channels."));
+            multiException.add(t);
         }
     }
 
@@ -168,7 +178,8 @@ public class ServerConfigurationRestorer {
 
             subMultiException.ifExceptionThrowMulti();
         } catch (Throwable t) {
-            multiException.add(new ControllerException("Error removing channels that no longer exist in the new server configuration.", t));
+            multiException.add(new ControllerException("Error removing channels that no longer exist in the new server configuration."));
+            multiException.add(t);
         }
     }
 
@@ -191,7 +202,8 @@ public class ServerConfigurationRestorer {
 
             subMultiException.ifExceptionThrowMulti();
         } catch (Throwable t) {
-            multiException.add(new ControllerException("Error updating channels from the new server configuration.", t));
+            multiException.add(new ControllerException("Error updating channels from the new server configuration."));
+            multiException.add(t);
         }
     }
 
@@ -217,7 +229,8 @@ public class ServerConfigurationRestorer {
                 subMultiException.ifExceptionThrowMulti();
             }
         } catch (Throwable t) {
-            multiException.add(new ControllerException("Error restoring alerts from the new server configuration.", t));
+            multiException.add(new ControllerException("Error restoring alerts from the new server configuration."));
+            multiException.add(t);
         }
     }
 
@@ -232,7 +245,8 @@ public class ServerConfigurationRestorer {
 
             subMultiException.ifExceptionThrowMulti();
         } catch (Throwable t) {
-            multiException.add(new ControllerException("Error removing existing alerts before restoring from the new server configuration.", t));
+            multiException.add(new ControllerException("Error removing existing alerts before restoring from the new server configuration."));
+            multiException.add(t);
         }
     }
 
@@ -255,7 +269,8 @@ public class ServerConfigurationRestorer {
 
             subMultiException.ifExceptionThrowMulti();
         } catch (Throwable t) {
-            multiException.add(new ControllerException("Error restoring new alerts from the new server configuration.", t));
+            multiException.add(new ControllerException("Error restoring new alerts from the new server configuration."));
+            multiException.add(t);
         }
     }
 
@@ -284,7 +299,8 @@ public class ServerConfigurationRestorer {
                 subMultiException.ifExceptionThrowMulti();
             }
         } catch (Throwable t) {
-            multiException.add(new ControllerException("Error restoring code template libraries from the new server configuration.", t));
+            multiException.add(new ControllerException("Error restoring code template libraries from the new server configuration."));
+            multiException.add(t);
         }
     }
 
@@ -335,7 +351,8 @@ public class ServerConfigurationRestorer {
 
             subMultiException.ifExceptionThrowMulti();
         } catch (Throwable t) {
-            multiException.add(new ControllerException("Error removing code templates that no longer exist in the new server configuration.", t));
+            multiException.add(new ControllerException("Error removing code templates that no longer exist in the new server configuration."));
+            multiException.add(t);
         }
     }
 
@@ -362,7 +379,8 @@ public class ServerConfigurationRestorer {
 
             subMultiException.ifExceptionThrowMulti();
         } catch (Throwable t) {
-            multiException.add(new ControllerException("Error updating new code templates from the new server configuration.", t));
+            multiException.add(new ControllerException("Error updating new code templates from the new server configuration."));
+            multiException.add(t);
         }
     }
 
@@ -428,7 +446,8 @@ public class ServerConfigurationRestorer {
                 subMultiException.ifExceptionThrowMulti();
             }
         } catch (Throwable t) {
-            multiException.add(new ControllerException("Error restoring plugin properties.", t));
+            multiException.add(new ControllerException("Error restoring plugin properties."));
+            multiException.add(t);
         }
     }
 

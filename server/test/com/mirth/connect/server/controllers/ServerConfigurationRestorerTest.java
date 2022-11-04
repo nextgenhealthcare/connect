@@ -258,7 +258,7 @@ public class ServerConfigurationRestorerTest {
 
         restorer.restoreChannels(config, multiException);
 
-        assertEquals(1, multiException.size());
+        assertEquals(2, multiException.size());
     }
 
     @Test
@@ -306,7 +306,7 @@ public class ServerConfigurationRestorerTest {
         MultiException multiException = new MultiException();
         restorer.removeChannels(config1, multiException);
 
-        assertEquals(1, multiException.size());
+        assertEquals(2, multiException.size());
     }
 
     @Test
@@ -346,7 +346,7 @@ public class ServerConfigurationRestorerTest {
         MultiException multiException = new MultiException();
         restorer.updateChannels(config1, multiException);
 
-        assertEquals(1, multiException.size());
+        assertEquals(5, multiException.size());
     }
 
     @Test
@@ -393,7 +393,7 @@ public class ServerConfigurationRestorerTest {
         MultiException multiException = new MultiException();
         restorer.restoreAlerts(config1, multiException);
 
-        assertEquals(1, multiException.size());
+        assertEquals(2, multiException.size());
     }
 
     @Test
@@ -427,7 +427,7 @@ public class ServerConfigurationRestorerTest {
         MultiException multiException = new MultiException();
         restorer.removeExistingAlerts(multiException);
 
-        assertEquals(1, multiException.size());
+        assertEquals(3, multiException.size());
     }
 
     @Test
@@ -470,7 +470,7 @@ public class ServerConfigurationRestorerTest {
         MultiException multiException = new MultiException();
         restorer.updateNewAlerts(config, multiException);
 
-        assertEquals(1, multiException.size());
+        assertEquals(3, multiException.size());
     }
 
     @Test
@@ -520,7 +520,7 @@ public class ServerConfigurationRestorerTest {
 
         restorer.restoreCodeTemplateLibraries(config, multiException);
 
-        assertEquals(1, multiException.size());
+        assertEquals(2, multiException.size());
     }
 
     @Test
@@ -567,7 +567,7 @@ public class ServerConfigurationRestorerTest {
         CodeTemplateController codeTemplateController = restorer.getCodeTemplateController();
         doThrow(ControllerException.class).when(codeTemplateController).getCodeTemplates(any());
         restorer.removeCodeTemplates(config, multiException);
-        assertEquals(1, multiException.size());
+        assertEquals(2, multiException.size());
     }
 
     @Test
@@ -616,7 +616,7 @@ public class ServerConfigurationRestorerTest {
             }
         }).when(restorer).updateNewCodeTemplate(any(), any());
         restorer.updateNewCodeTemplates(config, multiException);
-        assertEquals(1, multiException.size());
+        assertEquals(4, multiException.size());
     }
 
     @Test
@@ -719,7 +719,7 @@ public class ServerConfigurationRestorerTest {
 
         doThrow(ControllerException.class).when(restorer).restorePluginProperties(anyString(), any(), any());
         restorer.restorePluginProperties(config, multiException);
-        assertEquals(config.getPluginProperties().size(), multiException.size());
+        assertEquals(2, multiException.size());
     }
 
     @Test
