@@ -536,7 +536,7 @@ public class WebStartServletTest {
 		return dbf;
 	}
 
-	private static String CORE_JNLP = "<jnlp codebase=\"https://localhost:8443\" version=\"4.1.1\">\n"
+	private static String CORE_JNLP = "<jnlp codebase=\"https://localhost:8443\" version=\"4.2.0\">\n"
 			+ "	<information>\n" + "		<title>Mirth Connect Administrator 4.1.1</title>\n"
 			+ "		<vendor>NextGen Healthcare</vendor>\n" + "		<homepage href=\"http://www.nextgen.com\"/>\n"
 			+ "		<description>Open Source Healthcare Integration Engine</description>\n" + "		\n"
