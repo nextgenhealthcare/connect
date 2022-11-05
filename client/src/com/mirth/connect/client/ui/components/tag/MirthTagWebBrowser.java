@@ -23,6 +23,8 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,11 +36,12 @@ public class MirthTagWebBrowser extends Region {
 
     private WebView webView;
     private WebEngine webEngine;
-    private JSObject tokenField;
 
     private MirthTagWebController webController;
 
     private AutoCompletionPopupWindow popupWindow;
+
+    private Logger logger = LogManager.getLogger(this);
 
     public MirthTagWebBrowser(AutoCompletionPopupWindow popupWindow, List<Map<String, String>> userTags, Map<String, Map<String, String>> attributeMap, boolean channelContext) throws Exception {
         this.popupWindow = popupWindow;
@@ -104,7 +107,6 @@ public class MirthTagWebBrowser extends Region {
             }
         });
 
-        tokenField = (JSObject) webEngine.executeScript("window");
         webController = new MirthTagWebController(popupWindow);
         popupWindow.setWebEngine(webEngine);
     }
@@ -159,7 +161,12 @@ public class MirthTagWebBrowser extends Region {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    tokenField.call(method, args);
+                    try {
+                        JSObject tokenField = (JSObject) webEngine.executeScript("window");
+                        tokenField.call(method, args);
+                    } catch (Exception e) {
+                        logger.error("Error calling tokenField JS method: " + method, e);
+                    }
                 }
             });
         } catch (Exception e) {
