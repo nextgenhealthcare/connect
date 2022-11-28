@@ -325,13 +325,14 @@ public class DataPruner implements Runnable {
 
             logger.debug("Pruner task queue built, " + taskQueue.size() + " channels will be processed");
 
-            Map<String, String> attributes = new HashMap<String, String>();
             if (taskQueue.isEmpty()) {
+            	Map<String, String> attributes = new HashMap<String, String>();
                 attributes.put("No messages to prune.", "");
                 eventController.dispatchEvent(new ServerEvent(serverId, DataPrunerService.PLUGINPOINT, Level.INFORMATION, Outcome.SUCCESS, attributes));
             }
 
             while (!taskQueue.isEmpty()) {
+            	Map<String, String> attributes = new HashMap<String, String>();
                 ThreadUtils.checkInterruptedStatus();
                 PrunerTask task = taskQueue.poll();
 
