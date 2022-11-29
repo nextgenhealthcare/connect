@@ -259,7 +259,7 @@ public class ServerEvent extends Event implements Serializable {
         // Round the event time because SQLServer automatically rounds the milliseconds of its
         // DATETIMEs. This allows us to consistently compare ServerEvents from the database
         // to in-memory ones.
-        Date roundedEventTime = new Date(Math.round(eventTime.getTimeInMillis() / 10.0));
+        Date roundedEventTime = new Date(Math.round(eventTime.getTimeInMillis() / 1000.0));
         builder.append(new SimpleDateFormat(Exportable.DATE_TIME_FORMAT).format(roundedEventTime) + ", ");
         
         builder.append(level + ", ");
