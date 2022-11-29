@@ -14,6 +14,7 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -254,7 +255,13 @@ public class ServerEvent extends Event implements Serializable {
     
     public String toExportStringWithNoId() {
         StringBuilder builder = new StringBuilder();
-        builder.append(new SimpleDateFormat(Exportable.DATE_TIME_FORMAT).format(eventTime.getTime()) + ", ");
+        
+        // Round the event time because SQLServer automatically rounds the milliseconds of its
+        // DATETIMEs. This allows us to consistently compare ServerEvents from the database
+        // to in-memory ones.
+        Date roundedEventTime = new Date(Math.round(eventTime.getTimeInMillis() / 10.0));
+        builder.append(new SimpleDateFormat(Exportable.DATE_TIME_FORMAT).format(roundedEventTime) + ", ");
+        
         builder.append(level + ", ");
         builder.append(outcome + ", ");
         builder.append(name + ", ");
