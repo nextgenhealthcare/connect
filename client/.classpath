@@ -191,7 +191,7 @@
 	<classpathentry kind="lib" path="lib/httpcore-4.4.13.jar"/>
 	<classpathentry kind="lib" path="lib/swagger-annotations-2.0.10.jar"/>
 	<classpathentry kind="lib" path="lib/jcifs-ng-2.1.8.jar"/>
-	<classpathentry kind="lib" path="lib/commons-text-1.8.jar"/>
+	<classpathentry kind="lib" path="lib/commons-text-1.10.0.jar"/>
 	<classpathentry kind="lib" path="lib/regions-2.15.28.jar"/>
 	<classpathentry kind="lib" path="lib/utils-2.15.28.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-annotations-2.11.3.jar"/>

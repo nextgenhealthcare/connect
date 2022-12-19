@@ -342,6 +342,7 @@ donkey/donkey-test
 /server/.settings
 /server/build
 /server/appdata
+/server/exports
 /server/temp
 /server/nbbuild
 /server/nbproject

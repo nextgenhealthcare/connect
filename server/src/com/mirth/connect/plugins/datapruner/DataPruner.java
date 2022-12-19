@@ -89,6 +89,7 @@ public class DataPruner implements Runnable {
     private Logger logger = LogManager.getLogger(getClass());
 
     private PollConnectorProperties pollingProperties;
+    private DataPrunerInterface dataPrunerInterface;
 
     public DataPruner() {
         this.retryCount = 3;
@@ -195,6 +196,10 @@ public class DataPruner implements Runnable {
 
     public boolean isRunning() {
         return running.get();
+    }
+    
+    public void registerDataPrunerInterface(DataPrunerInterface dataPrunerInterface) {
+        this.dataPrunerInterface = dataPrunerInterface; 
     }
 
     public synchronized boolean start() {
@@ -320,13 +325,14 @@ public class DataPruner implements Runnable {
 
             logger.debug("Pruner task queue built, " + taskQueue.size() + " channels will be processed");
 
-            Map<String, String> attributes = new HashMap<String, String>();
             if (taskQueue.isEmpty()) {
+            	Map<String, String> attributes = new HashMap<String, String>();
                 attributes.put("No messages to prune.", "");
                 eventController.dispatchEvent(new ServerEvent(serverId, DataPrunerService.PLUGINPOINT, Level.INFORMATION, Outcome.SUCCESS, attributes));
             }
 
             while (!taskQueue.isEmpty()) {
+            	Map<String, String> attributes = new HashMap<String, String>();
                 ThreadUtils.checkInterruptedStatus();
                 PrunerTask task = taskQueue.poll();
 
@@ -400,13 +406,17 @@ public class DataPruner implements Runnable {
     private void pruneEvents() {
         logger.debug("Pruning events");
         status.setPruningEvents(true);
-
+        
         try {
             status.setTaskStartTime(Calendar.getInstance());
 
             Calendar dateThreshold = Calendar.getInstance();
             dateThreshold.set(Calendar.DAY_OF_MONTH, dateThreshold.get(Calendar.DAY_OF_MONTH) - maxEventAge);
-
+            
+            // run before tasks through the interface
+            if (dataPrunerInterface != null) {
+                dataPrunerInterface.beforeDataPruner();
+            }
             SqlSession session = SqlConfig.getInstance().getSqlSessionManager().openSession(true);
 
             try {
@@ -425,6 +435,10 @@ public class DataPruner implements Runnable {
         } finally {
             status.setEndTime(Calendar.getInstance());
             status.setPruningEvents(false);
+            // run after tasks through the interface
+            if (dataPrunerInterface != null) {
+                dataPrunerInterface.afterDataPruner();
+            }
         }
     }
     
@@ -836,10 +850,6 @@ public class DataPruner implements Runnable {
 
 		public boolean isPruneErroredMessages() {
 			return pruneErroredMessages;
-		}
-
-		public void setPruneErroredMessages(boolean pruneErroredMessages) {
-			this.pruneErroredMessages = pruneErroredMessages;
 		}
     }
 }

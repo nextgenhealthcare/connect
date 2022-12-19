@@ -244,7 +244,13 @@ public class ER7Serializer implements IMessageSerializer {
     public String fromXML(String source) throws MessageSerializerException {
         try {
             if (deserializationProperties.isUseStrictParser()) {
-                return deserializationPipeParser.encode(deserializationXmlParser.parse(source));
+                String tmpSource = source;
+                Integer i = tmpSource.indexOf(">");
+                // if there is no name space in the first node, add the correct name space that HAPI library uses
+                if (!tmpSource.substring(0, i).contains(" xmlns=")) {
+                    tmpSource = source.substring(0, i).concat(" xmlns=\"urn:hl7-org:v2xml\"").concat(source.substring(i)); 
+                }
+                return deserializationPipeParser.encode(deserializationXmlParser.parse(tmpSource));
             } else {
                 /*
                  * The delimiters below need to come from the XML somehow. The ER7 handler should
