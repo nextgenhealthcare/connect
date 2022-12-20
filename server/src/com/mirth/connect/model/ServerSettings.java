@@ -37,8 +37,8 @@ public class ServerSettings extends AbstractSettings implements Serializable, Au
     public static final Integer DEFAULT_ADMINISTRATOR_AUTO_LOGOUT_INTERVAL_FIELD_VALUE =  5;
 
     private static final String CLEAR_GLOBAL_MAP = "server.resetglobalvariables";
-    private static final String QUEUE_BUFFER_SIZE = "server.queuebuffersize";
-    private static final String DEFAULT_METADATA_COLUMNS = "server.defaultmetadatacolumns";
+    protected static final String QUEUE_BUFFER_SIZE = "server.queuebuffersize";
+    protected static final String DEFAULT_METADATA_COLUMNS = "server.defaultmetadatacolumns";
     protected static final String DEFAULT_ADMINISTRATOR_COLOR = "server.defaultadministratorcolor";
     private static final String SMTP_HOST = "smtp.host";
     private static final String SMTP_PORT = "smtp.port";
