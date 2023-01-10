@@ -245,10 +245,16 @@ public class ER7Serializer implements IMessageSerializer {
         try {
             if (deserializationProperties.isUseStrictParser()) {
                 String tmpSource = source;
-                Integer i = tmpSource.indexOf(">");
+                // get root node of XML skipping all 
+                Integer i = 0;
+                Integer i2 = tmpSource.indexOf(">");
+                while (tmpSource.substring(i, i2).contains("<?")) {
+                    i = i2;
+                    i2= tmpSource.indexOf(">", i + 1);           
+                }
                 // if there is no name space in the first node, add the correct name space that HAPI library uses
-                if (!tmpSource.substring(0, i).contains(" xmlns=")) {
-                    tmpSource = source.substring(0, i).concat(" xmlns=\"urn:hl7-org:v2xml\"").concat(source.substring(i)); 
+                if (!tmpSource.substring(i, i2).contains(" xmlns=")) {
+                    tmpSource = source.substring(0, i2).concat(" xmlns=\"urn:hl7-org:v2xml\"").concat(source.substring(i2)); 
                 }
                 return deserializationPipeParser.encode(deserializationXmlParser.parse(tmpSource));
             } else {
