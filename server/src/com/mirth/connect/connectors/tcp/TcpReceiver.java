@@ -889,19 +889,7 @@ public class TcpReceiver extends SourceConnector {
         while (!success) {
             try {
                 bindAttempts++;
-                boolean isLoopback = false;
-
-                try {
-                    isLoopback = (hostAddress.isLoopbackAddress() || host.trim().equals("localhost") || hostAddress.equals(InetAddress.getLocalHost()));
-                } catch (UnknownHostException e) {
-                    logger.warn("Failed to determine if '" + hostAddress.getHostAddress() + "' is a loopback address. Could not resolve the system's host name to an address.", e);
-                }
-
-                if (isLoopback) {
-                    serverSocket = configuration.createServerSocket(port, backlog);
-                } else {
-                    serverSocket = configuration.createServerSocket(port, backlog, hostAddress);
-                }
+                serverSocket = configuration.createServerSocket(port, backlog, hostAddress);
                 success = true;
             } catch (BindException e) {
                 if (bindAttempts >= 10) {
