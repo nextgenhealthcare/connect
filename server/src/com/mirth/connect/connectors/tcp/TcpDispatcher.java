@@ -19,7 +19,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -769,19 +768,7 @@ public class TcpDispatcher extends DestinationConnector {
         while (!success) {
             try {
                 bindAttempts++;
-                boolean isLoopback = false;
-
-                try {
-                    isLoopback = (hostAddress.isLoopbackAddress() || host.trim().equals("localhost") || hostAddress.equals(InetAddress.getLocalHost()));
-                } catch (UnknownHostException e) {
-                    logger.warn("Failed to determine if '" + hostAddress.getHostAddress() + "' is a loopback address. Could not resolve the system's host name to an address.", e);
-                }
-
-                if (isLoopback) {
-                    serverSocket = configuration.createServerSocket(port, backlog);
-                } else {
-                    serverSocket = configuration.createServerSocket(port, backlog, hostAddress);
-                }
+                serverSocket = configuration.createServerSocket(port, backlog, hostAddress);
                 success = true;
             } catch (BindException e) {
                 if (bindAttempts >= 10) {
@@ -795,6 +782,10 @@ public class TcpDispatcher extends DestinationConnector {
                 }
             }
         }
+    }
+    
+    protected ServerSocket getServerSocket() {
+    	return serverSocket;
     }
 
     private String getLocalAddress() {
