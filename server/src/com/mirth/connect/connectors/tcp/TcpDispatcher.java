@@ -19,7 +19,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -783,6 +782,10 @@ public class TcpDispatcher extends DestinationConnector {
                 }
             }
         }
+    }
+    
+    protected ServerSocket getServerSocket() {
+    	return serverSocket;
     }
 
     private String getLocalAddress() {

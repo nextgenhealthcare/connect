@@ -20,7 +20,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -903,6 +902,10 @@ public class TcpReceiver extends SourceConnector {
                 }
             }
         }
+    }
+    
+    protected ServerSocket getServerSocket() {
+    	return serverSocket;
     }
 
     private Socket createResponseSocket() throws IOException {

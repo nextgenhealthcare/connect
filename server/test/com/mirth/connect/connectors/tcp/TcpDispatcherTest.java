@@ -1,6 +1,7 @@
 package com.mirth.connect.connectors.tcp;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +27,7 @@ import com.google.inject.Injector;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
+import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.data.passthru.PassthruDaoFactory;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
@@ -616,6 +618,60 @@ public class TcpDispatcherTest {
         assertEquals(Status.SENT, response.getStatus());
         assertEquals(new Integer(2), successfulSends);
         assertEquals(new Integer(3), numberOfClients);
+	}
+	
+	@Test
+	public void testServerSocketLocalHost1() throws Exception {
+		TcpDispatcherProperties props = new TcpDispatcherProperties();
+		props.setLocalAddress("127.0.0.1");
+		props.setLocalPort("6666");
+		props.setServerMode(true);
+		setupDispatcher(props);
+		
+		assertEquals("127.0.0.1", dispatcher.getServerSocket().getInetAddress().getHostAddress());
+		assertEquals(6666, dispatcher.getServerSocket().getLocalPort());
+	}
+	
+	@Test
+	public void testServerSocketLocalHost2() throws Exception {
+		TcpDispatcherProperties props = new TcpDispatcherProperties();
+		props.setLocalAddress("localhost");
+		props.setLocalPort("6666");
+		props.setServerMode(true);
+		setupDispatcher(props);
+		
+		assertEquals("localhost", dispatcher.getServerSocket().getInetAddress().getHostName());
+		assertEquals(6666, dispatcher.getServerSocket().getLocalPort());
+	}
+	
+	@Test
+	public void testServerSocketAllInterfaces() throws Exception {
+		TcpDispatcherProperties props = new TcpDispatcherProperties();
+		props.setLocalAddress("0.0.0.0");
+		props.setLocalPort("6666");
+		props.setServerMode(true);
+		setupDispatcher(props);
+		
+		assertEquals("0.0.0.0", dispatcher.getServerSocket().getInetAddress().getHostAddress());
+		assertEquals(6666, dispatcher.getServerSocket().getLocalPort());
+	}
+	
+	@Test
+	public void testServerSocketUnknownHost(){
+		TcpDispatcherProperties props = new TcpDispatcherProperties();
+		props.setLocalAddress("111.1.1.1");
+		props.setLocalPort("6666");
+		props.setServerMode(true);
+		
+		boolean exceptionThrown = false;
+		try {
+			setupDispatcher(props);
+		} catch (Exception e) {
+			assertTrue(e instanceof ConnectorTaskException);
+			exceptionThrown = true;
+		}
+		
+		assertTrue(exceptionThrown);
 	}
 	
 	private static void log(Object message) {
