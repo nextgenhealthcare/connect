@@ -13,14 +13,10 @@
 <a name="useful-links"></a>
 ## 1. Useful Links
 - [Downloads](https://github.com/nextgenhealthcare/connect/releases) 
-- [User Guide](https://www.nextgen.com/-/media/Files/nextgen-connect/nextgen-connect-310-user-guide.pdf)
-- [Wiki](https://www.mirthcorp.com/community/wiki/display/mirth/Home)
-  - [System requirements](https://www.mirthcorp.com/community/wiki/display/mirth/System+Requirements)
-  - [FAQ](https://www.mirthcorp.com/community/wiki/display/mirth/Mirth+Connect+FAQ)
-  - [What's New in Mirth Connect](https://github.com/nextgenhealthcare/connect/wiki/3.10.0---What's-New)
-  - [Developer Guide](https://www.mirthcorp.com/community/wiki/pages/viewpage.action?pageId=11174703)
-  - [Examples and Tutorials](https://www.mirthcorp.com/community/wiki/display/mirth/Examples+and+Tutorials)
-  - [FHIR Extension Guide](https://www.mirthcorp.com/community/wiki/display/mirth/User+Guide)
+- [User Guide](https://docs.nextgen.com/)
+- [Wiki](https://github.com/nextgenhealthcare/connect/wiki)
+  - [FAQ](https://github.com/nextgenhealthcare/connect/wiki/Frequently-Asked-Questions)
+  - [What's New in Mirth Connect](https://github.com/nextgenhealthcare/connect/wiki/Release-Notes)
 - [Forums](https://forums.mirthproject.io/)
 - [Slack Channel](https://mirthconnect.slack.com/) 
   - [Slack Registration](https://mirthconnect.herokuapp.com)
@@ -96,7 +92,7 @@ To run the Mirth Connect Command Line Interface, create a new file named mccomma
 
 <a name="java-licensing"></a>
 ## 6. Java Licensing
-In 2019, Oracle significantly changed licensing for official Oracle Java releases. You must now purchase a license in order to receive updates to the commercial version of Oracle Java. In response to this change, we officially added support for OpenJDK in Mirth Connect. OpenJDK receives free updates from Oracle for a period of 6 months following each release. While the Oracle OpenJDK distribution is recommended for use with Connect, we strive to support third-party OpenJDK distributions as well such as AdoptOpenJDK, Azul Zulu and Amazon Corretto. Third party distributions may receive extended release updates from their respective communities, but these are not guaranteed.
+In 2019, Oracle significantly changed licensing for official Oracle Java releases. You must now purchase a license in order to receive updates to the commercial version of Oracle Java. In response to this change, we officially added support for OpenJDK in Mirth Connect. OpenJDK receives free updates from Oracle for a period of 6 months following each release. While the Oracle OpenJDK distribution is recommended for use with Mirth Connect, we strive to support third-party OpenJDK distributions as well such as AdoptOpenJDK, Azul Zulu and Amazon Corretto. Third party distributions may receive extended release updates from their respective communities, but these are not guaranteed.
 
 ------------
 
