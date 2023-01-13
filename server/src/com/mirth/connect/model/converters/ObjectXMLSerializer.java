@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorProperties;
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -133,7 +133,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
 
     private static Set<Class<?>> extraAnnotatedClasses;
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private String normalizedVersion;
     private ObjectXMLSerializer instanceWithReferences;
 
@@ -168,6 +168,7 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         getXStream().registerConverter(new PluginMetaDataConverter(getXStream().getMapper()));
         getXStream().registerConverter(new JavaScriptObjectConverter(getXStream().getMapper()));
         getXStream().registerConverter(new ThrowableConverter(getXStream().getMapper()));
+        getXStream().registerConverter(new FilterTransformerElementsConverter(getXStream().getMapper()));
 
         // Create a separate instance of XStream specifically for handling references
         if (xstreamMode == XStream.NO_REFERENCES) {

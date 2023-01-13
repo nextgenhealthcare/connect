@@ -28,6 +28,7 @@
          <if test='endDate != null'>AND DATE_CREATED <![CDATA[ <= ]]> #{endDate}</if>
          <if test='outcome != null'>AND OUTCOME = #{outcome}</if>
          <if test='userId != null'>AND USER_ID = #{userId}</if>
+         <if test='attributeSearch != null'>AND ATTRIBUTES LIKE '%<![CDATA[<]]>string<![CDATA[>]]>' || #{attributeSearch} || '%'</if>
          <if test='ipAddress != null'>AND IP_ADDRESS = #{ipAddress}</if>
          <if test='serverId != null'>AND SERVER_ID LIKE '%' || #{serverId} || '%'</if>
       </where>
@@ -49,6 +50,23 @@
 		<include refid="searchEventsBody" />
 		
 		ORDER BY ID DESC
+
+		<if test="offset != null and limit != null">
+			) B WHERE ROWNUM <![CDATA[ <= ]]> (${offset} + ${limit})) A WHERE B_ROWNUM > ${offset}
+		</if>
+	</select>
+	
+	<select id="searchEventsByAsc" parameterType="map" resultMap="event">
+		<if test="offset != null and limit != null">
+			SELECT A.* FROM (SELECT B.*, ROWNUM B_ROWNUM FROM (
+		</if>
+	
+		SELECT *
+		FROM EVENT
+		
+		<include refid="searchEventsBody" />
+		
+		ORDER BY ID ASC
 
 		<if test="offset != null and limit != null">
 			) B WHERE ROWNUM <![CDATA[ <= ]]> (${offset} + ${limit})) A WHERE B_ROWNUM > ${offset}

@@ -50,4 +50,6 @@ public abstract class DataPrunerController {
     public abstract DataPrunerStatus getPrunerStatus() throws DataPrunerException;
 
     public abstract boolean isPrunerRunning() throws DataPrunerException;
+
+    public abstract void registerPrunerListener(DataPrunerInterface dataPrunerInterface);
 }

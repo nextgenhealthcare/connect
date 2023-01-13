@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -92,7 +93,7 @@ public class DatabaseReceiverTest {
         assertTrue(tagNames.contains("abc"));
         assertTrue(tagNames.contains("a.bc"));
         assertTrue(tagNames.contains("abc-"));
-        assertTrue(tagNames.contains("azAZ09-_."));
+        assertTrue(tagNames.contains("azaz09-_."));
     }
 
     @Test
@@ -166,6 +167,50 @@ public class DatabaseReceiverTest {
             receiver.processResultList(resultList);
             fail("Exception should have been thrown");
         } catch (DatabaseReceiverException e) {
+        }
+    }
+    
+    @Test
+    public void testProcessResultListConvertsKeysToLowercase() throws Exception {
+        
+        TestDatabaseReceiver receiver = new TestDatabaseReceiver();
+        ArrayList<Map<String, Object>> list = new ArrayList<>();
+        
+        HashMap<String, Object> map1 = new HashMap<>();
+        //put upper case key in map
+        map1.put("KEY1", new Object());
+        list.add(map1);
+        
+        HashMap<String, Object> map2 = new HashMap<>();
+        //put camel case key in map
+        map1.put("Key2", new Object());
+        list.add(map2);
+        
+        HashMap<String, Object> map3 = new HashMap<>();
+        //put lower case key in map
+        map1.put("key3", new Object());
+        list.add(map3);
+ 
+        receiver.processResultList(list);
+    }
+    
+    
+    public class TestDatabaseReceiver extends DatabaseReceiver {
+        
+        @Override
+        protected void processRecord(Map<String, Object> resultMap) throws InterruptedException, DatabaseReceiverException {
+            Set<String> keySet = resultMap.keySet();
+            for (Object keyObj: keySet) {
+                String key = (String) keyObj;
+                String lowercaseKey = key.toLowerCase();
+                
+                //assert that all keys are lower case
+                assertEquals(key, lowercaseKey);
+            }
+        }
+        
+        public boolean isTerminated() {
+            return false;
         }
     }
 }

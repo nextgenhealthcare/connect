@@ -9,12 +9,16 @@
 
 package com.mirth.connect.server.api.servlets;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,7 +30,8 @@ import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ControllerException;
@@ -35,6 +40,7 @@ import com.mirth.connect.client.core.api.servlets.ChannelServletInterface;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.PollConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelDependency;
 import com.mirth.connect.model.ChannelHeader;
@@ -57,7 +63,7 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
     private static final ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private static final CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
     private static final ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     public ChannelServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc);
@@ -70,7 +76,7 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
         }
 
         try {
-            return channelController.updateChannel(channel, context, false);
+            return channelController.updateChannel(channel, context, false, null);
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }
@@ -181,6 +187,16 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
         }
         return channelIdsAndNames;
     }
+    
+    @Override
+    @DontCheckAuthorized
+    public List<Ports> getChannelPortsInUse() throws ClientException {
+        List<Ports> ports = new ArrayList<Ports>();
+        if (isUserAuthorized()) {
+        	ports = channelController.getPortsInUse();
+        }
+        return ports;
+    }
 
     @Override
     @DontCheckAuthorized
@@ -242,9 +258,18 @@ public class ChannelServlet extends MirthServlet implements ChannelServletInterf
 
     @Override
     @CheckAuthorizedChannelId
-    public boolean updateChannel(String channelId, Channel channel, boolean override) {
+    public boolean updateChannel(String channelId, Channel channel, boolean override, String startEdit) {
         try {
-            return channelController.updateChannel(channel, context, override);
+        	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault());
+    	    Calendar dateStartEdit = Calendar.getInstance();
+        	try {
+        	    if (startEdit != null) {
+                    dateStartEdit.setTime(sdf.parse(startEdit));
+        	    }
+        	} catch (ParseException e) {
+        	    e.printStackTrace();
+        	}
+            return channelController.updateChannel(channel, context, override, dateStartEdit);
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }

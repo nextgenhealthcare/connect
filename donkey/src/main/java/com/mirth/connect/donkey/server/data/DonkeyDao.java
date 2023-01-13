@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -130,6 +131,8 @@ public interface DonkeyDao {
     public Statistics getChannelStatistics(String serverId);
 
     public Statistics getChannelTotalStatistics(String serverId);
+    
+    public List<Ports> getPortsInUse();
 
     public void setEncryptData(boolean encryptData);
 

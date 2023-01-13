@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
@@ -44,8 +45,8 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
     private String updateScriptId;
     private DatabaseReceiverProperties connectorProperties;
     private final TemplateValueReplacer replacer = new TemplateValueReplacer();
-    private Logger scriptLogger = Logger.getLogger("db-connector");
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger scriptLogger = LogManager.getLogger("db-connector");
+    private Logger logger = LogManager.getLogger(getClass());
     private ContextFactoryController contextFactoryController = getContextFactoryController();
     private String contextFactoryId;
     private List<String> contextFactoryIdList = new ArrayList<String>();

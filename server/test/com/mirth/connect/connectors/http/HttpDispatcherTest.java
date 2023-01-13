@@ -1,6 +1,7 @@
 package com.mirth.connect.connectors.http;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
@@ -277,6 +278,16 @@ public class HttpDispatcherTest {
         props.setUseParametersVariable(true);
         Map<String, List<String>> result = dispatcher.getParameters(props, Mockito.mock(ConnectorMessage.class));
         assertTrue(result.isEmpty());
+    }
+    
+    @Test
+    public void testShouldParseMultipart() {
+    	HttpDispatcherProperties props = new HttpDispatcherProperties();
+    	props.setResponseXmlBody(true);
+    	props.setResponseParseMultipart(true);
+    	
+    	assertFalse(dispatcher.shouldParseMultipart(props, "text/plain"));
+    	assertTrue(dispatcher.shouldParseMultipart(props, "multipart/form-data"));
     }
 
     class CustomMessageMap extends MessageMaps {

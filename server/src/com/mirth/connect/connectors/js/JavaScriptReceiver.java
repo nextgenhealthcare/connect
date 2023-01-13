@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
@@ -49,17 +50,14 @@ import com.mirth.connect.server.util.javascript.JavaScriptUtil;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class JavaScriptReceiver extends PollConnector {
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     private EventController eventController = getEventController();
     private ContextFactoryController contextFactoryController = getContextFactoryController();
-    private CompiledScriptCache compiledScriptCache = getCompiledScriptCache();
-
     private JavaScriptReceiverProperties connectorProperties;
     private String scriptId;
     private String contextFactoryId;
     private boolean debug = false;
-    private List<String> contextFactoryIdList = new ArrayList<String>();
     private MirthMain debugger;
     private MirthScopeProvider scopeProvider = new MirthScopeProvider();
     private boolean ignoreBreakpoints = false;
@@ -220,7 +218,7 @@ public class JavaScriptReceiver extends PollConnector {
         @Override
         public Object doCall() throws Exception {
             try {
-                Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), Logger.getLogger("js-connector"), getChannelId(), getChannel().getName());
+                Scriptable scope = JavaScriptScopeUtil.getMessageReceiverScope(getContextFactory(), LogManager.getLogger("js-connector"), getChannelId(), getChannel().getName());
 
                 if (debug) {
                     scopeProvider.setScope(scope);

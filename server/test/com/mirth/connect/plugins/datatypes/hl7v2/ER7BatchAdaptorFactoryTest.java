@@ -8,7 +8,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
@@ -22,7 +23,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 
 public class ER7BatchAdaptorFactoryTest {
-    private static Logger logger = Logger.getLogger(ER7BatchAdaptorFactoryTest.class);
+    private static Logger logger = LogManager.getLogger(ER7BatchAdaptorFactoryTest.class);
     
     @Test
     public void testDebug() throws Exception {

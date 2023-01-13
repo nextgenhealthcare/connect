@@ -19,7 +19,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Base class to connect a logging system to the output and/or error stream of then external
@@ -30,7 +31,7 @@ public class LogOutputStream extends OutputStream {
 
     static final String LOGGER_NAME = "Server";
 
-    private Logger logger = Logger.getLogger(LOGGER_NAME);
+    private Logger logger = LogManager.getLogger(LOGGER_NAME);
 
     /** Initial buffer size. */
     private static final int INTIAL_SIZE = 132;

@@ -12,7 +12,8 @@ package com.mirth.connect.plugins.httpauth.javascript;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.NativeJavaObject;
@@ -36,7 +37,7 @@ public class JavaScriptAuthenticator extends Authenticator {
 
     private static final CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 
-    private Logger scriptLogger = Logger.getLogger("js-connector");
+    private Logger scriptLogger = LogManager.getLogger("js-connector");
     private JavaScriptAuthenticatorProvider provider;
 
     public JavaScriptAuthenticator(JavaScriptAuthenticatorProvider provider) {

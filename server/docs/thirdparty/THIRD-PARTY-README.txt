@@ -21,6 +21,7 @@ APACHE-LICENSE-2.0.txt):
 	Bean Validation API 1.1.0 (http://beanvalidation.org/)
 	Error Prone Annotations 2.3.4 [Mirth Connect only] (https://github.com/google/error-prone)
 	Fast Infoset Project 1.2.13 [Mirth Connect only] (https://github.com/javaee/metro-fi/tree/fastinfoset-project-1.2.13)
+	Google Code libphonenumber [Mirth Connect only] (https://github.com/google/libphonenumber)
 	Google Code Prettify [Mirth Connect only] (https://github.com/google/code-prettify)
 	Guava 28.2 (https://code.google.com/p/guava-libraries)
 	Guice 4.1 (https://github.com/google/guice)
@@ -289,21 +290,9 @@ available at http://www.soapui.org/.
 --------------------------------------------------------------------------------
 
 
-Mirth Connect includes the jcifs-ng SMB client library in Java version 2.1.3. This
+Mirth Connect includes the jcifs-ng SMB client library in Java version 2.1.8. This
 library and its use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). The
 library source code is available at https://github.com/AgNO3/jcifs-ng/.
-
-
---------------------------------------------------------------------------------
-
-
-Mirth Connect includes modified versions of files from jcifs-ng. This
-library and its use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). 
-The following files have changed:
-
-	jcifs/internal/smb2/nego/Smb2NegotiateResponse.java
-	
-	Changes: Modified to prevent OutOfMemoryError when SMB max version is 3.1.1.
 	
 	
 --------------------------------------------------------------------------------
@@ -950,7 +939,7 @@ which is included with Mirth Connect.
 --------------------------------------------------------------------------------
 
 
-The license below pertains to Jsch version 0.1.51, which is included with Mirth
+The license below pertains to Jsch version 0.1.55, which is included with Mirth
 Connect.
 
 =================== Beginning of License ===================

@@ -60,6 +60,7 @@ public class VariableListHandler extends TransferHandler {
         staticVelocityReferences.put("Message Source", "${" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "}");
         staticVelocityReferences.put("Message Type", "${" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "}");
         staticVelocityReferences.put("Message Version", "${" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "}");
+        staticVelocityReferences.put("Message Hash", "${HASH}");
         staticVelocityReferences.put("Timestamp", "${SYSTIME}");
         staticVelocityReferences.put("Unique ID", "${UUID}");
         staticVelocityReferences.put("Date", "${DATE}");
@@ -71,7 +72,7 @@ public class VariableListHandler extends TransferHandler {
         staticVelocityReferences.put("XML Pretty Printer", "${XmlUtil.prettyPrint()}");
         staticVelocityReferences.put("Escape JSON String", "${JsonUtil.escape()}");
         staticVelocityReferences.put("JSON Pretty Printer", "${JsonUtil.prettyPrint()}");
-
+      
         // these are used in DataPrunerPanel
         staticVelocityReferences.put("Server ID", "${message.serverId}");
         staticVelocityReferences.put("Channel ID", "${message.channelId}");
@@ -86,6 +87,8 @@ public class VariableListHandler extends TransferHandler {
         staticJsReferences.put("Encoded Data", "connectorMessage.getEncodedData()");
         staticJsReferences.put("Message Source", "$('" + DefaultMetaData.SOURCE_VARIABLE_MAPPING + "')");
         staticJsReferences.put("Message Type", "$('" + DefaultMetaData.TYPE_VARIABLE_MAPPING + "')");
+        staticJsReferences.put("Message Hash", "HashUtil.generate(connectorMessage.getEncodedData())");
+
         staticJsReferences.put("Message Version", "$('" + DefaultMetaData.VERSION_VARIABLE_MAPPING + "')");
         staticJsReferences.put("Timestamp", "var dateString = DateUtil.getCurrentDate('yyyyMMddHHmmss');");
         staticJsReferences.put("Unique ID", "var uuid = UUIDGenerator.getUUID();");

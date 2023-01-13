@@ -15,12 +15,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.SwingWorker;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class QueuingSwingWorker<T, V> extends SwingWorker<T, V> {
 
     private static Map<String, WorkerInfo> workerInfoMap = new ConcurrentHashMap<String, WorkerInfo>();
-    private static Logger logger = Logger.getLogger(QueuingSwingWorker.class);
+    private static Logger logger = LogManager.getLogger(QueuingSwingWorker.class);
 
     private QueuingSwingWorkerTask<T, V> task;
     private String workingId;

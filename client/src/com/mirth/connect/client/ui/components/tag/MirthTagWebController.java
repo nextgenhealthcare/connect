@@ -15,14 +15,15 @@ import java.util.Map;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.util.ColorUtil;
 
 public class MirthTagWebController {
     private static int BACKSPACE = 8;
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private String tags;
     private AutoCompletionPopupWindow popupWindow;
     private Map<String, Color> tagColorMap;

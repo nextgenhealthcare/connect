@@ -9,7 +9,8 @@
 
 package com.mirth.connect.server.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.Duration;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
@@ -25,7 +26,7 @@ import com.mirth.connect.server.controllers.UserController;
 
 public class LoginRequirementsChecker {
 
-    private static Logger logger = Logger.getLogger(LoginRequirementsChecker.class);
+    private static Logger logger = LogManager.getLogger(LoginRequirementsChecker.class);
 
     private User user;
     private PasswordRequirements passwordRequirements;

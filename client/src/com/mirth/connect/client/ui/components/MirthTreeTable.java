@@ -66,7 +66,7 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MirthTreeTable extends SortableTreeTable {
 
-    private static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
+    private static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
     private static String PREFERENCE_COLUMN_ORDER_MAP = "TreeColumnOrderMap";
     private static String PREFERENCE_SORT_ORDER = "TreeSortOrder";
     private static String PREFERENCE_SORT_ORDER_COLUMN = "TreeSortOrderColumn";

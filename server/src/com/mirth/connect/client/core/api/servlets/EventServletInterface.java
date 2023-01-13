@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -100,6 +99,7 @@ public interface EventServletInterface extends BaseServletInterface {
             @Param("name") @Parameter(description = "Searches the event name for this string.") @QueryParam("name") String name,
             @Param("outcome") @Parameter(description = "Searches on whether the event outcome was successful or not.") @QueryParam("outcome") Outcome outcome,
             @Param("userId") @Parameter(description = "The user ID to query events by.") @QueryParam("userId") Integer userId,
+            @Param("attributeSearch") @Parameter(description = "Searches the attributes for this string.") @QueryParam("attributeSearch") String attributeSearch,
             @Param("ipAddress") @Parameter(description = "The IP address that originated the event.") @QueryParam("ipAddress") String ipAddress,
             @Param("serverId") @Parameter(description = "The ID of the server that the event was created from.") @QueryParam("serverId") String serverId,
             @Param("offset") @Parameter(description = "Used for pagination, determines where to start in the search results.", schema = @Schema(defaultValue = "0")) @QueryParam("offset") Integer offset,
@@ -131,6 +131,7 @@ public interface EventServletInterface extends BaseServletInterface {
             @Param("name") @Parameter(description = "Searches the event name for this string.") @QueryParam("name") String name,
             @Param("outcome") @Parameter(description = "Searches on whether the event outcome was successful or not.") @QueryParam("outcome") Outcome outcome,
             @Param("userId") @Parameter(description = "The user ID to query events by.") @QueryParam("userId") Integer userId,
+            @Param("attributeSearch") @Parameter(description = "Searches the attributes for this string.") @QueryParam("attributeSearch") String attributeSearch,
             @Param("ipAddress") @Parameter(description = "The IP address that originated the event.") @QueryParam("ipAddress") String ipAddress,
             @Param("serverId") @Parameter(description = "The ID of the server that the event was created from.") @QueryParam("serverId") String serverId) throws ClientException;
     // @formatter:on
@@ -141,11 +142,4 @@ public interface EventServletInterface extends BaseServletInterface {
     @Operation(summary = "Exports all events to the application data directory on the server.")
     @MirthOperation(name = "exportAllEvents", display = "Export all events", permission = Permissions.EVENTS_VIEW)
     public String exportAllEvents() throws ClientException;
-
-    @DELETE
-    @Path("/")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Operation(summary = "Remove all events.")
-    @MirthOperation(name = "removeAllEvents", display = "Remove all events", permission = Permissions.EVENTS_REMOVE, abortable = true)
-    public String removeAllEvents(@Param("export") @Parameter(description = "If true, messages will be exported into the application data directory on the server before being removed.", schema = @Schema(defaultValue = "true")) @QueryParam("export") boolean export) throws ClientException;
 }

@@ -25,7 +25,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.model.ServerEvent;
 import com.mirth.connect.model.alert.AlertAction;
@@ -45,7 +46,7 @@ import com.mirth.connect.server.util.TemplateValueReplacer;
 public abstract class AlertWorker extends EventListener implements AlertActionAcceptor {
     private static final String DEFAULT_SUBJECT = "Mirth Connect Alert";
 
-    protected Logger logger = Logger.getLogger(this.getClass());
+    protected Logger logger = LogManager.getLogger(this.getClass());
     protected ExecutorService actionExecutor = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
     protected Map<String, Alert> enabledAlerts = new ConcurrentHashMap<String, Alert>();
     protected EventController eventController = ControllerFactory.getFactory().createEventController();

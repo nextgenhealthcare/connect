@@ -33,7 +33,7 @@ public class TestServer {
 
         Client client = new Client(CLIENT_ADDRESS);
         client.login("admin", "admin");
-        client.updateChannel(channel, true);
+        client.updateChannel(channel, true, null);
         client.startChannel(channelId);
         client.processMessage(channelId, TestUtils.TEST_HL7_MESSAGE);
         client.stopChannel(channelId);

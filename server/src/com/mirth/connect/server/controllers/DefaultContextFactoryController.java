@@ -22,11 +22,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.ContextFactory;
 
-import com.google.common.base.Objects;
 import com.mirth.connect.model.LibraryProperties;
 import com.mirth.connect.plugins.LibraryPlugin;
 import com.mirth.connect.server.ExtensionLoader;
@@ -34,7 +33,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class DefaultContextFactoryController extends ContextFactoryController {
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private ExtensionController extensionController;
     private Map<String, LibraryProperties> libraryResources = new ConcurrentHashMap<String, LibraryProperties>();
     private Map<String, List<URL>> libraryCache = new ConcurrentHashMap<String, List<URL>>();

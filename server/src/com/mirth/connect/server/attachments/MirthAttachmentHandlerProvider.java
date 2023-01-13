@@ -18,7 +18,8 @@ import java.util.TreeMap;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.MessageSerializerException;
@@ -44,7 +45,7 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
     private final static int KEY_DATA = 0;
     private final static int KEY_END_INDEX = 1;
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private MessageController messageController;
     
     public MirthAttachmentHandlerProvider() {

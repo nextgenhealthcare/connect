@@ -20,13 +20,14 @@ import java.sql.SQLException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.derby.tools.ij;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.ResourceUtil;
 
 public class ScriptRunner {
-    private static Logger logger = Logger.getLogger("ScriptRunner");
+    private static Logger logger = LogManager.getLogger("ScriptRunner");
 
     public static void main(String[] args) {
         if (args.length != 1) {

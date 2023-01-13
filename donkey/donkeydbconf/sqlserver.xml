@@ -369,4 +369,13 @@
 		WHERE METADATA_ID = ?
 		AND SERVER_ID = ?
 	</query>
+	
+	<query id="getPortsInUse">
+		SELECT ID, NAME, 
+        SUBSTRING(CHANNEL.CHANNEL, CHARINDEX (<![CDATA['<port>']]>, CHANNEL.CHANNEL )+6, 
+        (CHARINDEX (<![CDATA['</port>']]>, CHANNEL.CHANNEL) - CHARINDEX (<![CDATA['<port>']]>, CHANNEL.CHANNEL)) - 6) AS PORTSTRING
+        FROM CHANNEL
+        WHERE CHANNEL.CHANNEL LIKE '%listenerConnectorProperties%'
+	</query>
+	
 </queries>

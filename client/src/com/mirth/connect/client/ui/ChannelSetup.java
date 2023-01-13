@@ -68,8 +68,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
@@ -133,6 +131,8 @@ import com.mirth.connect.plugins.ChannelTabPlugin;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.PropertyVerifier;
 
+import net.miginfocom.swing.MigLayout;
+
 /** The channel editor panel. Majority of the client application */
 public class ChannelSetup extends JPanel {
     private static final String METADATA_NAME_COLUMN_NAME = "Column Name";
@@ -165,6 +165,7 @@ public class ChannelSetup extends JPanel {
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
     private boolean channelValidationFailed = false;
+    private Calendar dateStartEdit;
 
     private int previousTab = -1;
 
@@ -511,6 +512,7 @@ public class ChannelSetup extends JPanel {
     /** Sets the overall panel to edit the channel with the given channel index. */
     public void editChannel(Channel channel) {
         loadingChannel = true;
+        dateStartEdit = Calendar.getInstance();
 
         Set<FilterCompletion> channelTags = new HashSet<FilterCompletion>();
         for (ChannelTag channelTag : parent.channelPanel.getCachedChannelTags()) {
@@ -532,7 +534,7 @@ public class ChannelSetup extends JPanel {
         destinationConnectorTypeComboBox.setModel(new DefaultComboBoxModel(LoadedExtensions.getInstance().getDestinationConnectors().keySet().toArray()));
 
         try {
-            ServerSettings serverSettings = parent.mirthClient.getServerSettings();
+            ServerSettings serverSettings = parent.mirthClient.getPublicServerSettings();
             if (serverSettings.getQueueBufferSize() != null && serverSettings.getQueueBufferSize() > 0) {
                 defaultQueueBufferSize = serverSettings.getQueueBufferSize();
             }
@@ -608,7 +610,7 @@ public class ChannelSetup extends JPanel {
         setLastModified();
 
         try {
-            ServerSettings serverSettings = parent.mirthClient.getServerSettings();
+            ServerSettings serverSettings = parent.mirthClient.getPublicServerSettings();
             currentChannel.getProperties().setMetaDataColumns(serverSettings.getDefaultMetaDataColumns());
             if (serverSettings.getQueueBufferSize() != null && serverSettings.getQueueBufferSize() > 0) {
                 defaultQueueBufferSize = serverSettings.getQueueBufferSize();
@@ -702,8 +704,17 @@ public class ChannelSetup extends JPanel {
         currentChannel.getExportData().getMetadata().setLastModified(Calendar.getInstance());
     }
 
+    private void setUserId() {       
+		try {
+			currentChannel.getExportData().getMetadata().setUserId(parent.mirthClient.getCurrentUser().getId());
+		} catch (ClientException e) {
+            parent.alertThrowable(this.parent, e);
+		}
+	
+	}
+
     private void updateChannelId() {
-        channelIdField.setText("Id: " + currentChannel.getId());
+        channelIdField.setText(" Id: " + currentChannel.getId());
     }
 
     private void updateRevision() {
@@ -1089,7 +1100,7 @@ public class ChannelSetup extends JPanel {
 
     public void saveSourcePanel() {
         currentChannel.getSourceConnector().setProperties(sourceConnectorPanel.getProperties());
-
+        
         if (!loadingChannel && resourceIds.containsKey(currentChannel.getSourceConnector().getMetaDataId())) {
             ((SourceConnectorPropertiesInterface) currentChannel.getSourceConnector().getProperties()).getSourceConnectorProperties().setResourceIds(resourceIds.get(currentChannel.getSourceConnector().getMetaDataId()));
         }
@@ -1110,6 +1121,20 @@ public class ChannelSetup extends JPanel {
      * Save all of the current channel information in the editor to the actual channel
      */
     public boolean saveChanges() {
+    	Integer userId = null;
+    	Channel originalStateChannel = null;
+        try {
+			originalStateChannel = parent.mirthClient.getChannel(currentChannel.getId(), false);
+        	if (originalStateChannel != null) {
+        		userId = originalStateChannel.getExportData().getMetadata().getUserId();
+    		// this is a new channel because the originalStateChannel is empty
+        	} else {
+        		userId = parent.mirthClient.getCurrentUser().getId();
+        	}
+		} catch (ClientException e1) {
+			
+		}
+
         if (!parent.checkChannelName(nameField.getText(), currentChannel.getId())) {
             return false;
         }
@@ -1183,7 +1208,7 @@ public class ChannelSetup extends JPanel {
         }
 
         boolean enabled = summaryEnabledCheckBox.isSelected();
-
+        
         saveSourcePanel();
 
         if (parent.currentContentPage == transformerPane) {
@@ -1209,6 +1234,7 @@ public class ChannelSetup extends JPanel {
 
         updateScripts();
         setLastModified();
+        setUserId();
 
         currentChannel.getProperties().setClearGlobalChannelMap(clearGlobalChannelMapCheckBox.isSelected());
         currentChannel.getProperties().setEncryptData(encryptMessagesCheckBox.isSelected());
@@ -1255,8 +1281,7 @@ public class ChannelSetup extends JPanel {
         try {
             // Will throw exception if the connection died or there was an exception
             // saving the channel, skipping the rest of this code.
-            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()));
-
+            updated = parent.updateChannel(currentChannel, parent.channelPanel.getCachedChannelStatuses().containsKey(currentChannel.getId()), userId, dateStartEdit);
             try {
                 currentChannel = (Channel) SerializationUtils.clone(parent.channelPanel.getCachedChannelStatuses().get(currentChannel.getId()).getChannel());
 
@@ -1294,7 +1319,7 @@ public class ChannelSetup extends JPanel {
         return updated;
     }
 
-    private void saveMessageStorage(MessageStorageMode messageStorageMode) {
+	private void saveMessageStorage(MessageStorageMode messageStorageMode) {
         ChannelProperties properties = currentChannel.getProperties();
         properties.setMessageStorageMode(messageStorageMode);
         properties.setEncryptData(encryptMessagesCheckBox.isSelected());

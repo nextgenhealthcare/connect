@@ -19,7 +19,8 @@ import java.util.Map.Entry;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.http.HttpHeader;
 
 import com.mirth.connect.donkey.util.MessageMaps;
@@ -33,7 +34,7 @@ public class BasicAuthenticator extends Authenticator {
 
     private BasicAuthenticatorProvider provider;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
-    protected Logger logger = Logger.getLogger(this.getClass());
+    protected Logger logger = LogManager.getLogger(this.getClass());
     private MessageMaps messageMaps;
 
     public BasicAuthenticator(BasicAuthenticatorProvider provider) {

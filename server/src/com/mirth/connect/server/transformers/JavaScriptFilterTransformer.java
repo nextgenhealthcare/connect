@@ -10,7 +10,8 @@
 package com.mirth.connect.server.transformers;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
@@ -45,7 +46,7 @@ import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.util.ErrorMessageBuilder;
 
 public class JavaScriptFilterTransformer implements FilterTransformer {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ContextFactoryController contextFactoryController = ControllerFactory.getFactory().createContextFactoryController();
@@ -193,7 +194,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
 
         @Override
         public FilterTransformerResult doCall() throws Exception {
-            Logger scriptLogger = Logger.getLogger("filter");
+            Logger scriptLogger = LogManager.getLogger("filter");
             // Use an array to store the phase, otherwise java and javascript end up referencing two different objects.
             String[] phase = { new String() };
 

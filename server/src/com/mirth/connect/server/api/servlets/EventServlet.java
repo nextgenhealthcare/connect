@@ -73,7 +73,7 @@ public class EventServlet extends MirthServlet implements EventServletInterface 
     }
 
     @Override
-    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String ipAddress, String serverId, Integer offset, Integer limit) {
+    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String attributeSearch, String ipAddress, String serverId, Integer offset, Integer limit) {
         EventFilter filter = new EventFilter();
         filter.setMaxEventId(maxEventId);
         filter.setMinEventId(minEventId);
@@ -85,6 +85,7 @@ public class EventServlet extends MirthServlet implements EventServletInterface 
         filter.setName(name);
         filter.setOutcome(outcome);
         filter.setUserId(userId);
+        filter.setAttributeSearch(attributeSearch);
         filter.setIpAddress(ipAddress);
         filter.setServerId(serverId);
 
@@ -105,7 +106,7 @@ public class EventServlet extends MirthServlet implements EventServletInterface 
     }
 
     @Override
-    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String ipAddress, String serverId) {
+    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String attributeSearch, String ipAddress, String serverId) {
         EventFilter filter = new EventFilter();
         filter.setMaxEventId(maxEventId);
         filter.setMinEventId(minEventId);
@@ -115,6 +116,7 @@ public class EventServlet extends MirthServlet implements EventServletInterface 
         filter.setName(name);
         filter.setOutcome(outcome);
         filter.setUserId(userId);
+        filter.setAttributeSearch(attributeSearch);
         filter.setIpAddress(ipAddress);
         filter.setServerId(serverId);
 
@@ -129,26 +131,6 @@ public class EventServlet extends MirthServlet implements EventServletInterface 
     public String exportAllEvents() {
         try {
             return eventController.exportAllEvents();
-        } catch (ControllerException e) {
-            throw new MirthApiException(e);
-        }
-    }
-
-    @Override
-    public String removeAllEvents(boolean export) {
-        try {
-            if (export) {
-                // Add file path of export and audit after removal
-                String exportPath = eventController.exportAndRemoveAllEvents();
-                parameterMap.put("file", exportPath);
-                isUserAuthorized();
-                return exportPath;
-            } else {
-                eventController.removeAllEvents();
-                // Audit after removal
-                isUserAuthorized();
-                return null;
-            }
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }

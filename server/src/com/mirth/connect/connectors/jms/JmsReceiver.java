@@ -22,8 +22,8 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.ErrorEventType;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
@@ -45,7 +45,7 @@ public class JmsReceiver extends SourceConnector {
     private JmsClient jmsClient;
     private JmsReceiverProperties connectorProperties;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     @Override
     public void onDeploy() throws ConnectorTaskException {

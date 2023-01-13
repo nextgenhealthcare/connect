@@ -23,14 +23,15 @@ import java.util.Properties;
 import javax.sql.rowset.CachedRowSet;
 
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Provides the ability to run SQL queries again the database connection object instantiated using
  * DatabaseConnectionFactory.
  */
 public class DatabaseConnection {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private Connection connection;
     private String address;
 

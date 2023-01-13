@@ -15,10 +15,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MessageHeaders {
-    private static Logger logger = Logger.getLogger(MessageHeaders.class);
+    private static Logger logger = LogManager.getLogger(MessageHeaders.class);
     private Map<String, List<String>> delegate;
 
     public MessageHeaders(Map<String, List<String>> delegate) {

@@ -9,12 +9,21 @@
 
 package com.mirth.connect.client.ui;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.prefs.Preferences;
 
 import javax.swing.JDialog;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkEvent.EventType;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.util.DisplayUtil;
@@ -26,6 +35,8 @@ import com.mirth.connect.model.User;
 public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogInterface {
 
     private Frame parent;
+    private boolean result = false;
+    private static Preferences preferences;
 
     /** Creates new form UserDialog */
     public FirstLoginDialog(User currentUser) {
@@ -36,6 +47,10 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         finishButton.setEnabled(false);
 
         userEditPanel.setUser(this, currentUser);
+        userEditPanel.setRequiredFields(true, true);
+        if (currentUser.getId() == 1) {
+            registerCheckBox.setVisible(false);
+        }
 
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setModal(true);
@@ -45,7 +60,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         this.addWindowListener(new WindowAdapter() {
 
             public void windowClosing(WindowEvent e) {
-                finishButtonActionPerformed(null);
+                parent.logout(false, true);
             }
         });
 
@@ -90,7 +105,9 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
         registerCheckBox = new javax.swing.JCheckBox();
-
+        userConsentCheckBox = new javax.swing.JCheckBox();
+        contentTextPane = new javax.swing.JTextPane();
+        
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Welcome to Mirth Connect");
 
@@ -106,7 +123,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Welcome to Mirth Connect");
+        jLabel2.setText("<html>Welcome to Mirth<sup>&#174;</sup> Connect by NextGen<sup>&#174;</sup> Healthcare</html>");
 
         javax.swing.GroupLayout mirthHeadingPanel1Layout = new javax.swing.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);
@@ -132,7 +149,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         jTextPane1.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         jTextPane1.setEnabled(false);
         jScrollPane1.setViewportView(jTextPane1);
-
+        
         registerCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         registerCheckBox.setSelected(true);
         registerCheckBox.setText("Register user with NextGen Healthcare");
@@ -140,6 +157,39 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         registerCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 registerCheckBoxActionPerformed(evt);
+            }
+        });
+        
+        userConsentCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        userConsentCheckBox.setSelected(true);
+        userConsentCheckBox.setText("I consent to receive email updates and marketing messages from NextGen Healthcare.");
+        userConsentCheckBox.setToolTipText("<html></html>"); 
+
+        contentTextPane.setContentType("text/html");
+        contentTextPane.setText("<html>&nbsp;&nbsp;&nbsp;&nbsp;For more information on the processing of your personal data, click <a href=\"https://www.nextgen.com/privacy-policy\">here to find our Privacy Policy.</a></html>");   
+        
+        MutableAttributeSet set = new SimpleAttributeSet();
+        StyleConstants.setLineSpacing(set, 1);
+        StyleConstants.setFontSize(set, 10);
+        StyleConstants.setFontFamily(set, "Tahoma");
+        StyledDocument doc = contentTextPane.getStyledDocument();
+        doc.setCharacterAttributes(0, doc.getLength() + 1, set, false);
+        
+        contentTextPane.setParagraphAttributes(set, true);
+        contentTextPane.setEditable(false);
+        contentTextPane.addHyperlinkListener(new HyperlinkListener() {
+            public void hyperlinkUpdate(HyperlinkEvent evt) {
+                if (evt.getEventType() == EventType.ACTIVATED && Desktop.isDesktopSupported()) {
+                    try {
+                        if (Desktop.isDesktopSupported()) {
+                            Desktop.getDesktop().browse(evt.getURL().toURI());
+                        } else {
+                            BareBonesBrowserLaunch.openURL(evt.getURL().toString());
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 
@@ -160,6 +210,8 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
                     .addGroup(channelOverviewLayout.createSequentialGroup()
                         .addGroup(channelOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(registerCheckBox)
+                            .addComponent(userConsentCheckBox)
+                            .addComponent(contentTextPane)
                             .addComponent(userEditPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 19, Short.MAX_VALUE)))
                 .addContainerGap())
@@ -174,6 +226,10 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
                 .addComponent(userEditPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(registerCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(userConsentCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(contentTextPane)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -206,6 +262,9 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
             parent.alertWarning(this, validateUserMessage);
         } else {
             User user = userEditPanel.getUser();
+            if (userConsentCheckBox.isSelected()) {
+            	user.setUserConsent(true);
+            }
             boolean success = false;
 
             success = parent.updateCurrentUser(this, user, userEditPanel.getPassword());
@@ -221,18 +280,48 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
             try {
                 User currentUser = parent.getCurrentUser(parent);
                 parent.mirthClient.setUserPreference(currentUser.getId(), "firstlogin", "false");
+                // if the above doesn't error and this is user 1, create string to put in OS preferences
+                if (Integer.valueOf(currentUser.getId()) == 1) {
+                	String userInfo = currentUser.getUsername() + "," +
+                			currentUser.getFirstName() + "," + 
+                			currentUser.getLastName() + "," +
+                			currentUser.getEmail() + "," +
+                			currentUser.getCountry() + "," +
+                			currentUser.getStateTerritory() + "," +
+                			currentUser.getPhoneNumber() + "," +
+                			currentUser.getOrganization() + "," +
+                			currentUser.getRole() + "," +
+                			currentUser.getIndustry() + "," +
+                			currentUser.getDescription() + ",END";
+                	preferences = Preferences.userNodeForPackage(Mirth.class);
+                	preferences.put("userLoginInfo", userInfo);
+                	// used for debugging original first login screen
+                	//preferences.remove("userLoginInfo");
+                }
             } catch (ClientException e) {
                 parent.alertThrowable(this, e);
             }
 
+            result = true;
             this.dispose();
         }
     }//GEN-LAST:event_finishButtonActionPerformed
 
     private void registerCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerCheckBoxActionPerformed
-        boolean selected = registerCheckBox.isSelected();
-        userEditPanel.setRequiredFields(selected, selected, selected, selected, true, selected);
+        boolean allRequired = registerCheckBox.isSelected();
+        if (allRequired) {
+            userConsentCheckBox.setSelected(true);
+            userConsentCheckBox.setEnabled(true);
+        } else {
+        	userConsentCheckBox.setSelected(false);
+        	userConsentCheckBox.setEnabled(false);
+        }
+        userEditPanel.setRequiredFields(allRequired, true);
     }//GEN-LAST:event_registerCheckBoxActionPerformed
+    
+    public boolean getResult() {
+    	return this.result;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel channelOverview;
@@ -243,6 +332,8 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
     private javax.swing.JTextPane jTextPane1;
     private com.mirth.connect.client.ui.MirthHeadingPanel mirthHeadingPanel1;
     private javax.swing.JCheckBox registerCheckBox;
+    private javax.swing.JCheckBox userConsentCheckBox;
     private com.mirth.connect.client.ui.UserEditPanel userEditPanel;
+    private javax.swing.JTextPane contentTextPane;
     // End of variables declaration//GEN-END:variables
 }

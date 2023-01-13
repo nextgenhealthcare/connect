@@ -15,9 +15,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
@@ -37,7 +39,7 @@ public class BufferedDao implements DonkeyDao {
     private StatisticsUpdater statisticsUpdater;
     private Queue<DaoTask> tasks = new LinkedList<DaoTask>();
     private boolean closed = false;
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     protected BufferedDao(DonkeyDaoFactory daoFactory, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData, StatisticsUpdater statisticsUpdater) {
         this.daoFactory = daoFactory;
@@ -138,6 +140,7 @@ public class BufferedDao implements DonkeyDao {
                     case REMOVE_META_DATA_COLUMN: dao.removeMetaDataColumn((String) p[0], (String) p[1]); break;
                     case RESET_STATISTICS: dao.resetStatistics((String) p[0], (Integer) p[1], (Set<Status>) p[2]); break;
                     case RESET_ALL_STATISTICS: dao.resetAllStatistics((String) p[0]); break;
+                    case GET_PORTS_IN_USE: dao.getPortsInUse(); break;
                 }
                 // @formatter:on
             }
@@ -176,7 +179,7 @@ public class BufferedDao implements DonkeyDao {
     public boolean isClosed() {
         return closed;
     }
-
+    
     @Override
     public void insertMessage(Message message) {
         tasks.add(new DaoTask(DaoTaskType.INSERT_MESSAGE, new Object[] { message }));
@@ -576,6 +579,17 @@ public class BufferedDao implements DonkeyDao {
 
         try {
             return dao.getChannelTotalStatistics(serverId);
+        } finally {
+            dao.close();
+        }
+    }
+    
+    @Override
+    public List<Ports> getPortsInUse() {
+        DonkeyDao dao = getDelegateDao();
+
+        try {
+            return dao.getPortsInUse();
         } finally {
             dao.close();
         }

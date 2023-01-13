@@ -8,7 +8,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
@@ -21,7 +22,7 @@ import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class NCPDPBatchAdaptorFactoryTest {
-    private static Logger logger = Logger.getLogger(NCPDPBatchAdaptorFactoryTest.class);
+    private static Logger logger = LogManager.getLogger(NCPDPBatchAdaptorFactoryTest.class);
     
     @Test
     public void testDebug() throws Exception {

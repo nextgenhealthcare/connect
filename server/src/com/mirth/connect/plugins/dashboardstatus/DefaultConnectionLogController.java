@@ -22,7 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.Event;
@@ -35,7 +36,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class DefaultConnectionLogController extends ConnectionStatusLogController {
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     private static final int MAX_LOG_SIZE = 1000;
     private static long logId = 1;
@@ -113,7 +114,7 @@ public class DefaultConnectionLogController extends ConnectionStatusLogControlle
                 connectorStateMap.put(connectorId, new Object[] { color, stateString });
             }
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             String channelName = "";
             String connectorType = "";
 

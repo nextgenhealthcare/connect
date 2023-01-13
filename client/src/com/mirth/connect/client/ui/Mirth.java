@@ -30,8 +30,10 @@ import javax.swing.text.JTextComponent.KeyBinding;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
@@ -314,9 +316,9 @@ public class Mirth {
 
     private static void start(final String server, final String version, final String username, final String password) {
         // disable the velocity logging
-        Logger velocityLogger = Logger.getLogger(RuntimeConstants.DEFAULT_RUNTIME_LOG_NAME);
+        Logger velocityLogger = LogManager.getLogger(RuntimeConstants.DEFAULT_RUNTIME_LOG_NAME);
         if (velocityLogger != null && velocityLogger.getLevel() == null) {
-            velocityLogger.setLevel(Level.OFF);
+            Configurator.setLevel(velocityLogger.getName(), Level.OFF);
         }
 
         SwingUtilities.invokeLater(new Runnable() {

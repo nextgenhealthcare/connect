@@ -20,7 +20,7 @@ import org.displaytag.exception.DecoratorException;
 import org.displaytag.properties.MediaTypeEnum;
 
 public class DateDecorator implements DisplaytagColumnDecorator {
-    private SimpleDateFormat simpleDate = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss:SSS");
+    private SimpleDateFormat simpleDate = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss.SSS");
 
     private String formatDate(Date date) {
         return simpleDate.format(date);

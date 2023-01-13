@@ -13,6 +13,10 @@
       <result property='strikeCount' column='STRIKE_COUNT'/>
       <result property='lastStrikeTime' column='LAST_STRIKE_TIME'/>
       <result property='description' column='DESCRIPTION'/>
+      <result property='role' column='ROLE' />
+	  <result property='country' column='COUNTRY' />
+	  <result property='stateTerritory' column='STATETERRITORY' />
+	  <result property='userConsent' column='USERCONSENT' />
    </resultMap>
    <resultMap id='get-user-credentials' type='com.mirth.connect.model.Credentials'>
       <result property='password' column='PASSWORD'/>
@@ -21,7 +25,7 @@
    <select id='getUser'
            parameterType='com.mirth.connect.model.User'
            resultMap='get-user-result'>
-		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, STRIKE_COUNT, LAST_STRIKE_TIME, DESCRIPTION
+		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, LAST_LOGIN, GRACE_PERIOD_START, STRIKE_COUNT, LAST_STRIKE_TIME, DESCRIPTION, ROLE, COUNTRY, STATETERRITORY, USERCONSENT
 		FROM PERSON
 		<where>
          <if test='id != null'>AND ID = #{id}</if>
@@ -52,8 +56,8 @@
 	</delete>
    <insert id='insertUser' parameterType='java.util.Map'>
 		INSERT INTO
-		PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN)
-		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, FALSE, NULL)
+		PERSON (USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, INDUSTRY, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN, LAST_LOGIN, ROLE, COUNTRY, STATETERRITORY, USERCONSENT)
+		VALUES (#{username}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR}, #{industry,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{phoneNumber,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, FALSE, NULL, #{role,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, #{stateTerritory,jdbcType=VARCHAR}, #{userConsent,jdbcType=BOOLEAN})
 	</insert>
    <update id='updateUser' parameterType='java.util.Map'>
 		UPDATE PERSON
@@ -64,7 +68,11 @@
 			INDUSTRY = #{industry,jdbcType=VARCHAR},
 			EMAIL = #{email,jdbcType=VARCHAR},
 			PHONENUMBER = #{phoneNumber,jdbcType=VARCHAR},
-			DESCRIPTION = #{description,jdbcType=VARCHAR}
+			DESCRIPTION = #{description,jdbcType=VARCHAR},
+			ROLE = #{role,jdbcType=VARCHAR},
+			COUNTRY = #{country,jdbcType=VARCHAR},
+			STATETERRITORY = #{stateTerritory,jdbcType=VARCHAR},
+			USERCONSENT = #{userConsent, jdbcType=BOOLEAN}
 		WHERE ID = #{id}
 	</update>
    <insert id='updateUserPassword' parameterType='java.util.Map'>
@@ -122,7 +130,7 @@
 		UPDATE PERSON
 		SET LOGGED_IN = FALSE
 	</update>
-	
+
 	<select id='selectPreferencesForUser' parameterType='java.lang.String' resultType='KeyValuePair'>
 		SELECT NAME AS "key", VALUE AS "value"
 		FROM PERSON_PREFERENCE

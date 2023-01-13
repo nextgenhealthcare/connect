@@ -24,6 +24,7 @@ import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.client.core.api.servlets.UserServletInterface;
@@ -175,6 +176,12 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }
+    }
+    
+    @Override
+    @DontCheckAuthorized
+    public void inactivityLogout() {
+    	logout();
     }
 
     @Override
@@ -339,5 +346,11 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
         } catch (ControllerException e) {
             throw new MirthApiException(e);
         }
+    }
+
+    @Override
+    @CheckAuthorizedUserId(auditCurrentUser = false)
+    public void setUserNotificationAcknowledged(Integer userId) throws ClientException {
+    	// This will dispatch an event because the auditAuthorizationRequest() will be called 
     }
 }

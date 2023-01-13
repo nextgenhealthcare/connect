@@ -29,6 +29,8 @@ public class PurgedDocument implements Serializable {
     private List<Map<String, Object>> connectorMetaData;
     private Map<String, Object> serverSettings;
     private Map<String, Object> updateSettings;
+    private List<Map<String,Object>> debugStats;
+
     private int users;
 
     public int getInvalidChannels() {
@@ -158,4 +160,13 @@ public class PurgedDocument implements Serializable {
     public void setConnectorMetaData(List<Map<String, Object>> connectorMetaData) {
         this.connectorMetaData = connectorMetaData;
     }
+    
+    public void setDebugStatistics(List<Map<String,Object>> purgedDebugUsages) {
+        this.debugStats = purgedDebugUsages;
+    }
+    
+    public List<Map<String,Object>> getDebugStats() {
+        return debugStats;
+    }
+
 }

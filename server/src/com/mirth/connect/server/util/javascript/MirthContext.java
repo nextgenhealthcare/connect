@@ -11,7 +11,8 @@ package com.mirth.connect.server.util.javascript;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -19,7 +20,7 @@ public class MirthContext extends Context {
     private final static int INSTRUCTION_THRESHOLD = 1;
 
     private final AtomicBoolean running = new AtomicBoolean(true);
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ScriptableObject sealedSharedScope;
 
     public MirthContext(MirthContextFactory contextFactory) {

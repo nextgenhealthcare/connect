@@ -34,7 +34,8 @@ import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -83,7 +84,7 @@ public class DatabaseReceiver extends PollConnector {
     protected DatabaseReceiverProperties connectorProperties;
     private DatabaseReceiverDelegate delegate;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
@@ -276,7 +277,7 @@ public class DatabaseReceiver extends PollConnector {
                     }
                     // Only put into the map if the key (case-insensitive) doesn't already exist
                     if (caseInsensitiveKeys.add(lowerCaseKey)) {
-                        map.put(entry.getKey(), entry.getValue());
+                        map.put(lowerCaseKey, entry.getValue());
                     } else {
                         /*
                          * Currently, duplicate keys/aliases would get overwritten in the resultMap,
@@ -408,7 +409,7 @@ public class DatabaseReceiver extends PollConnector {
             String value = objectToString(entry.getValue());
 
             if (value != null) {
-                String key = entry.getKey();
+                String key = entry.getKey().toLowerCase(Locale.ENGLISH);
                 if (fixColumnNames) {
                     key = fixColumnName(key);
                 }

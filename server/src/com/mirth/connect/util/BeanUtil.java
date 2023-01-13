@@ -13,10 +13,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class BeanUtil {
-    private static Logger logger = Logger.getLogger(BeanUtil.class);
+    private static Logger logger = LogManager.getLogger(BeanUtil.class);
 
     public static void setProperties(Object bean, Map<String, String> properties) {
         for (Entry<String, String> entry : properties.entrySet()) {

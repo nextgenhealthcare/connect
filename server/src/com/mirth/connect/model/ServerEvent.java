@@ -14,6 +14,7 @@ import java.io.PrintStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -45,10 +46,15 @@ public class ServerEvent extends Event implements Serializable {
     private Map<String, String> attributes = new LinkedHashMap<String, String>();
     private Outcome outcome = Outcome.SUCCESS;
     private int userId = 0;
+    private String patientId;
     private String ipAddress;
     private String serverId;
+    private String channelId;
+    private String channelName;
+    private String messageId;
 
-    public ServerEvent() {
+
+	public ServerEvent() {
         eventTime = Calendar.getInstance();
         eventTime.setTimeInMillis(getDateTime());
     }
@@ -131,6 +137,66 @@ public class ServerEvent extends Event implements Serializable {
     public void setUserId(int userId) {
         this.userId = userId;
     }
+    
+    private String cleanString(String value) {
+        if (value==null) return value;
+        return value.trim().replaceAll("[\n\r]$", "");
+    }
+    
+    public String getPatientId() {
+    	this.patientId = cleanString(this.attributes.get("patientId"));
+		return patientId;
+	}
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
+    
+    public String getMessageId() {
+        try {
+            this.messageId = cleanString(this.attributes.get("messageId"));;
+            return messageId;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+   
+    public String getChannelId() {
+        try {
+          String channel = cleanString(this.attributes.get("channel"));
+          String channelId = (channel!=null && channel.contains("id")?channel.substring(channel.indexOf("id=") + 3, channel.indexOf(",")):null);
+          this.channelId = channelId;
+          return channelId;
+        } catch (Exception e) {
+          return null;
+        }
+    }
+    
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    } 
+
+    public String getChannelName() {
+        try {
+          String channel = this.attributes.get("channel");
+          
+          String channelName = (channel!=null && channel.contains("name")?channel.substring(channel.indexOf("name=") + 5, channel.indexOf("]")):null);
+          this.channelName = channelName;
+          return channelName;
+        } catch (Exception e) {
+          return null;
+        }
+    }
+    
+    public String getChannelIdWithMessageId() {
+        String channelId = getChannelId();
+        String messageId = getMessageId();
+        return (channelId !=null ? channelId + (messageId != null ? " - " + messageId : "") : null);
+    }
 
     public String getIpAddress() {
         return ipAddress;
@@ -157,7 +223,7 @@ public class ServerEvent extends Event implements Serializable {
     }
 
     public static String getExportHeader() {
-        return "ID, Date and Time, Level, Outcome, Operation, Name, User ID, IP Address, Attributes";
+        return "ID, Date and Time, Level, Outcome, Name, User ID, IP Address, Attributes, ChannelID-MessageID, ChannelName, PatientID";
     }
 
     public String toExportString() {
@@ -168,7 +234,7 @@ public class ServerEvent extends Event implements Serializable {
         builder.append(outcome + ", ");
         builder.append(name + ", ");
         builder.append(userId + ", ");
-        builder.append(ipAddress + ", ");
+        builder.append(ipAddress + ", ");      
 
         /*
          * Print out the attributes and Base64 encode them in case there are newlines.
@@ -177,8 +243,44 @@ public class ServerEvent extends Event implements Serializable {
         PrintStream ps = new PrintStream(baos);
         MapUtils.verbosePrint(ps, "attributes", attributes);
         builder.append(Base64.encodeBase64URLSafeString(baos.toByteArray()));
-        builder.append(System.getProperty("line.separator"));
         IOUtils.closeQuietly(ps);
+        
+        builder.append("," + getChannelIdWithMessageId() + ",");
+        builder.append(getChannelName() + ",");
+        builder.append(getPatientId());
+        builder.append(System.getProperty("line.separator"));
+
+        return builder.toString();
+    }
+    
+    public String toExportStringWithNoId() {
+        StringBuilder builder = new StringBuilder();
+        
+        // Round the event time because SQLServer automatically rounds the milliseconds of its
+        // DATETIMEs. This allows us to consistently compare ServerEvents from the database
+        // to in-memory ones.
+        Date roundedEventTime = new Date(Math.round(eventTime.getTimeInMillis() / 1000.0));
+        builder.append(new SimpleDateFormat(Exportable.DATE_TIME_FORMAT).format(roundedEventTime) + ", ");
+        
+        builder.append(level + ", ");
+        builder.append(outcome + ", ");
+        builder.append(name + ", ");
+        builder.append(userId + ", ");
+        builder.append(ipAddress + ", ");      
+
+        /*
+         * Print out the attributes and Base64 encode them in case there are newlines.
+         */
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        MapUtils.verbosePrint(ps, "attributes", attributes);
+        builder.append(Base64.encodeBase64URLSafeString(baos.toByteArray()));
+        IOUtils.closeQuietly(ps);
+        
+        builder.append("," + getChannelIdWithMessageId() + ",");
+        builder.append(getChannelName() + ",");
+        builder.append(getPatientId());
+        builder.append(System.getProperty("line.separator"));
 
         return builder.toString();
     }

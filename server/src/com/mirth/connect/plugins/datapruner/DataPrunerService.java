@@ -21,7 +21,8 @@ import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.TA
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.core.api.util.OperationUtil;
@@ -37,7 +38,7 @@ public class DataPrunerService implements ServicePlugin {
 
     private DataPrunerController dataPrunerController = DataPrunerController.getInstance();
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public String getPluginPointName() {

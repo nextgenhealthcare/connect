@@ -42,7 +42,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -75,7 +76,7 @@ import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
 
 public class DefaultExtensionController extends ExtensionController {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 

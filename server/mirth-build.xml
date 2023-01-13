@@ -113,7 +113,7 @@
 		<copy todir="${server.setup}/conf">
 			<fileset dir="${cli}/conf">
 				<include name="mirth-cli-config.properties" />
-				<include name="log4j-cli.properties" />
+				<include name="log4j2-cli.properties" />
 			</fileset>
 		</copy>
 	</target>

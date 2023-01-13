@@ -24,20 +24,22 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.tools.generic.DateTool;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
+import com.mirth.connect.server.userutil.HashUtil;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 import com.mirth.connect.userutil.ImmutableMessage;
 import com.mirth.connect.userutil.JsonUtil;
 import com.mirth.connect.userutil.XmlUtil;
 
 public class ValueReplacer {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private AtomicLong count = new AtomicLong(1);
     
     static {
@@ -284,6 +286,7 @@ public class ValueReplacer {
         context.put("message", new ImmutableConnectorMessage(connectorMessage));
         context.put("channelName", connectorMessage.getChannelName());
         context.put("channelId", connectorMessage.getChannelId());
+        context.put("HASH", new HashTool(connectorMessage));
 
         // Load maps
         loadContextFromMap(context, connectorMessage.getSourceMap());
@@ -317,6 +320,8 @@ public class ValueReplacer {
         if (!context.containsKey("originalFilename")) {
             context.put("originalFilename", System.currentTimeMillis() + ".dat");
         }
+        context.put("HASH", new HashTool(mergedConnectorMessage));
+
     }
 
     public class MapTool {
@@ -341,5 +346,31 @@ public class ValueReplacer {
         public String toString() {
             return String.valueOf(getCount());
         }
+    }
+    
+    public class HashTool{
+        
+        private ConnectorMessage connectorMessage ;
+        public  HashTool(ConnectorMessage connectorMessage) {
+            this.connectorMessage = connectorMessage;           
+        }
+        
+        @Override
+        public String toString() {
+            if(connectorMessage != null) {
+                try {
+                    if(connectorMessage.getEncoded() != null) {
+                        return HashUtil.generate(connectorMessage.getEncoded().getContent());
+                    }else {
+                        return HashUtil.generate(connectorMessage.getRaw().getContent());
+                    }
+                   
+                }catch(Exception e ) {
+                    logger.debug("error while generating the hash for the message", e);
+                }
+            }
+            return null;
+        }
+        
     }
 }

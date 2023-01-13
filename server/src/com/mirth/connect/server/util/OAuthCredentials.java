@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthSchemeProvider;
@@ -34,7 +33,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -45,7 +45,7 @@ public class OAuthCredentials {
 	private static final int TIMEOUT = 10000;
 	private static final Charset CHARSET = Charset.forName("UTF-8");
 	
-	private static Logger logger = Logger.getLogger(OAuthCredentials.class);
+	private static Logger logger = LogManager.getLogger(OAuthCredentials.class);
 	
 	private String url;
 	private String clientId;

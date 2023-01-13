@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 @SuppressWarnings("serial")
 public class ConnectionLogItem implements Serializable {
 
-    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     private Long logId;
     private String serverId;
