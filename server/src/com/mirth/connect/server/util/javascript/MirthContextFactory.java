@@ -24,6 +24,7 @@ import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.util.ChildFirstURLClassLoader;
 
 public class MirthContextFactory extends ContextFactory {
 
@@ -37,10 +38,11 @@ public class MirthContextFactory extends ContextFactory {
     private String scriptText;
     private ContextType contextType;
     private Boolean debugType = false;
-    
+
     public Boolean isDebug() {
         return debugType;
     }
+
     public void setDebugType(Boolean debug) {
         this.debugType = debug;
     }
@@ -61,14 +63,18 @@ public class MirthContextFactory extends ContextFactory {
         this.contextType = contextType;
     }
 
-    public MirthContextFactory(URL[] urls, Set<String> resourceIds) {
+    public MirthContextFactory(URL[] urls, Set<String> resourceIds, boolean loadParentFirst) {
         this.id = UUID.randomUUID().toString();
         this.urls = urls;
         this.resourceIds = resourceIds;
 
         ClassLoader classLoader = null;
         if (ArrayUtils.isNotEmpty(urls)) {
-            classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+            if (loadParentFirst) {
+                classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+            } else {
+                classLoader = new ChildFirstURLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+            }
         } else {
             classLoader = Thread.currentThread().getContextClassLoader();
         }

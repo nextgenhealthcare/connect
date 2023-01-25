@@ -69,6 +69,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
     private static final int NAME_COLUMN = 1;
     private static final int TYPE_COLUMN = 2;
     private static final int GLOBAL_SCRIPTS_COLUMN = 3;
+    private static final int LOAD_PARENT_FIRST_COLUMN = 4;
 
     private MirthTable resourceTable;
     private Map<String, ResourcePropertiesPanel> propertiesPanelMap = new LinkedHashMap<String, ResourcePropertiesPanel>();
@@ -165,12 +166,13 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
                 }
             }
 
-            Object[][] data = new Object[resources.size()][4];
+            Object[][] data = new Object[resources.size()][5];
 
             data[0][PROPERTIES_COLUMN] = defaultResource;
             data[0][NAME_COLUMN] = defaultResource.getName();
             data[0][TYPE_COLUMN] = defaultResource.getType();
             data[0][GLOBAL_SCRIPTS_COLUMN] = defaultResource.isIncludeWithGlobalScripts();
+            data[0][LOAD_PARENT_FIRST_COLUMN] = defaultResource.isLoadParentFirst();
 
             int i = 1;
             for (ResourceProperties properties : resources) {
@@ -179,6 +181,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
                     data[i][NAME_COLUMN] = properties.getName();
                     data[i][TYPE_COLUMN] = properties.getType();
                     data[i][GLOBAL_SCRIPTS_COLUMN] = properties.isIncludeWithGlobalScripts();
+                    data[i][LOAD_PARENT_FIRST_COLUMN] = properties.isLoadParentFirst();
                     i++;
                 }
             }
@@ -280,7 +283,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
 
             this.selectedRow = -1;
             ((RefreshTableModel) resourceTable.getModel()).addRow(new Object[] { properties,
-                    properties.getName(), properties.getType(), false });
+                    properties.getName(), properties.getType(), false, false });
             resourceTable.getSelectionModel().setSelectionInterval(resourceTable.getRowCount() - 1, resourceTable.getRowCount() - 1);
             getFrame().setSaveEnabled(true);
         }
@@ -351,6 +354,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
                             ResourceProperties properties = (ResourceProperties) resourceTable.getModel().getValueAt(selectedRow, PROPERTIES_COLUMN);
                             properties.setName((String) resourceTable.getModel().getValueAt(selectedRow, NAME_COLUMN));
                             properties.setIncludeWithGlobalScripts((Boolean) resourceTable.getModel().getValueAt(selectedRow, GLOBAL_SCRIPTS_COLUMN));
+                            properties.setLoadParentFirst((Boolean) resourceTable.getModel().getValueAt(selectedRow, LOAD_PARENT_FIRST_COLUMN));
                             currentPropertiesPanel.fillProperties(properties);
                             currentPropertiesPanel.setProperties(properties);
                         }
@@ -388,6 +392,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
         ResourceProperties properties = (ResourceProperties) resourceTable.getModel().getValueAt(row, PROPERTIES_COLUMN);
         properties.setName((String) resourceTable.getModel().getValueAt(row, NAME_COLUMN));
         properties.setIncludeWithGlobalScripts((Boolean) resourceTable.getModel().getValueAt(row, GLOBAL_SCRIPTS_COLUMN));
+        properties.setLoadParentFirst((Boolean) resourceTable.getModel().getValueAt(row, LOAD_PARENT_FIRST_COLUMN));
         if (currentPropertiesPanel != null) {
             currentPropertiesPanel.fillProperties(properties);
         }
@@ -403,13 +408,13 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
 
         resourceTable = new MirthTable();
         resourceTable.setModel(new RefreshTableModel(new Object[] { "Properties", "Name", "Type",
-                "Global Scripts" }, 0) {
+                "Global Scripts", "Load Parent-First" }, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 if (row == 0) {
-                    return column == GLOBAL_SCRIPTS_COLUMN;
+                    return column == GLOBAL_SCRIPTS_COLUMN || column == LOAD_PARENT_FIRST_COLUMN;
                 } else {
-                    return column == NAME_COLUMN || column == TYPE_COLUMN || column == GLOBAL_SCRIPTS_COLUMN;
+                    return column == NAME_COLUMN || column == TYPE_COLUMN || column == GLOBAL_SCRIPTS_COLUMN || column == LOAD_PARENT_FIRST_COLUMN;
                 }
             }
         });
@@ -450,6 +455,12 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
         resourceTable.getColumnModel().getColumn(GLOBAL_SCRIPTS_COLUMN).setCellRenderer(new CheckBoxRenderer());
         resourceTable.getColumnModel().getColumn(GLOBAL_SCRIPTS_COLUMN).setCellEditor(new CheckBoxEditor());
         resourceTable.getColumnExt(GLOBAL_SCRIPTS_COLUMN).setToolTipText("<html>If checked, libraries associated with the corresponding<br/>resource will be included in global script contexts.</html>");
+
+        resourceTable.getColumnModel().getColumn(LOAD_PARENT_FIRST_COLUMN).setMinWidth(100);
+        resourceTable.getColumnModel().getColumn(LOAD_PARENT_FIRST_COLUMN).setMaxWidth(100);
+        resourceTable.getColumnModel().getColumn(LOAD_PARENT_FIRST_COLUMN).setCellRenderer(new CheckBoxRenderer());
+        resourceTable.getColumnModel().getColumn(LOAD_PARENT_FIRST_COLUMN).setCellEditor(new CheckBoxEditor());
+        resourceTable.getColumnExt(LOAD_PARENT_FIRST_COLUMN).setToolTipText("<html>If checked, classes already included in the overall server<br/>classpath will not be able to be overwritten. Classes will<br/>attempt to be loaded from the parent ClassLoader first.<br/><br/>Also, if this resource is included on a channel with other<br/>resources that have this option disabled, you will still<br/>not be able to overwrite classes in the parent classpath.</html>");
 
         resourceTable.removeColumn(resourceTable.getColumnModel().getColumn(PROPERTIES_COLUMN));
 
