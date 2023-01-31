@@ -82,7 +82,7 @@ public class ChannelTableNode extends AbstractChannelTableNode {
 
         for (ChannelColumnPlugin plugin : LoadedExtensions.getInstance().getChannelColumnPlugins().values()) {
             if (!plugin.isDisplayFirst()) {
-                row[i++] = plugin.getTableData(channelStatus.getChannel());
+            	row[i++] = plugin.getTableData(groupStatus.getGroup());
             }
         }
     }
