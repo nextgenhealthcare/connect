@@ -61,5 +61,7 @@ public interface ServicePlugin extends ServerPlugin {
      * 
      * @return
      */
-    public Map<String, Object> getObjectsForSwaggerExamples();
+    public default Map<String, Object> getObjectsForSwaggerExamples() {
+        return null;
+    }
 }
