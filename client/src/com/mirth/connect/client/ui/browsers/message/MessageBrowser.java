@@ -336,7 +336,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         for (MetaDataColumn column : metaDataColumns) {
             // if channel has patient_id metadata, turn on CURES PHI logging
             isCURESPHILoggingOn = column.getName().toLowerCase().equals("patient_id") ? true : false;
-            
+
             metaDataColumnNames.add(column.getName());
         }
 
@@ -426,20 +426,20 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     public String getPatientId(Long messageId, Integer metaDataId, List<Integer> selectedMetaDataIds) {
-    	String patientId = null;
+        String patientId = null;
         Message message = messageCache.get(messageId);
-		try {
-	        if (message == null) {
-					message = parent.mirthClient.getMessageContent(channelId, messageId, selectedMetaDataIds);
-	        	}
-			ConnectorMessage connectorMessage = message.getConnectorMessages().get(metaDataId);
-	    	if (connectorMessage.getMetaDataMap().get("PATIENT_ID") != null) {
-	    		patientId = (String) connectorMessage.getMetaDataMap().get("PATIENT_ID").toString();
-	    	}
-		} catch (ClientException e) {
+        try {
+            if (message == null) {
+                message = parent.mirthClient.getMessageContent(channelId, messageId, selectedMetaDataIds);
+            }
+            ConnectorMessage connectorMessage = message.getConnectorMessages().get(metaDataId);
+            if (connectorMessage.getMetaDataMap().get("PATIENT_ID") != null) {
+                patientId = (String) connectorMessage.getMetaDataMap().get("PATIENT_ID").toString();
+            }
+        } catch (ClientException e) {
             logger.error("Invalid patient ID.", e);
-		}
-		return patientId;
+        }
+        return patientId;
     }
 
     public int getPageSize() {
@@ -610,7 +610,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             loadPageNumber(1);
 
             updateSearchCriteriaPane();
-            
+
             // if CURES PHI logging is on and channel messages have been loaded, audit the event
             if (isCURESPHILoggingOn && !isChannelMessagesPanelFirstLoadSearch) {
                 try {
@@ -1777,7 +1777,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                         if (attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1) {
                             parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 10, false);
                         }
-                        
+
                         // if CURES PHI logging is on and a channel message has been accessed, audit the event
                         if (isCURESPHILoggingOn) {
                             try {
@@ -1822,29 +1822,33 @@ public class MessageBrowser extends javax.swing.JPanel {
         dataType = (rawMessage == null) ? null : rawMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(RawMessageRadioButton);
-            setCorrectDocument(RawMessageTextPane, content, dataType);
+
         }
+        setCorrectDocument(RawMessageTextPane, content, dataType);
 
         content = (processedRawMessage == null) ? null : processedRawMessage.getContent();
         dataType = (processedRawMessage == null) ? null : processedRawMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(ProcessedRawMessageRadioButton);
-            setCorrectDocument(ProcessedRawMessageTextPane, content, dataType);
+
         }
+        setCorrectDocument(ProcessedRawMessageTextPane, content, dataType);
 
         content = (transformedMessage == null) ? null : transformedMessage.getContent();
         dataType = (transformedMessage == null) ? null : transformedMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(TransformedMessageRadioButton);
-            setCorrectDocument(TransformedMessageTextPane, content, dataType);
+
         }
+        setCorrectDocument(TransformedMessageTextPane, content, dataType);
 
         content = (encodedMessage == null) ? null : encodedMessage.getContent();
         dataType = (encodedMessage == null) ? null : encodedMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(EncodedMessageRadioButton);
-            setCorrectDocument(EncodedMessageTextPane, content, dataType);
+
         }
+        setCorrectDocument(EncodedMessageTextPane, content, dataType);
 
         content = null;
         if (sentMessage != null) {
@@ -1859,8 +1863,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         dataType = (sentMessage == null) ? null : sentMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(SentMessageRadioButton);
-            setCorrectDocument(SentMessageTextPane, content, dataType);
+
         }
+        setCorrectDocument(SentMessageTextPane, content, dataType);
 
         content = null;
         if (responseMessage != null) {
@@ -1878,15 +1883,17 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         if (content != null) {
             MessagesRadioPane.add(ResponseRadioButton);
-            setCorrectDocument(ResponseTextArea, content, dataType);
+
         }
+        setCorrectDocument(ResponseTextArea, content, dataType);
 
         content = (responseTransformedMessage == null) ? null : responseTransformedMessage.getContent();
         dataType = (responseTransformedMessage == null) ? null : responseTransformedMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(ResponseTransformedRadioButton);
-            setCorrectDocument(ResponseTransformedTextPane, content, dataType);
+
         }
+        setCorrectDocument(ResponseTransformedTextPane, content, dataType);
 
         content = null;
         if (processedResponseMessage != null) {
@@ -1910,8 +1917,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         dataType = (processedResponseMessage == null) ? null : processedResponseMessage.getDataType();
         if (content != null) {
             MessagesRadioPane.add(ProcessedResponseRadioButton);
-            setCorrectDocument(ProcessedResponseTextArea, content, dataType);
+
         }
+        setCorrectDocument(ProcessedResponseTextArea, content, dataType);
     }
 
     /**
