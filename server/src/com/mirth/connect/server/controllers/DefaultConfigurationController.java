@@ -1416,6 +1416,8 @@ public class DefaultConfigurationController extends ConfigurationController {
         encryptor.setKey(secretKey);
         encryptor.setAlgorithm(encryptionConfig.getEncryptionAlgorithm());
         encryptor.setCharset(encryptionConfig.getEncryptionCharset());
+        encryptor.setFallbackAlgorithm(encryptionConfig.getEncryptionFallbackAlgorithm());
+        encryptor.setFallbackCharset(encryptionConfig.getEncryptionFallbackCharset());
         encryptor.setFormat(Output.BASE64);
 
         digester = new Digester();

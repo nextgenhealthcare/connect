@@ -16,8 +16,6 @@ import javax.crypto.spec.IvParameterSpec;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 
@@ -35,6 +33,7 @@ public class KeyEncryptorTest {
         encryptionSettings.setEncryptionAlgorithm("AES/CBC/PKCS5Padding");
         encryptionSettings.setEncryptionKeyLength(128);
         encryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
         testEncryptAndDecrypt(encryptionSettings);
     }
 
@@ -44,6 +43,7 @@ public class KeyEncryptorTest {
         encryptionSettings.setEncryptionAlgorithm("AES/CBC/PKCS5Padding");
         encryptionSettings.setEncryptionKeyLength(256);
         encryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
         testEncryptAndDecrypt(encryptionSettings);
     }
 
@@ -53,6 +53,7 @@ public class KeyEncryptorTest {
         encryptionSettings.setEncryptionAlgorithm("AES/CBC/PKCS5Padding");
         encryptionSettings.setEncryptionKeyLength(128);
         encryptionSettings.setSecurityProvider(SunJCE.class.getName());
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
         testEncryptAndDecrypt(encryptionSettings);
     }
 
@@ -62,6 +63,7 @@ public class KeyEncryptorTest {
         encryptionSettings.setEncryptionAlgorithm("AES/CBC/PKCS5Padding");
         encryptionSettings.setEncryptionKeyLength(256);
         encryptionSettings.setSecurityProvider(SunJCE.class.getName());
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
         testEncryptAndDecrypt(encryptionSettings);
     }
 
@@ -71,6 +73,7 @@ public class KeyEncryptorTest {
         encryptionSettings.setEncryptionAlgorithm("AES/GCM/NoPadding");
         encryptionSettings.setEncryptionKeyLength(128);
         encryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
         testEncryptAndDecrypt(encryptionSettings);
     }
 
@@ -80,7 +83,80 @@ public class KeyEncryptorTest {
         encryptionSettings.setEncryptionAlgorithm("AES/GCM/NoPadding");
         encryptionSettings.setEncryptionKeyLength(256);
         encryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
         testEncryptAndDecrypt(encryptionSettings);
+    }
+
+    @Test
+    public void testAESCBC128BC_AES128BC() throws Exception {
+        EncryptionSettings oldEncryptionSettings = new EncryptionSettings();
+        oldEncryptionSettings.setEncryptionAlgorithm("AES/CBC/PKCS5Padding");
+        oldEncryptionSettings.setEncryptionKeyLength(128);
+        oldEncryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
+        oldEncryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
+
+        EncryptionSettings encryptionSettings = new EncryptionSettings();
+        encryptionSettings.setEncryptionAlgorithm("AES");
+        encryptionSettings.setEncryptionKeyLength(128);
+        encryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
+
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings);
+        testEncryptAndDecrypt(encryptionSettings, oldEncryptionSettings, true);
+    }
+
+    @Test
+    public void testAESGCM128BC_AES128BC() throws Exception {
+        EncryptionSettings oldEncryptionSettings = new EncryptionSettings();
+        oldEncryptionSettings.setEncryptionAlgorithm("AES/GCM/NoPadding");
+        oldEncryptionSettings.setEncryptionKeyLength(128);
+        oldEncryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
+        oldEncryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
+
+        EncryptionSettings encryptionSettings = new EncryptionSettings();
+        encryptionSettings.setEncryptionAlgorithm("AES");
+        encryptionSettings.setEncryptionKeyLength(128);
+        encryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
+
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings);
+        testEncryptAndDecrypt(encryptionSettings, oldEncryptionSettings, true);
+    }
+
+    @Test
+    public void testAESCBC128BC_AESGCM128BC() throws Exception {
+        EncryptionSettings oldEncryptionSettings = new EncryptionSettings();
+        oldEncryptionSettings.setEncryptionAlgorithm("AES/CBC/PKCS5Padding");
+        oldEncryptionSettings.setEncryptionKeyLength(128);
+        oldEncryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
+        oldEncryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
+
+        EncryptionSettings encryptionSettings = new EncryptionSettings();
+        encryptionSettings.setEncryptionAlgorithm("AES/GCM/NoPadding");
+        encryptionSettings.setEncryptionKeyLength(128);
+        encryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
+
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings);
+        testEncryptAndDecrypt(encryptionSettings, oldEncryptionSettings);
+    }
+
+    @Test
+    public void testAESCBC128SunJCE_AESGCM128BC() throws Exception {
+        EncryptionSettings oldEncryptionSettings = new EncryptionSettings();
+        oldEncryptionSettings.setEncryptionAlgorithm("AES/CBC/PKCS5Padding");
+        oldEncryptionSettings.setEncryptionKeyLength(128);
+        oldEncryptionSettings.setSecurityProvider(SunJCE.class.getName());
+        oldEncryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
+
+        EncryptionSettings encryptionSettings = new EncryptionSettings();
+        encryptionSettings.setEncryptionAlgorithm("AES/GCM/NoPadding");
+        encryptionSettings.setEncryptionKeyLength(128);
+        encryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
+
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings);
+        testEncryptAndDecrypt(encryptionSettings, oldEncryptionSettings);
     }
 
     /*
@@ -94,7 +170,8 @@ public class KeyEncryptorTest {
         encryptionSettings.setEncryptionAlgorithm("AES");
         encryptionSettings.setEncryptionKeyLength(128);
         encryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
-        testEncryptAndDecrypt(encryptionSettings, true);
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
+        testEncryptAndDecrypt(encryptionSettings, encryptionSettings, true);
     }
 
     @Test
@@ -103,7 +180,8 @@ public class KeyEncryptorTest {
         encryptionSettings.setEncryptionAlgorithm("AES");
         encryptionSettings.setEncryptionKeyLength(256);
         encryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
-        testEncryptAndDecrypt(encryptionSettings, true);
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
+        testEncryptAndDecrypt(encryptionSettings, encryptionSettings, true);
     }
 
     @Test
@@ -112,7 +190,8 @@ public class KeyEncryptorTest {
         encryptionSettings.setEncryptionAlgorithm("DES");
         encryptionSettings.setEncryptionKeyLength(64);
         encryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
-        testEncryptAndDecrypt(encryptionSettings, true);
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
+        testEncryptAndDecrypt(encryptionSettings, encryptionSettings, true);
     }
 
     @Test
@@ -121,6 +200,7 @@ public class KeyEncryptorTest {
         encryptionSettings.setEncryptionAlgorithm("DES/CBC/PKCS5Padding");
         encryptionSettings.setEncryptionKeyLength(64);
         encryptionSettings.setSecurityProvider(BouncyCastleProvider.class.getName());
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
         testEncryptAndDecrypt(encryptionSettings);
     }
 
@@ -130,6 +210,7 @@ public class KeyEncryptorTest {
         encryptionSettings.setEncryptionAlgorithm("DES/CBC/PKCS5Padding");
         encryptionSettings.setEncryptionKeyLength(56);
         encryptionSettings.setSecurityProvider(SunJCE.class.getName());
+        encryptionSettings.setEncryptionCharset(StandardCharsets.UTF_8.name());
         testEncryptAndDecrypt(encryptionSettings);
     }
 
@@ -153,11 +234,13 @@ public class KeyEncryptorTest {
         // Should not be clobbered with UTF-8
         String message1 = "I am the Α and the Ω";
         String encrypted1 = encryptor.encrypt(message1);
+        assertEquals(encryptor.getCharset(), splitEncrypted(encrypted1, provider).charset);
         String decrypted1 = encryptor.decrypt(encrypted1);
         assertEquals(message1, decrypted1);
 
         String message2 = new String(getRandomBytes((16 * 4096) - 1), StandardCharsets.UTF_8);
         String encrypted2 = encryptor.encrypt(message2);
+        assertEquals(encryptor.getCharset(), splitEncrypted(encrypted2, provider).charset);
         String decrypted2 = encryptor.decrypt(encrypted2);
         assertEquals(message2, decrypted2);
 
@@ -172,26 +255,71 @@ public class KeyEncryptorTest {
         // Regular message
         message1 = "testing123456789testing123456789";
         encrypted1 = encryptor.encrypt(message1);
+        assertEquals(encryptor.getCharset(), splitEncrypted(encrypted1, provider).charset);
         decrypted1 = encryptor.decrypt(encrypted1);
         assertEquals(message1, decrypted1);
 
         // Will be clobbered with windows-1252
         message2 = "I am the Α and the Ω";
         encrypted2 = encryptor.encrypt(message2);
+        assertEquals(encryptor.getCharset(), splitEncrypted(encrypted2, provider).charset);
         decrypted2 = encryptor.decrypt(encrypted2);
         assertEquals("I am the ? and the ?", decrypted2);
     }
 
-    private void testEncryptAndDecrypt(EncryptionSettings encryptionSettings) throws Exception {
-        testEncryptAndDecrypt(encryptionSettings, false);
+    @Test
+    public void testDifferentCharsets() throws Exception {
+        Provider provider = new BouncyCastleProvider();
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", provider);
+        keyGenerator.init(128);
+        Key key = keyGenerator.generateKey();
+
+        KeyEncryptor encryptor = new KeyEncryptor();
+        encryptor.setProvider(provider);
+        encryptor.setKey(key);
+        encryptor.setAlgorithm("AES/CBC/PKCS5Padding");
+        encryptor.setFormat(Output.BASE64);
+        encryptor.setCharset(StandardCharsets.UTF_8.name());
+
+        String message1 = "ÂÃÄÅÆÇÈÉÊËÌ";
+        String encrypted = encryptor.encrypt(message1);
+        assertEquals(encryptor.getCharset(), splitEncrypted(encrypted, provider).charset);
+        String decrypted1 = encryptor.decrypt(encrypted);
+        assertEquals(message1, decrypted1);
+
+        KeyEncryptor decryptor = new KeyEncryptor();
+        decryptor.setProvider(provider);
+        decryptor.setKey(key);
+        decryptor.setAlgorithm("AES/CBC/PKCS5Padding");
+        decryptor.setFormat(Output.BASE64);
+        decryptor.setCharset(Charset.forName("windows-1256").name());
+
+        String decrypted2 = decryptor.decrypt(encrypted);
+        assertEquals(message1, decrypted2);
+
+        /*
+         * UTF-8 encoded ÂÃÄÅÆÇÈÉÊËÌ, Then decoded with windows-1252, Equals Ã‚ÃƒÃ„Ã…Ã†Ã‡ÃˆÃ‰ÃŠÃ‹ÃŒ
+         */
+        assertTrue(StringUtils.contains(encrypted, "{cs=UTF-8}"));
+        encrypted = StringUtils.replace(encrypted, "{cs=UTF-8}", "{cs=windows-1252}");
+        String decrypted3 = decryptor.decrypt(encrypted);
+        assertEquals("Ã‚ÃƒÃ„Ã…Ã†Ã‡ÃˆÃ‰ÃŠÃ‹ÃŒ", decrypted3);
     }
 
-    private void testEncryptAndDecrypt(EncryptionSettings encryptionSettings, boolean ignoreSameOutput) throws Exception {
-        testEncryptAndDecrypt(encryptionSettings, ignoreSameOutput, "testing123");
-        testEncryptAndDecrypt(encryptionSettings, ignoreSameOutput, "testing123456789");
-        testEncryptAndDecrypt(encryptionSettings, ignoreSameOutput, "testing123456789testing123456789");
-        testEncryptAndDecrypt(encryptionSettings, ignoreSameOutput, getRandomString(16 * 4096));
-        testEncryptAndDecrypt(encryptionSettings, ignoreSameOutput, new String(getRandomBytes((16 * 4096) - 1), StandardCharsets.UTF_8));
+    private void testEncryptAndDecrypt(EncryptionSettings encryptionSettings) throws Exception {
+        testEncryptAndDecrypt(encryptionSettings, encryptionSettings);
+    }
+
+    private void testEncryptAndDecrypt(EncryptionSettings oldEncryptionSettings, EncryptionSettings encryptionSettings) throws Exception {
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, false);
+    }
+
+    private void testEncryptAndDecrypt(EncryptionSettings oldEncryptionSettings, EncryptionSettings encryptionSettings, boolean ignoreSameOutput) throws Exception {
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, "testing123");
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, "testing123456789");
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, "testing123456789testing123456789");
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, getRandomString(16 * 4096));
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, new String(getRandomBytes((16 * 4096) - 1), StandardCharsets.UTF_8));
     }
 
     /*
@@ -207,38 +335,56 @@ public class KeyEncryptorTest {
      * 9. Test with EncryptionUtil.decryptAndReencrypt
      * @formatter:on
      */
-    private void testEncryptAndDecrypt(EncryptionSettings encryptionSettings, boolean ignoreSameOutput, String message) throws Exception {
-        Provider provider = (Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance();
-        KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionSettings.getEncryptionBaseAlgorithm(), provider);
-        keyGenerator.init(encryptionSettings.getEncryptionKeyLength());
+    private void testEncryptAndDecrypt(EncryptionSettings oldEncryptionSettings, EncryptionSettings encryptionSettings, boolean ignoreSameOutput, String message) throws Exception {
+        Provider oldProvider = (Provider) Class.forName(oldEncryptionSettings.getSecurityProvider()).newInstance();
+        KeyGenerator keyGenerator = KeyGenerator.getInstance(oldEncryptionSettings.getEncryptionBaseAlgorithm(), oldProvider);
+        keyGenerator.init(oldEncryptionSettings.getEncryptionKeyLength());
         Key key = keyGenerator.generateKey();
 
-        KeyEncryptor encryptor = new KeyEncryptor();
-        encryptor.setProvider(provider);
-        encryptor.setKey(key);
-        encryptor.setAlgorithm(encryptionSettings.getEncryptionAlgorithm());
-        encryptor.setFormat(Output.BASE64);
+        KeyEncryptor oldEncryptor = new KeyEncryptor();
+        oldEncryptor.setProvider(oldProvider);
+        oldEncryptor.setKey(key);
+        oldEncryptor.setAlgorithm(oldEncryptionSettings.getEncryptionAlgorithm());
+        oldEncryptor.setCharset(oldEncryptionSettings.getEncryptionCharset());
+        oldEncryptor.setFormat(Output.BASE64);
 
-        String encrypted1 = encryptor.encrypt(message);
-        String encrypted2 = encryptor.encrypt(message);
+        String encrypted1 = oldEncryptor.encrypt(message);
+        String encrypted2 = oldEncryptor.encrypt(message);
 
         // Should not be equal to the input message
         assertFalse(message.equals(encrypted1));
         assertFalse(message.equals(encrypted2));
 
-        assertTrue(StringUtils.startsWith(encrypted1, KeyEncryptor.IV_HEADER));
-        assertTrue(StringUtils.startsWith(encrypted2, KeyEncryptor.IV_HEADER));
+        assertTrue(StringUtils.startsWith(encrypted1, KeyEncryptor.ALGORITHM_HEADER));
+        assertTrue(StringUtils.startsWith(encrypted2, KeyEncryptor.ALGORITHM_HEADER));
 
-        Pair<String, String> encryptedPair1 = splitEncrypted(encrypted1, key.getAlgorithm(), provider);
-        Pair<String, String> encryptedPair2 = splitEncrypted(encrypted2, key.getAlgorithm(), provider);
+        EncryptionParts encryptedParts1 = splitEncrypted(encrypted1, oldProvider);
+        EncryptionParts encryptedParts2 = splitEncrypted(encrypted2, oldProvider);
+
+        // The algorithms should be correct
+        assertEquals(oldEncryptionSettings.getEncryptionAlgorithm(), encryptedParts1.algorithm);
+        assertEquals(oldEncryptionSettings.getEncryptionAlgorithm(), encryptedParts2.algorithm);
+
+        // The charsets should be correct
+        assertEquals(oldEncryptionSettings.getEncryptionCharset(), encryptedParts1.charset);
+        assertEquals(oldEncryptionSettings.getEncryptionCharset(), encryptedParts2.charset);
 
         // The IVs should not be equal
-        assertFalse(encryptedPair1.getLeft().equals(encryptedPair2.getLeft()));
+        assertFalse(encryptedParts1.iv.equals(encryptedParts2.iv));
 
         if (!ignoreSameOutput) {
             // The encrypted data also should not be equal when not using default AES
-            assertFalse(encryptedPair1.getRight().equals(encryptedPair2.getRight()));
+            assertFalse(encryptedParts1.encrypted.equals(encryptedParts2.encrypted));
         }
+
+        Provider provider = (Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance();
+
+        KeyEncryptor encryptor = new KeyEncryptor();
+        encryptor.setProvider(provider);
+        encryptor.setKey(key);
+        encryptor.setAlgorithm(encryptionSettings.getEncryptionAlgorithm());
+        encryptor.setCharset(encryptionSettings.getEncryptionCharset());
+        encryptor.setFormat(Output.BASE64);
 
         String decrypted1 = encryptor.decrypt(encrypted1);
         String decrypted2 = encryptor.decrypt(encrypted2);
@@ -249,7 +395,7 @@ public class KeyEncryptorTest {
 
         testOldEncryption(encryptionSettings, message);
 
-        testDecryptAndReencrypt(encryptionSettings, message);
+        testDecryptAndReencrypt(oldEncryptionSettings, encryptionSettings, message);
     }
 
     /*
@@ -257,12 +403,23 @@ public class KeyEncryptorTest {
      * without issues.
      */
     private void testOldEncryption(EncryptionSettings encryptionSettings, String message) throws Exception {
+        testOldEncryption(encryptionSettings, message, encryptionSettings.getEncryptionAlgorithm());
+        testOldEncryption(encryptionSettings, message, encryptionSettings.getEncryptionBaseAlgorithm());
+    }
+
+    private void testOldEncryption(EncryptionSettings encryptionSettings, String message, String oldAlgorithm) throws Exception {
         Provider provider = (Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance();
         KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionSettings.getEncryptionBaseAlgorithm(), provider);
         keyGenerator.init(encryptionSettings.getEncryptionKeyLength());
         Key key = keyGenerator.generateKey();
 
-        Cipher cipher = Cipher.getInstance(encryptionSettings.getEncryptionAlgorithm(), provider);
+        if (provider.getName().equals("SunJCE") && oldAlgorithm.equals(encryptionSettings.getEncryptionBaseAlgorithm())) {
+            // SunJCE does not allow an IV to be set when it defaults to ECB mode,
+            // so just use a full algorithm instead
+            oldAlgorithm += "/CBC/PKCS5Padding";
+        }
+
+        Cipher cipher = Cipher.getInstance(oldAlgorithm, provider);
         IvParameterSpec parameterSpec = new IvParameterSpec(new byte[cipher.getBlockSize()]);
         cipher.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
         byte[] encrypted = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
@@ -272,9 +429,10 @@ public class KeyEncryptorTest {
         encryptor.setProvider(provider);
         encryptor.setKey(key);
         encryptor.setAlgorithm(encryptionSettings.getEncryptionAlgorithm());
+        encryptor.setFallbackAlgorithm(oldAlgorithm);
         encryptor.setFormat(Output.BASE64);
 
-        assertFalse(StringUtils.startsWith(encrypted1, KeyEncryptor.IV_HEADER));
+        assertFalse(StringUtils.startsWith(encrypted1, "{"));
 
         String decrypted1 = encryptor.decrypt(encrypted1);
 
@@ -285,31 +443,30 @@ public class KeyEncryptorTest {
     /*
      * Test EncryptionUtil.decryptAndReencrypt
      */
-    private void testDecryptAndReencrypt(EncryptionSettings encryptionSettings, String message) throws Exception {
-        Provider provider = (Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance();
-        KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionSettings.getEncryptionBaseAlgorithm(), provider);
-        keyGenerator.init(encryptionSettings.getEncryptionKeyLength());
+    private void testDecryptAndReencrypt(EncryptionSettings oldEncryptionSettings, EncryptionSettings encryptionSettings, String message) throws Exception {
+        Provider oldProvider = (Provider) Class.forName(oldEncryptionSettings.getSecurityProvider()).newInstance();
+        KeyGenerator keyGenerator = KeyGenerator.getInstance(oldEncryptionSettings.getEncryptionBaseAlgorithm(), oldProvider);
+        keyGenerator.init(oldEncryptionSettings.getEncryptionKeyLength());
         Key key = keyGenerator.generateKey();
+
+        String oldAlgorithm = oldEncryptionSettings.getEncryptionAlgorithm();
+
+        KeyEncryptor oldEncryptor = new KeyEncryptor();
+        oldEncryptor.setProvider(oldProvider);
+        oldEncryptor.setKey(key);
+        oldEncryptor.setAlgorithm(oldAlgorithm);
+        oldEncryptor.setCharset(oldEncryptionSettings.getEncryptionCharset());
+        oldEncryptor.setFormat(Output.BASE64);
+        String oldEncrypted = oldEncryptor.encrypt(message);
+
+        Provider provider = (Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance();
 
         KeyEncryptor encryptor = new KeyEncryptor();
         encryptor.setProvider(provider);
         encryptor.setKey(key);
         encryptor.setAlgorithm(encryptionSettings.getEncryptionAlgorithm());
+        encryptor.setCharset(encryptionSettings.getEncryptionCharset());
         encryptor.setFormat(Output.BASE64);
-
-        String oldAlgorithm = encryptionSettings.getEncryptionBaseAlgorithm();
-        if (provider.getName().equals("SunJCE")) {
-            // SunJCE does not allow an IV to be set when it defaults to ECB mode,
-            // so just use a full algorithm instead
-            oldAlgorithm += "/CBC/PKCS5Padding";
-        }
-
-        KeyEncryptor oldEncryptor = new KeyEncryptor();
-        oldEncryptor.setProvider(provider);
-        oldEncryptor.setKey(key);
-        oldEncryptor.setAlgorithm(oldAlgorithm);
-        oldEncryptor.setFormat(Output.BASE64);
-        String oldEncrypted = oldEncryptor.encrypt(message);
 
         String newEncrypted = EncryptionUtil.decryptAndReencrypt(oldEncrypted, encryptor, oldAlgorithm);
 
@@ -319,7 +476,17 @@ public class KeyEncryptorTest {
         assertEquals(message, decrypted);
     }
 
-    private Pair<String, String> splitEncrypted(String data, String algorithm, Provider provider) throws Exception {
+    private EncryptionParts splitEncrypted(String data, Provider provider) throws Exception {
+        data = StringUtils.removeStart(data, KeyEncryptor.ALGORITHM_HEADER);
+        int index = StringUtils.indexOf(data, '}');
+        String algorithm = StringUtils.substring(data, 0, index);
+        data = StringUtils.substring(data, index + 1);
+
+        data = StringUtils.removeStart(data, KeyEncryptor.CHARSET_HEADER);
+        index = StringUtils.indexOf(data, '}');
+        String charset = StringUtils.substring(data, 0, index);
+        data = StringUtils.substring(data, index + 1);
+
         Cipher cipher = Cipher.getInstance(algorithm, provider);
         cipher.getBlockSize();
 
@@ -334,7 +501,7 @@ public class KeyEncryptorTest {
         String ivBase64 = new String(Base64.encodeBase64Chunked(iv), StandardCharsets.UTF_8);
         String encryptedBase64 = new String(Base64.encodeBase64Chunked(encrypted), StandardCharsets.UTF_8);
 
-        return new ImmutablePair<String, String>(ivBase64, encryptedBase64);
+        return new EncryptionParts(algorithm, charset, ivBase64, encryptedBase64);
     }
 
     private byte[] getRandomBytes(int length) {
@@ -351,5 +518,19 @@ public class KeyEncryptorTest {
             builder.append((char) (' ' + random.nextInt('~' - ' ')));
         }
         return builder.toString();
+    }
+
+    private class EncryptionParts {
+        private String algorithm;
+        private String charset;
+        private String iv;
+        private String encrypted;
+
+        public EncryptionParts(String algorithm, String charset, String iv, String encrypted) {
+            this.algorithm = algorithm;
+            this.charset = charset;
+            this.iv = iv;
+            this.encrypted = encrypted;
+        }
     }
 }

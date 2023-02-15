@@ -35,6 +35,8 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
     private static final String ENCRYPTION_PROPERTIES = "encryption.properties";
     private static final String ENCRYPTION_ALGORITHM = "encryption.algorithm";
     private static final String ENCRYPTION_CHARSET = "encryption.charset";
+    private static final String ENCRYPTION_FALLBACK_ALGORITHM = "encryption.fallback.algorithm";
+    private static final String ENCRYPTION_FALLBACK_CHARSET = "encryption.fallback.charset";
     private static final String ENCRYPTION_KEY_LENGTH = "encryption.keylength";
     private static final String DIGEST_ALGORITHM = "digest.algorithm";
     private static final String SECURITY_PROVIDER = "security.provider";
@@ -43,6 +45,8 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
     private Boolean encryptProperties;
     private String encryptionAlgorithm;
     private String encryptionCharset;
+    private String encryptionFallbackAlgorithm;
+    private String encryptionFallbackCharset;
     private Integer encryptionKeyLength;
     private String digestAlgorithm;
     private String securityProvider;
@@ -98,6 +102,22 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
         this.encryptionCharset = encryptionCharset;
     }
 
+    public String getEncryptionFallbackAlgorithm() {
+        return encryptionFallbackAlgorithm;
+    }
+
+    public void setEncryptionFallbackAlgorithm(String encryptionFallbackAlgorithm) {
+        this.encryptionFallbackAlgorithm = encryptionFallbackAlgorithm;
+    }
+
+    public String getEncryptionFallbackCharset() {
+        return encryptionFallbackCharset;
+    }
+
+    public void setEncryptionFallbackCharset(String encryptionFallbackCharset) {
+        this.encryptionFallbackCharset = encryptionFallbackCharset;
+    }
+
     public Integer getEncryptionKeyLength() {
         return encryptionKeyLength;
     }
@@ -136,6 +156,8 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
         setEncryptProperties(intToBooleanObject(properties.getProperty(ENCRYPTION_PROPERTIES), false));
         setEncryptionAlgorithm(properties.getProperty(ENCRYPTION_ALGORITHM, DEFAULT_ENCRYPTION_ALGORITHM));
         setEncryptionCharset(properties.getProperty(ENCRYPTION_CHARSET, DEFAULT_ENCRYPTION_CHARSET));
+        setEncryptionFallbackAlgorithm(properties.getProperty(ENCRYPTION_FALLBACK_ALGORITHM, "AES"));
+        setEncryptionFallbackCharset(properties.getProperty(ENCRYPTION_FALLBACK_CHARSET, "UTF-8"));
         setEncryptionKeyLength(toIntegerObject(properties.getProperty(ENCRYPTION_KEY_LENGTH), DEFAULT_ENCRYPTION_KEY_LENGTH));
         setDigestAlgorithm(properties.getProperty(DIGEST_ALGORITHM, DEFAULT_DIGEST_ALGORITHM));
         setSecurityProvider(properties.getProperty(SECURITY_PROVIDER, DEFAULT_SECURTITY_PROVIDER));
@@ -159,6 +181,14 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
 
         if (getEncryptionCharset() != null) {
             properties.put(ENCRYPTION_CHARSET, getEncryptionCharset());
+        }
+
+        if (getEncryptionFallbackAlgorithm() != null) {
+            properties.put(ENCRYPTION_FALLBACK_ALGORITHM, getEncryptionFallbackAlgorithm());
+        }
+
+        if (getEncryptionFallbackCharset() != null) {
+            properties.put(ENCRYPTION_FALLBACK_CHARSET, getEncryptionFallbackCharset());
         }
 
         if (getEncryptionKeyLength() != null) {

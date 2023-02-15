@@ -2,8 +2,10 @@ package com.mirth.commons.encryption;
 
 import java.security.Key;
 import java.security.SecureRandom;
+import java.security.spec.AlgorithmParameterSpec;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 
 import org.apache.commons.codec.binary.Base64;
@@ -12,11 +14,17 @@ import org.apache.commons.lang3.StringUtils;
 
 public class KeyEncryptor extends Encryptor {
 
+    public static final String ALGORITHM_HEADER = "{alg=";
+    public static final String CHARSET_HEADER = "{cs=";
     public static final String IV_HEADER = "{iv}";
 
     private Key key;
     private String algorithm;
     private String charset = "UTF-8";
+
+    // Fallbacks to use when decrypting old messages that do not have indicators.
+    private String fallbackAlgorithm;
+    private String fallbackCharset = "UTF-8";
 
     public Key getKey() {
         return key;
@@ -27,6 +35,9 @@ public class KeyEncryptor extends Encryptor {
     }
 
     public String getAlgorithm() {
+        if (StringUtils.isBlank(algorithm) && key != null) {
+            return key.getAlgorithm();
+        }
         return algorithm;
     }
 
@@ -41,6 +52,24 @@ public class KeyEncryptor extends Encryptor {
     public void setCharset(String charset) {
         if (StringUtils.isNotBlank(charset)) {
             this.charset = charset;
+        }
+    }
+
+    public String getFallbackAlgorithm() {
+        return fallbackAlgorithm;
+    }
+
+    public void setFallbackAlgorithm(String fallbackAlgorithm) {
+        this.fallbackAlgorithm = fallbackAlgorithm;
+    }
+
+    public String getFallbackCharset() {
+        return fallbackCharset;
+    }
+
+    public void setFallbackCharset(String fallbackCharset) {
+        if (StringUtils.isNotBlank(fallbackCharset)) {
+            this.fallbackCharset = fallbackCharset;
         }
     }
 
@@ -64,7 +93,10 @@ public class KeyEncryptor extends Encryptor {
         try {
             byte[] encrypted = encrypt(message.getBytes(getCharset()));
 
-            StringBuilder builder = new StringBuilder(IV_HEADER);
+            StringBuilder builder = new StringBuilder();
+            builder.append(ALGORITHM_HEADER).append(getAlgorithm()).append('}');
+            builder.append(CHARSET_HEADER).append(getCharset()).append('}');
+            builder.append(IV_HEADER);
 
             if (getFormat() == Output.HEXADECIMAL) {
                 builder.append(Hex.encodeHexString(encrypted));
@@ -79,14 +111,19 @@ public class KeyEncryptor extends Encryptor {
     }
 
     private byte[] encrypt(final byte[] message) throws Exception {
-        String algorithm = StringUtils.defaultIfBlank(getAlgorithm(), key.getAlgorithm());
+        String algorithm = getAlgorithm();
         Cipher cipher = Cipher.getInstance(algorithm, getProvider());
 
         // Generate random bytes for IV
         byte[] iv = new byte[cipher.getBlockSize()];
         SecureRandom random = new SecureRandom();
         random.nextBytes(iv);
-        IvParameterSpec parameterSpec = new IvParameterSpec(iv);
+        AlgorithmParameterSpec parameterSpec;
+        if (StringUtils.contains(algorithm, "GCM")) {
+            parameterSpec = new GCMParameterSpec(128, iv);
+        } else {
+            parameterSpec = new IvParameterSpec(iv);
+        }
         cipher.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
 
         // Do encryption
@@ -111,23 +148,39 @@ public class KeyEncryptor extends Encryptor {
 
         try {
             String msg = message;
+            String algorithm = StringUtils.defaultString(getFallbackAlgorithm(), getAlgorithm());
+            String charset = StringUtils.defaultString(getFallbackCharset(), getCharset());
+
+            if (StringUtils.startsWith(msg, ALGORITHM_HEADER)) {
+                msg = StringUtils.removeStart(msg, ALGORITHM_HEADER);
+                int index = StringUtils.indexOf(msg, '}');
+                algorithm = StringUtils.substring(msg, 0, index);
+                msg = StringUtils.substring(msg, index + 1);
+            }
+
+            if (StringUtils.startsWith(msg, CHARSET_HEADER)) {
+                msg = StringUtils.removeStart(msg, CHARSET_HEADER);
+                int index = StringUtils.indexOf(msg, '}');
+                charset = StringUtils.substring(msg, 0, index);
+                msg = StringUtils.substring(msg, index + 1);
+            }
+
             boolean extractIV = StringUtils.startsWith(msg, IV_HEADER);
             if (extractIV) {
                 msg = msg.substring(IV_HEADER.length());
             }
 
             if (getFormat() == Output.HEXADECIMAL) {
-                return new String(decrypt(Hex.decodeHex(msg.toCharArray()), extractIV), getCharset());
+                return new String(decrypt(Hex.decodeHex(msg.toCharArray()), algorithm, extractIV), charset);
             } else {
-                return new String(decrypt(Base64.decodeBase64(msg), extractIV), getCharset());
+                return new String(decrypt(Base64.decodeBase64(msg), algorithm, extractIV), charset);
             }
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
     }
 
-    private byte[] decrypt(final byte[] message, boolean extractIV) throws Exception {
-        String algorithm = StringUtils.defaultIfBlank(getAlgorithm(), key.getAlgorithm());
+    private byte[] decrypt(final byte[] message, String algorithm, boolean extractIV) throws Exception {
         Cipher cipher = Cipher.getInstance(algorithm, getProvider());
 
         byte[] iv = new byte[cipher.getBlockSize()];
@@ -140,7 +193,13 @@ public class KeyEncryptor extends Encryptor {
             System.arraycopy(message, iv.length, encrypted, 0, message.length - iv.length);
         }
 
-        IvParameterSpec parameterSpec = new IvParameterSpec(iv);
+        AlgorithmParameterSpec parameterSpec;
+        if (StringUtils.contains(algorithm, "GCM")) {
+            parameterSpec = new GCMParameterSpec(128, iv);
+        } else {
+            parameterSpec = new IvParameterSpec(iv);
+        }
+
         cipher.init(Cipher.DECRYPT_MODE, key, parameterSpec);
         return cipher.doFinal(encrypted);
     }

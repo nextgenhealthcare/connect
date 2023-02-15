@@ -180,7 +180,7 @@ public class Migrate4_3_0Test {
         PropertiesConfiguration configuration = new PropertiesConfiguration();
         migrator.updateSecurityConfiguration(configuration);
 
-        assertEquals("AES", configuration.getString("encryption.algorithm"));
+        assertEquals("AES", configuration.getString("encryption.fallback.algorithm"));
     }
 
     @Test
@@ -192,7 +192,7 @@ public class Migrate4_3_0Test {
         configuration.setProperty("encryption.algorithm", "DES");
         migrator.updateSecurityConfiguration(configuration);
 
-        assertEquals("DES", configuration.getString("encryption.algorithm"));
+        assertEquals("DES", configuration.getString("encryption.fallback.algorithm"));
     }
 
     @Test
@@ -203,7 +203,7 @@ public class Migrate4_3_0Test {
         PropertiesConfiguration configuration = new PropertiesConfiguration();
         migrator.updateSecurityConfiguration(configuration);
 
-        assertNull(configuration.getString("encryption.algorithm"));
+        assertNull(configuration.getString("encryption.fallback.algorithm"));
     }
 
     @Test
@@ -215,7 +215,7 @@ public class Migrate4_3_0Test {
         PropertiesConfiguration configuration = new PropertiesConfiguration();
         migrator.updateSecurityConfiguration(configuration);
 
-        assertNull(configuration.getString("encryption.charset"));
+        assertNull(configuration.getString("encryption.fallback.charset"));
     }
 
     @Test
@@ -228,7 +228,7 @@ public class Migrate4_3_0Test {
         PropertiesConfiguration configuration = new PropertiesConfiguration();
         migrator.updateSecurityConfiguration(configuration);
 
-        assertEquals(charset, configuration.getString("encryption.charset"));
+        assertEquals(charset, configuration.getString("encryption.fallback.charset"));
     }
 
     @Test
@@ -241,6 +241,6 @@ public class Migrate4_3_0Test {
         PropertiesConfiguration configuration = new PropertiesConfiguration();
         migrator.updateSecurityConfiguration(configuration);
 
-        assertNull(configuration.getString("encryption.charset"));
+        assertNull(configuration.getString("encryption.fallback.charset"));
     }
 }

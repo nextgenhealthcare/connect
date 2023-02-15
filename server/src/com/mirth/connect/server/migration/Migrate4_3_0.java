@@ -77,39 +77,24 @@ public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator, Sec
     public void updateSecurityConfiguration(PropertiesConfiguration configuration) {
         if (getStartingVersion() == null || getStartingVersionOrdinal() < Version.v4_3_0.ordinal()) {
             /*
-             * When upgrading to 4.3 and there was not already an encryption algorithm set, then
-             * explicitly set it to the previous default of "AES".
+             * Set the encryption fallback algorithm to the previous setting, or the previous
+             * default of "AES" if it was not present.
              */
             String encryptionAlgorithm = configuration.getString("encryption.algorithm");
-            if (StringUtils.isBlank(encryptionAlgorithm)) {
-                // @formatter:off
-                String message = ""
-                        + "In previous versions, the default encryption algorithm was \"AES\", which defaulted to ECB mode.\n"
-                        + "The new default is \"AES/CBC/PKCS5Padding\". If you want to migrate to this or a different algorithm,\n"
-                        + "please see the 4.3 upgrade notes on the public wiki for instructions.";
-                // @formatter:on
-                configuration.setProperty("encryption.algorithm", "AES");
-                configuration.getLayout().setBlancLinesBefore("encryption.algorithm", 1);
-                configuration.getLayout().setComment("encryption.algorithm", "The algorithm to use when encrypting message content.\n" + message);
-                logger.error("4.3 Upgrade Note: Encryption algorithm set to \"AES\" in conf/mirth.properties.\n" + message);
-            }
+            String encryptionFallbackAlgorithm = StringUtils.defaultIfBlank(encryptionAlgorithm, "AES");
+            configuration.setProperty("encryption.fallback.algorithm", encryptionFallbackAlgorithm);
+            configuration.getLayout().setBlancLinesBefore("encryption.fallback.algorithm", 1);
+            configuration.getLayout().setComment("encryption.fallback.algorithm", "The algorithm to use when decrypting old message content.");
 
             /*
-             * When upgrading to 4.3, set the encryption charset to the JVM default if it's not
-             * UTF-8, as that was the behavior in previous versions.
+             * Set the encryption fallback charset to the JVM default if it's not UTF-8, as that was
+             * the behavior in previous versions.
              */
             String defaultCharset = getDefaultCharset();
             if (!StringUtils.equals(defaultCharset, StandardCharsets.UTF_8.name())) {
-                // @formatter:off
-                String message = ""
-                        + "In previous versions, the default behavior was to use the JVM default charset.\n"
-                        + "The new default is \"UTF-8\". It is recommended to update this to UTF-8,\n"
-                        + "unless you are intentionally relying on the JVM default.";
-                // @formatter:on
-                configuration.setProperty("encryption.charset", defaultCharset);
-                configuration.getLayout().setBlancLinesBefore("encryption.charset", 1);
-                configuration.getLayout().setComment("encryption.charset", "The character set encoding to use when encrypting message content.\n" + message);
-                logger.error("4.3 Upgrade Note: Encryption charset set to \"" + defaultCharset + "\" in conf/mirth.properties.\n" + message);
+                configuration.setProperty("encryption.fallback.charset", defaultCharset);
+                configuration.getLayout().setBlancLinesBefore("encryption.fallback.charset", 1);
+                configuration.getLayout().setComment("encryption.fallback.charset", "The character set encoding to use when decrypting old message content");
             }
         }
     }
