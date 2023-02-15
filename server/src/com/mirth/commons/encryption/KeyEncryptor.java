@@ -1,5 +1,6 @@
 package com.mirth.commons.encryption;
 
+import java.io.UnsupportedEncodingException;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
@@ -8,15 +9,26 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
+import org.apache.commons.pool2.BasePooledObjectFactory;
+import org.apache.commons.pool2.KeyedObjectPool;
+import org.apache.commons.pool2.ObjectPool;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
+import org.apache.commons.pool2.impl.GenericKeyedObjectPoolConfig;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 public class KeyEncryptor extends Encryptor {
 
-    public static final String ALGORITHM_HEADER = "{alg=";
-    public static final String CHARSET_HEADER = "{cs=";
-    public static final String IV_HEADER = "{iv}";
+    public static final String ALGORITHM_PARAM = "alg=";
+    public static final String CHARSET_PARAM = "cs=";
+    public static final String IV_PARAM = "iv=";
 
     private Key key;
     private String algorithm;
@@ -25,6 +37,22 @@ public class KeyEncryptor extends Encryptor {
     // Fallbacks to use when decrypting old messages that do not have indicators.
     private String fallbackAlgorithm;
     private String fallbackCharset = "UTF-8";
+
+    private ObjectPool<SecureRandom> randomPool;
+    private KeyedObjectPool<String, Cipher> cipherPool;
+
+    public KeyEncryptor() {
+        GenericObjectPoolConfig randomConfig = new GenericObjectPoolConfig();
+        randomConfig.setMaxTotal(-1);
+        randomConfig.setBlockWhenExhausted(false);
+        randomPool = new GenericObjectPool<SecureRandom>(new SecureRandomFactory(), randomConfig);
+
+        GenericKeyedObjectPoolConfig cipherConfig = new GenericKeyedObjectPoolConfig();
+        cipherConfig.setMaxTotal(-1);
+        cipherConfig.setMaxTotalPerKey(-1);
+        cipherConfig.setBlockWhenExhausted(false);
+        cipherPool = new GenericKeyedObjectPool<String, Cipher>(new CipherFactory(), cipherConfig);
+    }
 
     public Key getKey() {
         return key;
@@ -91,18 +119,14 @@ public class KeyEncryptor extends Encryptor {
         }
 
         try {
-            byte[] encrypted = encrypt(message.getBytes(getCharset()));
+            EncryptionResult result = encrypt(message.getBytes(getCharset()));
 
-            StringBuilder builder = new StringBuilder();
-            builder.append(ALGORITHM_HEADER).append(getAlgorithm()).append('}');
-            builder.append(CHARSET_HEADER).append(getCharset()).append('}');
-            builder.append(IV_HEADER);
-
-            if (getFormat() == Output.HEXADECIMAL) {
-                builder.append(Hex.encodeHexString(encrypted));
-            } else {
-                builder.append(new String(Base64.encodeBase64Chunked(encrypted), getCharset()));
-            }
+            // Add header, e.g. {alg=AES/CBC/PKCS5Padding,cs=UTF-8,iv=RrwzKW8JX9qn09im9r5ZpQ==}
+            StringBuilder builder = new StringBuilder("{");
+            builder.append(ALGORITHM_PARAM).append(getAlgorithm()).append(',');
+            builder.append(CHARSET_PARAM).append(getCharset()).append(',');
+            builder.append(IV_PARAM).append(format(result.iv, false)).append('}');
+            builder.append(format(result.ciphertext, true));
 
             return builder.toString();
         } catch (Exception e) {
@@ -110,30 +134,43 @@ public class KeyEncryptor extends Encryptor {
         }
     }
 
-    private byte[] encrypt(final byte[] message) throws Exception {
+    private EncryptionResult encrypt(final byte[] message) throws Exception {
         String algorithm = getAlgorithm();
-        Cipher cipher = Cipher.getInstance(algorithm, getProvider());
+        Cipher borrowedCipher = null;
+        SecureRandom borrowedRandom = null;
+        try {
+            Cipher cipher = borrowedCipher = borrowCipher(algorithm);
+            if (cipher == null) {
+                cipher = createCipher(algorithm);
+            }
+            SecureRandom random = borrowedRandom = borrowRandom();
+            if (random == null) {
+                random = createRandom();
+            }
 
-        // Generate random bytes for IV
-        byte[] iv = new byte[cipher.getBlockSize()];
-        SecureRandom random = new SecureRandom();
-        random.nextBytes(iv);
-        AlgorithmParameterSpec parameterSpec;
-        if (StringUtils.contains(algorithm, "GCM")) {
-            parameterSpec = new GCMParameterSpec(128, iv);
-        } else {
-            parameterSpec = new IvParameterSpec(iv);
+            // Generate random bytes for IV
+            byte[] iv = new byte[cipher.getBlockSize()];
+            random.nextBytes(iv);
+            AlgorithmParameterSpec parameterSpec;
+            if (StringUtils.contains(algorithm, "GCM")) {
+                parameterSpec = new GCMParameterSpec(128, iv);
+            } else {
+                parameterSpec = new IvParameterSpec(iv);
+            }
+            cipher.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
+
+            // Do encryption
+            byte[] encrypted = cipher.doFinal(message);
+
+            return new EncryptionResult(iv, encrypted);
+        } finally {
+            if (borrowedCipher != null) {
+                cipherPool.returnObject(algorithm, borrowedCipher);
+            }
+            if (borrowedRandom != null) {
+                randomPool.returnObject(borrowedRandom);
+            }
         }
-        cipher.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
-
-        // Do encryption
-        byte[] encrypted = cipher.doFinal(message);
-
-        // Include both IV + encrypted in final byte array
-        byte[] finalBytes = new byte[iv.length + encrypted.length];
-        System.arraycopy(iv, 0, finalBytes, 0, iv.length);
-        System.arraycopy(encrypted, 0, finalBytes, iv.length, encrypted.length);
-        return finalBytes;
     }
 
     @Override
@@ -150,57 +187,139 @@ public class KeyEncryptor extends Encryptor {
             String msg = message;
             String algorithm = StringUtils.defaultString(getFallbackAlgorithm(), getAlgorithm());
             String charset = StringUtils.defaultString(getFallbackCharset(), getCharset());
+            byte[] iv = null;
 
-            if (StringUtils.startsWith(msg, ALGORITHM_HEADER)) {
-                msg = StringUtils.removeStart(msg, ALGORITHM_HEADER);
-                int index = StringUtils.indexOf(msg, '}');
+            // Extract header, e.g. {alg=AES/CBC/PKCS5Padding,cs=UTF-8,iv=RrwzKW8JX9qn09im9r5ZpQ==}
+            if (StringUtils.startsWith(msg, "{")) {
+                msg = StringUtils.removeStart(msg, "{");
+
+                msg = StringUtils.removeStart(msg, ALGORITHM_PARAM);
+                int index = StringUtils.indexOf(msg, ',');
                 algorithm = StringUtils.substring(msg, 0, index);
                 msg = StringUtils.substring(msg, index + 1);
-            }
 
-            if (StringUtils.startsWith(msg, CHARSET_HEADER)) {
-                msg = StringUtils.removeStart(msg, CHARSET_HEADER);
-                int index = StringUtils.indexOf(msg, '}');
+                msg = StringUtils.removeStart(msg, CHARSET_PARAM);
+                index = StringUtils.indexOf(msg, ',');
                 charset = StringUtils.substring(msg, 0, index);
+                msg = StringUtils.substring(msg, index + 1);
+
+                msg = StringUtils.removeStart(msg, IV_PARAM);
+                index = StringUtils.indexOf(msg, '}');
+                iv = unformat(StringUtils.substring(msg, 0, index));
                 msg = StringUtils.substring(msg, index + 1);
             }
 
-            boolean extractIV = StringUtils.startsWith(msg, IV_HEADER);
-            if (extractIV) {
-                msg = msg.substring(IV_HEADER.length());
-            }
-
-            if (getFormat() == Output.HEXADECIMAL) {
-                return new String(decrypt(Hex.decodeHex(msg.toCharArray()), algorithm, extractIV), charset);
-            } else {
-                return new String(decrypt(Base64.decodeBase64(msg), algorithm, extractIV), charset);
-            }
+            return new String(decrypt(unformat(msg), algorithm, iv), charset);
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
     }
 
-    private byte[] decrypt(final byte[] message, String algorithm, boolean extractIV) throws Exception {
-        Cipher cipher = Cipher.getInstance(algorithm, getProvider());
+    private byte[] decrypt(final byte[] message, String algorithm, byte[] iv) throws Exception {
+        Cipher borrowedCipher = null;
+        try {
+            Cipher cipher = borrowedCipher = borrowCipher(algorithm);
+            if (cipher == null) {
+                cipher = createCipher(algorithm);
+            }
 
-        byte[] iv = new byte[cipher.getBlockSize()];
-        byte[] encrypted = message;
+            if (iv == null) {
+                iv = new byte[cipher.getBlockSize()];
+            }
 
-        if (extractIV) {
-            // Extract the first n bytes of the data as the IV
-            encrypted = new byte[message.length - iv.length];
-            System.arraycopy(message, 0, iv, 0, iv.length);
-            System.arraycopy(message, iv.length, encrypted, 0, message.length - iv.length);
+            AlgorithmParameterSpec parameterSpec;
+            if (StringUtils.contains(algorithm, "GCM")) {
+                parameterSpec = new GCMParameterSpec(128, iv);
+            } else {
+                parameterSpec = new IvParameterSpec(iv);
+            }
+
+            cipher.init(Cipher.DECRYPT_MODE, key, parameterSpec);
+            return cipher.doFinal(message);
+        } finally {
+            if (borrowedCipher != null) {
+                cipherPool.returnObject(algorithm, borrowedCipher);
+            }
         }
+    }
 
-        AlgorithmParameterSpec parameterSpec;
-        if (StringUtils.contains(algorithm, "GCM")) {
-            parameterSpec = new GCMParameterSpec(128, iv);
+    private String format(byte[] data, boolean chunked) throws UnsupportedEncodingException {
+        if (getFormat() == Output.HEXADECIMAL) {
+            return Hex.encodeHexString(data);
         } else {
-            parameterSpec = new IvParameterSpec(iv);
+            if (chunked) {
+                return new String(Base64.encodeBase64Chunked(data), getCharset());
+            } else {
+                return Base64.encodeBase64String(data);
+            }
+        }
+    }
+
+    private byte[] unformat(String data) throws UnsupportedEncodingException, DecoderException {
+        if (getFormat() == Output.HEXADECIMAL) {
+            return Hex.decodeHex(data.toCharArray());
+        } else {
+            return Base64.decodeBase64(data);
+        }
+    }
+
+    private class EncryptionResult {
+        private byte[] iv;
+        private byte[] ciphertext;
+
+        public EncryptionResult(byte[] iv, byte[] ciphertext) {
+            this.iv = iv;
+            this.ciphertext = ciphertext;
+        }
+    }
+
+    private SecureRandom createRandom() {
+        return new SecureRandom();
+    }
+
+    private SecureRandom borrowRandom() {
+        try {
+            return randomPool.borrowObject();
+        } catch (Exception e) {
+            // Ignore and return null, a new object will be created.
+            return null;
+        }
+    }
+
+    private class SecureRandomFactory extends BasePooledObjectFactory<SecureRandom> {
+        @Override
+        public SecureRandom create() throws Exception {
+            return createRandom();
         }
 
-        cipher.init(Cipher.DECRYPT_MODE, key, parameterSpec);
-        return cipher.doFinal(encrypted);
+        @Override
+        public PooledObject<SecureRandom> wrap(SecureRandom random) {
+            return new DefaultPooledObject<SecureRandom>(random);
+        }
+    }
+
+    private Cipher createCipher(String algorithm) throws Exception {
+        return Cipher.getInstance(algorithm, getProvider());
+    }
+
+    private Cipher borrowCipher(String algorithm) {
+        try {
+            return cipherPool.borrowObject(algorithm);
+        } catch (Exception e) {
+            // Ignore and return null, a new object will be created.
+            return null;
+        }
+    }
+
+    private class CipherFactory extends BaseKeyedPooledObjectFactory<String, Cipher> {
+        @Override
+        public Cipher create(String algorithm) throws Exception {
+            return createCipher(algorithm);
+        }
+
+        @Override
+        public PooledObject<Cipher> wrap(Cipher random) {
+            return new DefaultPooledObject<Cipher>(random);
+        }
     }
 }

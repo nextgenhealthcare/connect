@@ -9,6 +9,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.Provider;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -300,8 +306,8 @@ public class KeyEncryptorTest {
         /*
          * UTF-8 encoded ÂÃÄÅÆÇÈÉÊËÌ, Then decoded with windows-1252, Equals Ã‚ÃƒÃ„Ã…Ã†Ã‡ÃˆÃ‰ÃŠÃ‹ÃŒ
          */
-        assertTrue(StringUtils.contains(encrypted, "{cs=UTF-8}"));
-        encrypted = StringUtils.replace(encrypted, "{cs=UTF-8}", "{cs=windows-1252}");
+        assertTrue(StringUtils.contains(encrypted, ",cs=UTF-8,"));
+        encrypted = StringUtils.replace(encrypted, ",cs=UTF-8,", ",cs=windows-1252,");
         String decrypted3 = decryptor.decrypt(encrypted);
         assertEquals("Ã‚ÃƒÃ„Ã…Ã†Ã‡ÃˆÃ‰ÃŠÃ‹ÃŒ", decrypted3);
     }
@@ -320,6 +326,12 @@ public class KeyEncryptorTest {
         testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, "testing123456789testing123456789");
         testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, getRandomString(16 * 4096));
         testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, new String(getRandomBytes((16 * 4096) - 1), StandardCharsets.UTF_8));
+
+        String[] messages = new String[100];
+        for (int i = 0; i < messages.length; i++) {
+            messages[i] = new String(getRandomBytes((16 * 4096) - 1), StandardCharsets.UTF_8);
+        }
+        testMultithreaded(oldEncryptionSettings, encryptionSettings, messages);
     }
 
     /*
@@ -355,8 +367,8 @@ public class KeyEncryptorTest {
         assertFalse(message.equals(encrypted1));
         assertFalse(message.equals(encrypted2));
 
-        assertTrue(StringUtils.startsWith(encrypted1, KeyEncryptor.ALGORITHM_HEADER));
-        assertTrue(StringUtils.startsWith(encrypted2, KeyEncryptor.ALGORITHM_HEADER));
+        assertTrue(StringUtils.startsWith(encrypted1, "{" + KeyEncryptor.ALGORITHM_PARAM));
+        assertTrue(StringUtils.startsWith(encrypted2, "{" + KeyEncryptor.ALGORITHM_PARAM));
 
         EncryptionParts encryptedParts1 = splitEncrypted(encrypted1, oldProvider);
         EncryptionParts encryptedParts2 = splitEncrypted(encrypted2, oldProvider);
@@ -476,27 +488,129 @@ public class KeyEncryptorTest {
         assertEquals(message, decrypted);
     }
 
+    /*
+     * Encrypt and decrypt multiple messages simultaneously using the same KeyEncryptor instance.
+     */
+    private void testMultithreaded(EncryptionSettings oldEncryptionSettings, EncryptionSettings encryptionSettings, String... messages) throws Exception {
+        Provider oldProvider = (Provider) Class.forName(oldEncryptionSettings.getSecurityProvider()).newInstance();
+        KeyGenerator keyGenerator = KeyGenerator.getInstance(oldEncryptionSettings.getEncryptionBaseAlgorithm(), oldProvider);
+        keyGenerator.init(oldEncryptionSettings.getEncryptionKeyLength());
+        Key key = keyGenerator.generateKey();
+
+        KeyEncryptor oldEncryptor = new KeyEncryptor();
+        oldEncryptor.setProvider(oldProvider);
+        oldEncryptor.setKey(key);
+        oldEncryptor.setAlgorithm(oldEncryptionSettings.getEncryptionAlgorithm());
+        oldEncryptor.setCharset(oldEncryptionSettings.getEncryptionCharset());
+        oldEncryptor.setFormat(Output.BASE64);
+
+        class EncryptCallable implements Callable<String> {
+            private String message;
+
+            public EncryptCallable(String message) {
+                this.message = message;
+            }
+
+            @Override
+            public String call() {
+                return oldEncryptor.encrypt(message);
+            }
+        }
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+        List<Future<String>> futures = new ArrayList<Future<String>>();
+        for (String message : messages) {
+            futures.add(executor.submit(new EncryptCallable(message)));
+        }
+
+        List<String> encryptedResults = new ArrayList<String>();
+        for (Future<String> future : futures) {
+            encryptedResults.add(future.get());
+        }
+
+        executor.shutdown();
+
+        for (int i = 0; i < messages.length; i++) {
+            String message = messages[i];
+            String encrypted = encryptedResults.get(i);
+
+            // Should not be equal to the input message
+            assertFalse(message.equals(encrypted));
+
+            assertTrue(StringUtils.startsWith(encrypted, "{" + KeyEncryptor.ALGORITHM_PARAM));
+
+            EncryptionParts encryptedParts = splitEncrypted(encrypted, oldProvider);
+
+            // The algorithm should be correct
+            assertEquals(oldEncryptionSettings.getEncryptionAlgorithm(), encryptedParts.algorithm);
+
+            // The charset should be correct
+            assertEquals(oldEncryptionSettings.getEncryptionCharset(), encryptedParts.charset);
+        }
+
+        Provider provider = (Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance();
+
+        KeyEncryptor encryptor = new KeyEncryptor();
+        encryptor.setProvider(provider);
+        encryptor.setKey(key);
+        encryptor.setAlgorithm(encryptionSettings.getEncryptionAlgorithm());
+        encryptor.setCharset(encryptionSettings.getEncryptionCharset());
+        encryptor.setFormat(Output.BASE64);
+
+        class DecryptCallable implements Callable<String> {
+            private String encrypted;
+
+            public DecryptCallable(String encrypted) {
+                this.encrypted = encrypted;
+            }
+
+            @Override
+            public String call() {
+                return encryptor.decrypt(encrypted);
+            }
+        }
+
+        executor = Executors.newCachedThreadPool();
+        futures = new ArrayList<Future<String>>();
+        for (String encrypted : encryptedResults) {
+            futures.add(executor.submit(new DecryptCallable(encrypted)));
+        }
+
+        List<String> decryptedResults = new ArrayList<String>();
+        for (Future<String> future : futures) {
+            decryptedResults.add(future.get());
+        }
+
+        executor.shutdown();
+
+        for (int i = 0; i < messages.length; i++) {
+            String message = messages[i];
+            String decrypted = decryptedResults.get(i);
+
+            // Decrypted message should be equal to the input
+            assertEquals(message, decrypted);
+        }
+    }
+
     private EncryptionParts splitEncrypted(String data, Provider provider) throws Exception {
-        data = StringUtils.removeStart(data, KeyEncryptor.ALGORITHM_HEADER);
-        int index = StringUtils.indexOf(data, '}');
+        data = StringUtils.removeStart(data, "{");
+
+        data = StringUtils.removeStart(data, KeyEncryptor.ALGORITHM_PARAM);
+        int index = StringUtils.indexOf(data, ',');
         String algorithm = StringUtils.substring(data, 0, index);
         data = StringUtils.substring(data, index + 1);
 
-        data = StringUtils.removeStart(data, KeyEncryptor.CHARSET_HEADER);
-        index = StringUtils.indexOf(data, '}');
+        data = StringUtils.removeStart(data, KeyEncryptor.CHARSET_PARAM);
+        index = StringUtils.indexOf(data, ',');
         String charset = StringUtils.substring(data, 0, index);
         data = StringUtils.substring(data, index + 1);
 
-        Cipher cipher = Cipher.getInstance(algorithm, provider);
-        cipher.getBlockSize();
+        data = StringUtils.removeStart(data, KeyEncryptor.IV_PARAM);
+        index = StringUtils.indexOf(data, '}');
+        byte[] iv = Base64.decodeBase64(StringUtils.substring(data, 0, index));
+        data = StringUtils.substring(data, index + 1);
 
-        data = StringUtils.removeStart(data, KeyEncryptor.IV_HEADER);
-        byte[] totalBytes = Base64.decodeBase64(data);
-
-        byte[] iv = new byte[cipher.getBlockSize()];
-        byte[] encrypted = new byte[totalBytes.length - iv.length];
-        System.arraycopy(totalBytes, 0, iv, 0, iv.length);
-        System.arraycopy(totalBytes, iv.length, encrypted, 0, totalBytes.length - iv.length);
+        byte[] encrypted = Base64.decodeBase64(data);
 
         String ivBase64 = new String(Base64.encodeBase64Chunked(iv), StandardCharsets.UTF_8);
         String encryptedBase64 = new String(Base64.encodeBase64Chunked(encrypted), StandardCharsets.UTF_8);
