@@ -1395,7 +1395,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         if (!keyStore.containsAlias(SECRET_KEY_ALIAS)) {
             logger.debug("encryption key not found, generating new one");
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionConfig.getEncryptionAlgorithm(), provider);
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionConfig.getEncryptionBaseAlgorithm(), provider);
             keyGenerator.init(encryptionConfig.getEncryptionKeyLength());
             secretKey = keyGenerator.generateKey();
             KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(secretKey);
@@ -1414,6 +1414,8 @@ public class DefaultConfigurationController extends ConfigurationController {
         encryptor = new KeyEncryptor();
         encryptor.setProvider(provider);
         encryptor.setKey(secretKey);
+        encryptor.setAlgorithm(encryptionConfig.getEncryptionAlgorithm());
+        encryptor.setCharset(encryptionConfig.getEncryptionCharset());
         encryptor.setFormat(Output.BASE64);
 
         digester = new Digester();

@@ -1,5 +1,7 @@
 package com.mirth.connect.server.migration;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -15,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.util.MigrationException;
 
-public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator {
+public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator, SecurityConfigurationMigrator {
 	
 	private Logger logger = LogManager.getLogger(getClass());
 
@@ -71,6 +73,47 @@ public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator {
         }
     }
 
+    @Override
+    public void updateSecurityConfiguration(PropertiesConfiguration configuration) {
+        if (getStartingVersion() == null || getStartingVersionOrdinal() < Version.v4_3_0.ordinal()) {
+            /*
+             * When upgrading to 4.3 and there was not already an encryption algorithm set, then
+             * explicitly set it to the previous default of "AES".
+             */
+            String encryptionAlgorithm = configuration.getString("encryption.algorithm");
+            if (StringUtils.isBlank(encryptionAlgorithm)) {
+                // @formatter:off
+                String message = ""
+                        + "In previous versions, the default encryption algorithm was \"AES\", which defaulted to ECB mode.\n"
+                        + "The new default is \"AES/CBC/PKCS5Padding\". If you want to migrate to this or a different algorithm,\n"
+                        + "please see the 4.3 upgrade notes on the public wiki for instructions.";
+                // @formatter:on
+                configuration.setProperty("encryption.algorithm", "AES");
+                configuration.getLayout().setBlancLinesBefore("encryption.algorithm", 1);
+                configuration.getLayout().setComment("encryption.algorithm", "The algorithm to use when encrypting message content.\n" + message);
+                logger.error("4.3 Upgrade Note: Encryption algorithm set to \"AES\" in conf/mirth.properties.\n" + message);
+            }
+
+            /*
+             * When upgrading to 4.3, set the encryption charset to the JVM default if it's not
+             * UTF-8, as that was the behavior in previous versions.
+             */
+            String defaultCharset = getDefaultCharset();
+            if (!StringUtils.equals(defaultCharset, StandardCharsets.UTF_8.name())) {
+                // @formatter:off
+                String message = ""
+                        + "In previous versions, the default behavior was to use the JVM default charset.\n"
+                        + "The new default is \"UTF-8\". It is recommended to update this to UTF-8,\n"
+                        + "unless you are intentionally relying on the JVM default.";
+                // @formatter:on
+                configuration.setProperty("encryption.charset", defaultCharset);
+                configuration.getLayout().setBlancLinesBefore("encryption.charset", 1);
+                configuration.getLayout().setComment("encryption.charset", "The character set encoding to use when encrypting message content.\n" + message);
+                logger.error("4.3 Upgrade Note: Encryption charset set to \"" + defaultCharset + "\" in conf/mirth.properties.\n" + message);
+            }
+        }
+    }
+
 	@Override
 	public void migrate() throws MigrationException {
 
@@ -88,7 +131,16 @@ public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator {
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
-	
+
+    // Making class mockable
+    int getStartingVersionOrdinal() {
+        return getStartingVersion().ordinal();
+    }
+
+    String getDefaultCharset() {
+        return Charset.defaultCharset().name();
+    }
+
 	protected static String OLD_DEFAULT_CIPHERSUITES = "TLS_CHACHA20_POLY1305_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256,TLS_AES_256_GCM_SHA384,TLS_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,TLS_DHE_DSS_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_DSS_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384,TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384,TLS_DHE_DSS_WITH_AES_256_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,TLS_DHE_DSS_WITH_AES_256_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_DSS_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_EMPTY_RENEGOTIATION_INFO_SCSV";
 	protected static String NEW_DEFAULT_CIPHERSUITES = "TLS_CHACHA20_POLY1305_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256,TLS_AES_256_GCM_SHA384,TLS_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,TLS_DHE_DSS_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_DSS_WITH_AES_128_GCM_SHA256,TLS_EMPTY_RENEGOTIATION_INFO_SCSV";
 	@SuppressWarnings("unchecked")

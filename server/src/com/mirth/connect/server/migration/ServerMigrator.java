@@ -91,6 +91,22 @@ public class ServerMigrator extends Migrator {
         migrateSerializedData("SELECT ID, CODE_TEMPLATE FROM CODE_TEMPLATE", "UPDATE CODE_TEMPLATE SET CODE_TEMPLATE = ? WHERE ID = ?", CodeTemplate.class);
     }
 
+    public void migrateSecurityConfiguration(PropertiesConfiguration mirthConfig) throws MigrationException {
+        Version startingVersion = Version.fromString(mirthConfig.getString("version"));
+        Version version = Version.values()[1];
+
+        while (version != null) {
+            Migrator migrator = getMigrator(version);
+
+            if (migrator != null && migrator instanceof SecurityConfigurationMigrator) {
+                migrator.setStartingVersion(startingVersion);
+                ((SecurityConfigurationMigrator) migrator).updateSecurityConfiguration(mirthConfig);
+            }
+
+            version = version.getNextVersion();
+        }
+    }
+
     public void migrateConfiguration(PropertiesConfiguration mirthConfig) throws MigrationException {
         Version startingVersion = Version.fromString(mirthConfig.getString("version"));
         Version version = Version.values()[1];

@@ -12,6 +12,7 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -24,7 +25,8 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
 
     public static final String ENCRYPTION_PREFIX = "{enc}";
 
-    public static final String DEFAULT_ENCRYPTION_ALGORITHM = "AES";
+    public static final String DEFAULT_ENCRYPTION_ALGORITHM = "AES/CBC/PKCS5Padding";
+    public static final String DEFAULT_ENCRYPTION_CHARSET = "UTF-8";
     public static final String DEFAULT_DIGEST_ALGORITHM = "SHA256";
     public static final String DEFAULT_SECURTITY_PROVIDER = BouncyCastleProvider.class.getName();
     public static final Integer DEFAULT_ENCRYPTION_KEY_LENGTH = 128;
@@ -32,6 +34,7 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
     private static final String ENCRYPTION_EXPORT = "encryption.export";
     private static final String ENCRYPTION_PROPERTIES = "encryption.properties";
     private static final String ENCRYPTION_ALGORITHM = "encryption.algorithm";
+    private static final String ENCRYPTION_CHARSET = "encryption.charset";
     private static final String ENCRYPTION_KEY_LENGTH = "encryption.keylength";
     private static final String DIGEST_ALGORITHM = "digest.algorithm";
     private static final String SECURITY_PROVIDER = "security.provider";
@@ -39,6 +42,7 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
     private Boolean encryptExport;
     private Boolean encryptProperties;
     private String encryptionAlgorithm;
+    private String encryptionCharset;
     private Integer encryptionKeyLength;
     private String digestAlgorithm;
     private String securityProvider;
@@ -72,8 +76,26 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
         return encryptionAlgorithm;
     }
 
+    public String getEncryptionBaseAlgorithm() {
+        if (StringUtils.isNotBlank(encryptionAlgorithm)) {
+            int index = StringUtils.indexOf(encryptionAlgorithm, '/');
+            if (index >= 0) {
+                return encryptionAlgorithm.substring(0, index);
+            }
+        }
+        return encryptionAlgorithm;
+    }
+
     public void setEncryptionAlgorithm(String encryptionAlgorithm) {
         this.encryptionAlgorithm = encryptionAlgorithm;
+    }
+
+    public String getEncryptionCharset() {
+        return encryptionCharset;
+    }
+
+    public void setEncryptionCharset(String encryptionCharset) {
+        this.encryptionCharset = encryptionCharset;
     }
 
     public Integer getEncryptionKeyLength() {
@@ -113,6 +135,7 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
         setEncryptExport(intToBooleanObject(properties.getProperty(ENCRYPTION_EXPORT), false));
         setEncryptProperties(intToBooleanObject(properties.getProperty(ENCRYPTION_PROPERTIES), false));
         setEncryptionAlgorithm(properties.getProperty(ENCRYPTION_ALGORITHM, DEFAULT_ENCRYPTION_ALGORITHM));
+        setEncryptionCharset(properties.getProperty(ENCRYPTION_CHARSET, DEFAULT_ENCRYPTION_CHARSET));
         setEncryptionKeyLength(toIntegerObject(properties.getProperty(ENCRYPTION_KEY_LENGTH), DEFAULT_ENCRYPTION_KEY_LENGTH));
         setDigestAlgorithm(properties.getProperty(DIGEST_ALGORITHM, DEFAULT_DIGEST_ALGORITHM));
         setSecurityProvider(properties.getProperty(SECURITY_PROVIDER, DEFAULT_SECURTITY_PROVIDER));
@@ -132,6 +155,10 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
 
         if (getEncryptionAlgorithm() != null) {
             properties.put(ENCRYPTION_ALGORITHM, getEncryptionAlgorithm());
+        }
+
+        if (getEncryptionCharset() != null) {
+            properties.put(ENCRYPTION_CHARSET, getEncryptionCharset());
         }
 
         if (getEncryptionKeyLength() != null) {

@@ -56,6 +56,11 @@ public class DefaultMigrationController extends MigrationController {
     }
 
     @Override
+    public void migrateSecurityConfiguration(PropertiesConfiguration configuration) throws MigrationException {
+        serverMigrator.migrateSecurityConfiguration(configuration);
+    }
+
+    @Override
     public void migrateConfiguration(PropertiesConfiguration configuration) throws MigrationException {
         serverMigrator.migrateConfiguration(configuration);
     }

@@ -217,6 +217,15 @@ public class Mirth extends Thread {
         }
         Donkey.getInstance().setSerializer(ObjectXMLSerializer.getInstance());
 
+        try {
+            // This must be done before security settings are initialized.
+            migrationController.migrateSecurityConfiguration(mirthProperties);
+        } catch (MigrationException e) {
+            logger.error("Failed to migrate security settings.", e);
+            running = false;
+            return;
+        }
+
         configurationController.initializeSecuritySettings();
         configurationController.initializeDatabaseSettings();
 
