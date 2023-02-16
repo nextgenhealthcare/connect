@@ -34,12 +34,6 @@ public abstract class MigrationController extends Controller {
 
     public abstract void migrateExtensions();
 
-    /**
-     * This is needed for any properties that need to be migrated before encryption settings are
-     * loaded.
-     */
-    public abstract void migrateSecurityConfiguration(PropertiesConfiguration configuration) throws MigrationException;
-
     public abstract void migrateConfiguration(PropertiesConfiguration configuration) throws MigrationException;
 
     /**

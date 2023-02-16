@@ -1267,6 +1267,12 @@ public class DefaultConfigurationController extends ConfigurationController {
             } else {
                 databaseConfig.setDatabasePassword(decryptedPassword);
             }
+
+            if (!StringUtils.startsWith(encryptedPassword, "{")) {
+                // Re-encrypt if still using the old-style format
+                mirthConfig.setProperty(readOnly ? DatabaseConstants.DATABASE_READONLY_PASSWORD : DatabaseConstants.DATABASE_PASSWORD, EncryptionSettings.ENCRYPTION_PREFIX + encryptor.encrypt(decryptedPassword));
+                saveMirthConfig();
+            }
         } else if (StringUtils.isNotBlank(password)) {
             // encrypt the password and write it back to the file
             String encryptedPassword = EncryptionSettings.ENCRYPTION_PREFIX + encryptor.encrypt(password);

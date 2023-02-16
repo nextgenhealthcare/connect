@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.util.MigrationException;
 
-public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator, SecurityConfigurationMigrator {
+public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator {
 	
 	private Logger logger = LogManager.getLogger(getClass());
 
@@ -37,6 +37,8 @@ public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator, Sec
         if (getStartingVersion() == null || getStartingVersion().ordinal() < Version.v4_3_0.ordinal()) {
             updateConfiguration(configuration, "https.ciphersuites", OLD_DEFAULT_CIPHERSUITES, NEW_DEFAULT_CIPHERSUITES, CIPHERSUITES_TO_REMOVE);
             logger.error("In version 4.3.0, the following cipher suites have been disabled by default to reflect the lastest security best practices: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_DSS_WITH_AES_256_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA256, TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256, TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256, TLS_DHE_DSS_WITH_AES_128_CBC_SHA256, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDH_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
+
+            updateSecurityConfiguration(configuration);
         }
     }
 
@@ -73,9 +75,8 @@ public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator, Sec
         }
     }
 
-    @Override
-    public void updateSecurityConfiguration(PropertiesConfiguration configuration) {
-        if (getStartingVersion() == null || getStartingVersionOrdinal() < Version.v4_3_0.ordinal()) {
+    void updateSecurityConfiguration(PropertiesConfiguration configuration) {
+        if (getStartingVersion() == null || getStartingVersion().ordinal() < Version.v4_3_0.ordinal()) {
             /*
              * Set the encryption fallback algorithm to the previous setting, or the previous
              * default of "AES" if it was not present.
