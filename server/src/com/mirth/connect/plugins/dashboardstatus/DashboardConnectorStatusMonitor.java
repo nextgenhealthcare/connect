@@ -63,10 +63,4 @@ public class DashboardConnectorStatusMonitor implements ServicePlugin {
         ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_VIEW, "Displays the connection status and history of the selected channel on the Dashboard.", OperationUtil.getOperationNamesForPermission(PERMISSION_VIEW, DashboardConnectorStatusServletInterface.class), new String[] {});
         return new ExtensionPermission[] { viewPermission };
     }
-    
-    @Override
-    public Map<String, Object> getObjectsForSwaggerExamples() {
-    	// TODO Auto-generated method stub
-    	return null;
-    }
 }

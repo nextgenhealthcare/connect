@@ -111,10 +111,4 @@ public class DataPrunerService implements ServicePlugin {
 
         return new ExtensionPermission[] { viewPermission, savePermission, startStopPermission };
     }
-    
-    @Override
-    public Map<String, Object> getObjectsForSwaggerExamples() {
-    	// TODO Auto-generated method stub
-    	return null;
-    }
 }

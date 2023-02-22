@@ -90,10 +90,4 @@ public class ServerLogProvider implements ServicePlugin {
         ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_VIEW, "Displays the contents of the Server Log on the Dashboard.", OperationUtil.getOperationNamesForPermission(PERMISSION_VIEW, ServerLogServletInterface.class), new String[] {});
         return new ExtensionPermission[] { viewPermission };
     }
-
-    @Override
-    public Map<String, Object> getObjectsForSwaggerExamples() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }

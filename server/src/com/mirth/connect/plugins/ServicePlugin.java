@@ -59,7 +59,11 @@ public interface ServicePlugin extends ServerPlugin {
     /**
      * Returns a map of strings to example objects for use in populating swagger's examples.
      * 
+     * May return null if no examples are provided. Default implementation returns null.
+     * 
      * @return
      */
-    public Map<String, Object> getObjectsForSwaggerExamples();
+    default public Map<String, Object> getObjectsForSwaggerExamples() {
+        return null;
+    }
 }

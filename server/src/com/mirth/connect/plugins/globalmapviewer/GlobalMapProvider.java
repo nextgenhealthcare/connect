@@ -51,10 +51,4 @@ public class GlobalMapProvider implements ServicePlugin {
 
     @Override
     public void init(Properties properties) {}
-    
-    @Override
-    public Map<String, Object> getObjectsForSwaggerExamples() {
-    	// TODO Auto-generated method stub
-    	return null;
-    }
 }

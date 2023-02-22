@@ -50,10 +50,4 @@ public class TcpServicePlugin implements ServicePlugin {
     public ExtensionPermission[] getExtensionPermissions() {
         return null;
     }
-    
-    @Override
-    public Map<String, Object> getObjectsForSwaggerExamples() {
-    	// TODO Auto-generated method stub
-    	return null;
-    }
 }
