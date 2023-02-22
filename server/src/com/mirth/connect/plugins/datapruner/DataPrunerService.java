@@ -18,7 +18,6 @@ import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.PL
 import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.TASK_START;
 import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.TASK_STOP;
 
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;

@@ -12,7 +12,6 @@ package com.mirth.connect.plugins.dashboardstatus;
 import static com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusServletInterface.PERMISSION_VIEW;
 import static com.mirth.connect.plugins.dashboardstatus.DashboardConnectorStatusServletInterface.PLUGIN_POINT;
 
-import java.util.Map;
 import java.util.Properties;
 
 import com.mirth.connect.client.core.api.util.OperationUtil;

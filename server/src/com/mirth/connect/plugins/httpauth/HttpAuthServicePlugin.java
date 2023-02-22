@@ -9,7 +9,6 @@
 
 package com.mirth.connect.plugins.httpauth;
 
-import java.util.Map;
 import java.util.Properties;
 
 import com.mirth.connect.model.ExtensionPermission;

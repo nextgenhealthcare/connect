@@ -12,7 +12,6 @@ package com.mirth.connect.plugins.globalmapviewer;
 import static com.mirth.connect.plugins.globalmapviewer.GlobalMapServletInterface.PERMISSION_VIEW;
 import static com.mirth.connect.plugins.globalmapviewer.GlobalMapServletInterface.PLUGIN_POINT;
 
-import java.util.Map;
 import java.util.Properties;
 
 import com.mirth.connect.client.core.api.util.OperationUtil;
