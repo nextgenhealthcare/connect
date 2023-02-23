@@ -125,8 +125,8 @@ public class KeyEncryptor extends Encryptor {
             StringBuilder builder = new StringBuilder("{");
             builder.append(ALGORITHM_PARAM).append(getAlgorithm()).append(',');
             builder.append(CHARSET_PARAM).append(getCharset()).append(',');
-            builder.append(IV_PARAM).append(format(result.iv, false)).append('}');
-            builder.append(format(result.ciphertext, true));
+            builder.append(IV_PARAM).append(result.iv).append('}');
+            builder.append(result.ciphertext);
 
             return builder.toString();
         } catch (Exception e) {
@@ -184,32 +184,67 @@ public class KeyEncryptor extends Encryptor {
         }
 
         try {
-            String msg = message;
             String algorithm = StringUtils.defaultString(getFallbackAlgorithm(), getAlgorithm());
             String charset = StringUtils.defaultString(getFallbackCharset(), getCharset());
             byte[] iv = null;
 
             // Extract header, e.g. {alg=AES/CBC/PKCS5Padding,cs=UTF-8,iv=RrwzKW8JX9qn09im9r5ZpQ==}
-            if (StringUtils.startsWith(msg, "{")) {
-                msg = StringUtils.removeStart(msg, "{");
+            int startIndex = 0;
+            if (message.length() > 0 && message.charAt(0) == '{') {
+                startIndex = 1;
+                int endIndex = StringUtils.indexOf(message, ALGORITHM_PARAM, 1);
+                boolean found = false;
 
-                msg = StringUtils.removeStart(msg, ALGORITHM_PARAM);
-                int index = StringUtils.indexOf(msg, ',');
-                algorithm = StringUtils.substring(msg, 0, index);
-                msg = StringUtils.substring(msg, index + 1);
+                if (startIndex == endIndex) {
+                    startIndex += ALGORITHM_PARAM.length();
+                    endIndex = StringUtils.indexOf(message, ',', startIndex);
+                    if (endIndex != -1) {
+                        algorithm = message.substring(startIndex, endIndex);
+                        found = true;
+                        startIndex = endIndex + 1;
+                    }
+                }
 
-                msg = StringUtils.removeStart(msg, CHARSET_PARAM);
-                index = StringUtils.indexOf(msg, ',');
-                charset = StringUtils.substring(msg, 0, index);
-                msg = StringUtils.substring(msg, index + 1);
+                if (found) {
+                    found = false;
+                    endIndex = StringUtils.indexOf(message, CHARSET_PARAM, startIndex);
 
-                msg = StringUtils.removeStart(msg, IV_PARAM);
-                index = StringUtils.indexOf(msg, '}');
-                iv = unformat(StringUtils.substring(msg, 0, index));
-                msg = StringUtils.substring(msg, index + 1);
+                    if (startIndex == endIndex) {
+                        startIndex += CHARSET_PARAM.length();
+                        endIndex = StringUtils.indexOf(message, ',', startIndex);
+                        if (endIndex != -1) {
+                            charset = message.substring(startIndex, endIndex);
+                            found = true;
+                            startIndex = endIndex + 1;
+                        }
+                    }
+                }
+
+                if (found) {
+                    found = false;
+                    endIndex = StringUtils.indexOf(message, IV_PARAM, startIndex);
+
+                    if (startIndex == endIndex) {
+                        startIndex += IV_PARAM.length();
+                        endIndex = StringUtils.indexOf(message, '}', startIndex);
+                        if (endIndex != -1) {
+                            iv = unformat(message.substring(startIndex, endIndex));
+                            found = true;
+                            startIndex = endIndex + 1;
+                        }
+                    }
+                }
+
+                if (!found) {
+                    throw new Exception("Encryption header information is malformed.");
+                }
             }
 
-            return new String(decrypt(unformat(msg), algorithm, iv), charset);
+            if (iv != null) {
+                return new String(decrypt(unformat(StringUtils.substring(message, startIndex)), algorithm, iv), charset);
+            } else {
+                return new String(decrypt(unformat(message), algorithm, null), charset);
+            }
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
@@ -264,12 +299,12 @@ public class KeyEncryptor extends Encryptor {
     }
 
     private class EncryptionResult {
-        private byte[] iv;
-        private byte[] ciphertext;
+        private String iv;
+        private String ciphertext;
 
-        public EncryptionResult(byte[] iv, byte[] ciphertext) {
-            this.iv = iv;
-            this.ciphertext = ciphertext;
+        public EncryptionResult(byte[] iv, byte[] ciphertext) throws UnsupportedEncodingException {
+            this.iv = format(iv, false);
+            this.ciphertext = format(ciphertext, true);
         }
     }
 

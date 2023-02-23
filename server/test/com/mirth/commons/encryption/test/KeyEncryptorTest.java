@@ -3,6 +3,7 @@ package com.mirth.commons.encryption.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -25,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 
+import com.mirth.commons.encryption.EncryptionException;
 import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.commons.encryption.Output;
 import com.mirth.commons.encryption.util.EncryptionUtil;
@@ -411,6 +413,8 @@ public class KeyEncryptorTest {
 
         testOldEncryption(encryptionSettings, message);
 
+        testMalformedInput(encryptionSettings, message);
+
         testDecryptAndReencrypt(oldEncryptionSettings, encryptionSettings, message);
     }
 
@@ -454,6 +458,140 @@ public class KeyEncryptorTest {
 
         // Decrypted message should be equal to the input
         assertEquals(message, decrypted1);
+    }
+
+    private void testMalformedInput(EncryptionSettings encryptionSettings, String message) throws Exception {
+        Provider provider = (Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance();
+        KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionSettings.getEncryptionBaseAlgorithm(), provider);
+        keyGenerator.init(encryptionSettings.getEncryptionKeyLength());
+        Key key = keyGenerator.generateKey();
+
+        Cipher cipher = Cipher.getInstance(encryptionSettings.getEncryptionAlgorithm(), provider);
+        byte[] iv = new byte[cipher.getBlockSize()];
+        IvParameterSpec parameterSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
+        byte[] encrypted = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
+        String encrypted1 = new String(Base64.encodeBase64Chunked(encrypted), StandardCharsets.UTF_8);
+
+        KeyEncryptor encryptor = new KeyEncryptor();
+        encryptor.setProvider(provider);
+        encryptor.setKey(key);
+        encryptor.setAlgorithm(encryptionSettings.getEncryptionAlgorithm());
+        encryptor.setFormat(Output.BASE64);
+
+        assertFalse(StringUtils.startsWith(encrypted1, "{"));
+
+        // Decrypted message should be equal to the input
+        String decrypted1 = encryptor.decrypt(encrypted1);
+        assertEquals(message, decrypted1);
+
+        // Correct IV
+        String correctIV = Base64.encodeBase64String(iv);
+        String decrypted2 = encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + "}" + encrypted1);
+        assertEquals(message, decrypted2);
+
+        if (!encryptionSettings.getEncryptionBaseAlgorithm().equals(encryptionSettings.getEncryptionAlgorithm())) {
+            // Incorrect IV
+            try {
+                String decrypted = encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=RrwzKW8JX9qn09im9r5ZpQ==}" + encrypted1);
+                // If it succeeds but just outputs garbage, make sure it doesn't equal the input
+                assertFalse(message.equals(decrypted));
+            } catch (EncryptionException e) {
+                // Expected
+            }
+
+            // Missing IV
+            try {
+                encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=}" + encrypted1);
+                fail("Should have thrown an exception");
+            } catch (EncryptionException e) {
+                // Expected
+            }
+
+            // Malformed IV
+            try {
+                encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=blahblah!@#}" + encrypted1);
+                fail("Should have thrown an exception");
+            } catch (EncryptionException e) {
+                // Expected
+            }
+        }
+
+        // Malformed IV 2
+        try {
+            encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv}" + encrypted1);
+            fail("Should have thrown an exception");
+        } catch (EncryptionException e) {
+            // Expected
+        }
+
+        // Incorrect algorithm
+        try {
+            String wrongAlgorithm = "AES/GCM/NoPadding";
+            if (wrongAlgorithm.equals(encryptionSettings.getEncryptionAlgorithm())) {
+                wrongAlgorithm = "AES/CBC/PKCS5Padding";
+            }
+            encryptor.decrypt("{alg=" + wrongAlgorithm + ",cs=UTF-8,iv=" + correctIV + "}" + encrypted1);
+            fail("Should have thrown an exception");
+        } catch (EncryptionException e) {
+            // Expected
+        }
+
+        // Malformed Header, missing end }
+        try {
+            encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + encrypted1);
+            fail("Should have thrown an exception");
+        } catch (EncryptionException e) {
+            // Expected
+        }
+
+        // Malformed Header, missing ,
+        try {
+            encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8iv=" + correctIV + "}" + encrypted1);
+            fail("Should have thrown an exception");
+        } catch (EncryptionException e) {
+            // Expected
+        }
+
+        // Malformed Header, missing ,
+        try {
+            encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + "cs=UTF-8,iv=" + correctIV + "}" + encrypted1);
+            fail("Should have thrown an exception");
+        } catch (EncryptionException e) {
+            // Expected
+        }
+
+        // Malformed Header, missing =
+        try {
+            encryptor.decrypt("{alg" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + "}" + encrypted1);
+            fail("Should have thrown an exception");
+        } catch (EncryptionException e) {
+            // Expected
+        }
+
+        // Malformed Header, wrong order
+        try {
+            encryptor.decrypt("{cs=UTF-8,alg=" + encryptionSettings.getEncryptionAlgorithm() + ",iv=" + correctIV + "}" + encrypted1);
+            fail("Should have thrown an exception");
+        } catch (EncryptionException e) {
+            // Expected
+        }
+
+        // Malformed Header, missing start {
+        try {
+            encryptor.decrypt("alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + "}" + encrypted1);
+            fail("Should have thrown an exception");
+        } catch (EncryptionException e) {
+            // Expected
+        }
+
+        // Malformed Header, missing start {
+        try {
+            encryptor.decrypt(" {alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + "}" + encrypted1);
+            fail("Should have thrown an exception");
+        } catch (EncryptionException e) {
+            // Expected
+        }
     }
 
     /*
