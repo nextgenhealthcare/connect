@@ -10,6 +10,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import com.mirth.commons.encryption.Encryptor;
+import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.commons.encryption.Output;
 import com.mirth.commons.encryption.PBEEncryptor;
 
@@ -92,5 +94,24 @@ public class EncryptionUtil {
         } catch (ParseException e) {
             System.err.println("Parsing failed. " + e.getMessage());
         }
+    }
+
+    /**
+     * Convenience method for re-encrypting data where all settings are the same except for the
+     * algorithm.
+     */
+    public static String decryptAndReencrypt(String message, KeyEncryptor encryptor, String oldAlgorithm) throws Exception {
+        KeyEncryptor decryptor = new KeyEncryptor();
+        decryptor.setProvider(encryptor.getProvider());
+        decryptor.setFormat(encryptor.getFormat());
+        decryptor.setKey(encryptor.getKey());
+        decryptor.setAlgorithm(oldAlgorithm);
+        decryptor.setCharset(encryptor.getCharset());
+
+        return decryptAndReencrypt(message, decryptor, encryptor);
+    }
+
+    public static String decryptAndReencrypt(String message, Encryptor decryptor, Encryptor encryptor) throws Exception {
+        return encryptor.encrypt(decryptor.decrypt(message));
     }
 }

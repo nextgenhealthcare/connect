@@ -110,14 +110,7 @@
 	
 	<target name="create-crypto" depends="compile">
 		<jar destfile="${lib}/mirth-crypto.jar" basedir="${classes}">
-			<include name="com/mirth/commons/encryption/Digester.class" />
-			<include name="com/mirth/commons/encryption/EncryptionException.class" />
-			<include name="com/mirth/commons/encryption/Encryptor.class" />
-			<include name="com/mirth/commons/encryption/KeyEncryptor.class" />
-			<include name="com/mirth/commons/encryption/Output.class" />
-			<include name="com/mirth/commons/encryption/PBEEncryptor.class" />
-			<include name="com/mirth/commons/encryption/util/DigestUtil.class" />
-			<include name="com/mirth/commons/encryption/util/EncryptionUtil.class" />
+			<include name="com/mirth/commons/encryption/**" />
 		</jar>
 	</target>
 

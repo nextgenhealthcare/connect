@@ -2,12 +2,17 @@ package com.mirth.connect.server.migration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -165,5 +170,113 @@ public class Migrate4_3_0Test {
         assertTrue(StringUtils.isEmpty(configuration.getLayout().getComment(key + ".old")));
         verify(migrator.getLogger(), times(0)).error(any(String.class));
 
+    }
+
+    @Test
+    public void testEncryptionPropertiesUpdate1() throws Exception {
+        Migrate4_3_0 migrator = new Migrate4_3_0();
+        migrator.setStartingVersion(Version.v4_2_0);
+
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        migrator.updateSecurityConfiguration(configuration);
+
+        assertEquals("AES", configuration.getString("encryption.fallback.algorithm"));
+    }
+
+    @Test
+    public void testEncryptionPropertiesUpdate2() throws Exception {
+        Migrate4_3_0 migrator = new Migrate4_3_0();
+        migrator.setStartingVersion(Version.v4_2_0);
+
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.setProperty("encryption.algorithm", "DES");
+        migrator.updateSecurityConfiguration(configuration);
+
+        assertEquals("DES", configuration.getString("encryption.fallback.algorithm"));
+    }
+
+    @Test
+    public void testEncryptionPropertiesUpdate3() throws Exception {
+        Migrate4_3_0 migrator = new Migrate4_3_0();
+        migrator.setStartingVersion(Version.v4_3_0);
+
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        migrator.updateSecurityConfiguration(configuration);
+
+        assertNull(configuration.getString("encryption.fallback.algorithm"));
+    }
+
+    @Test
+    public void testEncryptionPropertiesUpdate4() throws Exception {
+        Migrate4_3_0 migrator = spy(new Migrate4_3_0());
+        when(migrator.getDefaultCharset()).thenReturn(StandardCharsets.UTF_8.name());
+        migrator.setStartingVersion(Version.v4_2_0);
+
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        migrator.updateSecurityConfiguration(configuration);
+
+        assertNull(configuration.getString("encryption.fallback.charset"));
+    }
+
+    @Test
+    public void testEncryptionPropertiesUpdate5() throws Exception {
+        Migrate4_3_0 migrator = spy(new Migrate4_3_0());
+        String charset = Charset.forName("windows-1252").name();
+        when(migrator.getDefaultCharset()).thenReturn(charset);
+        migrator.setStartingVersion(Version.v4_2_0);
+
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        migrator.updateSecurityConfiguration(configuration);
+
+        assertEquals(charset, configuration.getString("encryption.fallback.charset"));
+    }
+
+    @Test
+    public void testEncryptionPropertiesUpdate6() throws Exception {
+        Migrate4_3_0 migrator = spy(new Migrate4_3_0());
+        String charset = Charset.forName("windows-1252").name();
+        when(migrator.getDefaultCharset()).thenReturn(charset);
+        migrator.setStartingVersion(Version.v4_3_0);
+
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        migrator.updateSecurityConfiguration(configuration);
+
+        assertNull(configuration.getString("encryption.fallback.charset"));
+    }
+
+    @Test
+    public void testEncryptionPropertiesUpdate7() throws Exception {
+        Migrate4_3_0 migrator = new Migrate4_3_0();
+        migrator.setStartingVersion(Version.v4_2_0);
+
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.setProperty("encryption.algorithm", "AES/CBC/PKCS5Padding");
+        migrator.updateSecurityConfiguration(configuration);
+
+        assertEquals("AES", configuration.getString("encryption.fallback.algorithm"));
+    }
+
+    @Test
+    public void testEncryptionPropertiesUpdate8() throws Exception {
+        Migrate4_3_0 migrator = new Migrate4_3_0();
+        migrator.setStartingVersion(Version.v4_2_0);
+
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.setProperty("encryption.algorithm", "DES/CBC/PKCS5Padding");
+        migrator.updateSecurityConfiguration(configuration);
+
+        assertEquals("DES", configuration.getString("encryption.fallback.algorithm"));
+    }
+
+    @Test
+    public void testEncryptionPropertiesUpdate9() throws Exception {
+        Migrate4_3_0 migrator = new Migrate4_3_0();
+        migrator.setStartingVersion(Version.v4_2_0);
+
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.setProperty("encryption.algorithm", "/CBC/PKCS5Padding");
+        migrator.updateSecurityConfiguration(configuration);
+
+        assertEquals("AES", configuration.getString("encryption.fallback.algorithm"));
     }
 }

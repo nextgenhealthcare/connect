@@ -1,5 +1,7 @@
 package com.mirth.connect.server.migration;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,6 +37,8 @@ public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator {
         if (getStartingVersion() == null || getStartingVersion().ordinal() < Version.v4_3_0.ordinal()) {
             updateConfiguration(configuration, "https.ciphersuites", OLD_DEFAULT_CIPHERSUITES, NEW_DEFAULT_CIPHERSUITES, CIPHERSUITES_TO_REMOVE);
             logger.error("In version 4.3.0, the following cipher suites have been disabled by default to reflect the lastest security best practices: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDH_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_DSS_WITH_AES_256_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA256, TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256, TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256, TLS_DHE_DSS_WITH_AES_128_CBC_SHA256, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDH_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
+
+            updateSecurityConfiguration(configuration);
         }
     }
 
@@ -71,6 +75,38 @@ public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator {
         }
     }
 
+    void updateSecurityConfiguration(PropertiesConfiguration configuration) {
+        if (getStartingVersion() == null || getStartingVersion().ordinal() < Version.v4_3_0.ordinal()) {
+            /*
+             * Set the encryption fallback algorithm to the previous setting, or the previous
+             * default of "AES" if it was not present.
+             */
+            String encryptionAlgorithm = configuration.getString("encryption.algorithm");
+            String encryptionFallbackAlgorithm = StringUtils.defaultIfBlank(encryptionAlgorithm, "AES");
+            if (StringUtils.contains(encryptionFallbackAlgorithm, "/")) {
+                /*
+                 * If mode/padding was specified before, then remove it, because only the base
+                 * algorithm was passed into the cipher in earlier versions.
+                 */
+                encryptionFallbackAlgorithm = StringUtils.defaultIfBlank(StringUtils.substring(encryptionFallbackAlgorithm, 0, StringUtils.indexOf(encryptionFallbackAlgorithm, '/')), "AES");
+            }
+            configuration.setProperty("encryption.fallback.algorithm", encryptionFallbackAlgorithm);
+            configuration.getLayout().setBlancLinesBefore("encryption.fallback.algorithm", 1);
+            configuration.getLayout().setComment("encryption.fallback.algorithm", "The algorithm to use when decrypting old message content.");
+
+            /*
+             * Set the encryption fallback charset to the JVM default if it's not UTF-8, as that was
+             * the behavior in previous versions.
+             */
+            String defaultCharset = getDefaultCharset();
+            if (!StringUtils.equals(defaultCharset, StandardCharsets.UTF_8.name())) {
+                configuration.setProperty("encryption.fallback.charset", defaultCharset);
+                configuration.getLayout().setBlancLinesBefore("encryption.fallback.charset", 1);
+                configuration.getLayout().setComment("encryption.fallback.charset", "The character set encoding to use when decrypting old message content");
+            }
+        }
+    }
+
 	@Override
 	public void migrate() throws MigrationException {
 
@@ -88,7 +124,16 @@ public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator {
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
-	
+
+    // Making class mockable
+    int getStartingVersionOrdinal() {
+        return getStartingVersion().ordinal();
+    }
+
+    String getDefaultCharset() {
+        return Charset.defaultCharset().name();
+    }
+
 	protected static String OLD_DEFAULT_CIPHERSUITES = "TLS_CHACHA20_POLY1305_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256,TLS_AES_256_GCM_SHA384,TLS_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,TLS_DHE_DSS_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_DSS_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384,TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384,TLS_DHE_DSS_WITH_AES_256_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,TLS_DHE_DSS_WITH_AES_256_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_DSS_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_EMPTY_RENEGOTIATION_INFO_SCSV";
 	protected static String NEW_DEFAULT_CIPHERSUITES = "TLS_CHACHA20_POLY1305_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256,TLS_AES_256_GCM_SHA384,TLS_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,TLS_DHE_DSS_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_DSS_WITH_AES_128_GCM_SHA256,TLS_EMPTY_RENEGOTIATION_INFO_SCSV";
 	@SuppressWarnings("unchecked")

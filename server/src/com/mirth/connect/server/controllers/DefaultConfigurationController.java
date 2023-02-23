@@ -1267,6 +1267,12 @@ public class DefaultConfigurationController extends ConfigurationController {
             } else {
                 databaseConfig.setDatabasePassword(decryptedPassword);
             }
+
+            if (!StringUtils.startsWith(encryptedPassword, "{")) {
+                // Re-encrypt if still using the old-style format
+                mirthConfig.setProperty(readOnly ? DatabaseConstants.DATABASE_READONLY_PASSWORD : DatabaseConstants.DATABASE_PASSWORD, EncryptionSettings.ENCRYPTION_PREFIX + encryptor.encrypt(decryptedPassword));
+                saveMirthConfig();
+            }
         } else if (StringUtils.isNotBlank(password)) {
             // encrypt the password and write it back to the file
             String encryptedPassword = EncryptionSettings.ENCRYPTION_PREFIX + encryptor.encrypt(password);
@@ -1395,7 +1401,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         if (!keyStore.containsAlias(SECRET_KEY_ALIAS)) {
             logger.debug("encryption key not found, generating new one");
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionConfig.getEncryptionAlgorithm(), provider);
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionConfig.getEncryptionBaseAlgorithm(), provider);
             keyGenerator.init(encryptionConfig.getEncryptionKeyLength());
             secretKey = keyGenerator.generateKey();
             KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(secretKey);
@@ -1414,12 +1420,25 @@ public class DefaultConfigurationController extends ConfigurationController {
         encryptor = new KeyEncryptor();
         encryptor.setProvider(provider);
         encryptor.setKey(secretKey);
+        encryptor.setAlgorithm(encryptionConfig.getEncryptionAlgorithm());
+        encryptor.setCharset(encryptionConfig.getEncryptionCharset());
+        encryptor.setFallbackAlgorithm(encryptionConfig.getEncryptionFallbackAlgorithm());
+        encryptor.setFallbackCharset(encryptionConfig.getEncryptionFallbackCharset());
         encryptor.setFormat(Output.BASE64);
 
         digester = new Digester();
         digester.setProvider(provider);
         digester.setAlgorithm(encryptionConfig.getDigestAlgorithm());
         digester.setFormat(Output.BASE64);
+
+        if (StringUtils.equalsAnyIgnoreCase(encryptionConfig.getEncryptionAlgorithm(), "AES", "DES", "DESede")) {
+            // @formatter:off
+            logger.error("Encryption algorithm is currently set to: \"" + encryptionConfig.getEncryptionAlgorithm() + "\"\n"
+                + "You should update the \"encryption.algorithm\" in mirth.properties to a more secure option, such as \"" + encryptionConfig.getEncryptionAlgorithm() + "/CBC/PKCS5Padding\".\n"
+                + "Support for the currently set algorithm will be REMOVED in a future version, so if you do not update it, Mirth Connect will fail to start.\n"
+                + "Please see the Security Best Practices -> Encryption Settings section of the User Guide for more information.");
+            // @formatter:on
+        }
     }
 
     /**

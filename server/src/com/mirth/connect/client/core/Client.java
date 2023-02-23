@@ -682,8 +682,12 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
             EncryptionSettings encryptionSettings = getEncryptionSettings();
             encryptor = new KeyEncryptor();
             encryptor.setProvider((Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance());
-            SecretKey secretKey = new SecretKeySpec(encryptionSettings.getSecretKey(), encryptionSettings.getEncryptionAlgorithm());
+            SecretKey secretKey = new SecretKeySpec(encryptionSettings.getSecretKey(), encryptionSettings.getEncryptionBaseAlgorithm());
             encryptor.setKey(secretKey);
+            encryptor.setAlgorithm(encryptionSettings.getEncryptionAlgorithm());
+            encryptor.setCharset(encryptionSettings.getEncryptionCharset());
+            encryptor.setFallbackAlgorithm(encryptionSettings.getEncryptionFallbackAlgorithm());
+            encryptor.setFallbackCharset(encryptionSettings.getEncryptionFallbackCharset());
         } catch (Exception e) {
             logger.error("Unable to load encryption settings.", e);
         }
