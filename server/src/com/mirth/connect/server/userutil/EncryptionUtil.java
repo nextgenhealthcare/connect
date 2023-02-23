@@ -33,7 +33,7 @@ public class EncryptionUtil {
      *             If the data cannot be decrypted for any reason.
      */
     public static String decrypt(String data) throws EncryptionException {
-        return getEncryptor().encrypt(data);
+        return getEncryptor().decrypt(data);
     }
 
     private static Encryptor getEncryptor() {

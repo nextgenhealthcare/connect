@@ -1436,7 +1436,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             logger.error("Encryption algorithm is currently set to: \"" + encryptionConfig.getEncryptionAlgorithm() + "\"\n"
                 + "You should update the \"encryption.algorithm\" in mirth.properties to a more secure option, such as \"" + encryptionConfig.getEncryptionAlgorithm() + "/CBC/PKCS5Padding\".\n"
                 + "Support for the currently set algorithm will be REMOVED in a future version, so if you do not update it, Mirth Connect will fail to start.\n"
-                + "Please eee the Security Best Practices -> Encryption Settings section of the User Guide for more information.");
+                + "Please see the Security Best Practices -> Encryption Settings section of the User Guide for more information.");
             // @formatter:on
         }
     }
