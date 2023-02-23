@@ -15,7 +15,6 @@ import static com.mirth.connect.plugins.serverlog.ServerLogServletInterface.PLUG
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
@@ -89,11 +88,5 @@ public class ServerLogProvider implements ServicePlugin {
     public ExtensionPermission[] getExtensionPermissions() {
         ExtensionPermission viewPermission = new ExtensionPermission(PLUGIN_POINT, PERMISSION_VIEW, "Displays the contents of the Server Log on the Dashboard.", OperationUtil.getOperationNamesForPermission(PERMISSION_VIEW, ServerLogServletInterface.class), new String[] {});
         return new ExtensionPermission[] { viewPermission };
-    }
-
-    @Override
-    public Map<String, Object> getObjectsForSwaggerExamples() {
-        // TODO Auto-generated method stub
-        return null;
     }
 }

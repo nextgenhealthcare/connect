@@ -18,7 +18,6 @@ import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.PL
 import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.TASK_START;
 import static com.mirth.connect.plugins.datapruner.DataPrunerServletInterface.TASK_STOP;
 
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
@@ -110,11 +109,5 @@ public class DataPrunerService implements ServicePlugin {
                 TASK_START, TASK_STOP });
 
         return new ExtensionPermission[] { viewPermission, savePermission, startStopPermission };
-    }
-    
-    @Override
-    public Map<String, Object> getObjectsForSwaggerExamples() {
-    	// TODO Auto-generated method stub
-    	return null;
     }
 }
