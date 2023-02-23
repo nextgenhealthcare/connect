@@ -16,17 +16,18 @@ import java.io.Serializable;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+@SuppressWarnings("serial")
 @XStreamAlias("ports")
 public class Ports implements Serializable {
     private String name;
     private String id;
-    private Integer port;
+    private String port;
 
     public Ports() {
 
     }
 
-    public Ports(String id, String name, Integer port) {
+    public Ports(String id, String name, String port) {
         this.name = name==null ? "" : name.toUpperCase();
         this.id = id;
         this.port = port;
@@ -48,11 +49,11 @@ public class Ports implements Serializable {
         return id;
     }
 
-    public void setPort(Integer port) {
+    public void setPort(String port) {
         this.port = port;
     }
 
-    public Integer getPort() {
+    public String getPort() {
         return port;
     }
 

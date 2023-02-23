@@ -38,6 +38,7 @@ import com.mirth.connect.model.Channel;
 
 import net.miginfocom.swing.MigLayout;
 
+@SuppressWarnings("serial")
 public class PortUsageDialog extends MirthDialog {
 	
     private Frame parent;
