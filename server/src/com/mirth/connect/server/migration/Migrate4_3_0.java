@@ -83,6 +83,13 @@ public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator {
              */
             String encryptionAlgorithm = configuration.getString("encryption.algorithm");
             String encryptionFallbackAlgorithm = StringUtils.defaultIfBlank(encryptionAlgorithm, "AES");
+            if (StringUtils.contains(encryptionFallbackAlgorithm, "/")) {
+                /*
+                 * If mode/padding was specified before, then remove it, because only the base
+                 * algorithm was passed into the cipher in earlier versions.
+                 */
+                encryptionFallbackAlgorithm = StringUtils.defaultIfBlank(StringUtils.substring(encryptionFallbackAlgorithm, 0, StringUtils.indexOf(encryptionFallbackAlgorithm, '/')), "AES");
+            }
             configuration.setProperty("encryption.fallback.algorithm", encryptionFallbackAlgorithm);
             configuration.getLayout().setBlancLinesBefore("encryption.fallback.algorithm", 1);
             configuration.getLayout().setComment("encryption.fallback.algorithm", "The algorithm to use when decrypting old message content.");

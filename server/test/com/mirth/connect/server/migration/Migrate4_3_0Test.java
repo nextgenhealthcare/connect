@@ -243,4 +243,40 @@ public class Migrate4_3_0Test {
 
         assertNull(configuration.getString("encryption.fallback.charset"));
     }
+
+    @Test
+    public void testEncryptionPropertiesUpdate7() throws Exception {
+        Migrate4_3_0 migrator = new Migrate4_3_0();
+        migrator.setStartingVersion(Version.v4_2_0);
+
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.setProperty("encryption.algorithm", "AES/CBC/PKCS5Padding");
+        migrator.updateSecurityConfiguration(configuration);
+
+        assertEquals("AES", configuration.getString("encryption.fallback.algorithm"));
+    }
+
+    @Test
+    public void testEncryptionPropertiesUpdate8() throws Exception {
+        Migrate4_3_0 migrator = new Migrate4_3_0();
+        migrator.setStartingVersion(Version.v4_2_0);
+
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.setProperty("encryption.algorithm", "DES/CBC/PKCS5Padding");
+        migrator.updateSecurityConfiguration(configuration);
+
+        assertEquals("DES", configuration.getString("encryption.fallback.algorithm"));
+    }
+
+    @Test
+    public void testEncryptionPropertiesUpdate9() throws Exception {
+        Migrate4_3_0 migrator = new Migrate4_3_0();
+        migrator.setStartingVersion(Version.v4_2_0);
+
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.setProperty("encryption.algorithm", "/CBC/PKCS5Padding");
+        migrator.updateSecurityConfiguration(configuration);
+
+        assertEquals("AES", configuration.getString("encryption.fallback.algorithm"));
+    }
 }
