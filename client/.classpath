@@ -143,7 +143,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dimse/dcm4che-core-2.0.29.jar"/>
 	<classpathentry kind="lib" path="/Server/setup/client-lib/userutil-sources.jar"/>
-	<classpathentry kind="lib" path="lib/mirth-crypto.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout-swing-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout-core-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-1.9.3.jar"/>
