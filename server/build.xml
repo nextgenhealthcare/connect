@@ -109,7 +109,7 @@
 
 	
 	<target name="create-crypto" depends="compile">
-		<jar destfile="${lib}/mirth-crypto.jar" basedir="${classes}">
+		<jar destfile="${setup.server.lib}/${crypto.jar}" basedir="${classes}">
 			<include name="com/mirth/commons/encryption/**" />
 		</jar>
 	</target>
@@ -129,8 +129,6 @@
 
 			<include name="version.properties" />
 		</jar>
-
-		<copy file="${lib}/mirth-crypto.jar" todir="${setup.server.lib}" />
 	</target>
 
 	<target name="create-connectors" depends="create-client-core">
