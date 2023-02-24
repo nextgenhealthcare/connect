@@ -2460,6 +2460,7 @@ public class JdbcDao implements DonkeyDao {
         }
     }
 
+    @SuppressWarnings("resource")
     private boolean tableExists(String tableName) {
         ResultSet resultSet = null;
 
@@ -3112,7 +3113,7 @@ public class JdbcDao implements DonkeyDao {
                     Ports port = new Ports();
                     port.setId(resultSet.getString("id"));
                     port.setName(resultSet.getString("name"));
-                    port.setPort(resultSet.getInt("portstring"));
+                    port.setPort(resultSet.getString("portstring"));
                     ports.add(port);
                 }
             } catch (SQLException e) {

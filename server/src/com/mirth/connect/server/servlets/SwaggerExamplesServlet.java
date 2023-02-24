@@ -598,8 +598,8 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	
 	private List<Ports> getChannelPortsInUseExample(){
 	    List<Ports> portsUsed = new ArrayList<Ports>();
-	    Ports ports1 = new Ports(UUID.randomUUID().toString(),"Default WebClient Port", 8080);
-	    Ports ports2 = new Ports(UUID.randomUUID().toString(),"Default Administrator Port", 8443);
+	    Ports ports1 = new Ports(UUID.randomUUID().toString(),"Default WebClient Port", "8080");
+	    Ports ports2 = new Ports(UUID.randomUUID().toString(),"Default Administrator Port", "8443");
 	    portsUsed.add(ports1);
 	    portsUsed.add(ports2);
 	    return portsUsed;

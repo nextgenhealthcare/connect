@@ -56,6 +56,7 @@ import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.StatementLock;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class DefaultChannelController extends ChannelController {
     public static final String VACUUM_LOCK_CHANNEL_STATEMENT_ID = "Channel.vacuumChannelTable";
@@ -1102,7 +1103,17 @@ public class DefaultChannelController extends ChannelController {
     @Override
     public List<Ports> getPortsInUse() {
         logger.debug("getting ports in use");
-        return com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getPortsInUse();
+        try {
+            TemplateValueReplacer replacer = new TemplateValueReplacer();
+            List<Ports> portsList = com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getPortsInUse();
+            for (Ports portsItem : portsList) {
+                portsItem.setPort(replacer.replaceValues(portsItem.getPort(), portsItem.getId(), portsItem.getName()));
+            }
+            return portsList;
+        } catch (Exception ex) {
+            logger.error("getting ports in use: " + ex.toString());
+            return null;
+        }
     }
     
 }
