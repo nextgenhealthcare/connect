@@ -104,7 +104,7 @@ public class FilterTransformerExecutor {
             try {
                 result = filterTransformer.doFilterTransform(connectorMessage);
             } catch (FilterTransformerException e) {
-                logger.error("Error executing filter transformer for channel " + connectorMessage.getChannelName() + " (" + connectorMessage.getChannelId() + ").", e);
+                logger.error("Error executing filter or transformer for channel " + connectorMessage.getChannelName() + " (" + connectorMessage.getChannelId() + ") on source or destination " + connectorMessage.getConnectorName() + ".", e);
                 connectorMessage.setStatus(Status.ERROR);
                 connectorMessage.setProcessingError(connectorMessage.getProcessingError() != null ? connectorMessage.getProcessingError() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
                 return;
