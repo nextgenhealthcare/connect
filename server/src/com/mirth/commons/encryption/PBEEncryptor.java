@@ -100,7 +100,7 @@ public class PBEEncryptor extends Encryptor {
         }
 
         try {
-            byte[] encrypted = encrypt(message.getBytes());
+            byte[] encrypted = doEncrypt(message.getBytes());
 
             if (getFormat() == Output.HEXADECIMAL) {
                 return Hex.encodeHexString(encrypted);
@@ -113,7 +113,12 @@ public class PBEEncryptor extends Encryptor {
 
     }
 
-    private byte[] encrypt(final byte[] message) throws Exception {
+    @Override
+    public EncryptedData encrypt(final byte[] data) throws EncryptionException {
+        throw new UnsupportedOperationException();
+    }
+
+    private byte[] doEncrypt(final byte[] message) throws Exception {
         byte[] salt = saltGenerator.generateSeed(saltSizeBytes);
         PBEParameterSpec parameterSpec = new PBEParameterSpec(salt, iterations);
         Cipher cipher = Cipher.getInstance(getAlgorithm(), getProvider());
@@ -146,6 +151,11 @@ public class PBEEncryptor extends Encryptor {
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
+    }
+
+    @Override
+    public byte[] decrypt(String header, byte[] data) throws EncryptionException {
+        throw new UnsupportedOperationException();
     }
 
     private byte[] decrypt(final byte[] message) throws Exception {

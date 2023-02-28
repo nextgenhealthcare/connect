@@ -2,6 +2,7 @@ package com.mirth.commons.encryption.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -11,7 +12,9 @@ import java.security.Key;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,6 +30,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 
 import com.mirth.commons.encryption.EncryptionException;
+import com.mirth.commons.encryption.Encryptor.EncryptedData;
 import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.commons.encryption.Output;
 import com.mirth.commons.encryption.util.EncryptionUtil;
@@ -327,11 +331,14 @@ public class KeyEncryptorTest {
     }
 
     private void testEncryptAndDecrypt(EncryptionSettings oldEncryptionSettings, EncryptionSettings encryptionSettings, boolean ignoreSameOutput) throws Exception {
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, null);
         testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, "testing123");
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, "testing123".getBytes(StandardCharsets.UTF_8));
         testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, "testing123456789");
         testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, "testing123456789testing123456789");
         testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, getRandomString(16 * 4096));
         testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, new String(getRandomBytes((16 * 4096) - 1), StandardCharsets.UTF_8));
+        testEncryptAndDecrypt(oldEncryptionSettings, encryptionSettings, ignoreSameOutput, getRandomBytes((16 * 4096) - 1));
 
         String[] messages = new String[100];
         for (int i = 0; i < messages.length; i++) {
@@ -350,10 +357,11 @@ public class KeyEncryptorTest {
      * 6. Decrypt both messages
      * 7. Both decrypted messages should be identical to the input
      * 8. Test with the old-style encryption (see below)
-     * 9. Test with EncryptionUtil.decryptAndReencrypt
+     * 9. Test with malformed input
+     * 10. Test with EncryptionUtil.decryptAndReencrypt
      * @formatter:on
      */
-    private void testEncryptAndDecrypt(EncryptionSettings oldEncryptionSettings, EncryptionSettings encryptionSettings, boolean ignoreSameOutput, String message) throws Exception {
+    private void testEncryptAndDecrypt(EncryptionSettings oldEncryptionSettings, EncryptionSettings encryptionSettings, boolean ignoreSameOutput, Object message) throws Exception {
         Provider oldProvider = (Provider) Class.forName(oldEncryptionSettings.getSecurityProvider()).newInstance();
         KeyGenerator keyGenerator = KeyGenerator.getInstance(oldEncryptionSettings.getEncryptionBaseAlgorithm(), oldProvider);
         keyGenerator.init(oldEncryptionSettings.getEncryptionKeyLength());
@@ -366,33 +374,66 @@ public class KeyEncryptorTest {
         oldEncryptor.setCharset(oldEncryptionSettings.getEncryptionCharset());
         oldEncryptor.setFormat(Output.BASE64);
 
-        String encrypted1 = oldEncryptor.encrypt(message);
-        String encrypted2 = oldEncryptor.encrypt(message);
+        Object encrypted1, encrypted2;
 
-        // Should not be equal to the input message
-        assertFalse(message.equals(encrypted1));
-        assertFalse(message.equals(encrypted2));
+        if (message == null) {
+            encrypted1 = oldEncryptor.encrypt((String) message);
+            encrypted2 = oldEncryptor.encrypt((String) message);
 
-        assertTrue(StringUtils.startsWith(encrypted1, "{" + KeyEncryptor.ALGORITHM_PARAM));
-        assertTrue(StringUtils.startsWith(encrypted2, "{" + KeyEncryptor.ALGORITHM_PARAM));
+            assertNull(encrypted1);
+            assertNull(encrypted2);
+        } else {
+            EncryptionParts encryptedParts1, encryptedParts2;
 
-        EncryptionParts encryptedParts1 = splitEncrypted(encrypted1, oldProvider);
-        EncryptionParts encryptedParts2 = splitEncrypted(encrypted2, oldProvider);
+            if (message instanceof String) {
+                encrypted1 = oldEncryptor.encrypt((String) message);
+                encrypted2 = oldEncryptor.encrypt((String) message);
 
-        // The algorithms should be correct
-        assertEquals(oldEncryptionSettings.getEncryptionAlgorithm(), encryptedParts1.algorithm);
-        assertEquals(oldEncryptionSettings.getEncryptionAlgorithm(), encryptedParts2.algorithm);
+                // Should not be equal to the input message
+                assertFalse(Objects.equals(message, encrypted1));
+                assertFalse(Objects.equals(message, encrypted2));
 
-        // The charsets should be correct
-        assertEquals(oldEncryptionSettings.getEncryptionCharset(), encryptedParts1.charset);
-        assertEquals(oldEncryptionSettings.getEncryptionCharset(), encryptedParts2.charset);
+                assertTrue(StringUtils.startsWith((String) encrypted1, "{" + KeyEncryptor.ALGORITHM_PARAM));
+                assertTrue(StringUtils.startsWith((String) encrypted2, "{" + KeyEncryptor.ALGORITHM_PARAM));
 
-        // The IVs should not be equal
-        assertFalse(encryptedParts1.iv.equals(encryptedParts2.iv));
+                encryptedParts1 = splitEncrypted((String) encrypted1, oldProvider);
+                encryptedParts2 = splitEncrypted((String) encrypted2, oldProvider);
+            } else {
+                EncryptedData enc1 = oldEncryptor.encrypt((byte[]) message);
+                encrypted1 = enc1;
+                EncryptedData enc2 = oldEncryptor.encrypt((byte[]) message);
+                encrypted2 = enc2;
 
-        if (!ignoreSameOutput) {
-            // The encrypted data also should not be equal when not using default AES
-            assertFalse(encryptedParts1.encrypted.equals(encryptedParts2.encrypted));
+                // Should not be equal to the input message
+                assertFalse(Arrays.equals((byte[]) message, enc1.getEncryptedData()));
+                assertFalse(Arrays.equals((byte[]) message, enc2.getEncryptedData()));
+
+                assertTrue(StringUtils.startsWith(enc1.getHeader(), "{" + KeyEncryptor.ALGORITHM_PARAM));
+                assertTrue(StringUtils.startsWith(enc2.getHeader(), "{" + KeyEncryptor.ALGORITHM_PARAM));
+
+                encryptedParts1 = splitEncrypted(enc1.getHeader(), oldProvider);
+                encryptedParts2 = splitEncrypted(enc2.getHeader(), oldProvider);
+            }
+
+            // The algorithms should be correct
+            assertEquals(oldEncryptionSettings.getEncryptionAlgorithm(), encryptedParts1.algorithm);
+            assertEquals(oldEncryptionSettings.getEncryptionAlgorithm(), encryptedParts2.algorithm);
+
+            // The charsets should be correct
+            assertEquals(oldEncryptionSettings.getEncryptionCharset(), encryptedParts1.charset);
+            assertEquals(oldEncryptionSettings.getEncryptionCharset(), encryptedParts2.charset);
+
+            // The IVs should not be equal
+            assertFalse(encryptedParts1.iv.equals(encryptedParts2.iv));
+
+            if (!ignoreSameOutput) {
+                // The encrypted data also should not be equal when not using default AES
+                if (message instanceof String) {
+                    assertFalse(encryptedParts1.encrypted.equals(encryptedParts2.encrypted));
+                } else {
+                    assertFalse(Arrays.equals(((EncryptedData) encrypted1).getEncryptedData(), ((EncryptedData) encrypted2).getEncryptedData()));
+                }
+            }
         }
 
         Provider provider = (Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance();
@@ -404,16 +445,27 @@ public class KeyEncryptorTest {
         encryptor.setCharset(encryptionSettings.getEncryptionCharset());
         encryptor.setFormat(Output.BASE64);
 
-        String decrypted1 = encryptor.decrypt(encrypted1);
-        String decrypted2 = encryptor.decrypt(encrypted2);
+        if (message instanceof String || message == null) {
+            String decrypted1 = encryptor.decrypt((String) encrypted1);
+            String decrypted2 = encryptor.decrypt((String) encrypted2);
 
-        // Both decrypted messages should be equal to the input
-        assertEquals(message, decrypted1);
-        assertEquals(message, decrypted2);
+            // Both decrypted messages should be equal to the input
+            assertEquals(message, decrypted1);
+            assertEquals(message, decrypted2);
+        } else {
+            byte[] decrypted1 = encryptor.decrypt(((EncryptedData) encrypted1).getHeader(), ((EncryptedData) encrypted1).getEncryptedData());
+            byte[] decrypted2 = encryptor.decrypt(((EncryptedData) encrypted2).getHeader(), ((EncryptedData) encrypted2).getEncryptedData());
+
+            // Both decrypted messages should be equal to the input
+            assertTrue(Arrays.equals((byte[]) message, decrypted1));
+            assertTrue(Arrays.equals((byte[]) message, decrypted2));
+        }
 
         testOldEncryption(encryptionSettings, message);
 
-        testMalformedInput(encryptionSettings, message);
+        if (message != null) {
+            testMalformedInput(encryptionSettings, message);
+        }
 
         testDecryptAndReencrypt(oldEncryptionSettings, encryptionSettings, message);
     }
@@ -422,12 +474,12 @@ public class KeyEncryptorTest {
      * Ensure that the old-style encrypted messages without the {iv} header can still be decrypted
      * without issues.
      */
-    private void testOldEncryption(EncryptionSettings encryptionSettings, String message) throws Exception {
+    private void testOldEncryption(EncryptionSettings encryptionSettings, Object message) throws Exception {
         testOldEncryption(encryptionSettings, message, encryptionSettings.getEncryptionAlgorithm());
         testOldEncryption(encryptionSettings, message, encryptionSettings.getEncryptionBaseAlgorithm());
     }
 
-    private void testOldEncryption(EncryptionSettings encryptionSettings, String message, String oldAlgorithm) throws Exception {
+    private void testOldEncryption(EncryptionSettings encryptionSettings, Object message, String oldAlgorithm) throws Exception {
         Provider provider = (Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance();
         KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionSettings.getEncryptionBaseAlgorithm(), provider);
         keyGenerator.init(encryptionSettings.getEncryptionKeyLength());
@@ -442,8 +494,16 @@ public class KeyEncryptorTest {
         Cipher cipher = Cipher.getInstance(oldAlgorithm, provider);
         IvParameterSpec parameterSpec = new IvParameterSpec(new byte[cipher.getBlockSize()]);
         cipher.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
-        byte[] encrypted = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
-        String encrypted1 = new String(Base64.encodeBase64Chunked(encrypted), StandardCharsets.UTF_8);
+        byte[] encrypted;
+        String encryptedStr = null;
+        if (message == null) {
+            encrypted = cipher.doFinal();
+        } else if (message instanceof String) {
+            encrypted = cipher.doFinal(((String) message).getBytes(StandardCharsets.UTF_8));
+            encryptedStr = new String(Base64.encodeBase64Chunked(encrypted), StandardCharsets.UTF_8);
+        } else {
+            encrypted = cipher.doFinal((byte[]) message);
+        }
 
         KeyEncryptor encryptor = new KeyEncryptor();
         encryptor.setProvider(provider);
@@ -452,15 +512,22 @@ public class KeyEncryptorTest {
         encryptor.setFallbackAlgorithm(oldAlgorithm);
         encryptor.setFormat(Output.BASE64);
 
-        assertFalse(StringUtils.startsWith(encrypted1, "{"));
+        if (message instanceof String || message == null) {
+            assertFalse(StringUtils.startsWith(encryptedStr, "{"));
 
-        String decrypted1 = encryptor.decrypt(encrypted1);
+            String decrypted1 = encryptor.decrypt(encryptedStr);
 
-        // Decrypted message should be equal to the input
-        assertEquals(message, decrypted1);
+            // Decrypted message should be equal to the input
+            assertEquals(message, decrypted1);
+        } else {
+            byte[] decrypted1 = encryptor.decrypt(null, encrypted);
+
+            // Decrypted message should be equal to the input
+            assertTrue(Arrays.equals((byte[]) message, decrypted1));
+        }
     }
 
-    private void testMalformedInput(EncryptionSettings encryptionSettings, String message) throws Exception {
+    private void testMalformedInput(EncryptionSettings encryptionSettings, Object message) throws Exception {
         Provider provider = (Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance();
         KeyGenerator keyGenerator = KeyGenerator.getInstance(encryptionSettings.getEncryptionBaseAlgorithm(), provider);
         keyGenerator.init(encryptionSettings.getEncryptionKeyLength());
@@ -468,10 +535,17 @@ public class KeyEncryptorTest {
 
         Cipher cipher = Cipher.getInstance(encryptionSettings.getEncryptionAlgorithm(), provider);
         byte[] iv = new byte[cipher.getBlockSize()];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(iv);
         IvParameterSpec parameterSpec = new IvParameterSpec(iv);
         cipher.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
-        byte[] encrypted = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
-        String encrypted1 = new String(Base64.encodeBase64Chunked(encrypted), StandardCharsets.UTF_8);
+        Object encrypted;
+        if (message instanceof String) {
+            byte[] enc = cipher.doFinal(((String) message).getBytes(StandardCharsets.UTF_8));
+            encrypted = new String(Base64.encodeBase64Chunked(enc), StandardCharsets.UTF_8);
+        } else {
+            encrypted = cipher.doFinal((byte[]) message);
+        }
 
         KeyEncryptor encryptor = new KeyEncryptor();
         encryptor.setProvider(provider);
@@ -479,30 +553,47 @@ public class KeyEncryptorTest {
         encryptor.setAlgorithm(encryptionSettings.getEncryptionAlgorithm());
         encryptor.setFormat(Output.BASE64);
 
-        assertFalse(StringUtils.startsWith(encrypted1, "{"));
-
-        // Decrypted message should be equal to the input
-        String decrypted1 = encryptor.decrypt(encrypted1);
-        assertEquals(message, decrypted1);
-
-        // Correct IV
         String correctIV = Base64.encodeBase64String(iv);
-        String decrypted2 = encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + "}" + encrypted1);
-        assertEquals(message, decrypted2);
+        String correctHeader = "{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + "}";
+
+        if (message instanceof String) {
+            assertFalse(StringUtils.startsWith((String) encrypted, "{"));
+
+            // Decrypted message should be equal to the input
+            String decrypted1 = encryptor.decrypt(correctHeader + (String) encrypted);
+            assertEquals(message, decrypted1);
+        } else {
+            byte[] decrypted1 = encryptor.decrypt(correctHeader, (byte[]) encrypted);
+
+            // Decrypted message should be equal to the input
+            assertTrue(Arrays.equals((byte[]) message, decrypted1));
+        }
+
+        // Correct header
+        Object decrypted2 = decryptMalformedInput(encryptor, correctHeader, encrypted);
+        if (message instanceof String) {
+            assertEquals(message, decrypted2);
+        } else {
+            assertTrue(Arrays.equals((byte[]) message, (byte[]) decrypted2));
+        }
 
         if (!encryptionSettings.getEncryptionBaseAlgorithm().equals(encryptionSettings.getEncryptionAlgorithm())) {
             // Incorrect IV
             try {
-                String decrypted = encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=RrwzKW8JX9qn09im9r5ZpQ==}" + encrypted1);
+                Object decrypted = decryptMalformedInput(encryptor, "{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=RrwzKW8JX9qn09im9r5ZpQ==}", encrypted);
                 // If it succeeds but just outputs garbage, make sure it doesn't equal the input
-                assertFalse(message.equals(decrypted));
+                if (message instanceof String) {
+                    assertFalse(message.equals(decrypted));
+                } else {
+                    assertFalse(Arrays.equals((byte[]) message, (byte[]) decrypted));
+                }
             } catch (EncryptionException e) {
                 // Expected
             }
 
             // Missing IV
             try {
-                encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=}" + encrypted1);
+                decryptMalformedInput(encryptor, "{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=}", encrypted);
                 fail("Should have thrown an exception");
             } catch (EncryptionException e) {
                 // Expected
@@ -510,8 +601,34 @@ public class KeyEncryptorTest {
 
             // Malformed IV
             try {
-                encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=blahblah!@#}" + encrypted1);
+                decryptMalformedInput(encryptor, "{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=blahblah!@#}", encrypted);
                 fail("Should have thrown an exception");
+            } catch (EncryptionException e) {
+                // Expected
+            }
+
+            // Malformed Header, missing start {
+            try {
+                Object decrypted = decryptMalformedInput(encryptor, "alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + "}", encrypted);
+                // If it succeeds but just outputs garbage, make sure it doesn't equal the input
+                if (message instanceof String) {
+                    assertFalse(message.equals(decrypted));
+                } else {
+                    assertFalse(Arrays.equals((byte[]) message, (byte[]) decrypted));
+                }
+            } catch (EncryptionException e) {
+                // Expected
+            }
+
+            // Malformed Header, missing start {
+            try {
+                Object decrypted = decryptMalformedInput(encryptor, " {alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + "}", encrypted);
+                // If it succeeds but just outputs garbage, make sure it doesn't equal the input
+                if (message instanceof String) {
+                    assertFalse(message.equals(decrypted));
+                } else {
+                    assertFalse(Arrays.equals((byte[]) message, (byte[]) decrypted));
+                }
             } catch (EncryptionException e) {
                 // Expected
             }
@@ -519,7 +636,7 @@ public class KeyEncryptorTest {
 
         // Malformed IV 2
         try {
-            encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv}" + encrypted1);
+            decryptMalformedInput(encryptor, "{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv}", encrypted);
             fail("Should have thrown an exception");
         } catch (EncryptionException e) {
             // Expected
@@ -531,7 +648,7 @@ public class KeyEncryptorTest {
             if (wrongAlgorithm.equals(encryptionSettings.getEncryptionAlgorithm())) {
                 wrongAlgorithm = "AES/CBC/PKCS5Padding";
             }
-            encryptor.decrypt("{alg=" + wrongAlgorithm + ",cs=UTF-8,iv=" + correctIV + "}" + encrypted1);
+            decryptMalformedInput(encryptor, "{alg=" + wrongAlgorithm + ",cs=UTF-8,iv=" + correctIV + "}", encrypted);
             fail("Should have thrown an exception");
         } catch (EncryptionException e) {
             // Expected
@@ -539,7 +656,7 @@ public class KeyEncryptorTest {
 
         // Malformed Header, missing end }
         try {
-            encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + encrypted1);
+            decryptMalformedInput(encryptor, "{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV, encrypted);
             fail("Should have thrown an exception");
         } catch (EncryptionException e) {
             // Expected
@@ -547,7 +664,7 @@ public class KeyEncryptorTest {
 
         // Malformed Header, missing ,
         try {
-            encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8iv=" + correctIV + "}" + encrypted1);
+            decryptMalformedInput(encryptor, "{alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8iv=" + correctIV + "}", encrypted);
             fail("Should have thrown an exception");
         } catch (EncryptionException e) {
             // Expected
@@ -555,7 +672,7 @@ public class KeyEncryptorTest {
 
         // Malformed Header, missing ,
         try {
-            encryptor.decrypt("{alg=" + encryptionSettings.getEncryptionAlgorithm() + "cs=UTF-8,iv=" + correctIV + "}" + encrypted1);
+            decryptMalformedInput(encryptor, "{alg=" + encryptionSettings.getEncryptionAlgorithm() + "cs=UTF-8,iv=" + correctIV + "}", encrypted);
             fail("Should have thrown an exception");
         } catch (EncryptionException e) {
             // Expected
@@ -563,7 +680,7 @@ public class KeyEncryptorTest {
 
         // Malformed Header, missing =
         try {
-            encryptor.decrypt("{alg" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + "}" + encrypted1);
+            decryptMalformedInput(encryptor, "{alg" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + "}", encrypted);
             fail("Should have thrown an exception");
         } catch (EncryptionException e) {
             // Expected
@@ -571,33 +688,25 @@ public class KeyEncryptorTest {
 
         // Malformed Header, wrong order
         try {
-            encryptor.decrypt("{cs=UTF-8,alg=" + encryptionSettings.getEncryptionAlgorithm() + ",iv=" + correctIV + "}" + encrypted1);
-            fail("Should have thrown an exception");
-        } catch (EncryptionException e) {
-            // Expected
-        }
-
-        // Malformed Header, missing start {
-        try {
-            encryptor.decrypt("alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + "}" + encrypted1);
-            fail("Should have thrown an exception");
-        } catch (EncryptionException e) {
-            // Expected
-        }
-
-        // Malformed Header, missing start {
-        try {
-            encryptor.decrypt(" {alg=" + encryptionSettings.getEncryptionAlgorithm() + ",cs=UTF-8,iv=" + correctIV + "}" + encrypted1);
+            decryptMalformedInput(encryptor, "{cs=UTF-8,alg=" + encryptionSettings.getEncryptionAlgorithm() + ",iv=" + correctIV + "}", encrypted);
             fail("Should have thrown an exception");
         } catch (EncryptionException e) {
             // Expected
         }
     }
 
+    private Object decryptMalformedInput(KeyEncryptor encryptor, String header, Object encrypted) {
+        if (encrypted instanceof String) {
+            return encryptor.decrypt(header + (String) encrypted);
+        } else {
+            return encryptor.decrypt(header, (byte[]) encrypted);
+        }
+    }
+
     /*
      * Test EncryptionUtil.decryptAndReencrypt
      */
-    private void testDecryptAndReencrypt(EncryptionSettings oldEncryptionSettings, EncryptionSettings encryptionSettings, String message) throws Exception {
+    private void testDecryptAndReencrypt(EncryptionSettings oldEncryptionSettings, EncryptionSettings encryptionSettings, Object message) throws Exception {
         Provider oldProvider = (Provider) Class.forName(oldEncryptionSettings.getSecurityProvider()).newInstance();
         KeyGenerator keyGenerator = KeyGenerator.getInstance(oldEncryptionSettings.getEncryptionBaseAlgorithm(), oldProvider);
         keyGenerator.init(oldEncryptionSettings.getEncryptionKeyLength());
@@ -611,7 +720,12 @@ public class KeyEncryptorTest {
         oldEncryptor.setAlgorithm(oldAlgorithm);
         oldEncryptor.setCharset(oldEncryptionSettings.getEncryptionCharset());
         oldEncryptor.setFormat(Output.BASE64);
-        String oldEncrypted = oldEncryptor.encrypt(message);
+        Object oldEncrypted;
+        if (message instanceof String) {
+            oldEncrypted = oldEncryptor.encrypt((String) message);
+        } else {
+            oldEncrypted = oldEncryptor.encrypt((byte[]) message);
+        }
 
         Provider provider = (Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance();
 
@@ -622,12 +736,21 @@ public class KeyEncryptorTest {
         encryptor.setCharset(encryptionSettings.getEncryptionCharset());
         encryptor.setFormat(Output.BASE64);
 
-        String newEncrypted = EncryptionUtil.decryptAndReencrypt(oldEncrypted, encryptor, oldAlgorithm);
+        if (message instanceof String) {
+            String newEncrypted = EncryptionUtil.decryptAndReencrypt((String) oldEncrypted, encryptor, oldAlgorithm);
 
-        String decrypted = encryptor.decrypt(newEncrypted);
+            String decrypted = encryptor.decrypt(newEncrypted);
 
-        // Decrypted message should be equal to the input
-        assertEquals(message, decrypted);
+            // Decrypted message should be equal to the input
+            assertEquals(message, decrypted);
+        } else {
+            EncryptedData newEncrypted = EncryptionUtil.decryptAndReencrypt(((EncryptedData) oldEncrypted).getHeader(), ((EncryptedData) oldEncrypted).getEncryptedData(), encryptor, oldAlgorithm);
+
+            byte[] decrypted = encryptor.decrypt(newEncrypted.getHeader(), newEncrypted.getEncryptedData());
+
+            // Decrypted message should be equal to the input
+            assertTrue(Arrays.equals((byte[]) message, decrypted));
+        }
     }
 
     /*
@@ -752,10 +875,10 @@ public class KeyEncryptorTest {
         byte[] iv = Base64.decodeBase64(StringUtils.substring(data, 0, index));
         data = StringUtils.substring(data, index + 1);
 
-        byte[] encrypted = Base64.decodeBase64(data);
+        byte[] encrypted = StringUtils.isNotBlank(data) ? Base64.decodeBase64(data) : null;
 
         String ivBase64 = new String(Base64.encodeBase64Chunked(iv), StandardCharsets.UTF_8);
-        String encryptedBase64 = new String(Base64.encodeBase64Chunked(encrypted), StandardCharsets.UTF_8);
+        String encryptedBase64 = encrypted != null ? new String(Base64.encodeBase64Chunked(encrypted), StandardCharsets.UTF_8) : null;
 
         return new EncryptionParts(algorithm, charset, ivBase64, encryptedBase64);
     }

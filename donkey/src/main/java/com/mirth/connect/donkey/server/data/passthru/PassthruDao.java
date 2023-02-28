@@ -61,7 +61,7 @@ public class PassthruDao implements DonkeyDao {
     }
 
     @Override
-    public void setEncryptData(boolean encryptData) {}
+    public void setEncryptData(boolean encryptMessageContent, boolean encryptAttachments, boolean encryptCustomMetaData) {}
 
     @Override
     public void setDecryptData(boolean decryptData) {}

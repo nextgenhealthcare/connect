@@ -9,16 +9,19 @@
 
 package com.mirth.connect.util;
 
-import org.apache.commons.codec.binary.StringUtils;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.commons.encryption.Encryptor;
+import com.mirth.commons.encryption.Encryptor.EncryptedData;
+import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ErrorContent;
 import com.mirth.connect.donkey.model.message.MapContent;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.donkey.server.Constants;
 import com.mirth.connect.donkey.util.MapUtil;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
@@ -53,6 +56,7 @@ public class MessageEncryptionUtil {
             decryptErrorContent(connectorMessage.getProcessingErrorContent(), encryptor);
             decryptErrorContent(connectorMessage.getPostProcessorErrorContent(), encryptor);
             decryptErrorContent(connectorMessage.getResponseErrorContent(), encryptor);
+            decryptMetaDataMap(connectorMessage.getMetaDataMap(), encryptor);
         }
     }
 
@@ -85,10 +89,20 @@ public class MessageEncryptionUtil {
 
     public static void decryptAttachment(Attachment attachment, Encryptor encryptor) {
         if (attachment != null && attachment.getContent() != null && attachment.isEncrypted()) {
-            String decryptedByteString = encryptor.decrypt(StringUtils.newString(attachment.getContent(), Constants.ATTACHMENT_CHARSET));
-
-            attachment.setContent(com.mirth.connect.donkey.util.StringUtil.getBytesUncheckedChunked(decryptedByteString, Constants.ATTACHMENT_CHARSET));
+            attachment.setContent(encryptor.decrypt(attachment.getEncryptionHeader(), attachment.getContent()));
+            attachment.setEncryptionHeader(null);
             attachment.setEncrypted(false);
+        }
+    }
+
+    public static void decryptMetaDataMap(Map<String, Object> metaDataMap, Encryptor encryptor) {
+        if (metaDataMap != null) {
+            for (String key : metaDataMap.keySet().toArray(new String[metaDataMap.size()])) {
+                Object value = metaDataMap.get(key);
+                if (value instanceof String && StringUtils.startsWith((String) value, KeyEncryptor.HEADER_INDICATOR)) {
+                    metaDataMap.put(key, encryptor.decrypt((String) value));
+                }
+            }
         }
     }
 
@@ -121,6 +135,7 @@ public class MessageEncryptionUtil {
             encryptErrorContent(connectorMessage.getProcessingErrorContent(), encryptor);
             encryptErrorContent(connectorMessage.getPostProcessorErrorContent(), encryptor);
             encryptErrorContent(connectorMessage.getResponseErrorContent(), encryptor);
+            encryptMetaDataMap(connectorMessage.getMetaDataMap(), encryptor);
         }
     }
 
@@ -153,10 +168,21 @@ public class MessageEncryptionUtil {
 
     public static void encryptAttachment(Attachment attachment, Encryptor encryptor) {
         if (attachment != null && attachment.getContent() != null && !attachment.isEncrypted()) {
-            String encryptedContents = encryptor.encrypt(StringUtils.newString(attachment.getContent(), Constants.ATTACHMENT_CHARSET));
-
-            attachment.setContent(com.mirth.connect.donkey.util.StringUtil.getBytesUncheckedChunked(encryptedContents, Constants.ATTACHMENT_CHARSET));
+            EncryptedData result = encryptor.encrypt(attachment.getContent());
+            attachment.setEncryptionHeader(result.getHeader());
+            attachment.setContent(result.getEncryptedData());
             attachment.setEncrypted(true);
+        }
+    }
+
+    public static void encryptMetaDataMap(Map<String, Object> metaDataMap, Encryptor encryptor) {
+        if (metaDataMap != null) {
+            for (String key : metaDataMap.keySet().toArray(new String[metaDataMap.size()])) {
+                Object value = metaDataMap.get(key);
+                if (value instanceof String && !StringUtils.startsWith((String) value, KeyEncryptor.HEADER_INDICATOR)) {
+                    metaDataMap.put(key, encryptor.encrypt((String) value));
+                }
+            }
         }
     }
 }

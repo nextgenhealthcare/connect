@@ -51,6 +51,7 @@ import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.Encryptor;
+import com.mirth.connect.donkey.server.Encryptor.EncryptedData;
 import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.donkey.server.data.ChannelDoesNotExistException;
@@ -66,7 +67,9 @@ public class JdbcDao implements DonkeyDao {
     private QuerySource querySource;
     private PreparedStatementSource statementSource;
     private SerializerProvider serializerProvider;
-    private boolean encryptData;
+    private boolean encryptMessageContent;
+    private boolean encryptAttachments;
+    private boolean encryptCustomMetaData;
     private boolean decryptData;
     private StatisticsUpdater statisticsUpdater;
     private Set<ContentType> alwaysDecrypt = new HashSet<ContentType>();
@@ -84,13 +87,15 @@ public class JdbcDao implements DonkeyDao {
     private char quoteChar = '"';
     private Logger logger = LogManager.getLogger(this.getClass());
 
-    protected JdbcDao(Donkey donkey, Connection connection, QuerySource querySource, PreparedStatementSource statementSource, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData, StatisticsUpdater statisticsUpdater, Statistics currentStats, Statistics totalStats, String statsServerId) {
+    protected JdbcDao(Donkey donkey, Connection connection, QuerySource querySource, PreparedStatementSource statementSource, SerializerProvider serializerProvider, boolean encryptMessageContent, boolean encryptAttachments, boolean encryptCustomMetaData, boolean decryptData, StatisticsUpdater statisticsUpdater, Statistics currentStats, Statistics totalStats, String statsServerId) {
         this.donkey = donkey;
         this.connection = connection;
         this.querySource = querySource;
         this.statementSource = statementSource;
         this.serializerProvider = serializerProvider;
-        this.encryptData = encryptData;
+        this.encryptMessageContent = encryptMessageContent;
+        this.encryptAttachments = encryptAttachments;
+        this.encryptCustomMetaData = encryptCustomMetaData;
         this.decryptData = decryptData;
         this.statisticsUpdater = statisticsUpdater;
         this.currentStats = currentStats;
@@ -104,8 +109,10 @@ public class JdbcDao implements DonkeyDao {
     }
 
     @Override
-    public void setEncryptData(boolean encryptData) {
-        this.encryptData = encryptData;
+    public void setEncryptData(boolean encryptMessageContent, boolean encryptAttachments, boolean encryptCustomMetaData) {
+        this.encryptMessageContent = encryptMessageContent;
+        this.encryptAttachments = encryptAttachments;
+        this.encryptCustomMetaData = encryptCustomMetaData;
     }
 
     @Override
@@ -211,7 +218,7 @@ public class JdbcDao implements DonkeyDao {
             boolean encrypted;
 
             // Only encrypt if the content is not already encrypted
-            if (encryptData && encryptor != null && !messageContent.isEncrypted()) {
+            if (encryptMessageContent && encryptor != null && !messageContent.isEncrypted()) {
                 content = encryptor.encrypt(messageContent.getContent());
                 encrypted = true;
             } else {
@@ -270,7 +277,7 @@ public class JdbcDao implements DonkeyDao {
         PreparedStatement statement = null;
         try {
             // Only encrypt if the content is not already encrypted
-            if (encryptData && encryptor != null && !encrypted) {
+            if (encryptMessageContent && encryptor != null && !encrypted) {
                 content = encryptor.encrypt(content);
                 encrypted = true;
             }
@@ -296,7 +303,7 @@ public class JdbcDao implements DonkeyDao {
         PreparedStatement statement = null;
         try {
             // Only encrypt if the content is not already encrypted
-            if (encryptData && encryptor != null && !encrypted) {
+            if (encryptMessageContent && encryptor != null && !encrypted) {
                 content = encryptor.encrypt(content);
                 encrypted = true;
             }
@@ -504,23 +511,32 @@ public class JdbcDao implements DonkeyDao {
 
         PreparedStatement statement = null;
         try {
+            String encryptionHeader = attachment.getEncryptionHeader();
+            byte[] content = attachment.getContent();
+            if (encryptAttachments && encryptor != null && !attachment.isEncrypted()) {
+                EncryptedData result = encryptor.encrypt(content);
+                encryptionHeader = result.getHeader();
+                content = result.getEncryptedData();
+            }
+
             statement = prepareStatement("insertMessageAttachment", channelId);
             statement.setString(1, attachment.getId());
             statement.setLong(2, messageId);
             statement.setString(3, attachment.getType());
+            statement.setString(7, encryptionHeader);
 
             // The size of each segment of the attachment.
             int chunkSize = 10000000;
 
-            if (attachment.getContent().length <= chunkSize) {
+            if (content.length <= chunkSize) {
                 // If there is only one segment, just store it
                 statement.setInt(4, 1);
-                statement.setInt(5, attachment.getContent().length);
-                statement.setBytes(6, attachment.getContent());
+                statement.setInt(5, content.length);
+                statement.setBytes(6, content);
                 statement.executeUpdate();
             } else {
                 // Use an input stream on the attachment content to segment the data.
-                ByteArrayInputStream inputStream = new ByteArrayInputStream(attachment.getContent());
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(content);
                 // The order of the segment
                 int segmentIndex = 1;
 
@@ -562,6 +578,14 @@ public class JdbcDao implements DonkeyDao {
         PreparedStatement insertStatement = null;
 
         try {
+            String encryptionHeader = attachment.getEncryptionHeader();
+            byte[] content = attachment.getContent();
+            if (encryptAttachments && encryptor != null && !attachment.isEncrypted()) {
+                EncryptedData result = encryptor.encrypt(content);
+                encryptionHeader = result.getHeader();
+                content = result.getEncryptedData();
+            }
+
             segmentCountStatement = prepareStatement("selectMessageAttachmentSegmentCount", channelId);
             segmentCountStatement.setString(1, attachment.getId());
             segmentCountStatement.setLong(2, messageId);
@@ -572,13 +596,15 @@ public class JdbcDao implements DonkeyDao {
 
             updateStatement = prepareStatement("updateMessageAttachment", channelId);
             updateStatement.setString(1, attachment.getType());
-            updateStatement.setString(4, attachment.getId());
-            updateStatement.setLong(5, messageId);
+            updateStatement.setString(4, encryptionHeader);
+            updateStatement.setString(5, attachment.getId());
+            updateStatement.setLong(6, messageId);
 
             insertStatement = prepareStatement("insertMessageAttachment", channelId);
             insertStatement.setString(1, attachment.getId());
             insertStatement.setLong(2, messageId);
             insertStatement.setString(3, attachment.getType());
+            insertStatement.setString(7, encryptionHeader);
 
             // The size of each segment of the attachment.
             int chunkSize = 10000000;
@@ -597,7 +623,7 @@ public class JdbcDao implements DonkeyDao {
 
                 if (currentSegmentId <= totalSegmentCount) {
                     statement = updateStatement;
-                    segmentIdIndex = 6;
+                    segmentIdIndex = 7;
                     attachmentSizeIndex = 2;
                     contentIndex = 3;
                 } else {
@@ -610,16 +636,16 @@ public class JdbcDao implements DonkeyDao {
                 // Set the segment number
                 statement.setInt(segmentIdIndex, currentSegmentId);
 
-                if (attachment.getContent().length <= chunkSize) {
+                if (content.length <= chunkSize) {
                     // If there is only one segment, just store it
-                    statement.setInt(attachmentSizeIndex, attachment.getContent().length);
-                    statement.setBytes(contentIndex, attachment.getContent());
+                    statement.setInt(attachmentSizeIndex, content.length);
+                    statement.setBytes(contentIndex, content);
                     statement.executeUpdate();
                     currentSegmentId++;
                     done = true;
                 } else {
                     if (inputStream == null) {
-                        inputStream = new ByteArrayInputStream(attachment.getContent());
+                        inputStream = new ByteArrayInputStream(content);
                     }
 
                     // As long as there are bytes left
@@ -700,6 +726,16 @@ public class JdbcDao implements DonkeyDao {
                     Object value = metaDataMap.get(metaDataColumn.getName());
 
                     if (value != null) {
+                        if (encryptCustomMetaData && encryptor != null && metaDataColumn.getType() == MetaDataColumnType.STRING) {
+                            String encryptedValue = encryptor.encrypt((String) value);
+                            if (StringUtils.length(encryptedValue) <= 255) {
+                                value = encryptedValue;
+                            } else {
+                                value = null;
+                                logger.error("Encrypted custom metadata column " + metaDataColumn.getName() + " is too long and cannot be stored. Channel " + connectorMessage.getChannelId() + ", messsage " + connectorMessage.getMessageId() + "-" + connectorMessage.getMetaDataId());
+                            }
+                        }
+
                         // @formatter:off
                         switch (metaDataColumn.getType()) {
                             case STRING: statement.setString(n, (String) value); break;
@@ -752,6 +788,16 @@ public class JdbcDao implements DonkeyDao {
                     Object value = metaDataMap.get(metaDataColumn.getName());
 
                     if (value != null) {
+                        if (encryptCustomMetaData && encryptor != null && metaDataColumn.getType() == MetaDataColumnType.STRING) {
+                            String encryptedValue = encryptor.encrypt((String) value);
+                            if (StringUtils.length(encryptedValue) <= 255) {
+                                value = encryptedValue;
+                            } else {
+                                value = null;
+                                logger.error("Encrypted custom metadata column " + metaDataColumn.getName() + " is too long and cannot be stored. Channel " + connectorMessage.getChannelId() + ", messsage " + connectorMessage.getMessageId() + "-" + connectorMessage.getMetaDataId());
+                            }
+                        }
+
                         // @formatter:off
                         switch (metaDataColumn.getType()) {
                             case STRING: statement.setString(n, (String) value); break;
@@ -1486,6 +1532,8 @@ public class JdbcDao implements DonkeyDao {
             String currentAttachmentId = null;
             // The type of the current attachment
             String type = null;
+            // Encryption header, if encrypted
+            String encryptionHeader = null;
             // Use an byte array to combine the segments
             byte[] content = null;
             int offset = 0;
@@ -1501,10 +1549,16 @@ public class JdbcDao implements DonkeyDao {
                         // If there was a previous attachment, we need to finish it.
                         if (content != null) {
                             // Add the data in the output stream to the list of attachments to return
-                            attachments.add(new Attachment(currentAttachmentId, content, type));
+                            if (decryptData && encryptor != null && encryptionHeader != null) {
+                                content = encryptor.decrypt(encryptionHeader, content);
+                                attachments.add(new Attachment(currentAttachmentId, content, type));
+                            } else {
+                                attachments.add(new Attachment(currentAttachmentId, content, type, encryptionHeader));
+                            }
                         }
                         currentAttachmentId = attachmentId;
                         type = resultSet.getString("type");
+                        encryptionHeader = resultSet.getString("encryption_header");
 
                         // Initialize the byte array size to the exact size of the attachment. This should minimize the memory requirements if the numbers are correct.
                         // Use 0 as a backup in case the size is not in the map. (If trying to return an attachment that no longer exists)
@@ -1525,7 +1579,12 @@ public class JdbcDao implements DonkeyDao {
 
             // Finish the message if one exists by adding it to the list of attachments to return
             if (content != null) {
-                attachments.add(new Attachment(currentAttachmentId, content, type));
+                if (decryptData && encryptor != null && encryptionHeader != null) {
+                    content = encryptor.decrypt(encryptionHeader, content);
+                    attachments.add(new Attachment(currentAttachmentId, content, type));
+                } else {
+                    attachments.add(new Attachment(currentAttachmentId, content, type, encryptionHeader));
+                }
             }
             content = null;
 
@@ -1570,6 +1629,9 @@ public class JdbcDao implements DonkeyDao {
             // The type of the current attachment
             String type = null;
 
+            // Encryption header, if encrypted
+            String encryptionHeader = null;
+
             // Initialize the output stream's buffer size to the exact size of the attachment. This should minimize the memory requirements if the numbers are correct.
             byte[] content = null;
             int offset = 0;
@@ -1577,6 +1639,7 @@ public class JdbcDao implements DonkeyDao {
             while (resultSet.next()) {
                 if (content == null) {
                     type = resultSet.getString("type");
+                    encryptionHeader = resultSet.getString("encryption_header");
                     content = new byte[size];
                 }
 
@@ -1593,8 +1656,14 @@ public class JdbcDao implements DonkeyDao {
             // Finish the message if one exists by adding it to the list of attachments to return
             if (content != null) {
                 attachment.setId(attachmentId);
-                attachment.setContent(content);
                 attachment.setType(type);
+                if (decryptData && encryptor != null && encryptionHeader != null) {
+                    content = encryptor.decrypt(encryptionHeader, content);
+                } else {
+                    attachment.setEncryptionHeader(encryptionHeader);
+                    attachment.setEncrypted(true);
+                }
+                attachment.setContent(content);
             }
             content = null;
 
@@ -2811,7 +2880,16 @@ public class JdbcDao implements DonkeyDao {
                     Object value = null;
 
                     switch (metaDataColumnType) {//@formatter:off
-                        case STRING: value = resultSet.getString(i); break;
+                        case STRING:
+                            value = resultSet.getString(i);
+                            if (encryptor != null && StringUtils.startsWith((String) value, Encryptor.HEADER_INDICATOR)) {
+                                try {
+                                    value = encryptor.decrypt((String) value);
+                                } catch (Exception e) {
+                                    logger.debug("Unable to decrypt custom metadata column " + resultSetMetaData.getColumnName(i).toUpperCase() + " for channel " + channelId + ", messsage " + messageId + "-" + metaDataId, e);
+                                }
+                            }
+                            break;
                         case NUMBER: value = resultSet.getBigDecimal(i); break;
                         case BOOLEAN: value = resultSet.getBoolean(i); break;
                         case TIMESTAMP:
@@ -2881,7 +2959,16 @@ public class JdbcDao implements DonkeyDao {
                     Object value = null;
 
                     switch (metaDataColumnType) {//@formatter:off
-                        case STRING: value = resultSet.getString(i); break;
+                        case STRING:
+                            value = resultSet.getString(i);
+                            if (encryptor != null && StringUtils.startsWith((String) value, Encryptor.HEADER_INDICATOR)) {
+                                try {
+                                    value = encryptor.decrypt((String) value);
+                                } catch (Exception e) {
+                                    logger.debug("Unable to decrypt custom metadata column " + resultSetMetaData.getColumnName(i).toUpperCase() + " for channel " + channelId + ", messsage " + messageId + "-" + metaDataId, e);
+                                }
+                            }
+                            break;
                         case NUMBER: value = resultSet.getBigDecimal(i); break;
                         case BOOLEAN: value = resultSet.getBoolean(i); break;
                         case TIMESTAMP:

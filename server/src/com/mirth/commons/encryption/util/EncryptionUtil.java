@@ -11,6 +11,7 @@ import org.apache.commons.cli.PosixParser;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import com.mirth.commons.encryption.Encryptor;
+import com.mirth.commons.encryption.Encryptor.EncryptedData;
 import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.commons.encryption.Output;
 import com.mirth.commons.encryption.PBEEncryptor;
@@ -101,6 +102,22 @@ public class EncryptionUtil {
      * algorithm.
      */
     public static String decryptAndReencrypt(String message, KeyEncryptor encryptor, String oldAlgorithm) throws Exception {
+        return (String) doDecryptAndReencrypt(null, message, encryptor, oldAlgorithm);
+    }
+
+    public static String decryptAndReencrypt(String message, Encryptor decryptor, Encryptor encryptor) throws Exception {
+        return (String) doDecryptAndReencrypt(null, message, decryptor, encryptor);
+    }
+
+    public static EncryptedData decryptAndReencrypt(String header, byte[] message, KeyEncryptor encryptor, String oldAlgorithm) throws Exception {
+        return (EncryptedData) doDecryptAndReencrypt(header, message, encryptor, oldAlgorithm);
+    }
+
+    public static EncryptedData decryptAndReencrypt(String header, byte[] message, Encryptor decryptor, Encryptor encryptor) throws Exception {
+        return (EncryptedData) doDecryptAndReencrypt(header, message, decryptor, encryptor);
+    }
+
+    private static Object doDecryptAndReencrypt(String header, Object message, KeyEncryptor encryptor, String oldAlgorithm) throws Exception {
         KeyEncryptor decryptor = new KeyEncryptor();
         decryptor.setProvider(encryptor.getProvider());
         decryptor.setFormat(encryptor.getFormat());
@@ -108,10 +125,14 @@ public class EncryptionUtil {
         decryptor.setAlgorithm(oldAlgorithm);
         decryptor.setCharset(encryptor.getCharset());
 
-        return decryptAndReencrypt(message, decryptor, encryptor);
+        return doDecryptAndReencrypt(header, message, decryptor, encryptor);
     }
 
-    public static String decryptAndReencrypt(String message, Encryptor decryptor, Encryptor encryptor) throws Exception {
-        return encryptor.encrypt(decryptor.decrypt(message));
+    private static Object doDecryptAndReencrypt(String header, Object message, Encryptor decryptor, Encryptor encryptor) throws Exception {
+        if (message instanceof String) {
+            return encryptor.encrypt(decryptor.decrypt((String) message));
+        } else {
+            return encryptor.encrypt(decryptor.decrypt(header, (byte[]) message));
+        }
     }
 }
