@@ -240,8 +240,19 @@ public class DonkeyEngineController implements EngineController {
             }
 
             @Override
+            public EncryptedData encrypt(byte[] data) {
+                com.mirth.commons.encryption.Encryptor.EncryptedData result = encryptor.encrypt(data);
+                return new EncryptedData(result.getHeader(), result.getEncryptedData());
+            }
+
+            @Override
             public String decrypt(String text) {
                 return encryptor.decrypt(text);
+            }
+
+            @Override
+            public byte[] decrypt(String header, byte[] data) {
+                return encryptor.decrypt(header, data);
             }
         };
 
@@ -1186,7 +1197,7 @@ public class DonkeyEngineController implements EngineController {
         if (storageSettings.isEnabled()) {
             SerializerProvider serializerProvider = createSerializerProvider(channelModel);
             BufferedDaoFactory bufferedDaoFactory = new BufferedDaoFactory(donkey.getDaoFactory(), serializerProvider, donkey.getStatisticsUpdater());
-            bufferedDaoFactory.setEncryptData(channelProperties.isEncryptData());
+            bufferedDaoFactory.setEncryptData(channelProperties.isEncryptMessageContent(), channelProperties.isEncryptAttachments(), channelProperties.isEncryptCustomMetaData());
 
             channel.setDaoFactory(bufferedDaoFactory);
         } else {

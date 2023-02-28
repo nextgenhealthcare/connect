@@ -134,7 +134,7 @@ public interface DonkeyDao {
     
     public List<Ports> getPortsInUse();
 
-    public void setEncryptData(boolean encryptData);
+    public void setEncryptData(boolean encryptMessageContent, boolean encryptAttachments, boolean encryptCustomMetaData);
 
     public void setDecryptData(boolean decryptData);
 

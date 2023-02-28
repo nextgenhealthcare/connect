@@ -30,6 +30,8 @@ public class KeyEncryptor extends Encryptor {
     public static final String CHARSET_PARAM = "cs=";
     public static final String IV_PARAM = "iv=";
 
+    public static final String HEADER_INDICATOR = "{" + ALGORITHM_PARAM;
+
     private Key key;
     private String algorithm;
     private String charset = "UTF-8";
@@ -119,14 +121,11 @@ public class KeyEncryptor extends Encryptor {
         }
 
         try {
-            EncryptionResult result = encrypt(message.getBytes(getCharset()));
+            EncryptionResult result = doEncrypt(message.getBytes(getCharset()), true);
 
             // Add header, e.g. {alg=AES/CBC/PKCS5Padding,cs=UTF-8,iv=RrwzKW8JX9qn09im9r5ZpQ==}
-            StringBuilder builder = new StringBuilder("{");
-            builder.append(ALGORITHM_PARAM).append(getAlgorithm()).append(',');
-            builder.append(CHARSET_PARAM).append(getCharset()).append(',');
-            builder.append(IV_PARAM).append(result.iv).append('}');
-            builder.append(result.ciphertext);
+            StringBuilder builder = buildHeader(result.iv);
+            builder.append((String) result.ciphertext);
 
             return builder.toString();
         } catch (Exception e) {
@@ -134,7 +133,29 @@ public class KeyEncryptor extends Encryptor {
         }
     }
 
-    private EncryptionResult encrypt(final byte[] message) throws Exception {
+    @Override
+    public EncryptedData encrypt(final byte[] data) throws EncryptionException {
+        if (data == null) {
+            return new EncryptedData(null, null);
+        }
+
+        if (!isInitialized()) {
+            initialize();
+        }
+
+        try {
+            EncryptionResult result = doEncrypt(data, false);
+
+            // Add header, e.g. {alg=AES/CBC/PKCS5Padding,cs=UTF-8,iv=RrwzKW8JX9qn09im9r5ZpQ==}
+            String header = buildHeader(result.iv).toString();
+
+            return new EncryptedData(header, (byte[]) result.ciphertext);
+        } catch (Exception e) {
+            throw new EncryptionException(e);
+        }
+    }
+
+    private EncryptionResult doEncrypt(final byte[] message, boolean formatCipherText) throws Exception {
         String algorithm = getAlgorithm();
         Cipher borrowedCipher = null;
         SecureRandom borrowedRandom = null;
@@ -162,7 +183,7 @@ public class KeyEncryptor extends Encryptor {
             // Do encryption
             byte[] encrypted = cipher.doFinal(message);
 
-            return new EncryptionResult(iv, encrypted);
+            return new EncryptionResult(iv, encrypted, formatCipherText);
         } finally {
             if (borrowedCipher != null) {
                 cipherPool.returnObject(algorithm, borrowedCipher);
@@ -184,73 +205,39 @@ public class KeyEncryptor extends Encryptor {
         }
 
         try {
-            String algorithm = StringUtils.defaultString(getFallbackAlgorithm(), getAlgorithm());
-            String charset = StringUtils.defaultString(getFallbackCharset(), getCharset());
-            byte[] iv = null;
-
             // Extract header, e.g. {alg=AES/CBC/PKCS5Padding,cs=UTF-8,iv=RrwzKW8JX9qn09im9r5ZpQ==}
-            int startIndex = 0;
-            if (message.length() > 0 && message.charAt(0) == '{') {
-                startIndex = 1;
-                int endIndex = StringUtils.indexOf(message, ALGORITHM_PARAM, 1);
-                boolean found = false;
+            HeaderExtractionResult result = extractHeader(message);
 
-                if (startIndex == endIndex) {
-                    startIndex += ALGORITHM_PARAM.length();
-                    endIndex = StringUtils.indexOf(message, ',', startIndex);
-                    if (endIndex != -1) {
-                        algorithm = message.substring(startIndex, endIndex);
-                        found = true;
-                        startIndex = endIndex + 1;
-                    }
-                }
-
-                if (found) {
-                    found = false;
-                    endIndex = StringUtils.indexOf(message, CHARSET_PARAM, startIndex);
-
-                    if (startIndex == endIndex) {
-                        startIndex += CHARSET_PARAM.length();
-                        endIndex = StringUtils.indexOf(message, ',', startIndex);
-                        if (endIndex != -1) {
-                            charset = message.substring(startIndex, endIndex);
-                            found = true;
-                            startIndex = endIndex + 1;
-                        }
-                    }
-                }
-
-                if (found) {
-                    found = false;
-                    endIndex = StringUtils.indexOf(message, IV_PARAM, startIndex);
-
-                    if (startIndex == endIndex) {
-                        startIndex += IV_PARAM.length();
-                        endIndex = StringUtils.indexOf(message, '}', startIndex);
-                        if (endIndex != -1) {
-                            iv = unformat(message.substring(startIndex, endIndex));
-                            found = true;
-                            startIndex = endIndex + 1;
-                        }
-                    }
-                }
-
-                if (!found) {
-                    throw new Exception("Encryption header information is malformed.");
-                }
-            }
-
-            if (iv != null) {
-                return new String(decrypt(unformat(StringUtils.substring(message, startIndex)), algorithm, iv), charset);
+            if (result.iv != null) {
+                return new String(doDecrypt(unformat(StringUtils.substring(message, result.startIndex)), result.algorithm, result.iv), result.charset);
             } else {
-                return new String(decrypt(unformat(message), algorithm, null), charset);
+                return new String(doDecrypt(unformat(message), result.algorithm, null), result.charset);
             }
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
     }
 
-    private byte[] decrypt(final byte[] message, String algorithm, byte[] iv) throws Exception {
+    @Override
+    public byte[] decrypt(String header, byte[] data) throws EncryptionException {
+        if (data == null) {
+            return null;
+        }
+
+        if (!isInitialized()) {
+            initialize();
+        }
+
+        try {
+            // Extract header, e.g. {alg=AES/CBC/PKCS5Padding,cs=UTF-8,iv=RrwzKW8JX9qn09im9r5ZpQ==}
+            HeaderExtractionResult result = extractHeader(header);
+            return doDecrypt(data, result.algorithm, result.iv);
+        } catch (Exception e) {
+            throw new EncryptionException(e);
+        }
+    }
+
+    private byte[] doDecrypt(final byte[] message, String algorithm, byte[] iv) throws Exception {
         Cipher borrowedCipher = null;
         try {
             Cipher cipher = borrowedCipher = borrowCipher(algorithm);
@@ -278,6 +265,73 @@ public class KeyEncryptor extends Encryptor {
         }
     }
 
+    private StringBuilder buildHeader(String iv) {
+        StringBuilder builder = new StringBuilder("{");
+        builder.append(ALGORITHM_PARAM).append(getAlgorithm()).append(',');
+        builder.append(CHARSET_PARAM).append(getCharset()).append(',');
+        builder.append(IV_PARAM).append(iv).append('}');
+        return builder;
+    }
+
+    private HeaderExtractionResult extractHeader(String message) throws Exception {
+        String algorithm = StringUtils.defaultString(getFallbackAlgorithm(), getAlgorithm());
+        String charset = StringUtils.defaultString(getFallbackCharset(), getCharset());
+        byte[] iv = null;
+
+        int startIndex = 0;
+        if (message != null && message.length() > 0 && message.charAt(0) == '{') {
+            startIndex = 1;
+            int endIndex = StringUtils.indexOf(message, ALGORITHM_PARAM, 1);
+            boolean found = false;
+
+            if (startIndex == endIndex) {
+                startIndex += ALGORITHM_PARAM.length();
+                endIndex = StringUtils.indexOf(message, ',', startIndex);
+                if (endIndex != -1) {
+                    algorithm = message.substring(startIndex, endIndex);
+                    found = true;
+                    startIndex = endIndex + 1;
+                }
+            }
+
+            if (found) {
+                found = false;
+                endIndex = StringUtils.indexOf(message, CHARSET_PARAM, startIndex);
+
+                if (startIndex == endIndex) {
+                    startIndex += CHARSET_PARAM.length();
+                    endIndex = StringUtils.indexOf(message, ',', startIndex);
+                    if (endIndex != -1) {
+                        charset = message.substring(startIndex, endIndex);
+                        found = true;
+                        startIndex = endIndex + 1;
+                    }
+                }
+            }
+
+            if (found) {
+                found = false;
+                endIndex = StringUtils.indexOf(message, IV_PARAM, startIndex);
+
+                if (startIndex == endIndex) {
+                    startIndex += IV_PARAM.length();
+                    endIndex = StringUtils.indexOf(message, '}', startIndex);
+                    if (endIndex != -1) {
+                        iv = unformat(message.substring(startIndex, endIndex));
+                        found = true;
+                        startIndex = endIndex + 1;
+                    }
+                }
+            }
+
+            if (!found) {
+                throw new Exception("Encryption header information is malformed.");
+            }
+        }
+
+        return new HeaderExtractionResult(startIndex, algorithm, charset, iv);
+    }
+
     private String format(byte[] data, boolean chunked) throws UnsupportedEncodingException {
         if (getFormat() == Output.HEXADECIMAL) {
             return Hex.encodeHexString(data);
@@ -300,11 +354,25 @@ public class KeyEncryptor extends Encryptor {
 
     private class EncryptionResult {
         private String iv;
-        private String ciphertext;
+        private Object ciphertext;
 
-        public EncryptionResult(byte[] iv, byte[] ciphertext) throws UnsupportedEncodingException {
+        public EncryptionResult(byte[] iv, byte[] ciphertext, boolean formatCipherText) throws UnsupportedEncodingException {
             this.iv = format(iv, false);
-            this.ciphertext = format(ciphertext, true);
+            this.ciphertext = formatCipherText ? format(ciphertext, true) : ciphertext;
+        }
+    }
+
+    private class HeaderExtractionResult {
+        private int startIndex;
+        private String algorithm;
+        private String charset;
+        private byte[] iv;
+
+        public HeaderExtractionResult(int startIndex, String algorithm, String charset, byte[] iv) {
+            this.startIndex = startIndex;
+            this.algorithm = algorithm;
+            this.charset = charset;
+            this.iv = iv;
         }
     }
 

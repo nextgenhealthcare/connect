@@ -51,8 +51,8 @@ public class TimedDao implements DonkeyDao {
     }
 
     @Override
-    public void setEncryptData(boolean encryptData) {
-        dao.setEncryptData(encryptData);
+    public void setEncryptData(boolean encryptMessageContent, boolean encryptAttachments, boolean encryptCustomMetaData) {
+        dao.setEncryptData(encryptMessageContent, encryptAttachments, encryptCustomMetaData);
     }
 
     @Override

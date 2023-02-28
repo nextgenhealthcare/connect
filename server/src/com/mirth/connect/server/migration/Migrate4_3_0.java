@@ -2,13 +2,17 @@ package com.mirth.connect.server.migration;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.util.MigrationException;
+import com.mirth.connect.server.util.DatabaseUtil;
 
 public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator {
 	
@@ -107,10 +112,35 @@ public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator {
         }
     }
 
-	@Override
-	public void migrate() throws MigrationException {
+    @Override
+    public void migrate() throws MigrationException {
+        try {
+            if (scriptExists(getDatabaseType() + "-4.2.0-4.3.0-attachment-table.sql") && DatabaseUtil.tableExists(getConnection(), "D_CHANNELS")) {
+                logger.debug("Migrating message attachment tables for " + getDatabaseType());
 
-	}
+                PreparedStatement preparedStatement = null;
+                ResultSet resultSet = null;
+
+                try {
+                    preparedStatement = getConnection().prepareStatement("SELECT LOCAL_CHANNEL_ID FROM D_CHANNELS");
+                    resultSet = preparedStatement.executeQuery();
+
+                    while (resultSet.next()) {
+                        Map<String, Object> replacements = new HashMap<String, Object>();
+                        replacements.put("localChannelId", resultSet.getLong(1));
+
+                        logger.debug("Migrating message attachment table for local channel ID " + replacements.get("localChannelId"));
+                        executeScript(getDatabaseType() + "-4.2.0-4.3.0-attachment-table.sql", replacements);
+                    }
+                } finally {
+                    DbUtils.closeQuietly(resultSet);
+                    DbUtils.closeQuietly(preparedStatement);
+                }
+            }
+        } catch (Exception e) {
+            throw new MigrationException("An error occurred while migrating message attachment tables.", e);
+        }
+    }
 
 	@Override
 	public void migrateSerializedData() throws MigrationException {
@@ -126,10 +156,6 @@ public class Migrate4_3_0 extends Migrator implements ConfigurationMigrator {
 	}
 
     // Making class mockable
-    int getStartingVersionOrdinal() {
-        return getStartingVersion().ordinal();
-    }
-
     String getDefaultCharset() {
         return Charset.defaultCharset().name();
     }

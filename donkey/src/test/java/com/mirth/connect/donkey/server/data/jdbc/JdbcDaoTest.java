@@ -55,13 +55,15 @@ public class JdbcDaoTest {
         QuerySource querySource = mock(QuerySource.class);
         PreparedStatementSource statementSource = mock(PreparedStatementSource.class);
         SerializerProvider serializerProvider = mock(SerializerProvider.class);
-        boolean encryptData = false;
+        boolean encryptMessageContent = false;
+        boolean encryptAttachments = false;
+        boolean encryptCustomMetaData = false;
         boolean decryptData = false;
         StatisticsUpdater statisticsUpdater = mock(StatisticsUpdater.class);
         Statistics currentStats = mock(Statistics.class);
         Statistics totalStats = mock(Statistics.class);
         String statsServerId = "";
-        dao = new JdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptData, decryptData, statisticsUpdater, currentStats, totalStats, statsServerId);
+        dao = new JdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptMessageContent, encryptAttachments, encryptCustomMetaData, decryptData, statisticsUpdater, currentStats, totalStats, statsServerId);
     }
 
     @Test
@@ -242,14 +244,16 @@ public class JdbcDaoTest {
         QuerySource querySource = mock(QuerySource.class);
         PreparedStatementSource statementSource = mock(PreparedStatementSource.class);
         SerializerProvider serializerProvider = mock(SerializerProvider.class);
-        boolean encryptData = false;
+        boolean encryptMessageContent = false;
+        boolean encryptAttachments = false;
+        boolean encryptCustomMetaData = false;
         boolean decryptData = false;
         StatisticsUpdater statisticsUpdater = mock(StatisticsUpdater.class);
         Statistics currentStats = mock(Statistics.class);
         Statistics totalStats = mock(Statistics.class);
         String statsServerId = "";
 
-        JdbcDao dao = spy(new JdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptData, decryptData, statisticsUpdater, currentStats, totalStats, statsServerId));
+        JdbcDao dao = spy(new JdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptMessageContent, encryptAttachments, encryptCustomMetaData, decryptData, statisticsUpdater, currentStats, totalStats, statsServerId));
 
         when(segmentCountStatement.executeQuery()).thenReturn(segmentCountResult);
         doReturn(segmentCountStatement).when(dao).prepareStatement(eq("selectMessageAttachmentSegmentCount"), eq(channelId));

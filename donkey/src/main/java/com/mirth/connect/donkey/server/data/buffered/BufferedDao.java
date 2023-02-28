@@ -34,24 +34,30 @@ import com.mirth.connect.donkey.util.SerializerProvider;
 public class BufferedDao implements DonkeyDao {
     private DonkeyDaoFactory daoFactory;
     private SerializerProvider serializerProvider;
-    private boolean encryptData;
+    private boolean encryptMessageContent;
+    private boolean encryptAttachments;
+    private boolean encryptCustomMetaData;
     private boolean decryptData;
     private StatisticsUpdater statisticsUpdater;
     private Queue<DaoTask> tasks = new LinkedList<DaoTask>();
     private boolean closed = false;
     private Logger logger = LogManager.getLogger(this.getClass());
 
-    protected BufferedDao(DonkeyDaoFactory daoFactory, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData, StatisticsUpdater statisticsUpdater) {
+    protected BufferedDao(DonkeyDaoFactory daoFactory, SerializerProvider serializerProvider, boolean encryptMessageContent, boolean encryptAttachments, boolean encryptCustomMetaData, boolean decryptData, StatisticsUpdater statisticsUpdater) {
         this.daoFactory = daoFactory;
         this.serializerProvider = serializerProvider;
-        this.encryptData = encryptData;
+        this.encryptMessageContent = encryptMessageContent;
+        this.encryptAttachments = encryptAttachments;
+        this.encryptCustomMetaData = encryptCustomMetaData;
         this.decryptData = decryptData;
         this.statisticsUpdater = statisticsUpdater;
     }
 
     @Override
-    public void setEncryptData(boolean encryptData) {
-        this.encryptData = encryptData;
+    public void setEncryptData(boolean encryptMessageContent, boolean encryptAttachments, boolean encryptCustomMetaData) {
+        this.encryptMessageContent = encryptMessageContent;
+        this.encryptAttachments = encryptAttachments;
+        this.encryptCustomMetaData = encryptCustomMetaData;
     }
 
     @Override
@@ -90,7 +96,7 @@ public class BufferedDao implements DonkeyDao {
     private DonkeyDao getDelegateDao() {
         DonkeyDao dao = daoFactory.getDao(serializerProvider);
 
-        dao.setEncryptData(encryptData);
+        dao.setEncryptData(encryptMessageContent, encryptAttachments, encryptCustomMetaData);
         dao.setDecryptData(decryptData);
         dao.setStatisticsUpdater(statisticsUpdater);
 

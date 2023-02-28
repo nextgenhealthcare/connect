@@ -33,7 +33,29 @@ public abstract class Encryptor {
 
     public abstract void initialize() throws EncryptionException;
 
+    public abstract String encrypt(String message) throws EncryptionException;
+
     public abstract String decrypt(String message) throws EncryptionException;
 
-    public abstract String encrypt(String message) throws EncryptionException;
+    public abstract EncryptedData encrypt(byte[] data) throws EncryptionException;
+
+    public abstract byte[] decrypt(String header, byte[] data) throws EncryptionException;
+
+    public class EncryptedData {
+        private String header;
+        private byte[] encryptedData;
+
+        EncryptedData(String header, byte[] encryptedData) {
+            this.header = header;
+            this.encryptedData = encryptedData;
+        }
+
+        public String getHeader() {
+            return header;
+        }
+
+        public byte[] getEncryptedData() {
+            return encryptedData;
+        }
+    }
 }
