@@ -1449,7 +1449,6 @@ public class DonkeyEngineController implements EngineController {
         if (runFilterTransformer) {
             String script = JavaScriptBuilder.generateFilterTransformerScript(filter, transformer);
             filterTransformerExecutor.setFilterTransformer(new JavaScriptFilterTransformer(connector, connectorModel.getName(), script, template,   debugOptions));
-            filterTransformerExecutor.setConnectorName(connectorModel.getName());
         }
 
         return filterTransformerExecutor;

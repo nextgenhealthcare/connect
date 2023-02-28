@@ -27,16 +27,6 @@ public class FilterTransformerExecutor {
     private DataType inbound;
     private DataType outbound;
     private FilterTransformer filterTransformer;
-    private String connectorName;
-
-    public Logger getLogger() {
-        return logger;
-    }
-
-    public void setLogger(Logger logger) {
-        this.logger = logger;
-    }
-
     private Logger logger = LogManager.getLogger(getClass());
 
     public FilterTransformerExecutor(DataType inbound, DataType outbound) {
@@ -66,14 +56,6 @@ public class FilterTransformerExecutor {
 
     public void setFilterTransformer(FilterTransformer filterTransformer) {
         this.filterTransformer = filterTransformer;
-    }
-    
-    public String getConnectorName() {
-        return connectorName;
-    }
-
-    public void setConnectorName(String connectorName) {
-        this.connectorName = connectorName;
     }
 
     /**
@@ -122,7 +104,7 @@ public class FilterTransformerExecutor {
             try {
                 result = filterTransformer.doFilterTransform(connectorMessage);
             } catch (FilterTransformerException e) {
-                logger.error("Error executing filter or transformer for channel " + connectorMessage.getChannelName() + " (" + connectorMessage.getChannelId() + ") on source or destination " + connectorName + ".", e);
+                logger.error("Error executing filter transformer for channel " + connectorMessage.getChannelName() + " (" + connectorMessage.getChannelId() + ").", e);
                 connectorMessage.setStatus(Status.ERROR);
                 connectorMessage.setProcessingError(connectorMessage.getProcessingError() != null ? connectorMessage.getProcessingError() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
                 return;
