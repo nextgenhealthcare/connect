@@ -65,7 +65,7 @@ public class EncryptionUtil {
      * 
      * @param header
      *            The meta-information about the encrypted data. This is a specially-formatted
-     *            string returned from the {@link #encrypt(byte[]) method.
+     *            string returned from the {@link #encrypt(byte[])} method.
      * @param data
      *            The data to decrypt, as a raw byte array.
      * @return The decrypted data.
