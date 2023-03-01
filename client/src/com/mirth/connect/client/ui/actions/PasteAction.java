@@ -10,6 +10,7 @@
 package com.mirth.connect.client.ui.actions;
 
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -35,8 +36,14 @@ public class PasteAction extends AbstractAction {
     public boolean isEnabled() {
         if (comp.isVisible() && comp.isEditable() && comp.isEnabled()) {
             try {
-                Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(this);
-                return contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                if(null != clipboard) {
+                    Transferrable contents = clipboard.getContents(this);
+                    if(null != contents) {
+                        return contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+                    }
+                }
+                return false;
             } catch (IllegalStateException e) {
                 return false;
             }
