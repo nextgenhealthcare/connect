@@ -37,9 +37,9 @@ public class PasteAction extends AbstractAction {
         if (comp.isVisible() && comp.isEditable() && comp.isEnabled()) {
             try {
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                if(null != clipboard) {
-                    Transferrable contents = clipboard.getContents(this);
-                    if(null != contents) {
+                if (clipboard != null) {
+                    Transferable contents = clipboard.getContents(this);
+                    if (contents != null) {
                         return contents.isDataFlavorSupported(DataFlavor.stringFlavor);
                     }
                 }
