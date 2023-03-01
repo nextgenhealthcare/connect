@@ -124,8 +124,9 @@ public class JdbcDaoTest {
         verify(segmentCountStatement, times(1)).executeQuery();
 
         verify(updateStatement, times(1)).setString(1, attachment.getType());
-        verify(updateStatement, times(1)).setString(4, attachment.getId());
-        verify(updateStatement, times(1)).setLong(5, messageId);
+        verify(updateStatement, times(1)).setString(4, null);
+        verify(updateStatement, times(1)).setString(5, attachment.getId());
+        verify(updateStatement, times(1)).setLong(6, messageId);
 
         verify(insertStatement, times(1)).setString(1, attachment.getId());
         verify(insertStatement, times(1)).setLong(2, messageId);
@@ -134,6 +135,7 @@ public class JdbcDaoTest {
         verify(insertStatement, times(1)).setInt(4, 1);
         verify(insertStatement, times(1)).setInt(5, attachment.getContent().length);
         verify(insertStatement, times(1)).setBytes(6, attachment.getContent());
+        verify(insertStatement, times(1)).setString(7, null);
         verify(insertStatement, times(1)).executeUpdate();
 
         verify(updateStatement, times(1)).clearParameters();
@@ -168,14 +170,16 @@ public class JdbcDaoTest {
         verify(segmentCountStatement, times(1)).executeQuery();
 
         verify(updateStatement, times(1)).setString(1, attachment.getType());
-        verify(updateStatement, times(1)).setString(4, attachment.getId());
-        verify(updateStatement, times(1)).setLong(5, messageId);
+        verify(updateStatement, times(1)).setString(4, null);
+        verify(updateStatement, times(1)).setString(5, attachment.getId());
+        verify(updateStatement, times(1)).setLong(6, messageId);
 
         verify(insertStatement, times(1)).setString(1, attachment.getId());
         verify(insertStatement, times(1)).setLong(2, messageId);
         verify(insertStatement, times(1)).setString(3, attachment.getType());
+        verify(insertStatement, times(1)).setString(7, null);
 
-        verify(updateStatement, times(1)).setInt(6, 1);
+        verify(updateStatement, times(1)).setInt(7, 1);
         verify(updateStatement, times(1)).setInt(2, attachment.getContent().length);
         verify(updateStatement, times(1)).setBytes(3, attachment.getContent());
         verify(updateStatement, times(1)).executeUpdate();
@@ -212,14 +216,15 @@ public class JdbcDaoTest {
         verify(segmentCountStatement, times(1)).executeQuery();
 
         verify(updateStatement, times(1)).setString(1, attachment.getType());
-        verify(updateStatement, times(1)).setString(4, attachment.getId());
-        verify(updateStatement, times(1)).setLong(5, messageId);
+        verify(updateStatement, times(1)).setString(4, null);
+        verify(updateStatement, times(1)).setString(5, attachment.getId());
+        verify(updateStatement, times(1)).setLong(6, messageId);
 
         verify(insertStatement, times(1)).setString(1, attachment.getId());
         verify(insertStatement, times(1)).setLong(2, messageId);
         verify(insertStatement, times(1)).setString(3, attachment.getType());
 
-        verify(updateStatement, times(1)).setInt(6, 1);
+        verify(updateStatement, times(1)).setInt(7, 1);
         verify(updateStatement, times(1)).setInt(2, 10000000);
         verify(updateStatement, times(1)).setBytes(3, Arrays.copyOfRange(attachment.getContent(), 0, 10000000));
         verify(updateStatement, times(1)).executeUpdate();
@@ -227,6 +232,150 @@ public class JdbcDaoTest {
         verify(insertStatement, times(1)).setInt(4, 2);
         verify(insertStatement, times(1)).setInt(5, attachment.getContent().length - 10000000);
         verify(insertStatement, times(1)).setBytes(6, Arrays.copyOfRange(attachment.getContent(), 10000000, attachment.getContent().length));
+        verify(insertStatement, times(1)).setString(7, null);
+        verify(insertStatement, times(1)).executeUpdate();
+
+        verify(updateStatement, times(1)).clearParameters();
+        verify(insertStatement, times(1)).clearParameters();
+
+        verify(deleteStatement, times(0)).setString(1, attachment.getId());
+        verify(deleteStatement, times(0)).setLong(2, messageId);
+        verify(deleteStatement, times(0)).setInt(eq(3), anyInt());
+        verify(deleteStatement, times(0)).executeUpdate();
+    }
+
+    // Test with no current attachment data in database and encryption
+    @Test
+    public void testUpdateMessageAttachment4() throws Exception {
+        String channelId = "testchannel";
+        long messageId = 1;
+        Attachment attachment = new Attachment("testattachment", "testing".getBytes(), "text/plain", "test");
+
+        ResultSet segmentCountResult = mock(ResultSet.class);
+        PreparedStatement segmentCountStatement = mock(PreparedStatement.class);
+        PreparedStatement updateStatement = mock(PreparedStatement.class);
+        PreparedStatement insertStatement = mock(PreparedStatement.class);
+        PreparedStatement deleteStatement = mock(PreparedStatement.class);
+        JdbcDao dao = getDao(channelId, segmentCountResult, segmentCountStatement, updateStatement, insertStatement, deleteStatement);
+
+        when(segmentCountResult.getInt(1)).thenReturn(0);
+
+        dao.updateMessageAttachment(channelId, messageId, attachment);
+
+        verify(segmentCountStatement, times(1)).setString(1, attachment.getId());
+        verify(segmentCountStatement, times(1)).setLong(2, messageId);
+        verify(segmentCountStatement, times(1)).executeQuery();
+
+        verify(updateStatement, times(1)).setString(1, attachment.getType());
+        verify(updateStatement, times(1)).setString(4, attachment.getEncryptionHeader());
+        verify(updateStatement, times(1)).setString(5, attachment.getId());
+        verify(updateStatement, times(1)).setLong(6, messageId);
+
+        verify(insertStatement, times(1)).setString(1, attachment.getId());
+        verify(insertStatement, times(1)).setLong(2, messageId);
+        verify(insertStatement, times(1)).setString(3, attachment.getType());
+
+        verify(insertStatement, times(1)).setInt(4, 1);
+        verify(insertStatement, times(1)).setInt(5, attachment.getContent().length);
+        verify(insertStatement, times(1)).setBytes(6, attachment.getContent());
+        verify(insertStatement, times(1)).setString(7, attachment.getEncryptionHeader());
+        verify(insertStatement, times(1)).executeUpdate();
+
+        verify(updateStatement, times(1)).clearParameters();
+        verify(insertStatement, times(1)).clearParameters();
+
+        verify(deleteStatement, times(0)).setString(1, attachment.getId());
+        verify(deleteStatement, times(0)).setLong(2, messageId);
+        verify(deleteStatement, times(0)).setInt(eq(3), anyInt());
+        verify(deleteStatement, times(0)).executeUpdate();
+    }
+
+    // Test with attachment data in database and encryption
+    @Test
+    public void testUpdateMessageAttachment5() throws Exception {
+        String channelId = "testchannel";
+        long messageId = 1;
+        Attachment attachment = new Attachment("testattachment", "testing".getBytes(), "text/plain", "test");
+
+        ResultSet segmentCountResult = mock(ResultSet.class);
+        PreparedStatement segmentCountStatement = mock(PreparedStatement.class);
+        PreparedStatement updateStatement = mock(PreparedStatement.class);
+        PreparedStatement insertStatement = mock(PreparedStatement.class);
+        PreparedStatement deleteStatement = mock(PreparedStatement.class);
+        JdbcDao dao = getDao(channelId, segmentCountResult, segmentCountStatement, updateStatement, insertStatement, deleteStatement);
+
+        when(segmentCountResult.getInt(1)).thenReturn(2);
+
+        dao.updateMessageAttachment(channelId, messageId, attachment);
+
+        verify(segmentCountStatement, times(1)).setString(1, attachment.getId());
+        verify(segmentCountStatement, times(1)).setLong(2, messageId);
+        verify(segmentCountStatement, times(1)).executeQuery();
+
+        verify(updateStatement, times(1)).setString(1, attachment.getType());
+        verify(updateStatement, times(1)).setString(4, attachment.getEncryptionHeader());
+        verify(updateStatement, times(1)).setString(5, attachment.getId());
+        verify(updateStatement, times(1)).setLong(6, messageId);
+
+        verify(insertStatement, times(1)).setString(1, attachment.getId());
+        verify(insertStatement, times(1)).setLong(2, messageId);
+        verify(insertStatement, times(1)).setString(3, attachment.getType());
+        verify(insertStatement, times(1)).setString(7, attachment.getEncryptionHeader());
+
+        verify(updateStatement, times(1)).setInt(7, 1);
+        verify(updateStatement, times(1)).setInt(2, attachment.getContent().length);
+        verify(updateStatement, times(1)).setBytes(3, attachment.getContent());
+        verify(updateStatement, times(1)).executeUpdate();
+
+        verify(updateStatement, times(1)).clearParameters();
+        verify(insertStatement, times(1)).clearParameters();
+
+        verify(deleteStatement, times(1)).setString(1, attachment.getId());
+        verify(deleteStatement, times(1)).setLong(2, messageId);
+        verify(deleteStatement, times(1)).setInt(eq(3), eq(2));
+        verify(deleteStatement, times(1)).executeUpdate();
+    }
+
+    // Test with large attachment data and encryption
+    @Test
+    public void testUpdateMessageAttachment6() throws Exception {
+        String channelId = "testchannel";
+        long messageId = 1;
+        Attachment attachment = new Attachment("testattachment", StringUtils.repeat("testtest", "", 10 * 1024 * 1024 / 8).getBytes(), "text/plain", "test");
+
+        ResultSet segmentCountResult = mock(ResultSet.class);
+        PreparedStatement segmentCountStatement = mock(PreparedStatement.class);
+        PreparedStatement updateStatement = mock(PreparedStatement.class);
+        PreparedStatement insertStatement = mock(PreparedStatement.class);
+        PreparedStatement deleteStatement = mock(PreparedStatement.class);
+        JdbcDao dao = getDao(channelId, segmentCountResult, segmentCountStatement, updateStatement, insertStatement, deleteStatement);
+
+        when(segmentCountResult.getInt(1)).thenReturn(1);
+
+        dao.updateMessageAttachment(channelId, messageId, attachment);
+
+        verify(segmentCountStatement, times(1)).setString(1, attachment.getId());
+        verify(segmentCountStatement, times(1)).setLong(2, messageId);
+        verify(segmentCountStatement, times(1)).executeQuery();
+
+        verify(updateStatement, times(1)).setString(1, attachment.getType());
+        verify(updateStatement, times(1)).setString(4, attachment.getEncryptionHeader());
+        verify(updateStatement, times(1)).setString(5, attachment.getId());
+        verify(updateStatement, times(1)).setLong(6, messageId);
+
+        verify(insertStatement, times(1)).setString(1, attachment.getId());
+        verify(insertStatement, times(1)).setLong(2, messageId);
+        verify(insertStatement, times(1)).setString(3, attachment.getType());
+
+        verify(updateStatement, times(1)).setInt(7, 1);
+        verify(updateStatement, times(1)).setInt(2, 10000000);
+        verify(updateStatement, times(1)).setBytes(3, Arrays.copyOfRange(attachment.getContent(), 0, 10000000));
+        verify(updateStatement, times(1)).executeUpdate();
+
+        verify(insertStatement, times(1)).setInt(4, 2);
+        verify(insertStatement, times(1)).setInt(5, attachment.getContent().length - 10000000);
+        verify(insertStatement, times(1)).setBytes(6, Arrays.copyOfRange(attachment.getContent(), 10000000, attachment.getContent().length));
+        verify(insertStatement, times(1)).setString(7, attachment.getEncryptionHeader());
         verify(insertStatement, times(1)).executeUpdate();
 
         verify(updateStatement, times(1)).clearParameters();
