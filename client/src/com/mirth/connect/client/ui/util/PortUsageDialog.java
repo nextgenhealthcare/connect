@@ -22,6 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.SortOrder;
 
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -135,12 +136,13 @@ public class PortUsageDialog extends MirthDialog {
 	            }
 			} catch (ClientException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
             data[i][2] = enabled;
         }
 
         ((RefreshTableModel) portsTable.getModel()).refreshDataVector(data);
+        portsTable.setSortOrder(0, SortOrder.ASCENDING);
     }
 
     public Channel getChannelById(String id) throws ClientException {
