@@ -9,9 +9,6 @@
 
 package com.mirth.connect.donkey.server.channel;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
@@ -19,7 +16,6 @@ import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
-import com.mirth.connect.donkey.server.channel.components.FilterTransformerException;
 import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
@@ -27,7 +23,6 @@ public class FilterTransformerExecutor {
     private DataType inbound;
     private DataType outbound;
     private FilterTransformer filterTransformer;
-    private Logger logger = LogManager.getLogger(getClass());
 
     public FilterTransformerExecutor(DataType inbound, DataType outbound) {
         this.inbound = inbound;
@@ -99,18 +94,10 @@ public class FilterTransformerExecutor {
             }
 
             ThreadUtils.checkInterruptedStatus();
-            
-            FilterTransformerResult result = null;
-            try {
-                result = filterTransformer.doFilterTransform(connectorMessage);
-            } catch (FilterTransformerException e) {
-                logger.error("Error executing filter or transformer for channel " + connectorMessage.getChannelName() + " (" + connectorMessage.getChannelId() + ") on source or destination " + connectorMessage.getConnectorName() + ".", e);
-                connectorMessage.setStatus(Status.ERROR);
-                connectorMessage.setProcessingError(connectorMessage.getProcessingError() != null ? connectorMessage.getProcessingError() + System.getProperty("line.separator") + System.getProperty("line.separator") + e.getFormattedError() : e.getFormattedError());
-                return;
-            }
-            
+
+            FilterTransformerResult result = filterTransformer.doFilterTransform(connectorMessage);
             String transformedContent = result.getTransformedContent();
+
             setTransformedContent(connectorMessage, transformedContent, outbound.getSerializationType());
 
             // Perform the filter and transformation
