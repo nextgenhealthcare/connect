@@ -618,6 +618,14 @@ public class MessageBrowser extends javax.swing.JPanel {
                     auditMessageAttributesMap.put("channel", "Channel[id=" + channelId + ",name=" + channelName + "]");
                     auditMessageAttributesMap.put("filter", messageFilter.toString());
                     parent.mirthClient.auditQueriedPHIMessage(auditMessageAttributesMap);
+                    if (messageFilter.getMetaDataSearch() != null) {
+                        List<MetaDataSearchElement> elements = messageFilter.getMetaDataSearch();
+                        for (MetaDataSearchElement element : elements) {
+                            if (element.getColumnName().toString().equals("PATIENT_ID") && MetaDataSearchOperator.fromString(element.getOperator()).toString().equals("=")) {
+                                auditMessageAttributesMap.put("patientId", element.getValue().toString());
+                            }
+                        }
+                    }
                 } catch (ClientException e) {
                     logger.error("Unable to audit the CURES queried PHI event.", e);
                 }
