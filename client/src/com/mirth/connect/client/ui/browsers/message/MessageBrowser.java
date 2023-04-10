@@ -617,7 +617,6 @@ public class MessageBrowser extends javax.swing.JPanel {
                     LinkedHashMap<String, String> auditMessageAttributesMap = new LinkedHashMap<String, String>();
                     auditMessageAttributesMap.put("channel", "Channel[id=" + channelId + ",name=" + channelName + "]");
                     auditMessageAttributesMap.put("filter", messageFilter.toString());
-                    parent.mirthClient.auditQueriedPHIMessage(auditMessageAttributesMap);
                     if (messageFilter.getMetaDataSearch() != null) {
                         List<MetaDataSearchElement> elements = messageFilter.getMetaDataSearch();
                         for (MetaDataSearchElement element : elements) {
@@ -626,6 +625,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                             }
                         }
                     }
+                    parent.mirthClient.auditQueriedPHIMessage(auditMessageAttributesMap);
                 } catch (ClientException e) {
                     logger.error("Unable to audit the CURES queried PHI event.", e);
                 }
