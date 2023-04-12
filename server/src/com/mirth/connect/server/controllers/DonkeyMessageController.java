@@ -189,6 +189,11 @@ public class DonkeyMessageController extends MessageController {
 
     @Override
     public List<Message> getMessages(MessageFilter filter, String channelId, Boolean includeContent, Integer offset, Integer limit) {
+        // Provide a default value if any of the below 3 parameters are null.
+        includeContent = includeContent == null ? false : includeContent;
+        offset = offset == null ? 0 : offset;
+        limit = limit == null ? 20 : limit;
+        
         List<Message> messages = new ArrayList<Message>();
 
         if (filter.getIncludedMetaDataIds() != null && filter.getIncludedMetaDataIds().isEmpty() && filter.getExcludedMetaDataIds() == null) {
