@@ -3343,8 +3343,15 @@ public class Frame extends JXFrame {
             channelName = selectedChannelStatuses.iterator().next().getName();
             channelRevision = 0;
         } else if (currentContentPage == channelPanel) {
+            List<Channel> selectedChannels = channelPanel.getSelectedChannels();
             Channel selectedChannel = channelPanel.getSelectedChannels().get(0);
 
+
+            if (selectedChannels.size() > 1) {
+                JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
+                return;
+            }
+            
             metaDataIds.add(null);
 
             id = selectedChannel.getId();

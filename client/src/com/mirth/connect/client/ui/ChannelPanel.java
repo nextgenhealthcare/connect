@@ -546,11 +546,11 @@ public class ChannelPanel extends AbstractFramePanel {
                 }
                 setChannelTaskVisible(TASK_CHANNEL_EXPORT_CHANNEL);
                 setChannelTaskVisible(TASK_CHANNEL_DELETE_CHANNEL);
+                setChannelTaskVisible(TASK_CHANNEL_VIEW_MESSAGES);
 
                 if (rows.length == 1) {
                     setChannelTaskVisible(TASK_CHANNEL_CLONE);
                     setChannelTaskVisible(TASK_CHANNEL_EDIT);
-                    setChannelTaskVisible(TASK_CHANNEL_VIEW_MESSAGES);
                     setChannelTaskVisible(TASK_CHANNEL_DEBUG_DEPLOY);
                 }
             } else {
