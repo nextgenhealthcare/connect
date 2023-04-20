@@ -130,6 +130,12 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         } else {
             textSearchWarningNoRadio.setSelected(true);
         }
+        
+        if (userPreferences.getBoolean("multiChannelSearchWarning", true)) {
+            multiChannelSearchWarningYesRadio.setSelected(true);
+        } else {
+            multiChannelSearchWarningNoRadio.setSelected(true);
+        } 
 
         if (userPreferences.getBoolean("filterTransformerShowIteratorDialog", true)) {
             filterTransformerShowIteratorYesRadio.setSelected(true);
@@ -261,6 +267,7 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             userPreferences.putInt("eventBrowserPageSize", eventBrowserPageSize);
             userPreferences.putBoolean("messageBrowserFormat", formatYesRadio.isSelected());
             userPreferences.putBoolean("textSearchWarning", textSearchWarningYesRadio.isSelected());
+            userPreferences.putBoolean("multiChannelSearchWarning", multiChannelSearchWarningYesRadio.isSelected());
             userPreferences.putBoolean("filterTransformerShowIteratorDialog", filterTransformerShowIteratorYesRadio.isSelected());
             userPreferences.putBoolean("messageBrowserShowAttachmentTypeDialog", messageBrowserShowAttachmentTypeDialogYesRadio.isSelected());
             userPreferences.putBoolean("showReprocessRemoveMessagesWarning", reprocessRemoveMessagesWarningYesRadio.isSelected());
@@ -482,6 +489,20 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         textSearchWarningNoRadio.setBackground(systemSettingsPanel.getBackground());
         textSearchWarningNoRadio.setToolTipText(toolTipText);
         textSearchWarningButtonGroup.add(textSearchWarningNoRadio);
+        
+        multiChannelSearchWarningLabel = new JLabel("Multi-channel message view confirmation:");
+        multiChannelSearchWarningButtonGroup = new ButtonGroup();
+
+        toolTipText = "<html>Show a confirmation dialog when attempting to view messages for multiple channels, warning users that<br/>the query may take a long time depending on the number of channels and messages being searched.</html>";
+        multiChannelSearchWarningYesRadio = new MirthRadioButton("Yes");
+        multiChannelSearchWarningYesRadio.setBackground(systemSettingsPanel.getBackground());
+        multiChannelSearchWarningYesRadio.setToolTipText(toolTipText);
+        multiChannelSearchWarningButtonGroup.add(multiChannelSearchWarningYesRadio);
+
+        multiChannelSearchWarningNoRadio = new MirthRadioButton("No");
+        multiChannelSearchWarningNoRadio.setBackground(systemSettingsPanel.getBackground());
+        multiChannelSearchWarningNoRadio.setToolTipText(toolTipText);
+        multiChannelSearchWarningButtonGroup.add(multiChannelSearchWarningNoRadio);
 
         filterTransformerShowIteratorLabel = new JLabel("Filter/Transformer Iterator dialog:");
         filterTransformerShowIteratorButtonGroup = new ButtonGroup();
@@ -722,6 +743,9 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         systemSettingsPanel.add(textSearchWarningLabel, "newline, right");
         systemSettingsPanel.add(textSearchWarningYesRadio, "split");
         systemSettingsPanel.add(textSearchWarningNoRadio);
+        systemSettingsPanel.add(multiChannelSearchWarningLabel, "newline, right");
+        systemSettingsPanel.add(multiChannelSearchWarningYesRadio, "split");
+        systemSettingsPanel.add(multiChannelSearchWarningNoRadio);        
         systemSettingsPanel.add(filterTransformerShowIteratorLabel, "newline, right");
         systemSettingsPanel.add(filterTransformerShowIteratorYesRadio, "split");
         systemSettingsPanel.add(filterTransformerShowIteratorNoRadio);
@@ -850,6 +874,10 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
     private ButtonGroup textSearchWarningButtonGroup;
     private JRadioButton textSearchWarningYesRadio;
     private JRadioButton textSearchWarningNoRadio;
+    private JLabel multiChannelSearchWarningLabel;
+    private ButtonGroup multiChannelSearchWarningButtonGroup;
+    private JRadioButton multiChannelSearchWarningYesRadio;
+    private JRadioButton multiChannelSearchWarningNoRadio;    
     private JLabel filterTransformerShowIteratorLabel;
     private ButtonGroup filterTransformerShowIteratorButtonGroup;
     private JRadioButton filterTransformerShowIteratorYesRadio;

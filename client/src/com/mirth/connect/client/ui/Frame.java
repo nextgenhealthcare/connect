@@ -124,7 +124,6 @@ import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.DestinationConnectorPropertiesInterface;
-import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.model.ApiProvider;
@@ -3318,11 +3317,8 @@ public class Frame extends JXFrame {
             messageBrowser = new MessageBrowser();
         }
 
-        String id = "";
-        String channelName = "";
-        boolean channelDeployed = true;
-
-        final List<Integer> metaDataIds = new ArrayList<Integer>();
+        Map<String, MessageBrowserChannelModel> selectedChannelModels = new HashMap<>();
+        
         if (currentContentPage == dashboardPanel) {
             List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
             Set<DashboardStatus> selectedChannelStatuses = dashboardPanel.getSelectedChannelStatuses();
@@ -3331,52 +3327,100 @@ public class Frame extends JXFrame {
                 return;
             }
 
-            if (selectedChannelStatuses.size() > 1) {
+            // Don't allow users to view messages for multiple channels unless multi-channel message browsing
+            // is enabled.
+            if (!multiChannelMessageBrowsingEnabled && selectedChannelStatuses.size() > 1) {
                 JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
                 return;
             }
-
+            
+            // Build the selectedChannelModels map from DashboardStatuses
             for (DashboardStatus status : selectedStatuses) {
-                metaDataIds.add(status.getMetaDataId());
+            	MessageBrowserChannelModel channelModel = selectedChannelModels.get(status.getChannelId());
+            	if (channelModel == null) {
+            		channelModel = new MessageBrowserChannelModel(status.getChannelId());
+            		selectedChannelModels.put(status.getChannelId(), channelModel);
+            		
+            		// Because the current page is the Dashboard, the channel must be deployed
+            		channelModel.setChannelDeployed(true);
+            	}
+            	
+            	channelModel.getSelectedMetaDataIds().add(status.getMetaDataId());
             }
 
-            id = selectedStatuses.get(0).getChannelId();
-            channelName = selectedChannelStatuses.iterator().next().getName();
+            for (DashboardStatus status : selectedChannelStatuses) {
+            	MessageBrowserChannelModel channelModel = selectedChannelModels.get(status.getChannelId());
+            	if (channelModel == null) {
+            		channelModel = new MessageBrowserChannelModel(status.getChannelId());
+            		selectedChannelModels.put(status.getChannelId(), channelModel);
+            		
+            		// Because the current page is the Dashboard, the channel must be deployed
+            		channelModel.setChannelDeployed(true);
+            	}
+            	
+            	channelModel.setChannelName(status.getName());
+            }
+            
         } else if (currentContentPage == channelPanel) {
             List<Channel> selectedChannels = channelPanel.getSelectedChannels();
-            Channel selectedChannel = channelPanel.getSelectedChannels().get(0);
             
-            metaDataIds.add(null);
-
-            id = selectedChannel.getId();
-            channelName = selectedChannel.getName();
-
-            channelDeployed = false;
-            for (DashboardStatus dashStatus : status) {
-                if (dashStatus.getChannelId().equals(id)) {
-                    channelDeployed = true;
+            // Build the selectedChannelModels map from Channels
+            for (Channel selectedChannel : selectedChannels) {
+            	MessageBrowserChannelModel channelModel = selectedChannelModels.get(selectedChannel.getId());
+            	if (channelModel == null) {
+            		channelModel = new MessageBrowserChannelModel(selectedChannel.getId());
+            		selectedChannelModels.put(selectedChannel.getId(), channelModel);
+            	}
+            	
+            	channelModel.setChannelName(selectedChannel.getName());
+            	
+            	// A null metaDataId indicates that the whole channel is selected, not a specific connector,
+            	// which is always the case when viewing messages from the ChannelPanel
+            	channelModel.getSelectedMetaDataIds().add(null);
+            	
+            	// Get the deployed status of the channel
+            	boolean channelDeployed = false;
+                for (DashboardStatus dashStatus : status) {
+                    if (dashStatus.getChannelId().equals(selectedChannel.getId())) {
+                        channelDeployed = true;
+                    }
                 }
+                channelModel.setChannelDeployed(channelDeployed);
+            } 
+        }
+
+        if (selectedChannelModels.size() > 1 && Preferences.userNodeForPackage(Mirth.class).getBoolean("multiChannelSearchWarning", true)) {
+        	// Warn users that this operation can take a long time
+            String searchWarning = "<html>Viewing messages for multiple channels may take a long time, depending on the number of channels and messages being searched.<br/>Are you sure you want to proceed?</html>";
+            Object[] params = new Object[] { searchWarning };
+            int result = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            
+            if (result != JOptionPane.YES_OPTION) {
+                return;
             }
+        }
+        
+        // Build the panel name of the message browser
+        Iterator<MessageBrowserChannelModel> selectedChannelModelsIter = selectedChannelModels.values().iterator();
+        StringBuilder panelNameBuilder = new StringBuilder("Channel Messages - " + selectedChannelModelsIter.next().getChannelName());
+        while (selectedChannelModelsIter.hasNext()) {
+        	panelNameBuilder.append(", ").append(selectedChannelModelsIter.next().getChannelName());
         }
 
         setBold(viewPane, -1);
-        setPanelName("Channel Messages - " + channelName);
+        setPanelName(panelNameBuilder.toString());
         setCurrentContentPage(messageBrowser);
         setFocus(messageTasks);
 
-        final String channelId = id;
-        final String finalChannelName = channelName;
-        final boolean isChannelDeployed = channelDeployed;
-
         final String workingId = startWorking("Retrieving channel metadata...");
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-            Map<Integer, String> connectors;
-            List<MetaDataColumn> metaDataColumns;
 
             public Void doInBackground() {
                 try {
-                    connectors = mirthClient.getConnectorNames(channelId);
-                    metaDataColumns = mirthClient.getMetaDataColumns(channelId);
+                	for (MessageBrowserChannelModel selectedChannelModel : selectedChannelModels.values()) {
+                		selectedChannelModel.setConnectors(mirthClient.getConnectorNames(selectedChannelModel.getChannelId()));
+                		selectedChannelModel.setMetaDataColumns(mirthClient.getMetaDataColumns(selectedChannelModel.getChannelId()));
+                	}
                 } catch (ClientException e) {
                     SwingUtilities.invokeLater(() -> {
                         alertThrowable(PlatformUI.MIRTH_FRAME, e);
@@ -3387,11 +3431,19 @@ public class Frame extends JXFrame {
 
             public void done() {
                 stopWorking(workingId);
+                
+                boolean retrievedMetadata = true;
+                for (MessageBrowserChannelModel selectedChannelModel : selectedChannelModels.values()) {
+                	if (selectedChannelModel.getConnectors() == null || selectedChannelModel.getMetaDataColumns() == null) {
+                		retrievedMetadata = false;
+                		break;
+                	}
+                }
 
-                if (connectors == null || metaDataColumns == null) {
+                if (!retrievedMetadata) {
                     alertError(PlatformUI.MIRTH_FRAME, "Could not retrieve metadata for channel.");
                 } else {
-                    messageBrowser.loadChannel(new MessageBrowserChannelModel(channelId, finalChannelName, connectors, metaDataColumns, metaDataIds, isChannelDeployed));
+                    messageBrowser.loadChannels(new ArrayList<MessageBrowserChannelModel>(selectedChannelModels.values()));
                 }
             }
         };

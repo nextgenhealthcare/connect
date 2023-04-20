@@ -1,5 +1,6 @@
 package com.mirth.connect.client.ui.browsers.message;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,12 @@ public class MessageBrowserChannelModel {
 	private List<MetaDataColumn> metaDataColumns;
 	private List<Integer> selectedMetaDataIds;
 	private boolean channelDeployed;
+	
+	public MessageBrowserChannelModel(String channelId) {
+		this.channelId = channelId;
+		selectedMetaDataIds = new ArrayList<>();
+		channelDeployed = false;
+	}
 	
 	public MessageBrowserChannelModel(String channelId, String channelName, Map<Integer, String> connectors,
 			List<MetaDataColumn> metaDataColumns, List<Integer> selectedMetaDataIds, boolean channelDeployed) {
