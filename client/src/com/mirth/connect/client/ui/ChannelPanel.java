@@ -195,7 +195,8 @@ public class ChannelPanel extends AbstractFramePanel {
     private boolean tagTextModeSelected = false;
     private boolean tagIconModeSelected = false;
     private boolean canViewChannelGroups = AuthorizationControllerFactory.getAuthorizationController().checkTask(TaskConstants.CHANNEL_GROUP_KEY, TaskConstants.CHANNEL_GROUP_EXPORT_GROUP);
-
+    private boolean channelsGroupsLoaded = false;
+    
     public ChannelPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
@@ -432,6 +433,7 @@ public class ChannelPanel extends AbstractFramePanel {
             @Override
             public void done() {
                 updateModel(getCurrentTableState());
+                channelsGroupsLoaded = true;
                 updateTasks();
                 updateTags(false);
                 parent.setSaveEnabled(false);
@@ -457,7 +459,10 @@ public class ChannelPanel extends AbstractFramePanel {
         setChannelTaskVisible(TASK_CHANNEL_IMPORT_CHANNEL);
         if (model.isGroupModeEnabled()) {
             if (!filterEnabled) {
-                setGroupTaskVisible(TASK_GROUP_NEW_GROUP);
+                // Only allow users to create new groups if all the Channels' groups have been loaded
+                if (channelsGroupsLoaded) {
+                    setGroupTaskVisible(TASK_GROUP_NEW_GROUP);
+                }
 
                 if (!saveEnabled) {
                     setGroupTaskVisible(TASK_GROUP_IMPORT_GROUP);
@@ -1377,6 +1382,7 @@ public class ChannelPanel extends AbstractFramePanel {
         if (synchronous) {
             retrieveChannels();
             updateModel(getCurrentTableState());
+            channelsGroupsLoaded = true;
             updateTasks();
             parent.setSaveEnabled(false);
         } else {
