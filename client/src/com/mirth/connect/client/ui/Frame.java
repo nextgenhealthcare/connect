@@ -114,6 +114,7 @@ import com.mirth.connect.client.ui.alert.DefaultAlertEditPanel;
 import com.mirth.connect.client.ui.alert.DefaultAlertPanel;
 import com.mirth.connect.client.ui.browsers.event.EventBrowser;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
+import com.mirth.connect.client.ui.browsers.message.MessageBrowserChannelModel;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel;
 import com.mirth.connect.client.ui.components.rsta.ac.js.MirthJavaScriptLanguageSupport;
 import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
@@ -178,6 +179,7 @@ public class Frame extends JXFrame {
     public ChannelSetup channelEditPanel = null;
     public EventBrowser eventBrowser = null;
     public MessageBrowser messageBrowser = null;
+    public boolean multiChannelMessageBrowsingEnabled = false;
     public AlertPanel alertPanel = null;
     public AlertEditPanel alertEditPanel = null;
     public CodeTemplatePanel codeTemplatePanel = null;
@@ -3319,7 +3321,6 @@ public class Frame extends JXFrame {
         String id = "";
         String channelName = "";
         boolean channelDeployed = true;
-        Integer channelRevision = null;
 
         final List<Integer> metaDataIds = new ArrayList<Integer>();
         if (currentContentPage == dashboardPanel) {
@@ -3341,22 +3342,14 @@ public class Frame extends JXFrame {
 
             id = selectedStatuses.get(0).getChannelId();
             channelName = selectedChannelStatuses.iterator().next().getName();
-            channelRevision = 0;
         } else if (currentContentPage == channelPanel) {
             List<Channel> selectedChannels = channelPanel.getSelectedChannels();
             Channel selectedChannel = channelPanel.getSelectedChannels().get(0);
-
-
-            if (selectedChannels.size() > 1) {
-                JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single channel.");
-                return;
-            }
             
             metaDataIds.add(null);
 
             id = selectedChannel.getId();
             channelName = selectedChannel.getName();
-            channelRevision = selectedChannel.getRevision();
 
             channelDeployed = false;
             for (DashboardStatus dashStatus : status) {
@@ -3398,7 +3391,7 @@ public class Frame extends JXFrame {
                 if (connectors == null || metaDataColumns == null) {
                     alertError(PlatformUI.MIRTH_FRAME, "Could not retrieve metadata for channel.");
                 } else {
-                    messageBrowser.loadChannel(channelId, finalChannelName, connectors, metaDataColumns, metaDataIds, isChannelDeployed);
+                    messageBrowser.loadChannel(new MessageBrowserChannelModel(channelId, finalChannelName, connectors, metaDataColumns, metaDataIds, isChannelDeployed));
                 }
             }
         };
