@@ -135,7 +135,11 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             multiChannelSearchWarningYesRadio.setSelected(true);
         } else {
             multiChannelSearchWarningNoRadio.setSelected(true);
-        } 
+        }
+        
+        multiChannelSearchWarningLabel.setVisible(PlatformUI.MIRTH_FRAME.multiChannelMessageBrowsingEnabled);
+        multiChannelSearchWarningYesRadio.setVisible(PlatformUI.MIRTH_FRAME.multiChannelMessageBrowsingEnabled);
+        multiChannelSearchWarningNoRadio.setVisible(PlatformUI.MIRTH_FRAME.multiChannelMessageBrowsingEnabled);
 
         if (userPreferences.getBoolean("filterTransformerShowIteratorDialog", true)) {
             filterTransformerShowIteratorYesRadio.setSelected(true);
