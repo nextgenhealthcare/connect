@@ -301,9 +301,22 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         });
     }
-
-    public void loadChannel(String channelId, String channelName, Map<Integer, String> connectors, List<MetaDataColumn> metaDataColumns, List<Integer> selectedMetaDataIds, boolean isChannelDeployed) {
-        this.isChannelDeployed = isChannelDeployed;
+    
+    public void loadChannels(List<MessageBrowserChannelModel> channelModels) {
+    	if (channelModels != null && !channelModels.isEmpty()) {
+    		loadChannel(channelModels.get(0));
+    	}
+    }
+    
+    public void loadChannel(MessageBrowserChannelModel channelModel) {
+    	String channelId = channelModel.getChannelId();
+    	String channelName = channelModel.getChannelName();
+    	Map<Integer, String> connectors = channelModel.getConnectors();
+    	List<MetaDataColumn> metaDataColumns = channelModel.getMetaDataColumns();
+    	List<Integer> selectedMetaDataIds = channelModel.getSelectedMetaDataIds(); 
+    	boolean isChannelDeployed = channelModel.isChannelDeployed();
+    	
+    	this.isChannelDeployed = isChannelDeployed;
         this.selectedMetaDataIds = selectedMetaDataIds;
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 1, 1, isChannelDeployed);
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 8, isChannelDeployed);
