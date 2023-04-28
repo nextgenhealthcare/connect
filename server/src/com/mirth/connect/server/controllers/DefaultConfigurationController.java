@@ -1576,7 +1576,6 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
 
         Email email = new SimpleEmail();
-        email.setDebug(true);
         email.setHostName(host);
         email.setSmtpPort(port);
 
