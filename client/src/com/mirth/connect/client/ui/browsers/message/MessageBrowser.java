@@ -132,6 +132,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     protected static final int ORIGINAL_ID_COLUMN = 11;
     protected static final int IMPORT_ID_COLUMN = 12;
     protected static final int IMPORT_CHANNEL_ID_COLUMN = 13;
+    protected static final int CHANNEL_NAME_COLUMN = 14;
 
     protected final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
@@ -145,7 +146,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private final int MAX_CACHE_SIZE = 200;
     private String lastUserSelectedMessageType = "Raw";
     private String lastUserSelectedErrorType = "Processing Error";
-    private Frame parent;
+    protected Frame parent;
     private String channelId;
     private String channelName;
     private boolean isChannelDeployed;
@@ -160,8 +161,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private MessageFilter messageFilter;
     private MessageBrowserAdvancedFilter advancedSearchPopup;
     private JPopupMenu attachmentPopupMenu;
-    private TreeMap<Integer, String> columnMap;
-    private Set<String> defaultVisibleColumns;
+    protected TreeMap<Integer, String> columnMap;
+    protected Set<String> defaultVisibleColumns;
     // Worker used for loading a page and counting the total number of messages
     private SwingWorker<Void, Void> worker;
     private Logger logger = LogManager.getLogger(this.getClass());
@@ -318,8 +319,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     	
     	this.isChannelDeployed = isChannelDeployed;
         this.selectedMetaDataIds = selectedMetaDataIds;
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 1, 1, isChannelDeployed);
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 8, isChannelDeployed);
+        taskPaneWhenLoadingChannels();
 
         //Set the FormatCheckboxes to their default setting
         formatMessageCheckBox.setSelected(Preferences.userNodeForPackage(Mirth.class).getBoolean("messageBrowserFormat", true));
@@ -385,6 +385,15 @@ public class MessageBrowser extends javax.swing.JPanel {
         runSearch();
         isChannelMessagesPanelFirstLoadSearch = false;
     }
+    
+    protected void taskPaneWhenLoadingChannels() {
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 1, 1, isChannelDeployed);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 8, isChannelDeployed);
+    }
+    
+//    protected void restorePreferences() {
+//        messageTreeTable.restoreColumnPreferences();
+//    }
 
     public Set<Operation> getAbortOperations() {
         return OperationUtil.getAbortableOperations(MessageServletInterface.class);
@@ -646,7 +655,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
     }
 
-    private void updateSearchCriteriaPane() {
+    protected void updateSearchCriteriaPane() {
         StringBuilder text = new StringBuilder();
         Calendar startDate = messageFilter.getStartDate();
         Calendar endDate = messageFilter.getEndDate();
@@ -878,6 +887,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                         pageNumberField.setText(String.valueOf(retrievedPageNumber));
 
                         for (Message message : messages) {
+                            message.setChannelName(channelName);
                             tableModel.addMessage(message);
                         }
 
@@ -1109,7 +1119,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
     }
 
-    private void initColumnData() {
+    protected void initColumnData() {
         columnMap = new TreeMap<Integer, String>();
         columnMap.put(ID_COLUMN, "Id");
         columnMap.put(CONNECTOR_COLUMN, "Connector");
@@ -1125,6 +1135,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         columnMap.put(ORIGINAL_ID_COLUMN, "Original Id");
         columnMap.put(IMPORT_ID_COLUMN, "Import Id");
         columnMap.put(IMPORT_CHANNEL_ID_COLUMN, "Import Channel Id");
+        columnMap.put(CHANNEL_NAME_COLUMN, "Channel Name");
 
         defaultVisibleColumns = new LinkedHashSet<String>();
         defaultVisibleColumns.add(columnMap.get(ID_COLUMN));
@@ -1139,7 +1150,7 @@ public class MessageBrowser extends javax.swing.JPanel {
      * Sets the properties and adds the listeners for the Message Table. No data is loaded at this
      * point.
      */
-    private void makeMessageTable() {
+    protected void makeMessageTable() {
         messageTreeTable.setDragEnabled(true);
         messageTreeTable.setSortable(false);
         messageTreeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -1550,10 +1561,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     /**
      * Clears all description information.
      */
-    public void clearDescription(String text) {
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, isChannelDeployed);
-
+    private void clearDescription(String text) {
         RawMessageTextPane.setDocument(new SyntaxDocument());
         RawMessageTextPane.setText(text != null ? text : "Select a message to view the raw message.");
         ProcessedRawMessageTextPane.setDocument(new SyntaxDocument());
@@ -1582,6 +1590,11 @@ public class MessageBrowser extends javax.swing.JPanel {
         updateAttachmentsTable(null);
         descriptionTabbedPane.remove(attachmentsPane);
         formatMessageCheckBox.setEnabled(false);
+    }
+    
+    protected void taskPaneWhenClearingDescription() {
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, isChannelDeployed);
     }
 
     public Message getSelectedMessage() {
@@ -1733,9 +1746,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     worker.cancel(true);
                 }
                 prettyPrintWorkers.clear();
-
-                parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
-                parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, -1, isChannelDeployed);
+                taskPaneWhenSelectingMessages();
 
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -1819,6 +1830,11 @@ public class MessageBrowser extends javax.swing.JPanel {
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
         }
+    }
+    
+    protected void taskPaneWhenSelectingMessages() {
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, 6, true);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, -1, isChannelDeployed);
     }
 
     /**
@@ -2189,7 +2205,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     // @formatter:off
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    protected void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
@@ -3133,12 +3149,12 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JTextArea lastSearchCriteria;
-    private javax.swing.JScrollPane lastSearchCriteriaPane;
+    protected javax.swing.JTextArea lastSearchCriteria;
+    protected javax.swing.JScrollPane lastSearchCriteriaPane;
     private javax.swing.JScrollPane mappingsPane;
     private com.mirth.connect.client.ui.components.MirthTable mappingsTable;
     private javax.swing.JScrollPane messageScrollPane;
-    private com.mirth.connect.client.ui.components.MirthTreeTable messageTreeTable;
+    protected com.mirth.connect.client.ui.components.MirthTreeTable messageTreeTable;
     private javax.swing.ButtonGroup messagesGroup;
     private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker1;
     private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker2;

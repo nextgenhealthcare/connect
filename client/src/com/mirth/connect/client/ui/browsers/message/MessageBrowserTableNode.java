@@ -40,6 +40,7 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
         row[MessageBrowser.IMPORT_ID_COLUMN] = message.getImportId();
         row[MessageBrowser.IMPORT_CHANNEL_ID_COLUMN] = message.getImportChannelId();
         row[MessageBrowser.ORIGINAL_SERVER_ID_COLUMN] = null;
+        row[MessageBrowser.CHANNEL_NAME_COLUMN] = message.getChannelName();
     }
 
     public MessageBrowserTableNode(int staticColumnCount, Message message, int metaDataId, MessageBrowserTableModel model) {
@@ -66,6 +67,7 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
         row[MessageBrowser.IMPORT_ID_COLUMN] = connectorMessage.getMetaDataId() == 0 ? message.getImportId() : null;
         row[MessageBrowser.IMPORT_CHANNEL_ID_COLUMN] = connectorMessage.getMetaDataId() == 0 ? message.getImportChannelId() : null;
         row[MessageBrowser.ORIGINAL_SERVER_ID_COLUMN] = message.getServerId();
+        row[MessageBrowser.CHANNEL_NAME_COLUMN] = connectorMessage.getMetaDataId() == 0 ? message.getChannelName() : " ";
 
         for (int i = staticColumnCount; i < model.getColumnCount(); i++) {
             row[i] = connectorMessage.getMetaDataMap().get(model.getColumnName(i).toUpperCase());
