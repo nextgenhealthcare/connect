@@ -922,7 +922,9 @@ public class MessageBrowser extends javax.swing.JPanel {
                         pageNumberField.setText(String.valueOf(retrievedPageNumber));
 
                         for (Message message : messages) {
-                            message.setChannelName(channelName);
+                        	if (message.getChannelName() == null || message.getChannelName().isEmpty()) {
+                        		message.setChannelName(channelName);
+                        	}
                             tableModel.addMessage(message);
                         }
 
@@ -1840,7 +1842,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                         }
                         // Add the retrieved message to the message cache
                         putMessageInCache(channelId, messageId, message);
-                        attachmentCache.put(messageId, attachments);
+                        putAttachmentsInCache(channelId, messageId, attachments);
                     }
 
                     ConnectorMessage connectorMessage = message.getConnectorMessages().get(metaDataId);
