@@ -16,6 +16,7 @@ import com.mirth.connect.donkey.model.message.Message;
 
 public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
     private Object[] row;
+    private String channelId;
     private Long messageId;
     private Integer metaDataId;
     private Boolean active;
@@ -45,6 +46,7 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
 
     public MessageBrowserTableNode(int staticColumnCount, Message message, int metaDataId, MessageBrowserTableModel model) {
         row = new Object[model.getColumnCount()];
+        channelId = message.getChannelId();
         messageId = message.getMessageId();
         this.metaDataId = metaDataId;
 
@@ -108,6 +110,10 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
     @Override
     public int getColumnCount() {
         return row.length;
+    }
+    
+    public String getChannelId() {
+    	return channelId;
     }
 
     public Long getMessageId() {
