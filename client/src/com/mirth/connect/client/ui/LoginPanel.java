@@ -11,6 +11,7 @@ package com.mirth.connect.client.ui;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Image;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -48,9 +49,13 @@ public class LoginPanel extends javax.swing.JFrame {
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         jLabel5.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
-
-        mirthCorpImage.setIcon(UIConstants.MIRTHCORP_LOGO);
+        setIconImage(UIConstants.MIRTH_FAVICON.getImage());
+        ImageIcon imageIcon = UIConstants.MIRTHCORP_LOGO; // load the image to a imageIcon
+        Image image = imageIcon.getImage(); // transform it
+        Image newimg = image.getScaledInstance(175, 30, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way 
+        imageIcon = new ImageIcon(newimg);
+        
+        mirthCorpImage.setIcon(imageIcon);
         mirthCorpImage.setText("");
         mirthCorpImage.setToolTipText(UIConstants.MIRTHCORP_TOOLTIP);
         mirthCorpImage.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -62,7 +67,7 @@ public class LoginPanel extends javax.swing.JFrame {
             }
         });
 
-        mirthCorpImage1.setIcon(UIConstants.MIRTHCORP_LOGO);
+        mirthCorpImage1.setIcon(imageIcon);
         mirthCorpImage1.setText("");
         mirthCorpImage1.setToolTipText(UIConstants.MIRTHCORP_TOOLTIP);
         mirthCorpImage1.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -85,7 +90,6 @@ public class LoginPanel extends javax.swing.JFrame {
             if (instance == null) {
                 instance = new LoginPanel();
             }
-
             return instance;
         }
     }
@@ -100,6 +104,7 @@ public class LoginPanel extends javax.swing.JFrame {
             PlatformUI.CLIENT_VERSION = version;
 
             setTitle("Mirth Connect " + version + " - Login");
+            setIconImage(UIConstants.MIRTH_FAVICON.getImage());
 
             serverName.setText(mirthServer);
 
@@ -163,6 +168,7 @@ public class LoginPanel extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Mirth Connect - Login");
+        setIconImage(UIConstants.MIRTH_FAVICON.getImage());
 
         loginMain.setBackground(new java.awt.Color(255, 255, 255));
         loginMain.setName(""); // NOI18N
