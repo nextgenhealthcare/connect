@@ -151,15 +151,15 @@ public class MessageBrowser extends javax.swing.JPanel {
     private String channelName;
     private boolean isChannelDeployed;
     private boolean isCURESPHILoggingOn;
-    private boolean isChannelMessagesPanelFirstLoadSearch = false;
+    protected boolean isChannelMessagesPanelFirstLoadSearch;
     private Map<Integer, String> connectors;
-    private List<MetaDataColumn> metaDataColumns;
+    protected List<MetaDataColumn> metaDataColumns;
     private MessageBrowserTableModel tableModel;
     protected PaginatedMessageList messages;
     protected Map<Object, Message> messageCache;
     protected Map<Object, List<Attachment>> attachmentCache;
     protected MessageFilter messageFilter;
-    private MessageBrowserAdvancedFilter advancedSearchPopup;
+    protected MessageBrowserAdvancedFilter advancedSearchPopup;
     private JPopupMenu attachmentPopupMenu;
     protected TreeMap<Integer, String> columnMap;
     protected Set<String> defaultVisibleColumns;
@@ -233,7 +233,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         pageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
         pageNumberField.setDocument(new MirthFieldConstraints(7, false, false, true));
 
-        advancedSearchPopup = new MessageBrowserAdvancedFilter(parent, this, "Advanced Search Filter", true, true);
+        advancedSearchPopup = createMessageBrowserAdvancedFilter();
         advancedSearchPopup.setVisible(false);
 
         LineBorder lineBorder = new LineBorder(new Color(0, 0, 0));
@@ -303,6 +303,10 @@ public class MessageBrowser extends javax.swing.JPanel {
         });
     }
     
+    protected MessageBrowserAdvancedFilter createMessageBrowserAdvancedFilter() {
+    	return new MessageBrowserAdvancedFilter(parent, this, "Advanced Search Filter", true, true);
+    }
+    
     public void loadChannels(List<MessageBrowserChannelModel> channelModels) {
     	if (channelModels != null && !channelModels.isEmpty()) {
     		loadChannel(channelModels.get(0));
@@ -328,7 +332,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         this.channelName = channelName;
         this.connectors = connectors;
         this.connectors.put(null, "Deleted Connectors");
-        this.metaDataColumns = metaDataColumns;
+        initMetaDataColumns(channelModel);
         tableModel.clear();
 
         advancedSearchPopup.loadChannel();
@@ -343,15 +347,17 @@ public class MessageBrowser extends javax.swing.JPanel {
         // Add standard columns
         columnList.addAll(columnMap.values());
 
-        // Add custom columns
-        Set<String> metaDataColumnNames = new LinkedHashSet<String>();
-
-        for (MetaDataColumn column : metaDataColumns) {
+        isCURESPHILoggingOn = false;
+        for (MetaDataColumn column : this.metaDataColumns) {
             // if channel has patient_id metadata, turn on CURES PHI logging
-            isCURESPHILoggingOn = column.getName().toLowerCase().equals("patient_id") ? true : false;
-
-            metaDataColumnNames.add(column.getName());
+        	if (column.getName().toLowerCase().equals("patient_id")) {
+        		isCURESPHILoggingOn = true;
+        		break;
+        	}
         }
+        
+        // Add custom columns
+        Set<String> metaDataColumnNames = createCustomMetaDataColumns();
 
         Map<String, Set<String>> customHiddenColumnMap = messageTreeTable.getCustomHiddenColumnMap();
         Set<String> hiddenCustomColumns = customHiddenColumnMap.get(channelId);
@@ -386,14 +392,25 @@ public class MessageBrowser extends javax.swing.JPanel {
         isChannelMessagesPanelFirstLoadSearch = false;
     }
     
+    protected void initMetaDataColumns(MessageBrowserChannelModel channelModel) {
+    	this.metaDataColumns = channelModel.getMetaDataColumns();
+    }
+    
+    protected Set<String> createCustomMetaDataColumns() {
+        // Add custom columns
+        Set<String> metaDataColumnNames = new LinkedHashSet<String>();
+        
+        for (MetaDataColumn column : this.metaDataColumns) {
+            metaDataColumnNames.add(column.getName());
+        }
+        
+        return metaDataColumnNames;
+    }
+    
     protected void taskPaneWhenLoadingChannels() {
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 1, 1, isChannelDeployed);
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 8, isChannelDeployed);
     }
-    
-//    protected void restorePreferences() {
-//        messageTreeTable.restoreColumnPreferences();
-//    }
 
     public Set<Operation> getAbortOperations() {
         return OperationUtil.getAbortableOperations(MessageServletInterface.class);
@@ -520,7 +537,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     /**
      * Constructs the MessageFilter (this.filter) based on the current form selections
      */
-    private boolean generateMessageFilter() {
+    protected boolean generateMessageFilter() {
         messageFilter = new MessageFilter();
 
         // set start/end date
@@ -634,7 +651,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         return true;
     }
 
-    private void runSearch() {
+    protected void runSearch() {
         if (generateMessageFilter()) {
             updateFilterButtonFont(Font.PLAIN);
 
@@ -744,37 +761,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             text.append(padding + "Text Search: " + messageFilter.getTextSearch());
         }
 
-        text.append(padding + "Connectors: ");
-
-        if (messageFilter.getIncludedMetaDataIds() == null) {
-            if (messageFilter.getExcludedMetaDataIds() == null) {
-                text.append("(any)");
-            } else {
-                List<Integer> excludedMetaDataIds = messageFilter.getExcludedMetaDataIds();
-                List<String> connectorNames = new ArrayList<String>();
-
-                for (Entry<Integer, String> connectorEntry : connectors.entrySet()) {
-                    if (!excludedMetaDataIds.contains(connectorEntry.getKey())) {
-                        connectorNames.add(connectorEntry.getValue());
-                    }
-                }
-
-                text.append(StringUtils.join(connectorNames, ", "));
-            }
-        } else if (messageFilter.getIncludedMetaDataIds().isEmpty()) {
-            text.append("(none)");
-        } else {
-            List<Integer> includedMetaDataIds = messageFilter.getIncludedMetaDataIds();
-            List<String> connectorNames = new ArrayList<String>();
-
-            for (Entry<Integer, String> connectorEntry : connectors.entrySet()) {
-                if (includedMetaDataIds.contains(connectorEntry.getKey())) {
-                    connectorNames.add(connectorEntry.getValue());
-                }
-            }
-
-            text.append(StringUtils.join(connectorNames, ", "));
-        }
+        text.append(getConnectorSearchCriteriaText(padding));
 
         if (messageFilter.getOriginalIdLower() != null || messageFilter.getOriginalIdUpper() != null) {
             text.append(padding + "Original Id: ");
@@ -859,6 +846,42 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
 
         lastSearchCriteria.setText(text.toString());
+    }
+    
+    protected String getConnectorSearchCriteriaText(String padding) {
+    	StringBuilder text = new StringBuilder();
+    	text.append(padding + "Connectors: ");
+
+        if (messageFilter.getIncludedMetaDataIds() == null) {
+            if (messageFilter.getExcludedMetaDataIds() == null) {
+                text.append("(any)");
+            } else {
+                List<Integer> excludedMetaDataIds = messageFilter.getExcludedMetaDataIds();
+                List<String> connectorNames = new ArrayList<String>();
+
+                for (Entry<Integer, String> connectorEntry : connectors.entrySet()) {
+                    if (!excludedMetaDataIds.contains(connectorEntry.getKey())) {
+                        connectorNames.add(connectorEntry.getValue());
+                    }
+                }
+
+                text.append(StringUtils.join(connectorNames, ", "));
+            }
+        } else if (messageFilter.getIncludedMetaDataIds().isEmpty()) {
+            text.append("(none)");
+        } else {
+            List<Integer> includedMetaDataIds = messageFilter.getIncludedMetaDataIds();
+            List<String> connectorNames = new ArrayList<String>();
+
+            for (Entry<Integer, String> connectorEntry : connectors.entrySet()) {
+                if (includedMetaDataIds.contains(connectorEntry.getKey())) {
+                    connectorNames.add(connectorEntry.getValue());
+                }
+            }
+
+            text.append(StringUtils.join(connectorNames, ", "));
+        }
+        return text.toString();
     }
 
     public void jumpToPageNumber() {
@@ -1820,7 +1843,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     // If the message is not in the cache, retrieve it from the server
                     if (message == null) {
                         try {
-                            message = parent.mirthClient.getMessageContent(channelId, messageId, selectedMetaDataIds);
+                            message = getMessageContent(channelId, messageId);
                             // If the message was not found (ie. it may have been deleted during the request), do nothing
                             if (message == null || message.getConnectorMessages().size() == 0) {
                                 clearDescription("Could not retrieve message content. The message may have been deleted.");
@@ -1884,6 +1907,10 @@ public class MessageBrowser extends javax.swing.JPanel {
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
         }
+    }
+    
+    protected Message getMessageContent(String channelId, Long messageId) throws ClientException {
+    	return parent.mirthClient.getMessageContent(channelId, messageId, selectedMetaDataIds);
     }
     
     protected void taskPaneWhenSelectingMessages() {
