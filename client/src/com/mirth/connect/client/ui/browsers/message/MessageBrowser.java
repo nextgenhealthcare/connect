@@ -1210,7 +1210,7 @@ public class MessageBrowser extends javax.swing.JPanel {
      * Sets the properties and adds the listeners for the Message Table. No data is loaded at this
      * point.
      */
-    protected void makeMessageTable() {
+    private void makeMessageTable() {
         messageTreeTable.setDragEnabled(true);
         messageTreeTable.setSortable(false);
         messageTreeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -2288,7 +2288,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     // @formatter:off
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    protected void initComponents() {
+    private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
@@ -3240,12 +3240,12 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
-    protected javax.swing.JTextArea lastSearchCriteria;
-    protected javax.swing.JScrollPane lastSearchCriteriaPane;
+    private javax.swing.JTextArea lastSearchCriteria;
+    private javax.swing.JScrollPane lastSearchCriteriaPane;
     private javax.swing.JScrollPane mappingsPane;
     private com.mirth.connect.client.ui.components.MirthTable mappingsTable;
     private javax.swing.JScrollPane messageScrollPane;
-    protected com.mirth.connect.client.ui.components.MirthTreeTable messageTreeTable;
+    private com.mirth.connect.client.ui.components.MirthTreeTable messageTreeTable;
     private javax.swing.ButtonGroup messagesGroup;
     private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker1;
     private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker2;
