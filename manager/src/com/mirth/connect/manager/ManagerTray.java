@@ -101,7 +101,7 @@ public class ManagerTray {
         });
         menu.add(quitItem);
 
-        ImageIcon icon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
+        ImageIcon icon = new ImageIcon(this.getClass().getResource("images/NG_MC_Icon_Grey_32x32.png"));
         mirthTrayIcon = new TrayIcon(icon.getImage(), "Mirth Connect Server Manager", menu);
         mirthTrayIcon.setImageAutoSize(true);
 
@@ -166,11 +166,11 @@ public class ManagerTray {
     public void setTrayIcon(int icon) {
         ImageIcon imageIcon;
         if (icon == STARTED) {
-            imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico.png"));
+            imageIcon = new ImageIcon(this.getClass().getResource("images/NG_MC_Icon_32x32.png"));
         } else if (icon == STOPPED) {
-            imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
+            imageIcon = new ImageIcon(this.getClass().getResource("images/NG_MC_Icon_Grey_32x32.png"));
         } else {
-            imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
+            imageIcon = new ImageIcon(this.getClass().getResource("images/NG_MC_Icon_Grey_32x32.png"));
         }
 
         mirthTrayIcon.setImage(imageIcon.getImage());

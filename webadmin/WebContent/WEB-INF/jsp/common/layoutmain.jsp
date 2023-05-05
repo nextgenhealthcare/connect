@@ -11,7 +11,7 @@
     <html>
         <head>
             <title>Mirth Connect Web Administrator</title>
-            <link rel="shortcut icon" type="image/x-icon" href="${contextPath}/images/favicon.ico" />
+            <link rel="shortcut icon" type="image/x-icon" href="${contextPath}/images/NG_MC_Icon_16x16.png" />
             <link rel="stylesheet" type="text/css" href="${contextPath}/css/bootstrap.css" />
             <link rel="stylesheet" type="text/css" href="${contextPath}/css/statistics.css" />
             <s:layout-component name="head" />

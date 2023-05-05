@@ -17,6 +17,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
+import java.awt.Image;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
@@ -69,6 +70,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
@@ -275,7 +277,7 @@ public class Frame extends JXFrame {
 
         setTitle(titleText.toString());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
+        setIconImage(UIConstants.MIRTH_FAVICON.getImage());
         makePaneContainer();
 
         connectionError = false;
@@ -768,17 +770,22 @@ public class Frame extends JXFrame {
         container.setTitleFont(new Font("Tahoma", Font.BOLD, 18));
         container.setTitleForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         JLabel mirthConnectImage = new JLabel();
-        mirthConnectImage.setIcon(UIConstants.MIRTHCONNECT_LOGO_GRAY);
-        mirthConnectImage.setText(" ");
+        ImageIcon imageIcon = UIConstants.MIRTHCONNECT_LOGO_GRAY; // load the image to a imageIcon
+        Image image = imageIcon.getImage(); // transform it
+        Image newimg = image.getScaledInstance(175, 30, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way 
+        imageIcon = new ImageIcon(newimg);
+        mirthConnectImage.setIcon(imageIcon);
         mirthConnectImage.setToolTipText(UIConstants.MIRTHCONNECT_TOOLTIP);
         mirthConnectImage.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
+        mirthConnectImage.setVerticalAlignment(SwingConstants.BOTTOM);
         mirthConnectImage.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 BareBonesBrowserLaunch.openURL(UIConstants.MIRTHCONNECT_URL);
             }
         });
+       
+        mirthConnectImage.setBorder(BorderFactory.createEmptyBorder(5,0,4,20));
 
         ((JPanel) container.getComponent(0)).add(mirthConnectImage);
 

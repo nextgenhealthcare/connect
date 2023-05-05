@@ -7,7 +7,7 @@
         
         <title>Mirth Connect Administrator</title>
         
-        <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
+        <link rel="shortcut icon" type="image/x-icon" href="images/NG_MC_Icon_16x16.png" />
         <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
         <link rel="stylesheet" type="text/css" href="css/main.css" />
         
@@ -26,7 +26,7 @@
         <div id="centerWrapper" class="container">
             <div class="row">
                 <div id="mirthLogoWrapper">
-                    <img id="mirthLogo" src="images/mirthconnectlogowide.png" />
+                    <img id="mirthLogo" src="images/MirthConnect_Logo_WordMark_Big.png" />
                 </div>
     
                 <div id="mcadministrator" class="col-xs-6 col-xs-6-custom">

@@ -39,7 +39,6 @@ public class CustomBannerPanelDialog extends JDialog {
         DisplayUtil.setResizable(this, true);
         setPreferredSize(new Dimension(800,600));
         setModal(true);
-        this.setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
 
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
@@ -59,6 +58,7 @@ public class CustomBannerPanelDialog extends JDialog {
     private void initComponents() {
         setLayout(new MigLayout("insets 12")); // layout sets 12 pixel border
         setTitle(title);
+        setIconImage(UIConstants.MIRTH_FAVICON.getImage());
         getContentPane().setBackground(UIConstants.BACKGROUND_COLOR); // set dialog box to background color
         setBackground(UIConstants.BACKGROUND_COLOR); // get all other backgrounds for each piece
 
