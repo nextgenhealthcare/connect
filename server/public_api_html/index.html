@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
-  <head>
+	<head>
 		<meta charset="UTF-8">
-    <title>Mirth Connect Client API</title>
-    <link rel="shortcut icon" type="image/x-icon" href="images/NG_MC_Icon_16x16.png" />
+		<title>Mirth Connect Client API</title>
+		<link rel="shortcut icon" type="image/x-icon" href="images/NG_MC_Icon16x16.png" />
 		<link rel="stylesheet" type="text/css" href="css/swagger-ui.css" >
 		<link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/>
 		<link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/>
@@ -24,224 +24,224 @@
 		<script src='lib/highlight.9.1.0.pack_extended.js' type='text/javascript'></script>
 		<script src='lib/jsoneditor.min.js' type='text/javascript'></script>
 		<script src='lib/marked.js' type='text/javascript'></script>
-
-    <!-- Some basic translations -->
-    <!-- <script src='lang/translator.js' type='text/javascript'></script> -->
-    <!-- <script src='lang/ru.js' type='text/javascript'></script> -->
-    <!-- <script src='lang/en.js' type='text/javascript'></script> -->
-
-    <script type="text/javascript">
-      var basePath = window.location.href;
+	
+		<!-- Some basic translations -->
+		<!-- <script src='lang/translator.js' type='text/javascript'></script> -->
+		<!-- <script src='lang/ru.js' type='text/javascript'></script> -->
+		<!-- <script src='lang/en.js' type='text/javascript'></script> -->
+	
+		<script type="text/javascript">
+			var basePath = window.location.href;
 			var poundIndex = basePath.indexOf('#');
-      if (poundIndex != -1) {
-        basePath = basePath.substring(0, poundIndex);
-      }
-
-      var url = window.location.search.match(/url=([^&]+)/);
-      if (url && url.length > 1) {
-        url = decodeURIComponent(url[1]);
-      } else {
-        url = basePath + "openapi.json";
-      }
-
-      function log() {
+			if (poundIndex != -1) {
+				basePath = basePath.substring(0, poundIndex);
+			}
+			
+			var url = window.location.search.match(/url=([^&]+)/);
+			if (url && url.length > 1) {
+				url = decodeURIComponent(url[1]);
+			} else {
+				url = basePath + "openapi.json";
+			}
+			
+			function log() {
 				if ('console' in window) {
-          console.log.apply(console, arguments);
-        }
-      }
+					console.log.apply(console, arguments);
+				}
+			}
 			$(document).ready(function() {
 				window.swapProp = function(node, name, value, depth) {
-          if (!depth) {
-            depth = 0;
-          }
-          if (node[name]) {
-            node[name] = value;
-          }
-          if (depth < 3) {
-            for (prop in node) {
+					if (!depth) {
+						depth = 0;
+					}
+					if (node[name]) {
+						node[name] = value;
+					}
+					if (depth < 3) {
+						for (prop in node) {
 							if (Object.prototype.toString.call(node[prop]) == '[object Object]') {
-                swapProp(node[prop], name, value, depth + 1);
-              }
-            }
-          }
-        };
-
+								swapProp(node[prop], name, value, depth + 1);
+							}
+						}
+					}
+				};
+				
 				window.getCurrentUser = function(apiPath) {
-          /* TODO - Figure out how to replace this and get the correct scheme */
-          /* var basePath = window.swaggerUi.api.scheme + '://' + window.swaggerUi.api.host + window.swaggerUi.api.basePath; */
-          var path = basePath + "users/current";
-          var method = "GET";
-
-          $.ajax({
-            url: path,
-            type: method,
+					/* TODO - Figure out how to replace this and get the correct scheme */
+					/* var basePath = window.swaggerUi.api.scheme + '://' + window.swaggerUi.api.host + window.swaggerUi.api.basePath; */
+					var path = basePath + "users/current";
+					var method = "GET";
+					
+					$.ajax({
+						url: path,
+						type: method,
 						success: function(data, textStatus, jqXHR) {
 							$('#loginImage').hide();
 							$('#loginForm').hide();
 							$('#logoutForm').show();
-
+							
 							if (jqXHR.getResponseHeader('Content-Type') == 'application/xml') {
-                var $data = $(data);
+								var $data = $(data);
 								var username = $data.find('username').text();
 								$('#logoutFormUserName').text(username);
-              }
-            },
+							}
+						},
 						error: function(jqXHR, textStatus, errorThrown) {
 							$.removeCookie('JSESSIONID', { path: '/' });
 							$('#loginImage').hide();
 							$('#loginForm').show();
 							$('#logoutForm').hide();
 						}
-          });
-        };
+					});
+				};
 
 				$('#login').click(function() {
 					$('#loginForm').hide();
 					$('#loginImage').show();
 
-          var path = basePath + "users/_login";
-          var method = "POST";
-
-          $.ajax({
-            url: path,
-            type: method,
-            data: {
+					var path = basePath + "users/_login";
+					var method = "POST";
+					
+					$.ajax({
+						url: path,
+						type: method,
+						data: {
 							username: $('#username').val(),
 							password: $('#password').val()
-            },
+						},
 						dataType: 'xml',
 						success: function(data, textStatus, jqXHR) {
-              window.getCurrentUser(window.servers[0]);
-            },
+							window.getCurrentUser(window.servers[0]);
+						},
 						error: function(jqXHR, textStatus, errorThrown) {
 							$.removeCookie('JSESSIONID', { path: '/' });
 							$('#loginImage').hide();
 							$('#loginForm').show();
 						}
-          });
-        });
-
+					});
+				});
+				
 				$('#logout').click(function() {
 					$('#logoutForm').hide();
 					$('#loginImage').show();
 					$('#logoutFormUserName').text('');
 
-          var path = basePath + "users/_logout";
-          var method = "POST";
-
-          $.ajax({
-            url: path,
-            type: method,
+					var path = basePath + "users/_logout";
+					var method = "POST";
+					
+					$.ajax({
+						url: path,
+						type: method,
 						mimeType: 'text/html',
 						success: function(data, textStatus, jqXHR) {
 							$.removeCookie('JSESSIONID', { path: '/' });
 							$('#loginImage').hide();
 							$('#loginForm').show();
-            },
+						},
 						error: function(jqXHR, textStatus, errorThrown) {
 							$.removeCookie('JSESSIONID', { path: '/' });
 							$('#loginImage').hide();
 							$('#loginForm').show();
 						}
-          });
-        });
-
+					});
+				});
+				
 				$('#username, #password').keypress(function (e) {
-          if (e.which == 13) {
+					if (e.which == 13) {
 						$('#login').click();
-            return false;
-          }
-        });
-      });
-
+						return false;
+					}
+				});
+			});
+		
 			$(window).on('load', function () {
-        // Swagger-ui configuration goes here.
-        // See further: https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md
-        const ui = SwaggerUIBundle({
-          deepLinking: true,
-          presets: [
-            SwaggerUIBundle.presets.apis,
+		        // Swagger-ui configuration goes here.
+		        // See further: https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md
+		        const ui = SwaggerUIBundle({
+		          deepLinking: true,
+		          presets: [
+		        	  SwaggerUIBundle.presets.apis,
 		        	  SwaggerUIBundle.SwaggerUIStandalonePreset
-          ],
-          dom_id: "#swagger-ui-container",
+				  ],
+		          dom_id: "#swagger-ui-container",
 		          supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
-          validatorUrl: null,
-          showExtensions: true,
-          showCommonExtensions: true,
+		          validatorUrl: null,
+		          showExtensions: true,
+		          showCommonExtensions: true,
 		          docExpansion: 'none',
 		          operationsSorter: 'alpha',
 		          defaultModelRendering: 'example',
 		          tagsSorter: 'alpha',
-          url: url, // <-- adjust this to your webserver's structure
+		          url: url, // <-- adjust this to your webserver's structure
 		          onComplete: function(swaggerApi, swaggerUi){
-            /* TODO - Figure out how to replace this */
-            // If this page is being loaded over HTTPS, endpoints should also be invoked over HTTPS
-            /* if (window.location.protocol == 'https:' && window.swaggerUi.api.schemes.indexOf('https') >= 0) {
+		        	/* TODO - Figure out how to replace this */
+		        	// If this page is being loaded over HTTPS, endpoints should also be invoked over HTTPS
+					/* if (window.location.protocol == 'https:' && window.swaggerUi.api.schemes.indexOf('https') >= 0) {
 						window.swapProp(window.swaggerUi.api, 'scheme', 'https');
 					} else if (window.location.protocol == 'http:' && window.swaggerUi.api.schemes.indexOf('http') >= 0) {
 						window.swapProp(window.swaggerUi.api, 'scheme', 'http');
 					} */
-
+	
 					if(window.SwaggerTranslator) {
-              window.SwaggerTranslator.translate();
-            }
-
+						window.SwaggerTranslator.translate();
+					}
+	
 					$('pre code').each(function(i, e) {
 						hljs.highlightBlock(e)
-            });
-
-            /* Get the list of servers */
+					});
+	
+					/* Get the list of servers */
 					var serversArray = new Array;
 					$('.servers label[for="servers"] select option').each ( function() {
-              serversArray.push($(this).val());
-            });
-
-            window.servers = serversArray;
-
+						serversArray.push($(this).val());
+					});
+	
+					window.servers = serversArray;
+					
 					$('#loginImage').show();
-            window.getCurrentUser(window.servers[0]);
-          },
-		      onFailure: function(data) {
-            log("Unable to Load SwaggerUI");
-          },
-          // Add the X-Requested-With header to all requests to the Connect API
-          requestInterceptor: (req) => {
-            req.headers["X-Requested-With"] = "OpenAPI";
-            return req;
+					window.getCurrentUser(window.servers[0]);
+		          },
+		          onFailure: function(data) {
+					log("Unable to Load SwaggerUI");
+		          },
+		          // Add the X-Requested-With header to all requests to the Connect API
+		          requestInterceptor: (req) => {
+	        	    req.headers["X-Requested-With"] = "OpenAPI";
+	        	    return req;
 	        	  }
-        });
-        window.ui = ui;
+		        });
+		        window.ui = ui;
 		    }
 			);
-    </script>
-  </head>
+		</script>
+	</head>
 
-  <body class="swagger-section">
-    <div id="root"></div>
-
+	<body class="swagger-section">
+		<div id="root"></div>
+		
 		<div id='header'>
-      <div class="swagger-ui-wrap">
-        <a id="mirthLogo" href="https://www.nextgen.com/products-and-services/integration-engine">
-          <img src="images/MirthConnect_Logo_WordMark_RGB.png" />
-        </a>
+			<div class="swagger-ui-wrap">
+				<a id="mirthLogo" href="https://www.nextgen.com/products-and-services/integration-engine">
+					<img src="images/MirthConnect_Logo_WordMark_RGB.png" style="height:40px" />
+				</a>
 				<img id="loginImage" src="images/throbber.gif"/>
 				<form id='loginForm' style="display:none">
 					<div class='input'><input placeholder="username" id="username" name="username" type="text"/></div>
 					<div class='input'><input placeholder="password" id="password" name="password" type="password" autocomplete="off"/></div>
 					<div class='input login'><a id="login" href="#" data-sw-translate>Sign In</a></div>
-        </form>
+				</form>
 				<form id='logoutForm' style="display:none">
 					<div class='input login'>
-            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-            <span id="logoutFormUserName"></span>&nbsp;&nbsp;
-            <a id="logout" href="#" data-sw-translate>Sign Out</a>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
-    <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
+						<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+						<span id="logoutFormUserName"></span>&nbsp;&nbsp;
+						<a id="logout" href="#" data-sw-translate>Sign Out</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	
+		<div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
+		<div id="swagger-ui-container" class="swagger-ui-wrap"></div>
 		<script src="lib/swagger-ui-bundle.js" type='text/javascript'></script>
-  </body>
+	</body>
 </html>
