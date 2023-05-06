@@ -14,7 +14,8 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Statistics;
@@ -52,10 +53,12 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
     private QuerySource querySource;
     private SerializerProvider serializerProvider;
     private StatisticsUpdater statisticsUpdater;
-    private boolean encryptData = false;
+    private boolean encryptMessageContent = false;
+    private boolean encryptAttachments = false;
+    private boolean encryptCustomMetaData = false;
     private boolean decryptData = true;
     private Map<Connection, PreparedStatementSource> statementSources = new ConcurrentHashMap<Connection, PreparedStatementSource>();
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     protected JdbcDaoFactory() {
         donkey = Donkey.getInstance();
@@ -96,8 +99,10 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
     }
 
     @Override
-    public void setEncryptData(boolean encryptData) {
-        this.encryptData = encryptData;
+    public void setEncryptData(boolean encryptMessageContent, boolean encryptAttachments, boolean encryptCustomMetaData) {
+        this.encryptMessageContent = encryptMessageContent;
+        this.encryptAttachments = encryptAttachments;
+        this.encryptCustomMetaData = encryptCustomMetaData;
     }
 
     @Override
@@ -151,10 +156,10 @@ public class JdbcDaoFactory implements DonkeyDaoFactory {
             }
         }
 
-        return getDao(donkey, connection, querySource, statementSource, serializerProvider, encryptData, decryptData, statisticsUpdater, channelController.getStatistics(), channelController.getTotalStatistics(), statsServerId);
+        return getDao(donkey, connection, querySource, statementSource, serializerProvider, encryptMessageContent, encryptAttachments, encryptCustomMetaData, decryptData, statisticsUpdater, channelController.getStatistics(), channelController.getTotalStatistics(), statsServerId);
     }
 
-    protected JdbcDao getDao(Donkey donkey, Connection connection, QuerySource querySource, PreparedStatementSource statementSource, SerializerProvider serializerProvider, boolean encryptData, boolean decryptData, StatisticsUpdater statisticsUpdater, Statistics currentStats, Statistics totalStats, String statsServerId) {
-        return new JdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptData, decryptData, statisticsUpdater, currentStats, totalStats, statsServerId);
+    protected JdbcDao getDao(Donkey donkey, Connection connection, QuerySource querySource, PreparedStatementSource statementSource, SerializerProvider serializerProvider, boolean encryptMessageContent, boolean encryptAttachments, boolean encryptCustomMetaData, boolean decryptData, StatisticsUpdater statisticsUpdater, Statistics currentStats, Statistics totalStats, String statsServerId) {
+        return new JdbcDao(donkey, connection, querySource, statementSource, serializerProvider, encryptMessageContent, encryptAttachments, encryptCustomMetaData, decryptData, statisticsUpdater, currentStats, totalStats, statsServerId);
     }
 }

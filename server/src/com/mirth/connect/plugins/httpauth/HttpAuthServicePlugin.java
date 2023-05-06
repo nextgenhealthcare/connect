@@ -9,7 +9,6 @@
 
 package com.mirth.connect.plugins.httpauth;
 
-import java.util.Map;
 import java.util.Properties;
 
 import com.mirth.connect.model.ExtensionPermission;
@@ -50,11 +49,5 @@ public class HttpAuthServicePlugin implements ServicePlugin {
     @Override
     public ExtensionPermission[] getExtensionPermissions() {
         return null;
-    }
-    
-    @Override
-    public Map<String, Object> getObjectsForSwaggerExamples() {
-    	// TODO Auto-generated method stub
-    	return null;
     }
 }

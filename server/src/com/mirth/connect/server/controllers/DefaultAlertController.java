@@ -17,7 +17,8 @@ import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.model.alert.AlertModel;
@@ -38,7 +39,7 @@ import com.mirth.connect.server.util.StatementLock;
 public class DefaultAlertController extends AlertController {
     public static final String VACUUM_LOCK_ALERT_STATEMENT_ID = "Alert.vacuumAlertTable";
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     private static AlertController instance = null;
     private static Map<Class<?>, AlertWorker> alertWorkers = new HashMap<Class<?>, AlertWorker>();

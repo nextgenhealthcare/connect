@@ -14,7 +14,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xerces.parsers.SAXParser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -23,7 +24,7 @@ import org.xml.sax.SAXException;
 import com.mirth.connect.util.StringUtil;
 
 public class DelimitedReader extends SAXParser {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     private DelimitedSerializationProperties serializationProperties;
 

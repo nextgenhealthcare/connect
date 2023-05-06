@@ -21,10 +21,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.AccessController;
 import java.security.Provider;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -43,7 +45,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
 import org.glassfish.jersey.client.spi.Connector;
@@ -76,6 +79,7 @@ import com.mirth.connect.client.core.api.util.OperationUtil;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
 import com.mirth.connect.donkey.model.message.Message;
@@ -131,7 +135,7 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
 
     public static final int MAX_QUERY_PARAM_COLLECTION_SIZE = 100;
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ServerConnection serverConnection;
     private javax.ws.rs.client.Client client;
     private URI api;
@@ -678,8 +682,12 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
             EncryptionSettings encryptionSettings = getEncryptionSettings();
             encryptor = new KeyEncryptor();
             encryptor.setProvider((Provider) Class.forName(encryptionSettings.getSecurityProvider()).newInstance());
-            SecretKey secretKey = new SecretKeySpec(encryptionSettings.getSecretKey(), encryptionSettings.getEncryptionAlgorithm());
+            SecretKey secretKey = new SecretKeySpec(encryptionSettings.getSecretKey(), encryptionSettings.getEncryptionBaseAlgorithm());
             encryptor.setKey(secretKey);
+            encryptor.setAlgorithm(encryptionSettings.getEncryptionAlgorithm());
+            encryptor.setCharset(encryptionSettings.getEncryptionCharset());
+            encryptor.setFallbackAlgorithm(encryptionSettings.getEncryptionFallbackAlgorithm());
+            encryptor.setFallbackCharset(encryptionSettings.getEncryptionFallbackCharset());
         } catch (Exception e) {
             logger.error("Unable to load encryption settings.", e);
         }
@@ -1032,6 +1040,16 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     public Map<String, String> getChannelIdsAndNames() throws ClientException {
         return getServlet(ChannelServletInterface.class).getChannelIdsAndNames();
     }
+    
+    /**
+     * Returns a list of all channel listener Ports In Use.
+     * 
+     * @see ChannelServletInterface#getChannelPortsInUse
+     */
+    @Override
+    public List<Ports> getChannelPortsInUse() throws ClientException {
+        return getServlet(ChannelServletInterface.class).getChannelPortsInUse();
+    }
 
     /**
      * Returns a list of channel summaries, indicating to a client which channels have changed (been
@@ -1087,21 +1105,28 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
 
     /**
      * Updates the specified channel.
+     * @param dateStartEdit 
      * 
      * @see ChannelServletInterface#updateChannel
      */
-    public synchronized boolean updateChannel(Channel channel, boolean override) throws ClientException {
-        return updateChannel(channel.getId(), channel, override);
+    public synchronized boolean updateChannel(Channel channel, boolean override, Calendar dateStartEdit) throws ClientException {
+        SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault());
+        if (dateStartEdit == null) {
+        	dateStartEdit = Calendar.getInstance();
+        }
+        String startEdit = sfd.format(dateStartEdit.getTime());
+        return updateChannel(channel.getId(), channel, override, startEdit);
     }
 
     /**
      * Updates the specified channel.
+     * @param startEdit 
      * 
      * @see ChannelServletInterface#updateChannel
      */
     @Override
-    public synchronized boolean updateChannel(String channelId, Channel channel, boolean override) throws ClientException {
-        return getServlet(ChannelServletInterface.class).updateChannel(channelId, channel, override);
+    public synchronized boolean updateChannel(String channelId, Channel channel, boolean override, String startEdit) throws ClientException {
+    	return getServlet(ChannelServletInterface.class).updateChannel(channelId, channel, override, startEdit);
     }
 
     /**
@@ -1948,8 +1973,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see MessageServletInterface#removeMessage
      */
     @Override
-    public void removeMessage(String channelId, Long messageId, Integer metaDataId) throws ClientException {
-        getServlet(MessageServletInterface.class).removeMessage(channelId, messageId, metaDataId);
+    public void removeMessage(String channelId, Long messageId, Integer metaDataId, String patientId) throws ClientException {
+        getServlet(MessageServletInterface.class).removeMessage(channelId, messageId, metaDataId, patientId);
     }
 
     /**
@@ -2039,6 +2064,26 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     public void exportAttachmentServer(String channelId, Long messageId, String attachmentId, String filePath, boolean binary) throws ClientException {
         getServlet(MessageServletInterface.class).exportAttachmentServer(channelId, messageId, attachmentId, filePath, binary);
     }
+    
+    /**
+     * Audit that the user has accessed a channel message that contains PHI.
+     * 
+     * @see MessageServletInterface#auditAccessedPHIMessage
+     */
+    @Override
+    public synchronized void auditAccessedPHIMessage(Map<String, String> auditMessageAttributesMap) throws ClientException {
+        getServlet(MessageServletInterface.class).auditAccessedPHIMessage(auditMessageAttributesMap);
+    }
+    
+    /**
+     * Audit that the user has queried the channel messages panel that contains PHI.
+     * 
+     * @see MessageServletInterface#auditQueriedPHIMessage
+     */
+    @Override
+    public synchronized void auditQueriedPHIMessage(Map<String, String> auditMessageAttributesMap) throws ClientException {
+        getServlet(MessageServletInterface.class).auditQueriedPHIMessage(auditMessageAttributesMap);
+    }
 
     /*****************
      * Event Servlet *
@@ -2080,8 +2125,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EventServletInterface#getEvents
      */
     @Override
-    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String ipAddress, String serverId, Integer offset, Integer limit) throws ClientException {
-        return getServlet(EventServletInterface.class).getEvents(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, ipAddress, serverId, offset, limit);
+    public List<ServerEvent> getEvents(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String attributeSearch, String ipAddress, String serverId, Integer offset, Integer limit) throws ClientException {
+        return getServlet(EventServletInterface.class).getEvents(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, attributeSearch, ipAddress, serverId, offset, limit);
     }
 
     /**
@@ -2100,8 +2145,8 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
      * @see EventServletInterface#getEventCount
      */
     @Override
-    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String ipAddress, String serverId) throws ClientException {
-        return getServlet(EventServletInterface.class).getEventCount(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, ipAddress, serverId);
+    public Long getEventCount(Integer maxEventId, Integer minEventId, Set<Level> levels, Calendar startDate, Calendar endDate, String name, Outcome outcome, Integer userId, String attributeSearch, String ipAddress, String serverId) throws ClientException {
+        return getServlet(EventServletInterface.class).getEventCount(maxEventId, minEventId, levels, startDate, endDate, name, outcome, userId, attributeSearch, ipAddress, serverId);
     }
 
     /**
@@ -2112,34 +2157,6 @@ public class Client implements UserServletInterface, ConfigurationServletInterfa
     @Override
     public String exportAllEvents() throws ClientException {
         return getServlet(EventServletInterface.class).exportAllEvents();
-    }
-
-    /**
-     * Remove all events, with the option to export them first.
-     * 
-     * @see EventServletInterface#removeAllEvents
-     */
-    @Override
-    public String removeAllEvents(boolean export) throws ClientException {
-        return getServlet(EventServletInterface.class).removeAllEvents(export);
-    }
-
-    /**
-     * Remove all events.
-     * 
-     * @see EventServletInterface#removeAllEvents
-     */
-    public String removeAllEvents() throws ClientException {
-        return getServlet(EventServletInterface.class).removeAllEvents(false);
-    }
-
-    /**
-     * Exports all events to the application data directory on the server, then removes all events.
-     * 
-     * @see EventServletInterface#removeAllEvents
-     */
-    public String exportAndRemoveAllEvents() throws ClientException {
-        return getServlet(EventServletInterface.class).removeAllEvents(true);
     }
 
     /*****************

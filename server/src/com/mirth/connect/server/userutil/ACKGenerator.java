@@ -12,7 +12,8 @@ package com.mirth.connect.server.userutil;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
@@ -25,7 +26,7 @@ import com.mirth.connect.server.controllers.ControllerFactory;
  */
 public class ACKGenerator {
     private static final String DEFAULTDATEFORMAT = "yyyyMMddHHmmss";
-    private static Logger logger = Logger.getLogger(ACKGenerator.class);
+    private static Logger logger = LogManager.getLogger(ACKGenerator.class);
 
     /**
      * Instantiates a new ACKGenerator object.

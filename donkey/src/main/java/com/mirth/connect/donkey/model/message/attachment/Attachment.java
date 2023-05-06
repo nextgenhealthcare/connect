@@ -19,15 +19,22 @@ public class Attachment implements Serializable {
     private byte[] content;
     private String type;
     private boolean encrypt;
+    private String encryptionHeader;
 
     public Attachment() {
 
     }
 
     public Attachment(String id, byte[] content, String type) {
+        this(id, content, type, null);
+    }
+
+    public Attachment(String id, byte[] content, String type, String encryptionHeader) {
         this.id = id;
         this.content = content;
         this.setType(type);
+        this.encryptionHeader = encryptionHeader;
+        this.encrypt = encryptionHeader != null;
     }
 
     public String getAttachmentId() {
@@ -64,5 +71,13 @@ public class Attachment implements Serializable {
 
     public void setEncrypted(boolean encrypt) {
         this.encrypt = encrypt;
+    }
+
+    public String getEncryptionHeader() {
+        return encryptionHeader;
+    }
+
+    public void setEncryptionHeader(String encryptionHeader) {
+        this.encryptionHeader = encryptionHeader;
     }
 }

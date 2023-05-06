@@ -1,11 +1,12 @@
 package org.mozilla.javascript.tools.debugger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @SuppressWarnings("serial")
 public class MirthSwingGui extends SwingGui {
 
-	Logger logger = Logger.getLogger(getClass());
+	Logger logger = LogManager.getLogger(getClass());
 	private boolean stopping = false;
 	private MirthMain parent;
 

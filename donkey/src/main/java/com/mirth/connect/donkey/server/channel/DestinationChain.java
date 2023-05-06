@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
@@ -30,7 +31,7 @@ public class DestinationChain implements Callable<List<ConnectorMessage>> {
     private DestinationChainProvider chainProvider;
     private ConnectorMessage message;
     private List<Integer> enabledMetaDataIds = new ArrayList<Integer>();
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private String name;
 
     public DestinationChain(DestinationChainProvider chainProvider) {

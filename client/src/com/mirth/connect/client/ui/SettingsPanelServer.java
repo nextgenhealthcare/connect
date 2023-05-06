@@ -36,11 +36,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
-
-import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -60,10 +57,13 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.UpdateSettings;
+import com.mirth.connect.model.User;
 import com.mirth.connect.model.alert.AlertStatus;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.util.ConnectionTestResponse;
+
+import net.miginfocom.swing.MigLayout;
 
 public class SettingsPanelServer extends AbstractSettingsPanel {
 
@@ -205,6 +205,20 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     statusBarText.append(PlatformUI.SERVER_URL);
                     titleText.append(" - (" + PlatformUI.SERVER_VERSION + ")");
                     getFrame().setTitle(titleText.toString());
+                    User currentUser = getFrame().mirthClient.getCurrentUser();
+                    statusBarText.append(" as " + currentUser.getUsername());
+                    if (!StringUtils.isBlank(currentUser.getFirstName()) || !StringUtils.isBlank(currentUser.getLastName())) {
+                        if (!StringUtils.isBlank(currentUser.getFirstName())) {                     // first name is not blank
+                            statusBarText.append(" (" + currentUser.getFirstName());                // add first name
+                            if (!StringUtils.isBlank(currentUser.getLastName())) {                  // last name is not blank
+                                statusBarText.append(" " + currentUser.getLastName() + ")");        // add last name and closing bracket
+                            } else {                                                                // only the first name exists
+                                statusBarText.append(")");                                          // add the closing bracket
+                            }
+                        } else {                                                                    // only the last name exists
+                            statusBarText.append(" (" + currentUser.getLastName() + ")");           // format with only the last name
+                        }
+                    }
                     getFrame().statusBar.setServerText(statusBarText.toString());
 
                     getFrame().mirthClient.setUpdateSettings(updateSettings);

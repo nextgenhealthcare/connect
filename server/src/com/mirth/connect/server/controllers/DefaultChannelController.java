@@ -27,11 +27,13 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Statistics;
@@ -54,12 +56,13 @@ import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.StatementLock;
+import com.mirth.connect.server.util.TemplateValueReplacer;
 
 public class DefaultChannelController extends ChannelController {
     public static final String VACUUM_LOCK_CHANNEL_STATEMENT_ID = "Channel.vacuumChannelTable";
     public static final String VACUUM_LOCK_CHANNEL_GROUP_STATEMENT_ID = "Channel.vacuumChannelGroupTable";
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -336,10 +339,11 @@ public class DefaultChannelController extends ChannelController {
     }
 
     @Override
-    public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
+    public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override, Calendar dateStartEdit) throws ControllerException {
         // Extract metadata and then clear it from the channel model so it won't be stored in the database
-        ChannelExportData exportData = channel.getExportData();
+    	ChannelExportData exportData = channel.getExportData();
         channel.clearExportData();
+        Calendar lastModifiedDate = null;
 
         /*
          * Methods that update the channel must be synchronized to ensure the channel cache and
@@ -375,18 +379,28 @@ public class DefaultChannelController extends ChannelController {
             // Use the larger nextMetaDataId to ensure a metadata ID will never be reused if an older version of a channel is imported or saved.
             channel.setNextMetaDataId(Math.max(matchingChannel.getNextMetaDataId(), channel.getNextMetaDataId()));
         }
-
-        /*
-         * If it's not a new channel, and its version is different from the one in the database (in
-         * case it has been changed on the server since the client started modifying it), and
-         * override is not enabled
-         */
-        if ((currentRevision > 0) && (currentRevision != newRevision) && !override) {
-            return false;
-        } else {
-            channel.setRevision(currentRevision + 1);
+        
+        // if this is not a new channel, get the date/time started to edit the channel and the last
+        // modified date/time of the channel to compare
+        if (currentRevision > 0) {
+        	if (dateStartEdit == null) {
+        		dateStartEdit = Calendar.getInstance();
+        	}         
+        	// need last modified date to compare with user interface Channel Edit screen and Channel History screen
+        	Map<String, ChannelMetadata> metadata = configurationController.getChannelMetadata();
+        	lastModifiedDate = metadata.get(channel.getId()).getLastModified();
         }
 
+        /*
+         * If it's not a new channel, we are not overriding the existing channel,
+         * and the last modified date/time of the channel is after the date/time of beginning to
+         * modify the channel then return false for a message if applicable
+         */
+        if ((currentRevision > 0) && !override && (dateStartEdit.before(lastModifiedDate))) {
+            return false;
+        }
+        
+        channel.setRevision(currentRevision + 1);
         ArrayList<String> destConnectorNames = new ArrayList<String>(channel.getDestinationConnectors().size());
 
         for (Connector connector : channel.getDestinationConnectors()) {
@@ -1085,4 +1099,21 @@ public class DefaultChannelController extends ChannelController {
             }
         }
     }
+
+    @Override
+    public List<Ports> getPortsInUse() {
+        logger.debug("getting ports in use");
+        try {
+            TemplateValueReplacer replacer = new TemplateValueReplacer();
+            List<Ports> portsList = com.mirth.connect.donkey.server.controllers.ChannelController.getInstance().getPortsInUse();
+            for (Ports portsItem : portsList) {
+                portsItem.setPort(replacer.replaceValues(portsItem.getPort(), portsItem.getId(), portsItem.getName()));
+            }
+            return portsList;
+        } catch (Exception ex) {
+            logger.error("getting ports in use: " + ex.toString());
+            return null;
+        }
+    }
+    
 }

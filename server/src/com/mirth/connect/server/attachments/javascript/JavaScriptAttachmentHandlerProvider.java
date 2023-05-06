@@ -12,7 +12,8 @@ package com.mirth.connect.server.attachments.javascript;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.tools.debugger.MirthMain;
 
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
@@ -30,7 +31,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerProvider {
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private ContextFactoryController contextFactoryController = getContextFactoryController();
     private String scriptId;
     private Set<String> resourceIds;

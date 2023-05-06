@@ -19,7 +19,8 @@ import static org.mockito.Mockito.when;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.mozilla.javascript.tools.debugger.MirthMain;
@@ -32,7 +33,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class DatabaseDispatcherScriptTest {
 
-    private static Logger logger = Logger.getLogger(DatabaseDispatcherScriptTest.class);
+    private static Logger logger = LogManager.getLogger(DatabaseDispatcherScriptTest.class);
     private DebugOptions debugOptions;
 
     @Before

@@ -18,6 +18,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.inject.Inject;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.channel.Statistics;
@@ -89,6 +90,16 @@ public class ChannelController {
 
         try {
             return dao.getChannelStatistics(serverId);
+        } finally {
+            dao.close();
+        }
+    }
+    
+    public List<Ports> getPortsInUse() {
+        DonkeyDao dao = donkey.getReadOnlyDaoFactory().getDao();
+
+        try {
+            return dao.getPortsInUse();
         } finally {
             dao.close();
         }

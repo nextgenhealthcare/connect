@@ -27,6 +27,7 @@ donkey/donkey-test
 
 # /client/lib/
 /client/lib/mirth-client-core.jar
+/client/lib/mirth-crypto.jar
 /client/lib/*-shared.jar
 /client/lib/nblibraries-private.properties
 /client/lib/mirth-vocab.jar
@@ -155,6 +156,7 @@ donkey/donkey-test
 
 # /command/lib/
 /command/lib/mirth-client-core.jar
+/command/lib/mirth-crypto.jar
 /command/lib/donkey-model.jar
 
 # /command/src/
@@ -342,6 +344,7 @@ donkey/donkey-test
 /server/.settings
 /server/build
 /server/appdata
+/server/exports
 /server/temp
 /server/nbbuild
 /server/nbproject

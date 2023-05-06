@@ -31,6 +31,7 @@ public abstract class ResourceProperties implements Serializable, Migratable, Pu
     private String name;
     private String description;
     private boolean includeWithGlobalScripts;
+    private boolean loadParentFirst;
 
     public ResourceProperties(String pluginPointName, String type) {
         this.pluginPointName = pluginPointName;
@@ -86,6 +87,14 @@ public abstract class ResourceProperties implements Serializable, Migratable, Pu
         this.includeWithGlobalScripts = includeWithGlobalScripts;
     }
 
+    public boolean isLoadParentFirst() {
+        return loadParentFirst;
+    }
+
+    public void setLoadParentFirst(boolean loadParentFirst) {
+        this.loadParentFirst = loadParentFirst;
+    }
+
     @Override
     public String toString() {
         return name;
@@ -115,6 +124,8 @@ public abstract class ResourceProperties implements Serializable, Migratable, Pu
     public Map<String, Object> getPurgedProperties() {
         Map<String, Object> purgedProperties = new HashMap<String, Object>();
         purgedProperties.put("type", type);
+        purgedProperties.put("includeWithGlobalScripts", includeWithGlobalScripts);
+        purgedProperties.put("loadParentFirst", loadParentFirst);
         return purgedProperties;
     }
 }

@@ -30,7 +30,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.connectors.TestAutoResponder;
@@ -86,7 +87,7 @@ public class TestUtils {
     final public static String CHANNEL_ID = "newtestchannel";
     final public static String SERVER_ID = "testserver";
 
-    private static Logger logger = Logger.getLogger(TestUtils.class);
+    private static Logger logger = LogManager.getLogger(TestUtils.class);
 
     public static void startMirthServer() throws InterruptedException {
         startMirthServer(1000);
@@ -294,7 +295,7 @@ public class TestUtils {
     }
 
     public static void deployTestChannel(com.mirth.connect.model.Channel channel) throws Exception {
-        com.mirth.connect.server.controllers.ChannelController.getInstance().updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true);
+        com.mirth.connect.server.controllers.ChannelController.getInstance().updateChannel(channel, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, true, null);
         Set<String> channelIds = new LinkedHashSet<String>();
         channelIds.add(channel.getId());
         ControllerFactory.getFactory().createEngineController().deployChannels(channelIds, ServerEventContext.SYSTEM_USER_EVENT_CONTEXT, null, new DebugOptions());

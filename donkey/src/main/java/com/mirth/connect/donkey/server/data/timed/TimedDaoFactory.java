@@ -19,7 +19,9 @@ import com.mirth.connect.donkey.util.SerializerProvider;
 public class TimedDaoFactory implements DonkeyDaoFactory {
     private DonkeyDaoFactory delegateFactory;
     private ActionTimer timer;
-    private boolean encryptData = false;
+    private boolean encryptMessageContent = false;
+    private boolean encryptAttachments = false;
+    private boolean encryptCustomMetaData = false;
     private boolean decryptData = true;
     private StatisticsUpdater statisticsUpdater;
 
@@ -45,8 +47,10 @@ public class TimedDaoFactory implements DonkeyDaoFactory {
     }
 
     @Override
-    public void setEncryptData(boolean encryptData) {
-        this.encryptData = encryptData;
+    public void setEncryptData(boolean encryptMessageContent, boolean encryptAttachments, boolean encryptCustomMetaData) {
+        this.encryptMessageContent = encryptMessageContent;
+        this.encryptAttachments = encryptAttachments;
+        this.encryptCustomMetaData = encryptCustomMetaData;
     }
 
     @Override
@@ -62,7 +66,7 @@ public class TimedDaoFactory implements DonkeyDaoFactory {
     @Override
     public DonkeyDao getDao() {
         DonkeyDao dao = new TimedDao(delegateFactory.getDao(), timer);
-        dao.setEncryptData(encryptData);
+        dao.setEncryptData(encryptMessageContent, encryptAttachments, encryptCustomMetaData);
         dao.setDecryptData(decryptData);
         dao.setStatisticsUpdater(statisticsUpdater);
         return dao;
@@ -71,7 +75,7 @@ public class TimedDaoFactory implements DonkeyDaoFactory {
     @Override
     public DonkeyDao getDao(SerializerProvider serializerProvider) {
         DonkeyDao dao = new TimedDao(delegateFactory.getDao(serializerProvider), timer);
-        dao.setEncryptData(encryptData);
+        dao.setEncryptData(encryptMessageContent, encryptAttachments, encryptCustomMetaData);
         dao.setDecryptData(decryptData);
         dao.setStatisticsUpdater(statisticsUpdater);
         return dao;

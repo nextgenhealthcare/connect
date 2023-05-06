@@ -16,7 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.server.api.MirthServlet;
@@ -24,7 +25,7 @@ import com.mirth.connect.server.api.MirthServlet;
 public class DataPrunerServlet extends MirthServlet implements DataPrunerServletInterface {
 
     private static final DataPrunerController dataPrunerController = DataPrunerController.getInstance();
-    private static final Logger logger = Logger.getLogger(DataPrunerServlet.class);
+    private static final Logger logger = LogManager.getLogger(DataPrunerServlet.class);
 
     public DataPrunerServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc, PLUGIN_POINT);

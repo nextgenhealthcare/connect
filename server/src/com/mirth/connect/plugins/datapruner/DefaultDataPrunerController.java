@@ -17,7 +17,8 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.quartz.Scheduler;
 
 import com.mirth.connect.donkey.model.channel.PollConnectorProperties;
@@ -26,6 +27,7 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class DefaultDataPrunerController extends DataPrunerController {
+
     private static final int MIN_PRUNING_BLOCK_SIZE = 50;
     private static final int MAX_PRUNING_BLOCK_SIZE = 10000;
     private static final int MAX_ARCHIVING_BLOCK_SIZE = 1000;
@@ -38,7 +40,8 @@ public class DefaultDataPrunerController extends DataPrunerController {
     private Scheduler scheduler;
     private PollConnectorJobHandler handler;
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
-    private Logger logger = Logger.getLogger(this.getClass());
+    private boolean isPrunerInterfaceRegistered = false;
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public void init(Properties properties) throws DataPrunerException {
@@ -281,4 +284,23 @@ public class DefaultDataPrunerController extends DataPrunerController {
         long minsElapsed = (endTime.getTimeInMillis() - startTime.getTimeInMillis()) / 60000;
         return (minsElapsed + " minute" + ((minsElapsed != 1) ? "s" : ""));
     }
+
+    @Override
+    public void registerPrunerListener(DataPrunerInterface dataPrunerInterface) {
+        pruner.registerDataPrunerInterface(dataPrunerInterface);
+        setPrunerInterfaceRegistered(true);
+    }
+    
+    public DataPruner getPruner() {
+        return pruner;
+    }
+
+    public boolean isPrunerInterfaceRegistered() {
+        return isPrunerInterfaceRegistered;
+    }
+
+    public void setPrunerInterfaceRegistered(boolean isPrunerInterfaceRegistered) {
+        this.isPrunerInterfaceRegistered = isPrunerInterfaceRegistered;
+    }
+
 }

@@ -15,7 +15,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public abstract class PropertyLoader {
     private static final boolean THROW_ON_LOAD_FAILURE = true;
@@ -24,7 +24,7 @@ public abstract class PropertyLoader {
 
     /**
      * Looks up a resource named 'name' in the classpath. The resource must map to a file with
-     * .properties extention. The name is assumed to be absolute and can use either "/" or "." for
+     * .properties extension. The name is assumed to be absolute and can use either "/" or "." for
      * package segment separation with an optional leading "/" and optional ".properties" suffix.
      * Thus, the following names refer to the same resource:
      * 
@@ -110,7 +110,7 @@ public abstract class PropertyLoader {
 
     /**
      * A convenience overload of {@link #loadProperties(String, ClassLoader)} that uses the current
-     * thread's context classloader.
+     * thread's context class loader.
      */
     public static Properties loadProperties(final String name) {
         return loadProperties(name, Thread.currentThread().getContextClassLoader());
@@ -120,7 +120,7 @@ public abstract class PropertyLoader {
         String property = properties.getProperty(propertyKey);
 
         if (property == null) {
-            Logger.getLogger(PropertyLoader.class).error("Property \"" + propertyKey + "\" was not found.");
+            LogManager.getLogger(PropertyLoader.class).error("Property \"" + propertyKey + "\" was not found.");
         }
 
         return property;

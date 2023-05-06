@@ -41,4 +41,6 @@ public abstract class EventController extends Controller {
     public abstract String exportAllEvents() throws ControllerException;
 
     public abstract String exportAndRemoveAllEvents() throws ControllerException;
+
+    public abstract List<ServerEvent> getEventsByAsc(EventFilter filter, Integer offset, Integer limit) throws ControllerException;
 }

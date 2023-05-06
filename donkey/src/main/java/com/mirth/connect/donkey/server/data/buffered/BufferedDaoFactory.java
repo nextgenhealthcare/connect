@@ -18,7 +18,9 @@ import com.mirth.connect.donkey.util.SerializerProvider;
 public class BufferedDaoFactory implements DonkeyDaoFactory {
     private DonkeyDaoFactory delegateFactory;
     private SerializerProvider serializerProvider;
-    private boolean encryptData = false;
+    private boolean encryptMessageContent = false;
+    private boolean encryptAttachments = false;
+    private boolean encryptCustomMetaData = false;
     private boolean decryptData = true;
     private StatisticsUpdater statisticsUpdater;
 
@@ -37,8 +39,10 @@ public class BufferedDaoFactory implements DonkeyDaoFactory {
     }
 
     @Override
-    public void setEncryptData(boolean encryptData) {
-        this.encryptData = encryptData;
+    public void setEncryptData(boolean encryptMessageContent, boolean encryptAttachments, boolean encryptCustomMetaData) {
+        this.encryptMessageContent = encryptMessageContent;
+        this.encryptAttachments = encryptAttachments;
+        this.encryptCustomMetaData = encryptCustomMetaData;
     }
 
     @Override
@@ -58,7 +62,7 @@ public class BufferedDaoFactory implements DonkeyDaoFactory {
 
     @Override
     public DonkeyDao getDao(SerializerProvider serializerProvider) {
-        return new BufferedDao(delegateFactory, serializerProvider, encryptData, decryptData, statisticsUpdater);
+        return new BufferedDao(delegateFactory, serializerProvider, encryptMessageContent, encryptAttachments, encryptCustomMetaData, decryptData, statisticsUpdater);
     }
 
     @Override

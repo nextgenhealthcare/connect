@@ -550,8 +550,10 @@ public class ChannelPanel extends AbstractFramePanel {
                 if (rows.length == 1) {
                     setChannelTaskVisible(TASK_CHANNEL_CLONE);
                     setChannelTaskVisible(TASK_CHANNEL_EDIT);
-                    setChannelTaskVisible(TASK_CHANNEL_VIEW_MESSAGES);
                     setChannelTaskVisible(TASK_CHANNEL_DEBUG_DEPLOY);
+                    setChannelTaskVisible(TASK_CHANNEL_VIEW_MESSAGES);
+                } else if (parent.multiChannelMessageBrowsingEnabled) {
+                	setChannelTaskVisible(TASK_CHANNEL_VIEW_MESSAGES);
                 }
             } else {
                 setChannelTaskVisible(TASK_CHANNEL_DEPLOY);
@@ -1432,6 +1434,19 @@ public class ChannelPanel extends AbstractFramePanel {
 
     public Channel importChannel(Channel importChannel, boolean showAlerts, boolean refreshStatuses) {
         boolean overwrite = false;
+        Integer userId = null;
+    	Channel originalStateChannel = null;
+        
+    	try {
+			originalStateChannel = parent.mirthClient.getChannel(importChannel.getId(), false);
+        	if (originalStateChannel != null) {
+        		userId = originalStateChannel.getExportData().getMetadata().getUserId();
+        	} else {
+        		userId = parent.mirthClient.getCurrentUser().getId();
+        	}
+		} catch (ClientException e1) {
+			
+		}
 
         try {
             String channelName = importChannel.getName();
@@ -1453,7 +1468,7 @@ public class ChannelPanel extends AbstractFramePanel {
                     setIdAndUpdateLibraries(importChannel, tempId);
                 } else {
                     overwrite = true;
-
+                    
                     for (ChannelStatus channelStatus : channelStatuses.values()) {
                         Channel channel = channelStatus.getChannel();
                         if (channel.getName().equalsIgnoreCase(channelName)) {
@@ -1573,7 +1588,7 @@ public class ChannelPanel extends AbstractFramePanel {
          */
         if (overwrite || !showAlerts || importChannel instanceof InvalidChannel) {
             try {
-                parent.updateChannel(importChannel, overwrite);
+                parent.updateChannel(importChannel, overwrite, userId, null);
 
                 if (importChannel instanceof InvalidChannel && showAlerts) {
                     InvalidChannel invalidChannel = (InvalidChannel) importChannel;

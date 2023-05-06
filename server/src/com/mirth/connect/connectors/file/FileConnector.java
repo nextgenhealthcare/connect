@@ -24,7 +24,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
 import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
@@ -33,7 +34,7 @@ import com.mirth.connect.donkey.server.channel.Connector;
 import com.mirth.connect.donkey.server.channel.DestinationConnector;
 
 public class FileConnector {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     private Map<String, ObjectPool<FileSystemConnection>> pools = new HashMap<String, ObjectPool<FileSystemConnection>>();
     private FileOutputStream outputStream = null;

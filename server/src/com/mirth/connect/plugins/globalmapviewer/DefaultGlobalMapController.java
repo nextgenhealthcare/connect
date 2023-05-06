@@ -15,7 +15,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.util.Serializer;
@@ -32,7 +33,7 @@ public class DefaultGlobalMapController extends GlobalMapController {
     protected static final String GLOBAL_MAP_KEY = "<Global Map>";
     
     private static Serializer serializer = ObjectXMLSerializer.getInstance();
-    private static Logger logger = Logger.getLogger(DefaultGlobalMapController.class);
+    private static Logger logger = LogManager.getLogger(DefaultGlobalMapController.class);
 
     @Override
     public Map<String, Map<String, Map<String, String>>> getAllMaps(Set<String> channelIds, boolean includeGlobalMap) throws ControllerException {

@@ -21,7 +21,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -59,7 +60,7 @@ public class DataPrunerTests {
     private static Calendar contentDateThreshold;
     private static int testSize;
     private static int[] blockSizes = new int[] { 0, 1000 };
-    private static Logger logger = Logger.getLogger(DataPrunerTests.class);
+    private static Logger logger = LogManager.getLogger(DataPrunerTests.class);
     // @formatter:on
 
     @BeforeClass

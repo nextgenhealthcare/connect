@@ -12,7 +12,6 @@ package com.mirth.connect.plugins.globalmapviewer;
 import static com.mirth.connect.plugins.globalmapviewer.GlobalMapServletInterface.PERMISSION_VIEW;
 import static com.mirth.connect.plugins.globalmapviewer.GlobalMapServletInterface.PLUGIN_POINT;
 
-import java.util.Map;
 import java.util.Properties;
 
 import com.mirth.connect.client.core.api.util.OperationUtil;
@@ -51,10 +50,4 @@ public class GlobalMapProvider implements ServicePlugin {
 
     @Override
     public void init(Properties properties) {}
-    
-    @Override
-    public Map<String, Object> getObjectsForSwaggerExamples() {
-    	// TODO Auto-generated method stub
-    	return null;
-    }
 }

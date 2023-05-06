@@ -118,7 +118,6 @@ public class ServerSMTPConnection {
         email.setHostName(host);
         email.setSmtpPort(Integer.parseInt(port));
         email.setSocketConnectionTimeout(socketTimeout);
-        email.setDebug(true);
 
         if (useAuthentication) {
             email.setAuthentication(username, password);

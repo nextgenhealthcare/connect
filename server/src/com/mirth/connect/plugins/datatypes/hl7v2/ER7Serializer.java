@@ -19,7 +19,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
@@ -45,7 +46,7 @@ import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 public class ER7Serializer implements IMessageSerializer {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private PipeParser serializationPipeParser = null;
     private XMLParser serializationXmlParser = null;
     private PipeParser deserializationPipeParser = null;
@@ -243,7 +244,19 @@ public class ER7Serializer implements IMessageSerializer {
     public String fromXML(String source) throws MessageSerializerException {
         try {
             if (deserializationProperties.isUseStrictParser()) {
-                return deserializationPipeParser.encode(deserializationXmlParser.parse(source));
+                String tmpSource = source;
+                // get root node of XML skipping all 
+                Integer i = 0;
+                Integer i2 = tmpSource.indexOf(">");
+                while (tmpSource.substring(i, i2).contains("<?")) {
+                    i = i2;
+                    i2= tmpSource.indexOf(">", i + 1);           
+                }
+                // if there is no name space in the first node, add the correct name space that HAPI library uses
+                if (!tmpSource.substring(i, i2).contains(" xmlns=")) {
+                    tmpSource = source.substring(0, i2).concat(" xmlns=\"urn:hl7-org:v2xml\"").concat(source.substring(i2)); 
+                }
+                return deserializationPipeParser.encode(deserializationXmlParser.parse(tmpSource));
             } else {
                 /*
                  * The delimiters below need to come from the XML somehow. The ER7 handler should

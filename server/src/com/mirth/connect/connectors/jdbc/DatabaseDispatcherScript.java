@@ -14,7 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
@@ -48,8 +49,8 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     private DatabaseDispatcher connector;
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     private ContextFactoryController contextFactoryController = getContextFactoryController();
-    private Logger scriptLogger = Logger.getLogger("db-connector");
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger scriptLogger = LogManager.getLogger("db-connector");
+    private Logger logger = LogManager.getLogger(this.getClass());
     private List<String> contextFactoryIdList = new ArrayList<String>();
     private volatile String contextFactoryId;
 	private boolean debug = false;

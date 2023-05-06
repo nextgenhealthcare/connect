@@ -19,7 +19,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.NotFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.model.LibraryProperties;
 import com.mirth.connect.plugins.LibraryPlugin;
@@ -28,7 +29,7 @@ public class DirectoryResourcePlugin implements LibraryPlugin {
 
     private static final int MAX_FILES = 1000;
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
 
     @Override
     public String getPluginPointName() {

@@ -9,7 +9,8 @@
 
 package com.mirth.connect.server.userutil;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.server.channel.DispatchResult;
 import com.mirth.connect.server.controllers.ChannelController;
@@ -23,7 +24,7 @@ import com.mirth.connect.util.ErrorMessageBuilder;
  * Utility class used to dispatch messages to channels.
  */
 public class VMRouter {
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private EngineController engineController = ControllerFactory.getFactory().createEngineController();
 

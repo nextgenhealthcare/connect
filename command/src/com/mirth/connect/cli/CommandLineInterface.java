@@ -108,7 +108,7 @@ public class CommandLineInterface {
     }
 
     public static void main(String[] args) {
-        System.setProperty("log4j.configuration", "log4j-cli.properties");
+        System.setProperty("log4j2.configurationFile", "log4j2-cli.properties");
         new CommandLineInterface(args);
     }
 
@@ -1663,7 +1663,7 @@ public class CommandLineInterface {
                 String oldName = channel.getName();
                 channel.setName(arguments[3].getText());
                 if (checkChannelName(channel.getName())) {
-                    client.updateChannel(channel, true);
+                    client.updateChannel(channel, true, null);
                     out.println("Channel '" + oldName + "' renamed to '" + channel.getName() + "'");
                 }
             }
@@ -1973,7 +1973,7 @@ public class CommandLineInterface {
 
         importChannelDependencies(importChannel);
 
-        client.updateChannel(importChannel, true);
+        client.updateChannel(importChannel, true, null);
         out.println("Channel '" + channelName + "' imported successfully.");
     }
 

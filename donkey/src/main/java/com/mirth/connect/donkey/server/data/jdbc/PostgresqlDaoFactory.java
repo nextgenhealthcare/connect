@@ -12,7 +12,8 @@ package com.mirth.connect.donkey.server.data.jdbc;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.util.SerializerProvider;
@@ -23,7 +24,7 @@ public class PostgresqlDaoFactory extends JdbcDaoFactory {
     private final static int REQUIRED_MINOR_VERSION = 3;
 
     private Boolean supported;
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
     public JdbcDao getDao(SerializerProvider serializerProvider) {

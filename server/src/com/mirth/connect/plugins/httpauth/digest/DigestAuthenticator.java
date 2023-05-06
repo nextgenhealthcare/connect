@@ -31,7 +31,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.util.QuotedStringTokenizer;
 import org.eclipse.jetty.util.TypeUtil;
@@ -63,7 +64,7 @@ public class DigestAuthenticator extends Authenticator {
     private static final long MAX_NONCE_AGE = 60L * 1000L * 1000L * 1000L;
     private static final int MAX_NONCE_COUNT = 1024;
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private DigestAuthenticatorProvider provider;
     private SecureRandom rng = new SecureRandom();

@@ -69,4 +69,9 @@ public class DefaultControllerFactory extends ControllerFactory {
     public ContextFactoryController createContextFactoryController() {
         return DefaultContextFactoryController.create();
     }
+
+    @Override
+    public DebugUsageController createDebugUsageController() {
+        return DefaultDebugUsageController.create();
+    }
 }

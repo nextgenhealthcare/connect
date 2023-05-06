@@ -20,7 +20,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -39,7 +38,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
@@ -79,7 +79,7 @@ public class TcpReceiver extends SourceConnector {
     // This determines how many client requests can queue up while waiting for the server socket to accept
     private static final int DEFAULT_BACKLOG = 256;
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
     protected TcpReceiverProperties connectorProperties;
@@ -888,19 +888,7 @@ public class TcpReceiver extends SourceConnector {
         while (!success) {
             try {
                 bindAttempts++;
-                boolean isLoopback = false;
-
-                try {
-                    isLoopback = (hostAddress.isLoopbackAddress() || host.trim().equals("localhost") || hostAddress.equals(InetAddress.getLocalHost()));
-                } catch (UnknownHostException e) {
-                    logger.warn("Failed to determine if '" + hostAddress.getHostAddress() + "' is a loopback address. Could not resolve the system's host name to an address.", e);
-                }
-
-                if (isLoopback) {
-                    serverSocket = configuration.createServerSocket(port, backlog);
-                } else {
-                    serverSocket = configuration.createServerSocket(port, backlog, hostAddress);
-                }
+                serverSocket = configuration.createServerSocket(port, backlog, hostAddress);
                 success = true;
             } catch (BindException e) {
                 if (bindAttempts >= 10) {
@@ -914,6 +902,10 @@ public class TcpReceiver extends SourceConnector {
                 }
             }
         }
+    }
+    
+    protected ServerSocket getServerSocket() {
+    	return serverSocket;
     }
 
     private Socket createResponseSocket() throws IOException {

@@ -21,10 +21,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
@@ -57,7 +58,7 @@ public class JavaScriptSharedUtil {
     private final static int SHORT_NAME_MATCHER_INDEX = 5;
     private static volatile ScriptableObject cachedFormatterScope;
     private static int rhinoLanguageVersion = Context.VERSION_DEFAULT;
-    private static Logger logger = Logger.getLogger(JavaScriptSharedUtil.class);
+    private static Logger logger = LogManager.getLogger(JavaScriptSharedUtil.class);
 
     public static void setRhinoLanguageVersion(int version) {
         try {

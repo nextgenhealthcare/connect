@@ -48,6 +48,7 @@
 	<target name="build-client" depends="build-server-extensions">
 		<copy file="${donkey.setup}/donkey-model.jar" todir="${client}/lib" />
 		<copy file="${server.setup}/server-lib/mirth-client-core.jar" todir="${client}/lib" />
+		<copy file="${server.setup}/server-lib/mirth-crypto.jar" todir="${client}/lib" />
 		<copy file="${server}/lib/mirth-vocab.jar" todir="${client}/lib" />
 
 		<ant antfile="${client}/ant-build.xml" dir="${client}" target="build" />
@@ -87,6 +88,7 @@
 	<target name="build-cli" depends="build-client">
 		<copy file="${donkey.setup}/donkey-model.jar" todir="${cli}/lib" />
 		<copy file="${server.setup}/server-lib/mirth-client-core.jar" todir="${cli}/lib" />
+		<copy file="${server.setup}/server-lib/mirth-crypto.jar" todir="${cli}/lib" />
 
 		<ant antfile="${cli}/build.xml" dir="${cli}" target="build">
 			<property name="version" value="${version}" />
@@ -113,7 +115,7 @@
 		<copy todir="${server.setup}/conf">
 			<fileset dir="${cli}/conf">
 				<include name="mirth-cli-config.properties" />
-				<include name="log4j-cli.properties" />
+				<include name="log4j2-cli.properties" />
 			</fileset>
 		</copy>
 	</target>

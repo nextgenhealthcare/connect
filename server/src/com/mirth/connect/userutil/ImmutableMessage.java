@@ -18,7 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Message;
@@ -29,7 +30,7 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
  * specific connector messages, or the merged connector message.
  */
 public class ImmutableMessage {
-    private static Logger logger = Logger.getLogger(ImmutableMessage.class);
+    private static Logger logger = LogManager.getLogger(ImmutableMessage.class);
     private Message message;
 
     /**

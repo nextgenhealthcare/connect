@@ -24,7 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.NativeJavaObject;
@@ -60,7 +61,7 @@ import com.mirth.connect.server.util.ServerUUIDGenerator;
 import com.mirth.connect.userutil.ImmutableConnectorMessage;
 
 public class JavaScriptUtil {
-    private static Logger logger = Logger.getLogger(JavaScriptUtil.class);
+    private static Logger logger = LogManager.getLogger(JavaScriptUtil.class);
     private static CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private static final int SOURCE_CODE_LINE_WRAPPER = 5;
     private static final RejectedExecutionHandler defaultHandler = new AbortPolicy();
@@ -114,7 +115,7 @@ public class JavaScriptUtil {
             result = execute(new JavaScriptTask<Object>(contextFactory, ScriptController.ATTACHMENT_SCRIPT_KEY, channelId, channelName) {
                 @Override
                 public Object doCall() throws Exception {
-                    Logger scriptLogger = Logger.getLogger(ScriptController.ATTACHMENT_SCRIPT_KEY.toLowerCase());
+                    Logger scriptLogger = LogManager.getLogger(ScriptController.ATTACHMENT_SCRIPT_KEY.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getAttachmentScope(getContextFactory(), scriptLogger, channelId, channelName, finalMessage, attachments, isBinary);
                         return JavaScriptUtil.executeScript(this, ScriptController.getScriptId(ScriptController.ATTACHMENT_SCRIPT_KEY, channelId), scope, null, null);
@@ -171,7 +172,7 @@ public class JavaScriptUtil {
     public static String executePreprocessorScripts(JavaScriptTask<Object> task, ConnectorMessage message, Map<String, Integer> destinationIdMap, MirthScopeProvider scopeProvider) throws Exception {
         String processedMessage = null;
         String globalResult = message.getRaw().getContent();
-        Logger scriptLogger = Logger.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
+        Logger scriptLogger = LogManager.getLogger(ScriptController.PREPROCESSOR_SCRIPT_KEY.toLowerCase());
 
         try {
             // Execute the global preprocessor and check the result
@@ -270,7 +271,7 @@ public class JavaScriptUtil {
      * @throws Exception
      */
     public static Response executePostprocessorScripts(JavaScriptTask<Object> task, Message message) throws Exception {
-        Logger scriptLogger = Logger.getLogger(ScriptController.POSTPROCESSOR_SCRIPT_KEY.toLowerCase());
+        Logger scriptLogger = LogManager.getLogger(ScriptController.POSTPROCESSOR_SCRIPT_KEY.toLowerCase());
 
         Response channelResponse = null;
         try {
@@ -381,7 +382,7 @@ public class JavaScriptUtil {
             execute(new JavaScriptTask<Object>(contextFactory, scriptType, channelId, channelName) {
                 @Override
                 public Object doCall() throws Exception {
-                    Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
+                    Logger scriptLogger = LogManager.getLogger(scriptType.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getDeployScope(getContextFactory(), scriptLogger, channelId, channelName);
                         scopeProvider.setScope(scope);
@@ -412,7 +413,7 @@ public class JavaScriptUtil {
             execute(new JavaScriptTask<Object>(contextFactory, scriptType, channelId, channelName) {
                 @Override
                 public Object doCall() throws Exception {
-                    Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
+                    Logger scriptLogger = LogManager.getLogger(scriptType.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getDeployScope(getContextFactory(), scriptLogger, channelId, channelName);
                         JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
@@ -442,7 +443,7 @@ public class JavaScriptUtil {
             execute(new JavaScriptTask<Object>(contextFactory, scriptType, channelId, channelName) {
                 @Override
                 public Object doCall() throws Exception {
-                    Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
+                    Logger scriptLogger = LogManager.getLogger(scriptType.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getUndeployScope(getContextFactory(), scriptLogger, channelId, channelName);
                         JavaScriptUtil.executeScript(this, scriptId, scope, channelId, null);
@@ -474,7 +475,7 @@ public class JavaScriptUtil {
             execute(new JavaScriptTask<Object>(contextFactory, scriptType, channelId, channelName) {
                 @Override
                 public Object doCall() throws Exception {
-                    Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
+                    Logger scriptLogger = LogManager.getLogger(scriptType.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getUndeployScope(getContextFactory(), scriptLogger, channelId, channelName);
                         scopeProvider.setScope(scope);
@@ -503,7 +504,7 @@ public class JavaScriptUtil {
             execute(new JavaScriptTask<Object>(getGlobalScriptContextFactory(), "Global Deploy") {
                 @Override
                 public Object doCall() throws Exception {
-                    Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
+                    Logger scriptLogger = LogManager.getLogger(scriptId.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getDeployScope(getContextFactory(), scriptLogger);
                         JavaScriptUtil.executeScript(this, scriptId, scope, null, null);
@@ -534,7 +535,7 @@ public class JavaScriptUtil {
             execute(new JavaScriptTask<Object>(getGlobalScriptContextFactory(), "Global Undeploy") {
                 @Override
                 public Object doCall() throws Exception {
-                    Logger scriptLogger = Logger.getLogger(scriptId.toLowerCase());
+                    Logger scriptLogger = LogManager.getLogger(scriptId.toLowerCase());
                     try {
                         Scriptable scope = JavaScriptScopeUtil.getUndeployScope(getContextFactory(), scriptLogger);
                         JavaScriptUtil.executeScript(this, scriptId, scope, null, null);

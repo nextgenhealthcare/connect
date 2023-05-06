@@ -28,6 +28,7 @@
          <if test='endDate != null'>AND DATE_CREATED &lt;= #{endDate}</if>
          <if test='outcome != null'>AND OUTCOME = #{outcome}</if>
          <if test='userId != null'>AND USER_ID = #{userId}</if>
+         <if test='attributeSearch != null'>AND ATTRIBUTES LIKE '%&lt;string&gt;' || #{attributeSearch} || '%'</if>
          <if test='ipAddress != null'>AND IP_ADDRESS = #{ipAddress}</if>
          <if test='serverId != null'>AND UPPER(SERVER_ID) LIKE '%' || UPPER(#{serverId}) || '%'</if>
       </where>
@@ -45,6 +46,22 @@
 		<include refid="searchEventsBody" />
 		
 		ORDER BY ID desc
+
+		<if test="offset != null">
+			OFFSET ${offset} ROWS
+		</if>
+		<if test="limit != null">
+			FETCH FIRST ${limit} ROWS ONLY
+		</if>
+	</select>
+	
+	<select id="searchEventsByAsc" parameterType="map" resultMap="event">
+		SELECT *
+		FROM EVENT
+		
+		<include refid="searchEventsBody" />
+		
+		ORDER BY ID asc
 
 		<if test="offset != null">
 			OFFSET ${offset} ROWS

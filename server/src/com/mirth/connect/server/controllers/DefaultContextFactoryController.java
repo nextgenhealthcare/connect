@@ -22,11 +22,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.ContextFactory;
 
-import com.google.common.base.Objects;
 import com.mirth.connect.model.LibraryProperties;
 import com.mirth.connect.plugins.LibraryPlugin;
 import com.mirth.connect.server.ExtensionLoader;
@@ -34,7 +33,7 @@ import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class DefaultContextFactoryController extends ContextFactoryController {
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private ExtensionController extensionController;
     private Map<String, LibraryProperties> libraryResources = new ConcurrentHashMap<String, LibraryProperties>();
     private Map<String, List<URL>> libraryCache = new ConcurrentHashMap<String, List<URL>>();
@@ -79,7 +78,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
     @Override
     public synchronized void initGlobalContextFactory() {
         logger.debug("Initializing global context factory.");
-        ContextFactory.initGlobal(new MirthContextFactory(new URL[0], new HashSet<String>()));
+        ContextFactory.initGlobal(new MirthContextFactory(new URL[0], new HashSet<String>(), false));
     }
 
     @Override
@@ -199,7 +198,7 @@ public class DefaultContextFactoryController extends ContextFactoryController {
     				libraryResourceIds = new LinkedHashSet<String>(libraryResourceIds);
     	            redactResourceIds(libraryResourceIds);
     	            List<URL> libraries = getLibraries(libraryResourceIds, false, false);
-    				contextFactory = new MirthContextFactory(libraries.toArray(new URL[libraries.size()]), new HashSet<String>());
+    				contextFactory = new MirthContextFactory(libraries.toArray(new URL[libraries.size()]), new HashSet<String>(), loadParentFirst(libraryResourceIds));
     				debugContextFactoryMap.put(key, contextFactory);
     			}
     		}
@@ -266,12 +265,24 @@ public class DefaultContextFactoryController extends ContextFactoryController {
 
         if (CollectionUtils.isNotEmpty(libraries)) {
             // Only create a new context factory if libraries are being used
-            contextFactory = new MirthContextFactory(libraries.toArray(new URL[libraries.size()]), libraryResourceIds);
+            contextFactory = new MirthContextFactory(libraries.toArray(new URL[libraries.size()]), libraryResourceIds, loadParentFirst(libraryResourceIds));
         } else {
             contextFactory = getGlobalContextFactory();
         }
 
         contextFactoryMap.put(libraryResourceIds, contextFactory);
+    }
+
+    private boolean loadParentFirst(Set<String> libraryResourceIds) {
+        if (CollectionUtils.isNotEmpty(libraryResourceIds)) {
+            for (String resourceId : libraryResourceIds) {
+                LibraryProperties resourceProperties = libraryResources.get(resourceId);
+                if (resourceProperties != null && resourceProperties.isLoadParentFirst()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void redactResourceIds(Set<String> libraryResourceIds) {

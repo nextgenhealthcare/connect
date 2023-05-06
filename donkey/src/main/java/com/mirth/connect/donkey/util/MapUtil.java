@@ -13,14 +13,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.InvalidMapValue;
 import com.mirth.connect.donkey.util.DonkeyElement.DonkeyElementException;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 
 public class MapUtil {
-    private static Logger logger = Logger.getLogger(MapUtil.class);
+    private static Logger logger = LogManager.getLogger(MapUtil.class);
 
     public static String serializeMap(Serializer serializer, Map<String, Object> map) {
         if (hasInvalidValues(map)) {

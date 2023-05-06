@@ -40,7 +40,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -72,7 +73,7 @@ public class TreePanel extends javax.swing.JPanel {
     private static final String EMPTY = "[empty]";
     private String version = "";
     private String type = "";
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private BaseEditorPane<?, ?> editorPane;
     private String _dropPrefix;
     private String _dropSuffix;

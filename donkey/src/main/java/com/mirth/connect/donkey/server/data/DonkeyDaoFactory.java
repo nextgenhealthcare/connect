@@ -20,7 +20,7 @@ public interface DonkeyDaoFactory {
 
     public DonkeyDao getDao(SerializerProvider serializerProvider);
 
-    public void setEncryptData(boolean encryptData);
+    public void setEncryptData(boolean encryptMessageContent, boolean encryptAttachments, boolean encryptCustomMetaData);
 
     public void setDecryptData(boolean decryptData);
 

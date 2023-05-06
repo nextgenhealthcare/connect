@@ -11,7 +11,8 @@ package com.mirth.connect.plugins.datatypes.raw;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.MessageSerializer;
 import com.mirth.connect.donkey.model.message.MessageSerializerException;
@@ -19,7 +20,7 @@ import com.mirth.connect.model.converters.IMessageSerializer;
 import com.mirth.connect.model.datatype.SerializerProperties;
 
 public class RawSerializer implements IMessageSerializer {
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     public RawSerializer(SerializerProperties properties) {}
 

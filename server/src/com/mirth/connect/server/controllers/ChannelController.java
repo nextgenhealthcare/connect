@@ -9,15 +9,18 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.model.channel.DeployedState;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
+import com.mirth.connect.donkey.model.channel.Ports;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.channel.Statistics;
 import com.mirth.connect.model.Channel;
@@ -29,7 +32,7 @@ import com.mirth.connect.model.ServerEventContext;
 
 public abstract class ChannelController extends Controller {
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     public static ChannelController getInstance() {
         return ControllerFactory.getFactory().createChannelController();
@@ -53,7 +56,7 @@ public abstract class ChannelController extends Controller {
 
     public abstract void setChannelInitialState(Set<String> channelIds, ServerEventContext context, DeployedState initialState) throws ControllerException;
 
-    public abstract boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException;
+    public abstract boolean updateChannel(Channel channel, ServerEventContext context, boolean override, Calendar dateStartEdit) throws ControllerException;
 
     public abstract void removeChannel(Channel channel, ServerEventContext context) throws ControllerException;
 
@@ -96,4 +99,8 @@ public abstract class ChannelController extends Controller {
     public abstract List<ChannelGroup> getChannelGroups(Set<String> channelGroupIds);
 
     public abstract boolean updateChannelGroups(Set<ChannelGroup> channelGroups, Set<String> removedChannelGroupIds, boolean override) throws ControllerException;
+
+    public abstract List<Ports> getPortsInUse();
+
+
 }

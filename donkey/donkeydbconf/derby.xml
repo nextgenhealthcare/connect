@@ -87,6 +87,7 @@
 	        SEGMENT_ID INTEGER NOT NULL,
 	        ATTACHMENT_SIZE INTEGER NOT NULL,
 	        CONTENT BLOB,
+	        ENCRYPTION_HEADER CLOB,
 	        CONSTRAINT D_MA${localChannelId}_FKEY FOREIGN KEY(MESSAGE_ID) REFERENCES D_M${localChannelId}(ID) ON DELETE RESTRICT
         )
 	</query>
@@ -372,5 +373,14 @@
 		
 		WHERE METADATA_ID = ?
 		AND SERVER_ID = ?
+	</query>
+	
+		
+	<query id="getPortsInUse">
+		SELECT ID, NAME, 
+        SUBSTR(CHANNEL.CHANNEL, LOCATE (<![CDATA['<port>']]>, CHANNEL.CHANNEL )+6, 
+        (LOCATE (<![CDATA['</port>']]>, CHANNEL.CHANNEL) - LOCATE (<![CDATA['<port>']]>, CHANNEL.CHANNEL)) - 6) AS PORTSTRING
+        FROM CHANNEL
+        WHERE CHANNEL.CHANNEL LIKE '%listenerConnectorProperties%'
 	</query>
 </queries>

@@ -87,6 +87,7 @@
 	        SEGMENT_ID INTEGER NOT NULL,
 	        ATTACHMENT_SIZE INTEGER NOT NULL,
 	        CONTENT LONGBLOB,
+	        ENCRYPTION_HEADER LONGTEXT,
 	        CONSTRAINT D_MA${localChannelId}_FKEY FOREIGN KEY(MESSAGE_ID) REFERENCES D_M${localChannelId}(ID) ON DELETE CASCADE
         ) ENGINE=InnoDB;
 	</query>
@@ -250,5 +251,13 @@
 	
 	<query id="removeMetaDataColumn">
 		ALTER TABLE D_MCM${localChannelId} DROP COLUMN `${columnName}`
+	</query>
+	
+	<query id="getPortsInUse">
+		SELECT ID, NAME, 
+        SUBSTRING(CHANNEL.CHANNEL, LOCATE (<![CDATA['<port>']]>, CHANNEL.CHANNEL )+6, 
+        (LOCATE (<![CDATA['</port>']]>, CHANNEL.CHANNEL) - LOCATE (<![CDATA['<port>']]>, CHANNEL.CHANNEL)) - 6) AS PORTSTRING
+        FROM CHANNEL
+        WHERE CHANNEL.CHANNEL LIKE '%listenerConnectorProperties%';
 	</query>
 </queries>

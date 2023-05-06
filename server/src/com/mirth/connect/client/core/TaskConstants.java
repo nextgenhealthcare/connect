@@ -145,7 +145,6 @@ public class TaskConstants {
 
     // Event Tasks
     public static final String EVENT_REFRESH = "doRefreshEvents";
-    public static final String EVENT_REMOVE_ALL = "doRemoveAllEvents";
     public static final String EVENT_EXPORT_ALL = "doExportAllEvents";
 
     // Message Tasks
@@ -196,7 +195,6 @@ public class TaskConstants {
 
     // Other Tasks
     public static final String OTHER_NOTIFICATIONS = "goToNotifications";
-    public static final String OTHER_VIEW_USER_GUIDE = "goToUserGuide";
     public static final String OTHER_VIEW_USER_API = "goToUserAPI";
     public static final String OTHER_VIEW_CLIENT_API = "goToClientAPI";
     public static final String OTHER_HELP = "doHelp";

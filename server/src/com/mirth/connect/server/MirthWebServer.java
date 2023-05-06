@@ -48,8 +48,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
 import org.apache.ibatis.session.SqlSessionManager;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http.MimeTypes;
@@ -123,7 +125,7 @@ public class MirthWebServer extends Server {
     private static final String CONNECTOR = "connector";
     private static final String CONNECTOR_SSL = "sslconnector";
 
-    private Logger logger = Logger.getLogger(getClass());
+    private Logger logger = LogManager.getLogger(getClass());
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private List<WebAppContext> webapps;
@@ -132,12 +134,13 @@ public class MirthWebServer extends Server {
     private ServerConnector sslConnector;
 
     public MirthWebServer(PropertiesConfiguration mirthProperties) throws Exception {
-        // this disables a "form too large" error for occuring by setting
+        // this disables a "form too large" error for occurring by setting
         // form size to infinite
         System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize", "-1");
 
         // Suppress logging from the WADL generator for OPTIONS requests 
-        Logger.getLogger(WadlGeneratorJAXBGrammarGenerator.class).setLevel(Level.OFF);
+        Logger logger2 = LogManager.getLogger(WadlGeneratorJAXBGrammarGenerator.class);
+        Configurator.setLevel(logger2.getName(), Level.OFF);
 
         String baseAPI = "/api";
 
