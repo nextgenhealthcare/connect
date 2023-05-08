@@ -9,7 +9,7 @@
 
 package com.mirth.connect.donkey.util;
 
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -61,7 +61,7 @@ public class MapUtil {
             try {
                 return serializer.serialize(map);
             } catch (Exception e) {
-                Map<String, Object> newMap = new HashMap<String, Object>();
+                Map<String, Object> newMap = new TreeMap<String, Object>();
 
                 for (Entry<String, Object> entry : map.entrySet()) {
                     Object value = entry.getValue();
@@ -108,7 +108,7 @@ public class MapUtil {
          * If an exception occurs while deserializing, we build up a new map manually, attempting to
          * deserialize each entry and replacing entries that fail with their string representations.
          */
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new TreeMap<String, Object>();
 
         for (DonkeyElement entry : mapElement.getChildElements()) {
             if (!entry.getNodeName().equalsIgnoreCase("entry")) {

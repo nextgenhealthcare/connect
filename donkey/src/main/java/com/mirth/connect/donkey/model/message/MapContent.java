@@ -9,11 +9,11 @@
 
 package com.mirth.connect.donkey.model.message;
 
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 
 public class MapContent extends Content {
-    private Object content = new HashMap<String, Object>();
+    private Object content = new TreeMap<String, Object>();
     private transient boolean persisted = false;
 
     public MapContent() {

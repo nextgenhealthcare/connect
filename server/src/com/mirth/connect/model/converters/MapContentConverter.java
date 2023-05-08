@@ -53,7 +53,7 @@ public class MapContentConverter extends ReflectionConverter {
             try {
                 DonkeyElement mapElement = new DonkeyElement(serializedMap);
                 mapElement.setNodeName("content");
-                mapElement.setAttribute("class", "map");
+                mapElement.setAttribute("class", "tree-map");
                 copier.copy(new XppReader(new StringReader(mapElement.toXml()), new MXParser()), writer);
             } catch (DonkeyElementException e) {
                 throw new SerializerException(e);
