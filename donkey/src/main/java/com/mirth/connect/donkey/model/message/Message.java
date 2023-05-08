@@ -27,6 +27,7 @@ public class Message implements Serializable {
     private Long messageId;
     private String serverId;
     private String channelId;
+    private String channelName;
     private Calendar receivedDate;
     private boolean processed;
     private Long originalId;
@@ -166,5 +167,13 @@ public class Message implements Serializable {
 
     public String toString() {
         return "message " + messageId;
+    }
+
+    public String getChannelName() {
+        return channelName;
+    }
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
 }

@@ -179,7 +179,9 @@ public class Frame extends JXFrame {
     public UserPanel userPanel = null;
     public ChannelSetup channelEditPanel = null;
     public EventBrowser eventBrowser = null;
+    public MessageBrowser activeBrowser = null;
     public MessageBrowser messageBrowser = null;
+    public MessageBrowser enhancedMessageBrowser = null;
     public boolean multiChannelMessageBrowsingEnabled = false;
     public AlertPanel alertPanel = null;
     public AlertEditPanel alertEditPanel = null;
@@ -2230,8 +2232,8 @@ public class Frame extends JXFrame {
 
         statusUpdaterExecutor.shutdownNow();
 
-        if (currentContentPage == messageBrowser) {
-            mirthClient.getServerConnection().abort(messageBrowser.getAbortOperations());
+        if (currentContentPage == activeBrowser) {
+            mirthClient.getServerConnection().abort(activeBrowser.getAbortOperations());
         }
 
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
@@ -3320,11 +3322,9 @@ public class Frame extends JXFrame {
     }
 
     public void doShowMessages() {
-        if (messageBrowser == null) {
-            messageBrowser = new MessageBrowser();
-        }
 
         Map<String, MessageBrowserChannelModel> selectedChannelModels = new HashMap<>();
+        String panelName = "";
         
         if (currentContentPage == dashboardPanel) {
             List<DashboardStatus> selectedStatuses = dashboardPanel.getSelectedStatuses();
@@ -3405,18 +3405,25 @@ public class Frame extends JXFrame {
             if (result != JOptionPane.YES_OPTION) {
                 return;
             }
-        }
-        
-        // Build the panel name of the message browser
-        Iterator<MessageBrowserChannelModel> selectedChannelModelsIter = selectedChannelModels.values().iterator();
-        StringBuilder panelNameBuilder = new StringBuilder("Channel Messages - " + selectedChannelModelsIter.next().getChannelName());
-        while (selectedChannelModelsIter.hasNext()) {
-        	panelNameBuilder.append(", ").append(selectedChannelModelsIter.next().getChannelName());
+            if (enhancedMessageBrowser == null) {
+                logger.error("enhancedMessageBrowser is null");
+            }
+            activeBrowser = enhancedMessageBrowser;
+            panelName = "Multi-Channel Messages";
+        } else {
+            if (messageBrowser == null) {
+                messageBrowser = new MessageBrowser();
+            }
+            activeBrowser = messageBrowser;        
+            // Build the panel name of the message browser
+            Iterator<MessageBrowserChannelModel> selectedChannelModelsIter = selectedChannelModels.values().iterator();
+            StringBuilder panelNameBuilder = new StringBuilder("Channel Messages - " + selectedChannelModelsIter.next().getChannelName());
+            panelName = panelNameBuilder.toString();
         }
 
         setBold(viewPane, -1);
-        setPanelName(panelNameBuilder.toString());
-        setCurrentContentPage(messageBrowser);
+        setPanelName(panelName);
+        setCurrentContentPage(activeBrowser);
         setFocus(messageTasks);
 
         final String workingId = startWorking("Retrieving channel metadata...");
@@ -3450,14 +3457,14 @@ public class Frame extends JXFrame {
                 if (!retrievedMetadata) {
                     alertError(PlatformUI.MIRTH_FRAME, "Could not retrieve metadata for channel.");
                 } else {
-                    messageBrowser.loadChannels(new ArrayList<MessageBrowserChannelModel>(selectedChannelModels.values()));
+                    activeBrowser.loadChannels(new ArrayList<MessageBrowserChannelModel>(selectedChannelModels.values()));
                 }
             }
         };
 
         worker.execute();
     }
-
+    
     public void doShowEvents() {
         doShowEvents(null);
     }
@@ -3786,7 +3793,7 @@ public class Frame extends JXFrame {
     }
 
     public void doRefreshMessages() {
-        messageBrowser.refresh(null, true);
+        activeBrowser.refresh(null, true);
     }
 
     public void doSendMessage() {
@@ -3814,8 +3821,8 @@ public class Frame extends JXFrame {
                     }
                 }
             }
-        } else if (currentContentPage == messageBrowser) {
-            channelId = messageBrowser.getChannelId();
+        } else if (currentContentPage == activeBrowser) {
+            channelId = activeBrowser.getChannelId();
         }
 
         if (channelId == null) {
@@ -3861,9 +3868,9 @@ public class Frame extends JXFrame {
         }
 
         messageExportDialog.setEncryptor(mirthClient.getEncryptor());
-        messageExportDialog.setMessageFilter(messageBrowser.getMessageFilter());
-        messageExportDialog.setPageSize(messageBrowser.getPageSize());
-        messageExportDialog.setChannelId(messageBrowser.getChannelId());
+        messageExportDialog.setMessageFilter(activeBrowser.getMessageFilter());
+        messageExportDialog.setPageSize(activeBrowser.getPageSize());
+        messageExportDialog.setChannelId(activeBrowser.getChannelId());
         messageExportDialog.setLocationRelativeTo(this);
         messageExportDialog.setVisible(true);
     }
@@ -3873,8 +3880,8 @@ public class Frame extends JXFrame {
             messageImportDialog = new MessageImportDialog();
         }
 
-        messageImportDialog.setChannelId(messageBrowser.getChannelId());
-        messageImportDialog.setMessageBrowser(messageBrowser);
+        messageImportDialog.setChannelId(activeBrowser.getChannelId());
+        messageImportDialog.setMessageBrowser(activeBrowser);
         messageImportDialog.setLocationRelativeTo(this);
         messageImportDialog.setVisible(true);
     }
@@ -3981,7 +3988,7 @@ public class Frame extends JXFrame {
 
                 public Void doInBackground() {
                     try {
-                        mirthClient.removeMessages(messageBrowser.getChannelId(), messageBrowser.getMessageFilter());
+                        mirthClient.removeMessages(activeBrowser.getChannelId(), activeBrowser.getMessageFilter());
                     } catch (ClientException e) {
                         if (e instanceof RequestAbortedException) {
                             // The client is no longer waiting for the delete request
@@ -3997,8 +4004,8 @@ public class Frame extends JXFrame {
                 public void done() {
                     if (currentContentPage == dashboardPanel) {
                         doRefreshStatuses(true);
-                    } else if (currentContentPage == messageBrowser) {
-                        messageBrowser.refresh(1, true);
+                    } else if (currentContentPage == activeBrowser) {
+                        activeBrowser.refresh(1, true);
                     }
                     stopWorking(workingId);
                 }
@@ -4010,11 +4017,11 @@ public class Frame extends JXFrame {
 
     public void doRemoveMessage() {
         List<Integer> selectedMetaDataIds = new ArrayList<Integer>();
-        final Integer metaDataId = messageBrowser.getSelectedMetaDataId();
-        final Long messageId = messageBrowser.getSelectedMessageId();
-        final String channelId = messageBrowser.getChannelId();
+        final Integer metaDataId = activeBrowser.getSelectedMetaDataId();
+        final Long messageId = activeBrowser.getSelectedMessageId();
+        final String channelId = activeBrowser.getChannelId();
         selectedMetaDataIds.add(metaDataId);
-        final String patientId = messageBrowser.getPatientId(messageId, metaDataId, selectedMetaDataIds);
+        final String patientId = activeBrowser.getPatientId(messageId, metaDataId, selectedMetaDataIds);
 
         if (alertOption(this, "<html>Are you sure you would like to remove the selected message?<br>Channel must be stopped for an unfinished message to be removed.<br><font size='1'><br></font>WARNING: Removing a Source message will remove all of its destinations.</html>")) {
             final String workingId = startWorking("Removing message...");
@@ -4035,8 +4042,8 @@ public class Frame extends JXFrame {
                 public void done() {
                     if (currentContentPage == dashboardPanel) {
                         doRefreshStatuses(true);
-                    } else if (currentContentPage == messageBrowser) {
-                        messageBrowser.refresh(null, false);
+                    } else if (currentContentPage == activeBrowser) {
+                        activeBrowser.refresh(null, false);
                     }
                     stopWorking(workingId);
                 }
@@ -4047,14 +4054,14 @@ public class Frame extends JXFrame {
     }
 
     public void doReprocessFilteredMessages() {
-        doReprocess(messageBrowser.getMessageFilter(), null, null, true);
+        doReprocess(activeBrowser.getMessageFilter(), null, null, true);
     }
 
     public void doReprocessMessage() {
-        Long messageId = messageBrowser.getSelectedMessageId();
+        Long messageId = activeBrowser.getSelectedMessageId();
 
-        if (messageBrowser.canReprocessMessage(messageId)) {
-            doReprocess(null, messageId, messageBrowser.getSelectedMetaDataId(), false);
+        if (activeBrowser.canReprocessMessage(messageId)) {
+            doReprocess(null, messageId, activeBrowser.getSelectedMetaDataId(), false);
         } else {
             alertError(this, "Message " + messageId + " cannot be reprocessed because no source raw content was found.");
         }
@@ -4075,8 +4082,8 @@ public class Frame extends JXFrame {
             public void done() {
                 stopWorking(workingId);
                 Map<Integer, String> destinationConnectors = new LinkedHashMap<Integer, String>();
-                destinationConnectors.putAll(dashboardPanel.getDestinationConnectorNames(messageBrowser.getChannelId()));
-                new ReprocessMessagesDialog(messageBrowser.getChannelId(), filter, messageId, destinationConnectors, selectedMetaDataId, showWarning);
+                destinationConnectors.putAll(dashboardPanel.getDestinationConnectorNames(activeBrowser.getChannelId()));
+                new ReprocessMessagesDialog(activeBrowser.getChannelId(), filter, messageId, destinationConnectors, selectedMetaDataId, showWarning);
             }
         };
 
@@ -4103,7 +4110,7 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                messageBrowser.updateFilterButtonFont(Font.BOLD);
+                activeBrowser.updateFilterButtonFont(Font.BOLD);
                 stopWorking(workingId);
             }
         };
@@ -4117,7 +4124,7 @@ public class Frame extends JXFrame {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
-                messageBrowser.viewAttachment();
+                activeBrowser.viewAttachment();
                 stopWorking(workingId);
                 return null;
             }
@@ -4155,8 +4162,8 @@ public class Frame extends JXFrame {
             }
 
             public void done() {
-                if (currentContentPage == messageBrowser) {
-                    messageBrowser.updateFilterButtonFont(Font.BOLD);
+                if (currentContentPage == activeBrowser) {
+                    activeBrowser.updateFilterButtonFont(Font.BOLD);
                 }
 
                 stopWorking(workingId);

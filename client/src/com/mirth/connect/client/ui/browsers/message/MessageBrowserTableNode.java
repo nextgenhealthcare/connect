@@ -16,6 +16,7 @@ import com.mirth.connect.donkey.model.message.Message;
 
 public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
     private Object[] row;
+    private String channelId;
     private Long messageId;
     private Integer metaDataId;
     private Boolean active;
@@ -40,10 +41,12 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
         row[MessageBrowser.IMPORT_ID_COLUMN] = message.getImportId();
         row[MessageBrowser.IMPORT_CHANNEL_ID_COLUMN] = message.getImportChannelId();
         row[MessageBrowser.ORIGINAL_SERVER_ID_COLUMN] = null;
+        row[MessageBrowser.CHANNEL_NAME_COLUMN] = message.getChannelName();
     }
 
     public MessageBrowserTableNode(int staticColumnCount, Message message, int metaDataId, MessageBrowserTableModel model) {
         row = new Object[model.getColumnCount()];
+        channelId = message.getChannelId();
         messageId = message.getMessageId();
         this.metaDataId = metaDataId;
 
@@ -66,6 +69,7 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
         row[MessageBrowser.IMPORT_ID_COLUMN] = connectorMessage.getMetaDataId() == 0 ? message.getImportId() : null;
         row[MessageBrowser.IMPORT_CHANNEL_ID_COLUMN] = connectorMessage.getMetaDataId() == 0 ? message.getImportChannelId() : null;
         row[MessageBrowser.ORIGINAL_SERVER_ID_COLUMN] = message.getServerId();
+        row[MessageBrowser.CHANNEL_NAME_COLUMN] = connectorMessage.getMetaDataId() == 0 ? message.getChannelName() : " ";
 
         for (int i = staticColumnCount; i < model.getColumnCount(); i++) {
             row[i] = connectorMessage.getMetaDataMap().get(model.getColumnName(i).toUpperCase());
@@ -106,6 +110,10 @@ public class MessageBrowserTableNode extends AbstractSortableTreeTableNode {
     @Override
     public int getColumnCount() {
         return row.length;
+    }
+    
+    public String getChannelId() {
+    	return channelId;
     }
 
     public Long getMessageId() {

@@ -133,4 +133,8 @@ public class ItemSelectionTableModel<K, V> extends AbstractTableModel {
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return canEdit[columnIndex];
     }
+    
+    protected Object[][] getTableData() {
+    	return tableData;
+    }
 }

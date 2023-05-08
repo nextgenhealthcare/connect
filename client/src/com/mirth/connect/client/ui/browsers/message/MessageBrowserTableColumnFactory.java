@@ -133,7 +133,6 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 renderer = new MessageBrowserTextCellRenderer(SwingConstants.RIGHT);
                 column.setMaxWidth(500);
                 column.setMinWidth(90);
-                column.setPreferredWidth(90);
                 column.setToolTipText("<html><body>The original message id of an imported message. This value<br>only exists for imported messages.</body></html>");
                 break;
 
@@ -142,6 +141,14 @@ public class MessageBrowserTableColumnFactory extends ColumnFactory {
                 column.setMinWidth(210);
                 renderer = new MessageBrowserTextCellRenderer();
                 column.setToolTipText("<html><body>The original channel id of an imported message. This value<br>only exists for messages imported from a different channel.</body></html>");
+                break;
+
+            case MessageBrowser.CHANNEL_NAME_COLUMN: // Channel Name
+                renderer = new MessageBrowserTextCellRenderer();
+                column.setMaxWidth(250);
+                column.setMinWidth(90);
+                column.setPreferredWidth(190);
+                column.setToolTipText("<html><body>The channel name of the channel that the message was passed through.</body></html>");
                 break;
 
             default:
