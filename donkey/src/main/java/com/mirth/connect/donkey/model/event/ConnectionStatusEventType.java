@@ -12,7 +12,7 @@ package com.mirth.connect.donkey.model.event;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 

@@ -10,7 +10,7 @@
 package com.mirth.connect.donkey.model.message;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 
 /**
  * Denotes various types of content created by a channel. Available types are:

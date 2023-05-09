@@ -17,7 +17,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 
 import com.mirth.connect.client.ui.editors.IteratorPanel;
 import com.mirth.connect.model.IteratorElement;

@@ -9,7 +9,7 @@
 
 package com.mirth.connect.userutil;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 
 /**
  * Denotes various types of content created by a channel. Available types are:

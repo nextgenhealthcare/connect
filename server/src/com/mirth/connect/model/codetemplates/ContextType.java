@@ -9,7 +9,7 @@
 
 package com.mirth.connect.model.codetemplates;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
