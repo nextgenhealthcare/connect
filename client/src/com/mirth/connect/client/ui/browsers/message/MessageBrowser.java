@@ -1013,6 +1013,10 @@ public class MessageBrowser extends javax.swing.JPanel {
             pageNumberField.setEnabled(false);
         }
     }
+    
+    protected void resetResultsText() {
+    	resultsLabel.setText("Results");
+    }
 
     /**
      * Refreshes the panel with the current filter information and clears the message cache if
