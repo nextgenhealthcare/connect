@@ -24,6 +24,7 @@ import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.base.Strings;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.client.core.api.MirthApiException;
@@ -186,6 +187,10 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
 
     @Override
     public void createUser(User user) {
+    	if (Strings.isNullOrEmpty(user.getUsername())) {
+    		throw new MirthApiException(Response.status(Response.Status.BAD_REQUEST).entity("username cannot be blank.").build());
+    	}
+
         try {
             userController.updateUser(user);
         } catch (ControllerException e) {
@@ -263,6 +268,10 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
     @Override
     @CheckAuthorizedUserId
     public void updateUser(Integer userId, User user) {
+    	if (Strings.isNullOrEmpty(user.getUsername())) {
+    		throw new MirthApiException(Response.status(Response.Status.BAD_REQUEST).entity("username cannot be blank.").build());
+    	}
+    	
         try {
             userController.updateUser(user);
         } catch (ControllerException e) {
