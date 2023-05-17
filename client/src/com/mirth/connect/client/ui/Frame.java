@@ -774,7 +774,7 @@ public class Frame extends JXFrame {
         JLabel mirthConnectImage = new JLabel();
         ImageIcon imageIcon = UIConstants.MIRTHCONNECT_LOGO_GRAY; // load the image to a imageIcon
         Image image = imageIcon.getImage(); // transform it
-        Image newimg = image.getScaledInstance(175, 30, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way 
+        Image newimg = image.getScaledInstance(218, 29, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way 
         imageIcon = new ImageIcon(newimg);
         mirthConnectImage.setIcon(imageIcon);
         mirthConnectImage.setToolTipText(UIConstants.MIRTHCONNECT_TOOLTIP);
