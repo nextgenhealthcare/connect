@@ -3249,7 +3249,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JScrollPane mappingsPane;
     private com.mirth.connect.client.ui.components.MirthTable mappingsTable;
     private javax.swing.JScrollPane messageScrollPane;
-    private com.mirth.connect.client.ui.components.MirthTreeTable messageTreeTable;
+    protected com.mirth.connect.client.ui.components.MirthTreeTable messageTreeTable;
     private javax.swing.ButtonGroup messagesGroup;
     private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker1;
     private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker2;
