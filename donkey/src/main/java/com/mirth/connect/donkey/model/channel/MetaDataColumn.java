@@ -71,6 +71,15 @@ public class MetaDataColumn implements Serializable, Purgable {
             return false;
         }
     }
+    
+    @Override
+    public int hashCode() {
+		int hashCode = 1;
+		hashCode = 31 * hashCode + (name == null ? 0 : name.hashCode());
+		hashCode = 31 * hashCode + (type == null ? 0 : type.hashCode());
+		hashCode = 31 * hashCode + (mappingName == null ? 0 : mappingName.hashCode());
+		return hashCode;
+    }
 
     @Override
     public Map<String, Object> getPurgedProperties() {

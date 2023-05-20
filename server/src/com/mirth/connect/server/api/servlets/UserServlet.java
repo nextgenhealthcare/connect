@@ -186,6 +186,10 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
 
     @Override
     public void createUser(User user) {
+    	if (StringUtils.isBlank(user.getUsername())) {
+    		throw new MirthApiException(Response.status(Response.Status.BAD_REQUEST).entity("username cannot be blank.").build());
+    	}
+
         try {
             userController.updateUser(user);
         } catch (ControllerException e) {
@@ -263,6 +267,10 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
     @Override
     @CheckAuthorizedUserId
     public void updateUser(Integer userId, User user) {
+    	if (StringUtils.isBlank(user.getUsername())) {
+    		throw new MirthApiException(Response.status(Response.Status.BAD_REQUEST).entity("username cannot be blank.").build());
+    	}
+    	
         try {
             userController.updateUser(user);
         } catch (ControllerException e) {

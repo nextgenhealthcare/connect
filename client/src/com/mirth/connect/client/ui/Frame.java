@@ -3396,18 +3396,20 @@ public class Frame extends JXFrame {
             } 
         }
 
-        if (selectedChannelModels.size() > 1 && Preferences.userNodeForPackage(Mirth.class).getBoolean("multiChannelSearchWarning", true)) {
-        	// Warn users that this operation can take a long time
-            String searchWarning = "<html>Viewing messages for multiple channels may take a long time, depending on the number of channels and messages being searched.<br/>Are you sure you want to proceed?</html>";
-            Object[] params = new Object[] { searchWarning };
-            int result = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-            
-            if (result != JOptionPane.YES_OPTION) {
-                return;
-            }
-            if (enhancedMessageBrowser == null) {
-                logger.error("enhancedMessageBrowser is null");
-            }
+        if (selectedChannelModels.size() > 1) {
+        	if (Preferences.userNodeForPackage(Mirth.class).getBoolean("multiChannelSearchWarning", true)) {
+	        	// Warn users that this operation can take a long time
+	            String searchWarning = "<html>Viewing messages for multiple channels may take a long time, depending on the number of channels and messages being searched.<br/>Are you sure you want to proceed?</html>";
+	            Object[] params = new Object[] { searchWarning };
+	            int result = JOptionPane.showConfirmDialog(this, params, "Select an Option", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+	            
+	            if (result != JOptionPane.YES_OPTION) {
+	                return;
+	            }
+	            if (enhancedMessageBrowser == null) {
+	                logger.error("enhancedMessageBrowser is null");
+	            }
+        	}
             activeBrowser = enhancedMessageBrowser;
             panelName = "Multi-Channel Messages";
         } else {

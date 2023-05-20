@@ -21,7 +21,7 @@
             <nav id="header" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
                 <div class="navbar-inner">
                     <div id="statisticsNavbarContainer" class="container" style="width: 98%;">
-                        <a class="navbar-brand"> <img alt="Mirth Connect" src="${contextPath}/css/mirthconnectlogowide.png" style="height: 30px"></a>
+                        <a class="navbar-brand"> <img alt="Mirth Connect" src="${contextPath}/images/MirthConnect_Logo_WordMark_white.png" style="height: 30px"></a>
                         <ul id="navbarList" class="nav navbar-nav">
                             <li id="li_dashboardstatistics"><s:link beanclass="com.mirth.connect.webadmin.action.DashboardStatisticsActionBean">Dashboard Statistics</s:link></li>
                         </ul>
