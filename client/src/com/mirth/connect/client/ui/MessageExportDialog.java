@@ -42,6 +42,8 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 public class MessageExportDialog extends MirthDialog {
     private Frame parent;
     private String channelId;
+    private List<String> multipleChannelIds;
+    private boolean multipleChannelsSelected;
     private MessageFilter messageFilter;
     private int pageSize;
     private Encryptor encryptor;
@@ -61,6 +63,14 @@ public class MessageExportDialog extends MirthDialog {
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
+    }
+    
+    public void setMultipleChannelIds(List<String> multipleChannelIds) {
+        this.multipleChannelIds = multipleChannelIds;
+    }
+    
+    public void setMultipleChannelsSelected(boolean multipleChannelsSelected) {
+        this.multipleChannelsSelected = multipleChannelsSelected;
     }
 
     public void setMessageFilter(MessageFilter messageFilter) {
@@ -129,7 +139,16 @@ public class MessageExportDialog extends MirthDialog {
         try {
             if (messageExportPanel.isExportLocal()) {
                 PaginatedMessageList messageList = new PaginatedMessageList();
-                messageList.setChannelId(channelId);
+                // If multipleChannelsSelected is true, then multiple channels have been selected. Pass along
+                // the multipleChannelsSelected and the multipleChannelIds fields to PaginatedMessageList.
+                // Else, pass along the single channelId.
+                if (multipleChannelsSelected) {
+                    messageList.setMultipleChannelIdsSelected(multipleChannelsSelected);
+                    messageList.setMultipleChannelIds(multipleChannelIds);
+                } else {
+                    messageList.setChannelId(channelId);
+                }
+                //messageList.setChannelId(channelId);
                 messageList.setClient(parent.mirthClient);
                 messageList.setMessageFilter(messageFilter);
                 messageList.setPageSize(pageSize);

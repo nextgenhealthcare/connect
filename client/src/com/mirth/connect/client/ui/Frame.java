@@ -3459,6 +3459,8 @@ public class Frame extends JXFrame {
                 if (!retrievedMetadata) {
                     alertError(PlatformUI.MIRTH_FRAME, "Could not retrieve metadata for channel.");
                 } else {
+                    // activeBrowser instanceOf MessageBrowser, call MessageBrowser.loadChannels()
+                    // activeBrowser instanceOf EnhancedMessageBrowser, call EnhancedMessageBrowser.loadChannels()
                     activeBrowser.loadChannels(new ArrayList<MessageBrowserChannelModel>(selectedChannelModels.values()));
                 }
             }
@@ -3872,7 +3874,15 @@ public class Frame extends JXFrame {
         messageExportDialog.setEncryptor(mirthClient.getEncryptor());
         messageExportDialog.setMessageFilter(activeBrowser.getMessageFilter());
         messageExportDialog.setPageSize(activeBrowser.getPageSize());
-        messageExportDialog.setChannelId(activeBrowser.getChannelId());
+        // If activeBrowser.getMultipleChannelsSelected() is true, then multiple channels have been selected.
+        // Pass along the multipleChannelsSelected and the multipleChannelIds fields to MessageExportDialog.
+        // Else, pass along the single channelId.
+        if (activeBrowser.getMultipleChannelsSelected()) {
+            messageExportDialog.setMultipleChannelsSelected(activeBrowser.getMultipleChannelsSelected());
+            messageExportDialog.setMultipleChannelIds(activeBrowser.getMultipleChannelIds());
+        } else {
+            messageExportDialog.setChannelId(activeBrowser.getChannelId());
+        }
         messageExportDialog.setLocationRelativeTo(this);
         messageExportDialog.setVisible(true);
     }

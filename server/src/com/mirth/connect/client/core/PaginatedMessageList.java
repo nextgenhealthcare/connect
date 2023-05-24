@@ -9,6 +9,7 @@
 
 package com.mirth.connect.client.core;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.mirth.connect.donkey.model.message.Message;
@@ -20,6 +21,8 @@ public class PaginatedMessageList extends PaginatedList<Message> {
     private Client client;
     private MessageFilter messageFilter;
     private String channelId;
+    private List<String> multipleChannelIds;
+    private boolean multipleChannelIdsSelected;
     private boolean includeContent;
 
     public Client getClient() {
@@ -45,6 +48,23 @@ public class PaginatedMessageList extends PaginatedList<Message> {
     public void setChannelId(String channelId) {
         this.channelId = channelId;
     }
+    
+    public List<String> getMultipleChannelIds() {
+        return multipleChannelIds;
+    }
+
+    public void setMultipleChannelIds(List<String> multipleChannelIds) {
+        this.multipleChannelIds = multipleChannelIds;
+    }
+    
+    public boolean getMultipleChannelIdsSelected() {
+        return multipleChannelIdsSelected;
+    }
+
+    public void setMultipleChannelIdsSelected(boolean multipleChannelIdsSelected) {
+        this.multipleChannelIdsSelected = multipleChannelIdsSelected;
+    }
+
 
     public boolean isIncludeContent() {
         return includeContent;
@@ -64,7 +84,19 @@ public class PaginatedMessageList extends PaginatedList<Message> {
     }
 
     @Override
-    protected List<Message> getItems(int offset, int limit) throws ClientException {
-        return client.getMessages(channelId, messageFilter, includeContent, offset, limit);
+    protected List<Message> getItems(int offset, int limit) throws ClientException {        
+        List<Message> results = new ArrayList<Message>();
+        
+        // If multipleChannelIdsSelected is true, then multiple channels have been selected. Loop through each channelId
+        // to get its messages, add them to results, and return it. Else, get messages for a single channelId.
+        if (multipleChannelIdsSelected) {
+            for (String channelId : multipleChannelIds) {
+                results.addAll(client.getMessages(channelId, messageFilter, includeContent, offset, limit));
+            }
+        } else {
+            results = client.getMessages(channelId, messageFilter, includeContent, offset, limit);
+        }
+        
+        return results;
     }
 }

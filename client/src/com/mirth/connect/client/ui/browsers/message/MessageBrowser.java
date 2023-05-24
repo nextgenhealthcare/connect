@@ -148,6 +148,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private String lastUserSelectedErrorType = "Processing Error";
     protected Frame parent;
     private String channelId;
+    protected List<String> multipleChannelIds;
+    protected boolean multipleChannelsSelected;
     private String channelName;
     private boolean isChannelDeployed;
     private boolean isCURESPHILoggingOn;
@@ -450,6 +452,14 @@ public class MessageBrowser extends javax.swing.JPanel {
 
     public String getChannelId() {
         return channelId;
+    }
+    
+    public List<String> getMultipleChannelIds() {
+        return multipleChannelIds;
+    }
+    
+    public boolean getMultipleChannelsSelected() {
+        return multipleChannelsSelected;
     }
 
     public Map<Integer, String> getConnectors() {
