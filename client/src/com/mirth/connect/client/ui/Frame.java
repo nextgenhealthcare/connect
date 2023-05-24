@@ -3875,13 +3875,16 @@ public class Frame extends JXFrame {
         messageExportDialog.setMessageFilter(activeBrowser.getMessageFilter());
         messageExportDialog.setPageSize(activeBrowser.getPageSize());
         // If activeBrowser.getMultipleChannelsSelected() is true, then multiple channels have been selected.
-        // Pass along the multipleChannelsSelected and the multipleChannelIds fields to MessageExportDialog.
+        // Pass along the multipleChannelsSelected and multipleChannelIds fields to MessageExportDialog.
         // Else, pass along the single channelId.
         if (activeBrowser.getMultipleChannelsSelected()) {
             messageExportDialog.setMultipleChannelsSelected(activeBrowser.getMultipleChannelsSelected());
             messageExportDialog.setMultipleChannelIds(activeBrowser.getMultipleChannelIds());
+            messageExportDialog.setChannelId(null);
         } else {
             messageExportDialog.setChannelId(activeBrowser.getChannelId());
+            messageExportDialog.setMultipleChannelsSelected(false);
+            messageExportDialog.setMultipleChannelIds(null);
         }
         messageExportDialog.setLocationRelativeTo(this);
         messageExportDialog.setVisible(true);

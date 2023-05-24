@@ -140,13 +140,16 @@ public class MessageExportDialog extends MirthDialog {
             if (messageExportPanel.isExportLocal()) {
                 PaginatedMessageList messageList = new PaginatedMessageList();
                 // If multipleChannelsSelected is true, then multiple channels have been selected. Pass along
-                // the multipleChannelsSelected and the multipleChannelIds fields to PaginatedMessageList.
+                // the multipleChannelsSelected and multipleChannelIds fields to PaginatedMessageList.
                 // Else, pass along the single channelId.
                 if (multipleChannelsSelected) {
                     messageList.setMultipleChannelIdsSelected(multipleChannelsSelected);
                     messageList.setMultipleChannelIds(multipleChannelIds);
+                    messageList.setChannelId(null);
                 } else {
                     messageList.setChannelId(channelId);
+                    messageList.setMultipleChannelIdsSelected(false);
+                    messageList.setMultipleChannelIds(null);
                 }
                 //messageList.setChannelId(channelId);
                 messageList.setClient(parent.mirthClient);

@@ -310,6 +310,14 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
     
     public void loadChannels(List<MessageBrowserChannelModel> channelModels) {
+        // If channelModels.size() == 1, then one channel has been selected. 
+        // Reset the multipleChannelsSelected and multipleChannelIds fields. 
+        // We'll use these fields in Frame.doExportMessages().
+        if (channelModels.size() == 1) {
+            multipleChannelsSelected = false;
+            multipleChannelIds = null;
+        }
+        
     	if (channelModels != null && !channelModels.isEmpty()) {
     		loadChannel(channelModels.get(0));
     	}
