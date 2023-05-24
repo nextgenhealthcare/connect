@@ -469,6 +469,10 @@ public class MessageBrowser extends javax.swing.JPanel {
     public boolean getMultipleChannelsSelected() {
         return multipleChannelsSelected;
     }
+    
+    public boolean getIsChannelMessagesPanelFirstLoadSearch() {
+        return isChannelMessagesPanelFirstLoadSearch;
+    }
 
     public Map<Integer, String> getConnectors() {
         return connectors;
