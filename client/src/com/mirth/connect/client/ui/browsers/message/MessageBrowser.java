@@ -2343,7 +2343,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentTable = null;
         messageScrollPane = new javax.swing.JScrollPane();
-        messageTreeTable = new com.mirth.connect.client.ui.components.MirthTreeTable(mirthTreeTablePrefix(), defaultVisibleColumns);
+        messageTreeTable = createMessageTreeTable();
         jPanel1 = new javax.swing.JPanel();
         pageNumberLabel = new javax.swing.JLabel();
         mirthDatePicker1 = new com.mirth.connect.client.ui.components.MirthDatePicker();
@@ -3061,6 +3061,10 @@ public class MessageBrowser extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     // @formatter:on
+    
+    protected com.mirth.connect.client.ui.components.MirthTreeTable createMessageTreeTable() {
+        return new com.mirth.connect.client.ui.components.MirthTreeTable(mirthTreeTablePrefix(), defaultVisibleColumns);
+    }
     
     public String mirthTreeTablePrefix() {
         return "messageBrowser";

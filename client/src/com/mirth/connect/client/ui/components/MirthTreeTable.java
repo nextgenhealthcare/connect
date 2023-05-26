@@ -154,19 +154,21 @@ public class MirthTreeTable extends SortableTreeTable {
         header.setDefaultRenderer(new SortableHeaderCellRenderer(header.getDefaultRenderer()));
 
         final JButton columnControlButton = new JButton(new ColumnControlButton(this).getIcon());
-
+        getColumnControlAction(columnControlButton);
+        setColumnControl(columnControlButton);
+    }
+    
+    protected void getColumnControlAction(JButton columnControlButton) {
         columnControlButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JPopupMenu columnMenu = getColumnMenu();
-                Dimension buttonSize = columnControlButton.getSize();
-                int xPos = columnControlButton.getComponentOrientation().isLeftToRight() ? buttonSize.width - columnMenu.getPreferredSize().width : 0;
-                columnMenu.show(columnControlButton, xPos, columnControlButton.getHeight());
+                    JPopupMenu columnMenu = getColumnMenu();
+                    Dimension buttonSize = columnControlButton.getSize();
+                    int xPos = columnControlButton.getComponentOrientation().isLeftToRight() ? buttonSize.width - columnMenu.getPreferredSize().width : 0;
+                    columnMenu.show(columnControlButton, xPos, columnControlButton.getHeight());
             }
 
         });
-
-        setColumnControl(columnControlButton);
     }
 
     protected void beforeSort() {}
@@ -369,6 +371,10 @@ public class MirthTreeTable extends SortableTreeTable {
         return columnMenu;
     }
 
+    public Set<String> getMetaDataColumns() {
+        return this.metaDataColumns;
+    }
+    
     public void setMetaDataColumns(Set<String> metaDataColumns, String channelId) {
         this.channelId = channelId;
         this.metaDataColumns = metaDataColumns;
