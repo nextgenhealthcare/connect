@@ -154,19 +154,21 @@ public class MirthTreeTable extends SortableTreeTable {
         header.setDefaultRenderer(new SortableHeaderCellRenderer(header.getDefaultRenderer()));
 
         final JButton columnControlButton = new JButton(new ColumnControlButton(this).getIcon());
-
+        configureColumnControlAction(columnControlButton);
+        setColumnControl(columnControlButton);
+    }
+    
+    protected void configureColumnControlAction(JButton columnControlButton) {
         columnControlButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JPopupMenu columnMenu = getColumnMenu();
-                Dimension buttonSize = columnControlButton.getSize();
-                int xPos = columnControlButton.getComponentOrientation().isLeftToRight() ? buttonSize.width - columnMenu.getPreferredSize().width : 0;
-                columnMenu.show(columnControlButton, xPos, columnControlButton.getHeight());
+                    JPopupMenu columnMenu = getColumnMenu();
+                    Dimension buttonSize = columnControlButton.getSize();
+                    int xPos = columnControlButton.getComponentOrientation().isLeftToRight() ? buttonSize.width - columnMenu.getPreferredSize().width : 0;
+                    columnMenu.show(columnControlButton, xPos, columnControlButton.getHeight());
             }
 
         });
-
-        setColumnControl(columnControlButton);
     }
 
     protected void beforeSort() {}
@@ -298,32 +300,33 @@ public class MirthTreeTable extends SortableTreeTable {
             final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(columnName);
             // Show or hide the checkbox
             menuItem.setSelected(column.isVisible());
-
-            menuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent arg0) {
-                    TableColumnExt column = getColumnExt(menuItem.getText());
-                    // Determine whether to show or hide the selected column
-                    boolean enable = !column.isVisible();
-                    // Do not hide a column if it is the last remaining visible column              
-                    if (enable || getColumnCount() > 1) {
-                        column.setVisible(enable);
-
-                        Set<String> customHiddenColumns = customHiddenColumnMap.get(channelId);
-
-                        if (customHiddenColumns != null) {
-                            if (enable) {
-                                customHiddenColumns.remove(columnName);
-                            } else {
-                                customHiddenColumns.add(columnName);
+            if(shouldAddMenuItem(columnName)) {
+                menuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent arg0) {
+                        TableColumnExt column = getColumnExt(menuItem.getText());
+                        // Determine whether to show or hide the selected column
+                        boolean enable = !column.isVisible();
+                        // Do not hide a column if it is the last remaining visible column              
+                        if (enable || getColumnCount() > 1) {
+                            column.setVisible(enable);
+    
+                            Set<String> customHiddenColumns = customHiddenColumnMap.get(channelId);
+    
+                            if (customHiddenColumns != null) {
+                                if (enable) {
+                                    customHiddenColumns.remove(columnName);
+                                } else {
+                                    customHiddenColumns.add(columnName);
+                                }
                             }
                         }
+                        saveColumnOrder();
                     }
-                    saveColumnOrder();
-                }
-            });
-
-            columnMenu.add(menuItem);
+                });
+    
+                columnMenu.add(menuItem);
+            }
         }
 
         columnMenu.addSeparator();
@@ -368,7 +371,15 @@ public class MirthTreeTable extends SortableTreeTable {
 
         return columnMenu;
     }
+    
+    public boolean shouldAddMenuItem(String columnName) {
+        return true;
+    }
 
+    public Set<String> getMetaDataColumns() {
+        return this.metaDataColumns;
+    }
+    
     public void setMetaDataColumns(Set<String> metaDataColumns, String channelId) {
         this.channelId = channelId;
         this.metaDataColumns = metaDataColumns;
