@@ -300,32 +300,33 @@ public class MirthTreeTable extends SortableTreeTable {
             final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(columnName);
             // Show or hide the checkbox
             menuItem.setSelected(column.isVisible());
-
-            menuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent arg0) {
-                    TableColumnExt column = getColumnExt(menuItem.getText());
-                    // Determine whether to show or hide the selected column
-                    boolean enable = !column.isVisible();
-                    // Do not hide a column if it is the last remaining visible column              
-                    if (enable || getColumnCount() > 1) {
-                        column.setVisible(enable);
-
-                        Set<String> customHiddenColumns = customHiddenColumnMap.get(channelId);
-
-                        if (customHiddenColumns != null) {
-                            if (enable) {
-                                customHiddenColumns.remove(columnName);
-                            } else {
-                                customHiddenColumns.add(columnName);
+            if(addMenuItem(columnName)) {
+                menuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent arg0) {
+                        TableColumnExt column = getColumnExt(menuItem.getText());
+                        // Determine whether to show or hide the selected column
+                        boolean enable = !column.isVisible();
+                        // Do not hide a column if it is the last remaining visible column              
+                        if (enable || getColumnCount() > 1) {
+                            column.setVisible(enable);
+    
+                            Set<String> customHiddenColumns = customHiddenColumnMap.get(channelId);
+    
+                            if (customHiddenColumns != null) {
+                                if (enable) {
+                                    customHiddenColumns.remove(columnName);
+                                } else {
+                                    customHiddenColumns.add(columnName);
+                                }
                             }
                         }
+                        saveColumnOrder();
                     }
-                    saveColumnOrder();
-                }
-            });
-
-            columnMenu.add(menuItem);
+                });
+    
+                columnMenu.add(menuItem);
+            }
         }
 
         columnMenu.addSeparator();
@@ -369,6 +370,10 @@ public class MirthTreeTable extends SortableTreeTable {
         columnMenu.add(menuItem);
 
         return columnMenu;
+    }
+    
+    public Boolean addMenuItem(String columnName) {
+        return true;
     }
 
     public Set<String> getMetaDataColumns() {
