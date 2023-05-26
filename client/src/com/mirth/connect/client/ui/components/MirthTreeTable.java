@@ -154,11 +154,11 @@ public class MirthTreeTable extends SortableTreeTable {
         header.setDefaultRenderer(new SortableHeaderCellRenderer(header.getDefaultRenderer()));
 
         final JButton columnControlButton = new JButton(new ColumnControlButton(this).getIcon());
-        getColumnControlAction(columnControlButton);
+        configureColumnControlAction(columnControlButton);
         setColumnControl(columnControlButton);
     }
     
-    protected void getColumnControlAction(JButton columnControlButton) {
+    protected void configureColumnControlAction(JButton columnControlButton) {
         columnControlButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -300,7 +300,7 @@ public class MirthTreeTable extends SortableTreeTable {
             final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(columnName);
             // Show or hide the checkbox
             menuItem.setSelected(column.isVisible());
-            if(addMenuItem(columnName)) {
+            if(shouldAddMenuItem(columnName)) {
                 menuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent arg0) {
@@ -372,7 +372,7 @@ public class MirthTreeTable extends SortableTreeTable {
         return columnMenu;
     }
     
-    public Boolean addMenuItem(String columnName) {
+    public boolean shouldAddMenuItem(String columnName) {
         return true;
     }
 
