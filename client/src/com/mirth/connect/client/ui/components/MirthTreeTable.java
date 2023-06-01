@@ -360,9 +360,7 @@ public class MirthTreeTable extends SortableTreeTable {
 
             @Override
             public void actionPerformed(ActionEvent event) {
-                if (metaDataColumns != null) {
-                    defaultVisibleColumns.addAll(metaDataColumns);
-                }
+                restoreDefaultVisibleColumns();
                 restoreDefaultColumnPreferences();
             }
 
@@ -370,6 +368,12 @@ public class MirthTreeTable extends SortableTreeTable {
         columnMenu.add(menuItem);
 
         return columnMenu;
+    }
+    
+    protected void restoreDefaultVisibleColumns() {
+    	if (metaDataColumns != null) {
+            defaultVisibleColumns.addAll(metaDataColumns);
+        }
     }
     
     public boolean shouldAddMenuItem(String columnName) {
@@ -504,9 +508,7 @@ public class MirthTreeTable extends SortableTreeTable {
 
             if (StringUtils.isNotEmpty(prefix)) {
                 columnOrderMap.clear();
-                if (customHiddenColumnMap.get(channelId) != null) {
-                    customHiddenColumnMap.get(channelId).clear();
-                }
+                restoreDefaultCustomHiddenColumnMap();
                 /*
                  * To preserve the order of all columns, including those that should be hidden, we
                  * must perform the following loops: First, we need to make all columns visible.
@@ -538,6 +540,12 @@ public class MirthTreeTable extends SortableTreeTable {
                 ((SortableHeaderCellRenderer) getTableHeader().getDefaultRenderer()).setColumnIndex(sortOrderColumn);
             }
         } catch (Exception e) {
+        }
+    }
+    
+    public void restoreDefaultCustomHiddenColumnMap() {
+    	if (customHiddenColumnMap.get(channelId) != null) {
+            customHiddenColumnMap.get(channelId).clear();
         }
     }
 
