@@ -185,12 +185,7 @@ public class WebStartServlet extends HttpServlet {
 
         PropertiesConfiguration mirthProperties = getMirthProperties();
         
-        String codebase = null;
-        if (StringUtils.isNotBlank(mirthProperties.getString("codebase.webstart.url"))) {
-        	codebase = mirthProperties.getString("codebase.webstart.url");
-        } else {
-        	codebase = scheme + "://" + serverHostname + ":" + serverPort + contextPath;
-        } 
+        String codebase = mirthProperties.getString("codebase.webstart.url", scheme + "://" + serverHostname + ":" + serverPort + contextPath);
         jnlpElement.setAttribute("codebase", codebase);
 
         String server = null;
