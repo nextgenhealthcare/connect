@@ -148,8 +148,6 @@ public class MessageBrowser extends javax.swing.JPanel {
     private String lastUserSelectedErrorType = "Processing Error";
     protected Frame parent;
     private String channelId;
-    protected List<String> multipleChannelIds;
-    protected boolean multipleChannelsSelected;
     private String channelName;
     private boolean isChannelDeployed;
     private boolean isCURESPHILoggingOn;
@@ -310,14 +308,6 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
     
     public void loadChannels(List<MessageBrowserChannelModel> channelModels) {
-        // If channelModels.size() == 1, then one channel has been selected. 
-        // Reset the multipleChannelsSelected and multipleChannelIds fields. 
-        // We'll use these fields in Frame.doExportMessages().
-        if (channelModels.size() == 1) {
-            multipleChannelsSelected = false;
-            multipleChannelIds = null;
-        }
-        
     	if (channelModels != null && !channelModels.isEmpty()) {
     		loadChannel(channelModels.get(0));
     	}
@@ -462,12 +452,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         return channelId;
     }
     
-    public List<String> getMultipleChannelIds() {
-        return multipleChannelIds;
-    }
-    
-    public boolean getMultipleChannelsSelected() {
-        return multipleChannelsSelected;
+    public Map<String, String> getChannels() {
+        throw new UnsupportedOperationException();
     }
     
     public boolean getIsChannelMessagesPanelFirstLoadSearch() {
@@ -480,6 +466,10 @@ public class MessageBrowser extends javax.swing.JPanel {
 
     public List<MetaDataColumn> getMetaDataColumns() {
         return metaDataColumns;
+    }
+    
+    public PaginatedMessageList getMessages() {
+        return messages;
     }
 
     public MessageFilter getMessageFilter() {

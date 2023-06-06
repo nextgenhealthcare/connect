@@ -14,6 +14,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JSeparator;
@@ -40,14 +41,13 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
  * Dialog containing MessageExportPanel that is used in the message browser to export messages
  */
 public class MessageExportDialog extends MirthDialog {
-    private Frame parent;
+    protected Frame parent;
     private String channelId;
-    private List<String> multipleChannelIds;
-    private boolean multipleChannelsSelected;
-    private boolean isChannelMessagesPanelFirstLoadSearch;
-    private MessageFilter messageFilter;
-    private int pageSize;
+    protected MessageFilter messageFilter;
+    protected int pageSize;
     private Encryptor encryptor;
+    private PaginatedMessageList messages;
+    private boolean isChannelMessagesPanelFirstLoadSearch;
 
     public MessageExportDialog() {
         super(PlatformUI.MIRTH_FRAME);
@@ -66,16 +66,8 @@ public class MessageExportDialog extends MirthDialog {
         this.channelId = channelId;
     }
     
-    public void setMultipleChannelIds(List<String> multipleChannelIds) {
-        this.multipleChannelIds = multipleChannelIds;
-    }
-    
-    public void setMultipleChannelsSelected(boolean multipleChannelsSelected) {
-        this.multipleChannelsSelected = multipleChannelsSelected;
-    }
-    
-    public void setIsChannelMessagesPanelFirstLoadSearch(boolean isChannelMessagesPanelFirstLoadSearch) {
-        this.isChannelMessagesPanelFirstLoadSearch = isChannelMessagesPanelFirstLoadSearch;
+    public void setMultipleChannelIds(Map<String, String> channels) {
+        throw new UnsupportedOperationException();
     }
 
     public void setMessageFilter(MessageFilter messageFilter) {
@@ -88,6 +80,14 @@ public class MessageExportDialog extends MirthDialog {
 
     public void setEncryptor(Encryptor encryptor) {
         this.encryptor = encryptor;
+    }
+    
+    public void setMessages(PaginatedMessageList messages) {
+        this.messages = messages;
+    }
+    
+    public void setIsChannelMessagesPanelFirstLoadSearch(boolean isChannelMessagesPanelFirstLoadSearch) {
+        this.isChannelMessagesPanelFirstLoadSearch = isChannelMessagesPanelFirstLoadSearch;
     }
 
     private void initComponents() {
@@ -122,6 +122,17 @@ public class MessageExportDialog extends MirthDialog {
         add(exportButton, "split 2, gaptop 4, alignx right, width 60");
         add(cancelButton, "width 60");
     }
+    
+    protected PaginatedMessageList setupPaginatedMessageList() {
+        PaginatedMessageList messageList = new PaginatedMessageList();
+        messageList.setChannelId(channelId);
+        messageList.setClient(parent.mirthClient);
+        messageList.setMessageFilter(messageFilter);
+        messageList.setPageSize(pageSize);
+        messageList.setIncludeContent(true);
+        
+        return messageList;
+    }
 
     private void export() {        
         String errorMessage = messageExportPanel.validate(true);
@@ -143,25 +154,9 @@ public class MessageExportDialog extends MirthDialog {
 
         try {
             if (!isChannelMessagesPanelFirstLoadSearch) {
-                if (messageExportPanel.isExportLocal()) {
-                    PaginatedMessageList messageList = new PaginatedMessageList();
-                    // If multipleChannelsSelected is true, then multiple channels have been selected. Pass along
-                    // the multipleChannelsSelected and multipleChannelIds fields to PaginatedMessageList.
-                    // Else, pass along the single channelId.
-                    if (multipleChannelsSelected) {
-                        messageList.setMultipleChannelIdsSelected(multipleChannelsSelected);
-                        messageList.setMultipleChannelIds(multipleChannelIds);
-                        messageList.setChannelId(null);
-                    } else {
-                        messageList.setChannelId(channelId);
-                        messageList.setMultipleChannelIdsSelected(false);
-                        messageList.setMultipleChannelIds(null);
-                    }
-                    //messageList.setChannelId(channelId);
-                    messageList.setClient(parent.mirthClient);
-                    messageList.setMessageFilter(messageFilter);
-                    messageList.setPageSize(pageSize);
-                    messageList.setIncludeContent(true);
+                if (messageExportPanel.isExportLocal()) {                
+                    PaginatedMessageList messageList = setupPaginatedMessageList();
+                    //PaginatedMessageList messageList = messages; // JDO TTD: remove
 
                     writerOptions.setBaseFolder(SystemUtils.getUserHome().getAbsolutePath());
 
