@@ -14,7 +14,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JSeparator;
@@ -41,10 +40,10 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
  * Dialog containing MessageExportPanel that is used in the message browser to export messages
  */
 public class MessageExportDialog extends MirthDialog {
-    protected Frame parent;
+    private Frame parent;
     private String channelId;
-    protected MessageFilter messageFilter;
-    protected int pageSize;
+    private MessageFilter messageFilter;
+    private int pageSize;
     private Encryptor encryptor;
     private PaginatedMessageList messages;
     private boolean isChannelMessagesPanelFirstLoadSearch;
@@ -64,10 +63,6 @@ public class MessageExportDialog extends MirthDialog {
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
-    }
-    
-    public void setMultipleChannelIds(Map<String, String> channels) {
-        throw new UnsupportedOperationException();
     }
 
     public void setMessageFilter(MessageFilter messageFilter) {
