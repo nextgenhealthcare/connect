@@ -3868,32 +3868,6 @@ public class Frame extends JXFrame {
     }
 
     public void doExportMessages() {
-        if (activeBrowser == enhancedMessageBrowser) {
-            if (enhancedMessageExportDialog == null) {
-                logger.error("enhancedMessageExportDialog is null");
-            }
-            
-            enhancedMessageExportDialog.setEncryptor(mirthClient.getEncryptor());
-            enhancedMessageExportDialog.setMessageFilter(activeBrowser.getMessageFilter());
-            enhancedMessageExportDialog.setPageSize(activeBrowser.getPageSize());
-            enhancedMessageExportDialog.setMultipleChannelIds(activeBrowser.getChannels()); // JDO TTD: remove
-            enhancedMessageExportDialog.setIsChannelMessagesPanelFirstLoadSearch(activeBrowser.getIsChannelMessagesPanelFirstLoadSearch());
-            enhancedMessageExportDialog.setLocationRelativeTo(this);
-            enhancedMessageExportDialog.setVisible(true);
-        } else {
-            if (messageExportDialog == null) {
-                messageExportDialog = new MessageExportDialog();
-            }
-
-            messageExportDialog.setEncryptor(mirthClient.getEncryptor());
-            messageExportDialog.setMessageFilter(activeBrowser.getMessageFilter());
-            messageExportDialog.setPageSize(activeBrowser.getPageSize());
-            messageExportDialog.setChannelId(activeBrowser.getChannelId());
-            messageExportDialog.setLocationRelativeTo(this);
-            messageExportDialog.setVisible(true);
-        }
-        
-        /*
         if (messageExportDialog == null) {
             messageExportDialog = new MessageExportDialog();
         }
@@ -3906,7 +3880,6 @@ public class Frame extends JXFrame {
         messageExportDialog.setIsChannelMessagesPanelFirstLoadSearch(activeBrowser.getIsChannelMessagesPanelFirstLoadSearch());
         messageExportDialog.setLocationRelativeTo(this);
         messageExportDialog.setVisible(true);
-        */
     }
 
     public void doImportMessages() {

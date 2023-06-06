@@ -83,7 +83,11 @@ public class MessageExportDialog extends MirthDialog {
     }
     
     public void setMessages(PaginatedMessageList messages) {
-        this.messages = messages;
+        if (messages != null) {
+            PaginatedMessageList clonedMessages = (PaginatedMessageList) messages.clone();
+            clonedMessages.setIncludeContent(true);
+            this.messages = clonedMessages;
+        }
     }
     
     public void setIsChannelMessagesPanelFirstLoadSearch(boolean isChannelMessagesPanelFirstLoadSearch) {
@@ -122,17 +126,6 @@ public class MessageExportDialog extends MirthDialog {
         add(exportButton, "split 2, gaptop 4, alignx right, width 60");
         add(cancelButton, "width 60");
     }
-    
-    protected PaginatedMessageList setupPaginatedMessageList() {
-        PaginatedMessageList messageList = new PaginatedMessageList();
-        messageList.setChannelId(channelId);
-        messageList.setClient(parent.mirthClient);
-        messageList.setMessageFilter(messageFilter);
-        messageList.setPageSize(pageSize);
-        messageList.setIncludeContent(true);
-        
-        return messageList;
-    }
 
     private void export() {        
         String errorMessage = messageExportPanel.validate(true);
@@ -155,8 +148,7 @@ public class MessageExportDialog extends MirthDialog {
         try {
             if (!isChannelMessagesPanelFirstLoadSearch) {
                 if (messageExportPanel.isExportLocal()) {                
-                    PaginatedMessageList messageList = setupPaginatedMessageList();
-                    //PaginatedMessageList messageList = messages; // JDO TTD: remove
+                    PaginatedMessageList messageList = messages;
 
                     writerOptions.setBaseFolder(SystemUtils.getUserHome().getAbsolutePath());
 

@@ -433,7 +433,6 @@ public class MessageExportPanel extends JPanel {
         exportServerRadio.setSelected(true);
         browseButton.setEnabled(false);
 
-        // JDO TTD: Do we want to use ${message.channelId}message${message.messageId}.xml (from Jira ticket) or the one below?
         filePatternTextPane.setText("${message.channelId}_message_${message.messageId}.xml");
         filePatternScrollPane.setViewportView(filePatternTextPane);
 
