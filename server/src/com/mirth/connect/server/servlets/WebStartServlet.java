@@ -182,9 +182,16 @@ public class WebStartServlet extends HttpServlet {
         String serverHostname = request.getServerName();
         int serverPort = request.getServerPort();
         String contextPath = request.getContextPath();
-        String codebase = scheme + "://" + serverHostname + ":" + serverPort + contextPath;
 
         PropertiesConfiguration mirthProperties = getMirthProperties();
+        
+        String codebase = null;
+        if (StringUtils.isNotBlank(mirthProperties.getString("codebase.webstart.url"))) {
+        	codebase = mirthProperties.getString("codebase.webstart.url");
+        } else {
+        	codebase = scheme + "://" + serverHostname + ":" + serverPort + contextPath;
+        } 
+        jnlpElement.setAttribute("codebase", codebase);
 
         String server = null;
 
@@ -197,7 +204,6 @@ public class WebStartServlet extends HttpServlet {
             server = "https://" + serverHostname + ":" + httpsPort + contextPathProp;
         }
 
-        jnlpElement.setAttribute("codebase", codebase);
 
         Element resourcesElement = (Element) jnlpElement.getElementsByTagName("resources").item(0);
 
