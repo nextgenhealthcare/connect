@@ -173,7 +173,12 @@ public class MessageExportDialog extends MirthDialog {
 
             setVisible(false);
             setCursor(Cursor.getDefaultCursor());
-            parent.alertInformation(parent, exportCount + " message" + ((exportCount == 1) ? " has" : "s have") + " been successfully exported to: " + writerOptions.getRootFolder());
+            
+            if (exportCount == 0) {
+                parent.alertInformation(parent, "There are no messages to export. Please perform a search before exporting.");
+            } else {
+                parent.alertInformation(parent, exportCount + " message" + ((exportCount == 1) ? " has" : "s have") + " been successfully exported to: " + writerOptions.getRootFolder());
+            }
         } catch (Exception e) {
             setCursor(Cursor.getDefaultCursor());
             Throwable cause = (e.getCause() == null) ? e : e.getCause();

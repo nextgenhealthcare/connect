@@ -452,10 +452,6 @@ public class MessageBrowser extends javax.swing.JPanel {
         return channelId;
     }
     
-    public Map<String, String> getChannels() {
-        throw new UnsupportedOperationException();
-    }
-    
     public boolean getIsChannelMessagesPanelFirstLoadSearch() {
         return isChannelMessagesPanelFirstLoadSearch;
     }
