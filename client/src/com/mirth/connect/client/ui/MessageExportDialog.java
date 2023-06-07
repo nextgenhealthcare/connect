@@ -174,8 +174,10 @@ public class MessageExportDialog extends MirthDialog {
             setVisible(false);
             setCursor(Cursor.getDefaultCursor());
             
-            if (exportCount == 0) {
+            if (isChannelMessagesPanelFirstLoadSearch) {
                 parent.alertInformation(parent, "There are no messages to export. Please perform a search before exporting.");
+            } else if (exportCount == 0) {
+                parent.alertInformation(parent, "There are no messages to export.");
             } else {
                 parent.alertInformation(parent, exportCount + " message" + ((exportCount == 1) ? " has" : "s have") + " been successfully exported to: " + writerOptions.getRootFolder());
             }
