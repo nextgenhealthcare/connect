@@ -433,7 +433,7 @@ public class MessageExportPanel extends JPanel {
         exportServerRadio.setSelected(true);
         browseButton.setEnabled(false);
 
-        filePatternTextPane.setText("message_${message.messageId}.xml");
+        filePatternTextPane.setText("${message.channelId}_message_${message.messageId}.xml");
         filePatternScrollPane.setViewportView(filePatternTextPane);
 
         // this is the list of components that will be disabled when the archive radio "No" is selected, see archiveChanged()

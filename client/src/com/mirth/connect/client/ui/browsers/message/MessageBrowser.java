@@ -451,6 +451,10 @@ public class MessageBrowser extends javax.swing.JPanel {
     public String getChannelId() {
         return channelId;
     }
+    
+    public boolean getIsChannelMessagesPanelFirstLoadSearch() {
+        return isChannelMessagesPanelFirstLoadSearch;
+    }
 
     public Map<Integer, String> getConnectors() {
         return connectors;
@@ -458,6 +462,10 @@ public class MessageBrowser extends javax.swing.JPanel {
 
     public List<MetaDataColumn> getMetaDataColumns() {
         return metaDataColumns;
+    }
+    
+    public PaginatedMessageList getMessages() {
+        return messages;
     }
 
     public MessageFilter getMessageFilter() {

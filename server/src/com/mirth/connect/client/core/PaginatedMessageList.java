@@ -45,7 +45,7 @@ public class PaginatedMessageList extends PaginatedList<Message> {
     public void setChannelId(String channelId) {
         this.channelId = channelId;
     }
-
+    
     public boolean isIncludeContent() {
         return includeContent;
     }
@@ -64,7 +64,7 @@ public class PaginatedMessageList extends PaginatedList<Message> {
     }
 
     @Override
-    protected List<Message> getItems(int offset, int limit) throws ClientException {
+    protected List<Message> getItems(int offset, int limit) throws ClientException {        
         return client.getMessages(channelId, messageFilter, includeContent, offset, limit);
     }
 }

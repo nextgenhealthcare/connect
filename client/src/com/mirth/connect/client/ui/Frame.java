@@ -3459,6 +3459,8 @@ public class Frame extends JXFrame {
                 if (!retrievedMetadata) {
                     alertError(PlatformUI.MIRTH_FRAME, "Could not retrieve metadata for channel.");
                 } else {
+                    // activeBrowser instanceOf MessageBrowser, call MessageBrowser.loadChannels()
+                    // activeBrowser instanceOf EnhancedMessageBrowser, call EnhancedMessageBrowser.loadChannels()
                     activeBrowser.loadChannels(new ArrayList<MessageBrowserChannelModel>(selectedChannelModels.values()));
                 }
             }
@@ -3873,6 +3875,8 @@ public class Frame extends JXFrame {
         messageExportDialog.setMessageFilter(activeBrowser.getMessageFilter());
         messageExportDialog.setPageSize(activeBrowser.getPageSize());
         messageExportDialog.setChannelId(activeBrowser.getChannelId());
+        messageExportDialog.setMessages(activeBrowser.getMessages());
+        messageExportDialog.setIsChannelMessagesPanelFirstLoadSearch(activeBrowser.getIsChannelMessagesPanelFirstLoadSearch());
         messageExportDialog.setLocationRelativeTo(this);
         messageExportDialog.setVisible(true);
     }
