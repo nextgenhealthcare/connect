@@ -551,13 +551,15 @@ public class ChannelPanel extends AbstractFramePanel {
                     setChannelTaskVisible(TASK_CHANNEL_CLONE);
                     setChannelTaskVisible(TASK_CHANNEL_EDIT);
                     setChannelTaskVisible(TASK_CHANNEL_DEBUG_DEPLOY);
-                    setChannelTaskVisible(TASK_CHANNEL_VIEW_MESSAGES);
-                } else if (parent.multiChannelMessageBrowsingEnabled) {
-                	setChannelTaskVisible(TASK_CHANNEL_VIEW_MESSAGES);
                 }
             } else {
                 setChannelTaskVisible(TASK_CHANNEL_DEPLOY);
             }
+
+            if (parent.multiChannelMessageBrowsingEnabled ||
+            		(allChannels && rows.length == 1)) {
+            	setChannelTaskVisible(TASK_CHANNEL_VIEW_MESSAGES);
+            } 
         }
     }
 
