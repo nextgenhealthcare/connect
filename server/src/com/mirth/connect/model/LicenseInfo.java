@@ -23,6 +23,8 @@ public class LicenseInfo implements Serializable {
     private Long warningPeriod;
     private Long gracePeriod;
     private String reason = null;
+    private Set<String> extensions = new HashSet<String>();
+    private Set<String> downloadedExtensions = new HashSet<String>();
 
     public String getReason() {
         return reason;
@@ -31,8 +33,6 @@ public class LicenseInfo implements Serializable {
     public void setReason(String reason) {
         this.reason = reason;
     }
-
-    private Set<String> extensions = new HashSet<String>();
 
     public LicenseInfo() {}
 
@@ -83,4 +83,13 @@ public class LicenseInfo implements Serializable {
     public void setExtensions(Set<String> extensions) {
         this.extensions = extensions;
     }
+
+    public Set<String> getDownloadedExtensions() {
+        return downloadedExtensions;
+    }
+
+    public void setDownloadedExtensions(Set<String> downloadedExtensions) {
+        this.downloadedExtensions = downloadedExtensions;
+    }
+
 }
