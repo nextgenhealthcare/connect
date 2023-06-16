@@ -396,6 +396,7 @@ public class Mirth extends Thread {
         }
 
         configurationController.setStatus(ConfigurationController.STATUS_OK);
+        eventController.dispatchEvent(new ServerEvent(configurationController.getServerId(), "Server startup complete"));
         printSplashScreen();
 
         // schedule usage statistics to be sent at startup and every 24 hours
