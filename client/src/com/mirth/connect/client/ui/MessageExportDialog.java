@@ -47,6 +47,7 @@ public class MessageExportDialog extends MirthDialog {
     private Encryptor encryptor;
     private PaginatedMessageList messages;
     private boolean isChannelMessagesPanelFirstLoadSearch;
+    private boolean selectedMultipleChannels;
 
     public MessageExportDialog() {
         super(PlatformUI.MIRTH_FRAME);
@@ -87,6 +88,10 @@ public class MessageExportDialog extends MirthDialog {
     
     public void setIsChannelMessagesPanelFirstLoadSearch(boolean isChannelMessagesPanelFirstLoadSearch) {
         this.isChannelMessagesPanelFirstLoadSearch = isChannelMessagesPanelFirstLoadSearch;
+    }
+    
+    public void setSelectedMultipleChannels(boolean selectedMultipleChannels) {
+        this.selectedMultipleChannels = selectedMultipleChannels;
     }
 
     private void initComponents() {
@@ -142,7 +147,12 @@ public class MessageExportDialog extends MirthDialog {
 
         try {
             if (!isChannelMessagesPanelFirstLoadSearch) {
-                if (messageExportPanel.isExportLocal()) {                
+                if (!messageExportPanel.isExportLocal() && !selectedMultipleChannels) {
+                    // Single channel server export
+                    writerOptions.setIncludeAttachments(messageExportPanel.isIncludeAttachments());
+                    exportCount = parent.mirthClient.exportMessagesServer(channelId, messageFilter, pageSize, writerOptions);
+                } else {
+                    // Single channel local export or multi-channel local or server export
                     PaginatedMessageList messageList = messages;
 
                     writerOptions.setBaseFolder(SystemUtils.getUserHome().getAbsolutePath());
@@ -165,9 +175,6 @@ public class MessageExportDialog extends MirthDialog {
                     } finally {
                         messageWriter.close();
                     }
-                } else {
-                    writerOptions.setIncludeAttachments(messageExportPanel.isIncludeAttachments());
-                    exportCount = parent.mirthClient.exportMessagesServer(channelId, messageFilter, pageSize, writerOptions);
                 }
             }
 

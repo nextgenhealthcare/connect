@@ -3877,6 +3877,7 @@ public class Frame extends JXFrame {
         messageExportDialog.setChannelId(activeBrowser.getChannelId());
         messageExportDialog.setMessages(activeBrowser.getMessages());
         messageExportDialog.setIsChannelMessagesPanelFirstLoadSearch(activeBrowser.getIsChannelMessagesPanelFirstLoadSearch());
+        messageExportDialog.setSelectedMultipleChannels(activeBrowser.getSelectedMultipleChannels());
         messageExportDialog.setLocationRelativeTo(this);
         messageExportDialog.setVisible(true);
     }
