@@ -1429,6 +1429,10 @@ public class DefaultConfigurationController extends ConfigurationController {
         digester = new Digester();
         digester.setProvider(provider);
         digester.setAlgorithm(encryptionConfig.getDigestAlgorithm());
+        digester.setSaltSizeBytes(encryptionConfig.getDigestSaltSize());
+        digester.setIterations(encryptionConfig.getDigestIterations());
+        digester.setUsePBE(encryptionConfig.getDigestUsePBE());
+        digester.setKeySizeBits(encryptionConfig.getDigestKeySize());
         digester.setFormat(Output.BASE64);
 
         if (StringUtils.equalsAnyIgnoreCase(encryptionConfig.getEncryptionAlgorithm(), "AES", "DES", "DESede")) {
@@ -1461,7 +1465,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             // Generate CA cert
             X500Name caSubjectName = new X500Name("CN=Mirth Connect Certificate Authority");
-            SubjectPublicKeyInfo caSubjectKey = new SubjectPublicKeyInfo(ASN1Sequence.getInstance(caKeyPair.getPublic().getEncoded()));
+            SubjectPublicKeyInfo caSubjectKey = SubjectPublicKeyInfo.getInstance(caKeyPair.getPublic().getEncoded());
             X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(caSubjectName, BigInteger.ONE, startDate, expiryDate, caSubjectName, caSubjectKey);
             certBuilder.addExtension(org.bouncycastle.asn1.x509.Extension.basicConstraints, true, new BasicConstraints(0));
             ContentSigner sigGen = new JcaContentSignerBuilder("SHA256withRSA").setProvider(provider).build(caKeyPair.getPrivate());
@@ -1472,7 +1476,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             logger.debug("generated new key pair for SSL cert using provider: " + provider.getName());
 
             X500Name sslSubjectName = new X500Name("CN=mirth-connect");
-            SubjectPublicKeyInfo sslSubjectKey = new SubjectPublicKeyInfo(ASN1Sequence.getInstance(sslKeyPair.getPublic().getEncoded()));
+            SubjectPublicKeyInfo sslSubjectKey = SubjectPublicKeyInfo.getInstance(sslKeyPair.getPublic().getEncoded());
             X509v3CertificateBuilder sslCertBuilder = new X509v3CertificateBuilder(caSubjectName, new BigInteger(50, new SecureRandom()), startDate, expiryDate, sslSubjectName, sslSubjectKey);
             sslCertBuilder.addExtension(org.bouncycastle.asn1.x509.Extension.authorityKeyIdentifier, false, new AuthorityKeyIdentifier(caCert.getEncoded()));
             sslCertBuilder.addExtension(org.bouncycastle.asn1.x509.Extension.subjectKeyIdentifier, false, new SubjectKeyIdentifier(sslKeyPair.getPublic().getEncoded()));

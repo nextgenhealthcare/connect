@@ -27,9 +27,15 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
 
     public static final String DEFAULT_ENCRYPTION_ALGORITHM = "AES/CBC/PKCS5Padding";
     public static final String DEFAULT_ENCRYPTION_CHARSET = "UTF-8";
-    public static final String DEFAULT_DIGEST_ALGORITHM = "SHA256";
-    public static final String DEFAULT_SECURTITY_PROVIDER = BouncyCastleProvider.class.getName();
     public static final Integer DEFAULT_ENCRYPTION_KEY_LENGTH = 128;
+
+    public static final String DEFAULT_DIGEST_ALGORITHM = "PBKDF2WithHmacSHA256";
+    public static final Integer DEFAULT_DIGEST_SALT_SIZE = 8;
+    public static final Integer DEFAULT_DIGEST_ITERATIONS = 600000;
+    public static final Boolean DEFAULT_DIGEST_USE_PBE = true;
+    public static final Integer DEFAULT_DIGEST_KEY_SIZE = 256;
+
+    public static final String DEFAULT_SECURITY_PROVIDER = BouncyCastleProvider.class.getName();
 
     private static final String ENCRYPTION_EXPORT = "encryption.export";
     private static final String ENCRYPTION_PROPERTIES = "encryption.properties";
@@ -38,7 +44,13 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
     private static final String ENCRYPTION_FALLBACK_ALGORITHM = "encryption.fallback.algorithm";
     private static final String ENCRYPTION_FALLBACK_CHARSET = "encryption.fallback.charset";
     private static final String ENCRYPTION_KEY_LENGTH = "encryption.keylength";
+
     private static final String DIGEST_ALGORITHM = "digest.algorithm";
+    private static final String DIGEST_SALT_SIZE = "digest.saltsizeinbytes";
+    private static final String DIGEST_ITERATIONS = "digest.iterations";
+    private static final String DIGEST_USE_PBE = "digest.usepbe";
+    private static final String DIGEST_KEY_SIZE = "digest.keysizeinbits";
+
     private static final String SECURITY_PROVIDER = "security.provider";
 
     private Boolean encryptExport;
@@ -49,6 +61,10 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
     private String encryptionFallbackCharset;
     private Integer encryptionKeyLength;
     private String digestAlgorithm;
+    private Integer digestSaltSize;
+    private Integer digestIterations;
+    private Boolean digestUsePBE;
+    private Integer digestKeySize;
     private String securityProvider;
     private byte[] secretKey;
 
@@ -134,6 +150,38 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
         this.digestAlgorithm = digestAlgorithm;
     }
 
+    public Integer getDigestSaltSize() {
+        return digestSaltSize;
+    }
+
+    public void setDigestSaltSize(Integer digestSaltSize) {
+        this.digestSaltSize = digestSaltSize;
+    }
+
+    public Integer getDigestIterations() {
+        return digestIterations;
+    }
+
+    public void setDigestIterations(Integer digestIterations) {
+        this.digestIterations = digestIterations;
+    }
+
+    public Boolean getDigestUsePBE() {
+        return digestUsePBE;
+    }
+
+    public void setDigestUsePBE(Boolean digestUsePBE) {
+        this.digestUsePBE = digestUsePBE;
+    }
+
+    public Integer getDigestKeySize() {
+        return digestKeySize;
+    }
+
+    public void setDigestKeySize(Integer digestKeySize) {
+        this.digestKeySize = digestKeySize;
+    }
+
     public String getSecurityProvider() {
         return securityProvider;
     }
@@ -160,7 +208,11 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
         setEncryptionFallbackCharset(properties.getProperty(ENCRYPTION_FALLBACK_CHARSET, "UTF-8"));
         setEncryptionKeyLength(toIntegerObject(properties.getProperty(ENCRYPTION_KEY_LENGTH), DEFAULT_ENCRYPTION_KEY_LENGTH));
         setDigestAlgorithm(properties.getProperty(DIGEST_ALGORITHM, DEFAULT_DIGEST_ALGORITHM));
-        setSecurityProvider(properties.getProperty(SECURITY_PROVIDER, DEFAULT_SECURTITY_PROVIDER));
+        setDigestSaltSize(toIntegerObject(properties.getProperty(DIGEST_SALT_SIZE), DEFAULT_DIGEST_SALT_SIZE));
+        setDigestIterations(toIntegerObject(properties.getProperty(DIGEST_ITERATIONS), DEFAULT_DIGEST_ITERATIONS));
+        setDigestUsePBE(intToBooleanObject(properties.getProperty(DIGEST_USE_PBE), DEFAULT_DIGEST_USE_PBE));
+        setDigestKeySize(toIntegerObject(properties.getProperty(DIGEST_KEY_SIZE), DEFAULT_DIGEST_KEY_SIZE));
+        setSecurityProvider(properties.getProperty(SECURITY_PROVIDER, DEFAULT_SECURITY_PROVIDER));
     }
 
     @Override
@@ -197,6 +249,22 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
 
         if (getDigestAlgorithm() != null) {
             properties.put(DIGEST_ALGORITHM, getDigestAlgorithm());
+        }
+
+        if (getDigestSaltSize() != null) {
+            properties.put(DIGEST_SALT_SIZE, getDigestSaltSize());
+        }
+
+        if (getDigestIterations() != null) {
+            properties.put(DIGEST_ITERATIONS, getDigestIterations());
+        }
+
+        if (getDigestUsePBE() != null) {
+            properties.put(DIGEST_USE_PBE, getDigestUsePBE());
+        }
+
+        if (getDigestKeySize() != null) {
+            properties.put(DIGEST_KEY_SIZE, getDigestKeySize());
         }
 
         if (getSecurityProvider() != null) {
