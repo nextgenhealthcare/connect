@@ -29,11 +29,11 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
     public static final String DEFAULT_ENCRYPTION_CHARSET = "UTF-8";
     public static final Integer DEFAULT_ENCRYPTION_KEY_LENGTH = 128;
 
-    public static final String DEFAULT_DIGEST_ALGORITHM = "PBKDF2WithHmacSHA512";
+    public static final String DEFAULT_DIGEST_ALGORITHM = "PBKDF2WithHmacSHA256";
     public static final Integer DEFAULT_DIGEST_SALT_SIZE = 8;
     public static final Integer DEFAULT_DIGEST_ITERATIONS = 600000;
     public static final Boolean DEFAULT_DIGEST_USE_PBE = true;
-    public static final Integer DEFAULT_DIGEST_KEY_SIZE = 512;
+    public static final Integer DEFAULT_DIGEST_KEY_SIZE = 256;
 
     public static final String DEFAULT_SECURITY_PROVIDER = BouncyCastleProvider.class.getName();
 
