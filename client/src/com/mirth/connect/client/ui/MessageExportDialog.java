@@ -171,7 +171,6 @@ public class MessageExportDialog extends MirthDialog {
                         messageWriter.close();
                     }
                 } else {
-                    // JDO TTD: Continue to further test these new changes, debug and walk-through to make sure correct code paths are being followed
                     exportCount = exportToServer(writerOptions);
                 }
             }
