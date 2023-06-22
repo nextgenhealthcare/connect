@@ -66,6 +66,7 @@ public class EncryptionTest {
         Digester digester = new Digester();
         digester.setProvider(bcProv);
         digester.setAlgorithm("MD5");
+        digester.setUsePBE(false);
 
         String digest = digester.digest(message1);
         Assert.assertTrue(digester.matches(message1, digest));
