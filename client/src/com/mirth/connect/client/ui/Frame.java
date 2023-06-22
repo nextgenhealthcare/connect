@@ -246,6 +246,7 @@ public class Frame extends JXFrame {
     private boolean canSave = true;
     private RemoveMessagesDialog removeMessagesDialog;
     private MessageExportDialog messageExportDialog;
+    public  MessageExportDialog enhancedMessageExportDialog;
     private MessageImportDialog messageImportDialog;
     private AttachmentExportDialog attachmentExportDialog;
     private KeyEventDispatcher keyEventDispatcher = null;
@@ -3867,19 +3868,29 @@ public class Frame extends JXFrame {
     }
 
     public void doExportMessages() {
-        if (messageExportDialog == null) {
-            messageExportDialog = new MessageExportDialog();
-        }
+        if (activeBrowser == enhancedMessageBrowser) {
+            enhancedMessageExportDialog.setEncryptor(mirthClient.getEncryptor());
+            enhancedMessageExportDialog.setMessageFilter(activeBrowser.getMessageFilter());
+            enhancedMessageExportDialog.setPageSize(activeBrowser.getPageSize());
+            enhancedMessageExportDialog.setChannelIds(activeBrowser.getChannelIds());
+            enhancedMessageExportDialog.setMessages(activeBrowser.getMessages());
+            enhancedMessageExportDialog.setIsChannelMessagesPanelFirstLoadSearch(activeBrowser.getIsChannelMessagesPanelFirstLoadSearch());
+            enhancedMessageExportDialog.setLocationRelativeTo(this);
+            enhancedMessageExportDialog.setVisible(true);
+        } else {
+            if (messageExportDialog == null) {
+                messageExportDialog = new MessageExportDialog();
+            }
 
-        messageExportDialog.setEncryptor(mirthClient.getEncryptor());
-        messageExportDialog.setMessageFilter(activeBrowser.getMessageFilter());
-        messageExportDialog.setPageSize(activeBrowser.getPageSize());
-        messageExportDialog.setChannelId(activeBrowser.getChannelId());
-        messageExportDialog.setMessages(activeBrowser.getMessages());
-        messageExportDialog.setIsChannelMessagesPanelFirstLoadSearch(activeBrowser.getIsChannelMessagesPanelFirstLoadSearch());
-        messageExportDialog.setSelectedMultipleChannels(activeBrowser.getSelectedMultipleChannels());
-        messageExportDialog.setLocationRelativeTo(this);
-        messageExportDialog.setVisible(true);
+            messageExportDialog.setEncryptor(mirthClient.getEncryptor());
+            messageExportDialog.setMessageFilter(activeBrowser.getMessageFilter());
+            messageExportDialog.setPageSize(activeBrowser.getPageSize());
+            messageExportDialog.setChannelId(activeBrowser.getChannelId());
+            messageExportDialog.setMessages(activeBrowser.getMessages());
+            messageExportDialog.setIsChannelMessagesPanelFirstLoadSearch(activeBrowser.getIsChannelMessagesPanelFirstLoadSearch());
+            messageExportDialog.setLocationRelativeTo(this);
+            messageExportDialog.setVisible(true);
+        }
     }
 
     public void doImportMessages() {

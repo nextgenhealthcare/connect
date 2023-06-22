@@ -40,14 +40,14 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
  * Dialog containing MessageExportPanel that is used in the message browser to export messages
  */
 public class MessageExportDialog extends MirthDialog {
-    private Frame parent;
+    protected Frame parent;
     private String channelId;
-    private MessageFilter messageFilter;
-    private int pageSize;
+    protected List<String> channelIds;
+    protected MessageFilter messageFilter;
+    protected int pageSize;
     private Encryptor encryptor;
     private PaginatedMessageList messages;
     private boolean isChannelMessagesPanelFirstLoadSearch;
-    private boolean selectedMultipleChannels;
 
     public MessageExportDialog() {
         super(PlatformUI.MIRTH_FRAME);
@@ -64,6 +64,10 @@ public class MessageExportDialog extends MirthDialog {
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
+    }
+    
+    public void setChannelIds(List<String> channelIds) {
+        this.channelIds = channelIds;
     }
 
     public void setMessageFilter(MessageFilter messageFilter) {
@@ -88,10 +92,6 @@ public class MessageExportDialog extends MirthDialog {
     
     public void setIsChannelMessagesPanelFirstLoadSearch(boolean isChannelMessagesPanelFirstLoadSearch) {
         this.isChannelMessagesPanelFirstLoadSearch = isChannelMessagesPanelFirstLoadSearch;
-    }
-    
-    public void setSelectedMultipleChannels(boolean selectedMultipleChannels) {
-        this.selectedMultipleChannels = selectedMultipleChannels;
     }
 
     private void initComponents() {
@@ -147,12 +147,7 @@ public class MessageExportDialog extends MirthDialog {
 
         try {
             if (!isChannelMessagesPanelFirstLoadSearch) {
-                if (!messageExportPanel.isExportLocal() && !selectedMultipleChannels) {
-                    // Single channel server export
-                    writerOptions.setIncludeAttachments(messageExportPanel.isIncludeAttachments());
-                    exportCount = parent.mirthClient.exportMessagesServer(channelId, messageFilter, pageSize, writerOptions);
-                } else {
-                    // Single channel local export or multi-channel local or server export
+                if (messageExportPanel.isExportLocal()) {                    
                     PaginatedMessageList messageList = messages;
 
                     writerOptions.setBaseFolder(SystemUtils.getUserHome().getAbsolutePath());
@@ -175,6 +170,9 @@ public class MessageExportDialog extends MirthDialog {
                     } finally {
                         messageWriter.close();
                     }
+                } else {
+                    // JDO TTD: Continue to further test these new changes, debug and walk-through to make sure correct code paths are being followed
+                    exportCount = exportToServer(writerOptions);
                 }
             }
 
@@ -194,8 +192,14 @@ public class MessageExportDialog extends MirthDialog {
             parent.alertThrowable(parent, cause);
         }
     }
+    
+    protected int exportToServer(MessageWriterOptions writerOptions) throws ClientException {
+        // Single channel server export
+        writerOptions.setIncludeAttachments(messageExportPanel.isIncludeAttachments());
+        return parent.mirthClient.exportMessagesServer(channelId, messageFilter, pageSize, writerOptions);
+    }
 
-    private MessageExportPanel messageExportPanel;
+    protected MessageExportPanel messageExportPanel;
     private JButton exportButton;
     private JButton cancelButton;
 }
