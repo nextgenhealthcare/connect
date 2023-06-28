@@ -1,8 +1,8 @@
 /*
  * Copyright (c) Mirth Corporation. All rights reserved.
- * 
+ *
  * http://www.mirthcorp.com
- * 
+ *
  * The software in this package is published under the terms of the MPL license a copy of which has
  * been included with this distribution in the LICENSE.txt file.
  */
@@ -222,9 +222,18 @@ public class SftpConnection implements FileSystemConnection {
 
     @Override
     public boolean exists(String file, String path) {
+        if(null == file) {
+            return false;
+        }
+
         try {
             cwd(path);
-            return client.ls(".").contains(file);
+
+            @SuppressWarnings("unchecked")
+            Vector<ChannelSftp.LsEntry> entries = (Vector<ChannelSftp.LsEntry>)client.ls(".");
+
+            return entries.stream()
+                    .anyMatch(le -> file.equals(le.getFilename()));
         } catch (Exception e) {
             return false;
         }
