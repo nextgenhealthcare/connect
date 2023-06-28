@@ -235,6 +235,8 @@ public class SftpConnection implements FileSystemConnection {
             return entries.stream()
                     .anyMatch(le -> file.equals(le.getFilename()));
         } catch (Exception e) {
+            logger.warn("Failed to check for the existence of file " + file + " in path " + path + " on server " + session.getHost(), e);
+
             return false;
         }
     }
