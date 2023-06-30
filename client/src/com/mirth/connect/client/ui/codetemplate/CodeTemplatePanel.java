@@ -12,6 +12,7 @@ package com.mirth.connect.client.ui.codetemplate;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -1736,6 +1737,7 @@ public class CodeTemplatePanel extends AbstractFramePanel {
 
         templateScrollPane = new JScrollPane(templatePanel);
         templateScrollPane.setBorder(null);
+        templateScrollPane.setPreferredSize(new Dimension(templatePanel.getWidth(), templatePanel.getHeight()));
 
         templateLeftPanel = new JPanel();
         templateLeftPanel.setBackground(templatePanel.getBackground());
