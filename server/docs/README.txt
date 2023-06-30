@@ -56,9 +56,11 @@ You may also notice a security warning when starting the administrator (dialog b
 4. Running Mirth Connect in Java 9 or greater
 ==================================================
 
-In order to run Mirth Connect in Java 9 or greater, copy the options from /docs/mcservice-java9+.vmoptions and append them to either mcserver.vmoptions or mcservice.vmoptions, depending on your deployment. Then restart Mirth Connect.
+When running Mirth Connect in Java 9+, there are separate JVM options that need to be set.
 
-To run the Mirth Connect Command Line Interface, create a new file named mccommand.vmoptions in the Mirth Connect root directory. Copy all of the options from /docs/mcservice-java9+.vmoptions into mccommand.vmoptions and save before launching the Command Line Interface.
+As of version 4.4, these options will be automatically included in the Java command string as needed, when running mcserver, mcservice, or mccommand.
+
+If you are running Mirth Connect manually with your own Java command string, and you are using Java 9+, then make sure to include the options from /docs/mcservice-java9+.vmoptions.
 
 
 5. More Information

@@ -72,6 +72,21 @@ public class XStreamSerializer implements Serializer {
          */
         xstream.addPermission(AnyTypePermission.ANY);
 
+        // Including all blacklist recommendations from XStream
+        // @formatter:off
+        xstream.denyTypesByWildcard(new String[]{ "sun.reflect.**", "sun.tracing.**", "com.sun.corba.**" });
+        xstream.denyTypesByRegExp(new String[]{ ".*\\.ws\\.client\\.sei\\..*", ".*\\$ProxyLazyValue", "com\\.sun\\.jndi\\..*Enumerat(?:ion|or)", ".*\\$URLData", ".*\\.xsltc\\.trax\\.TemplatesImpl" });
+        xstream.denyTypesByRegExp(new String[]{ ".*\\.Lazy(?:Search)?Enumeration.*", "(?:java|sun)\\.rmi\\..*" });
+        xstream.denyTypes(new String[]{ "sun.awt.datatransfer.DataTransferer$IndexOrderComparator", "com.sun.tools.javac.processing.JavacProcessingEnvironment$NameProcessIterator" });
+        xstream.denyTypesByRegExp(new String[]{ ".*\\$ServiceNameIterator", "(javax|sun.swing)\\..*LazyValue", "javafx\\.collections\\.ObservableList\\$.*", ".*\\.bcel\\..*\\.util\\.ClassLoader" });
+        xstream.denyTypeHierarchy(java.io.InputStream.class );
+        xstream.denyTypeHierarchy(java.nio.channels.Channel.class );
+        xstream.denyTypeHierarchy(javax.activation.DataSource.class );
+        xstream.denyTypeHierarchy(javax.sql.rowset.BaseRowSet.class );
+        xstream.denyTypes(new String[]{ "javax.imageio.ImageIO$ContainsFilter" });
+        xstream.denyTypes(new Class[]{ java.lang.ProcessBuilder.class });
+        // @formatter:on
+
         if (classLoader != null) {
             xstream.setClassLoader(classLoader);
         }

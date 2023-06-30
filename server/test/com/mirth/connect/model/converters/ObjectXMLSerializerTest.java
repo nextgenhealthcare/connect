@@ -18,7 +18,9 @@ import org.junit.Test;
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.MapContent;
-import com.mirth.connect.server.userutil.MirthCachedRowSet;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.Xpp3Driver;
+import com.thoughtworks.xstream.security.AnyTypePermission;
 
 public class ObjectXMLSerializerTest {
 
@@ -35,7 +37,10 @@ public class ObjectXMLSerializerTest {
     public void testInvalidMapContent() throws Exception {
         ConnectorMessage connectorMessage = new ConnectorMessage();
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("key", ObjectXMLSerializer.getInstance().deserialize(CACHED_ROW_SET_XML, MirthCachedRowSet.class));
+        // Manually allow all types here to deserialize an invalid value
+        XStream xstream = new XStream(new Xpp3Driver());
+        xstream.addPermission(AnyTypePermission.ANY);
+        map.put("key", xstream.fromXML(CACHED_ROW_SET_XML));
         connectorMessage.setChannelMapContent(new MapContent(map, true));
 
         // Shouldn't cause any errors

@@ -17,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -224,6 +225,23 @@ public class ObjectXMLSerializer extends XStreamSerializer {
 
     public String getNormalizedVersion() {
         return normalizedVersion;
+    }
+
+    public void denyTypes(List<String> types, List<String> wildcardTypes) {
+        if (CollectionUtils.isNotEmpty(types)) {
+            String[] typesArray = types.toArray(new String[types.size()]);
+            getXStream().denyTypes(typesArray);
+            if (instanceWithReferences != null) {
+                instanceWithReferences.getXStream().denyTypes(typesArray);
+            }
+        }
+        if (CollectionUtils.isNotEmpty(wildcardTypes)) {
+            String[] wildcardTypesArray = wildcardTypes.toArray(new String[wildcardTypes.size()]);
+            getXStream().denyTypesByWildcard(wildcardTypesArray);
+            if (instanceWithReferences != null) {
+                instanceWithReferences.getXStream().denyTypesByWildcard(wildcardTypesArray);
+            }
+        }
     }
 
     @Override

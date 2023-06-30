@@ -190,6 +190,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String STATS_UPDATE_INTERVAL = "donkey.statsupdateinterval";
     private static final String RHINO_LANGUAGE_VERSION = "rhino.languageversion";
     private static final String SERVER_STARTUP_LOCK_SLEEP = "server.startuplocksleep";
+    private static final String XSTREAM_DENY_TYPES = "xstream.denytypes";
 
     private static final String DEFAULT_STOREPASS = "81uWxplDtB";
 
@@ -401,6 +402,22 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             startupLockSleep = NumberUtils.toInt(mirthConfig.getString(SERVER_STARTUP_LOCK_SLEEP), 0);
+
+            String[] xstreamDenyTypesArray = mirthConfig.getStringArray(XSTREAM_DENY_TYPES);
+            if (ArrayUtils.isNotEmpty(xstreamDenyTypesArray)) {
+                List<String> denyTypes = new ArrayList<String>();
+                List<String> denyWildcards = new ArrayList<String>();
+                for (String denyType : xstreamDenyTypesArray) {
+                    if (StringUtils.isNotBlank(denyType)) {
+                        if (StringUtils.contains(denyType, "*")) {
+                            denyWildcards.add(denyType);
+                        } else {
+                            denyTypes.add(denyType);
+                        }
+                    }
+                }
+                ObjectXMLSerializer.getInstance().denyTypes(denyTypes, denyWildcards);
+            }
         } catch (Exception e) {
             logger.error("Failed to initialize configuration controller", e);
         } finally {
