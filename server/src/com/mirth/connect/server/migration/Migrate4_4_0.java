@@ -32,6 +32,8 @@ public class Migrate4_4_0 extends Migrator implements ConfigurationMigrator {
             } else {
                 // Use the new algorithm, but set the old default as the fallback
                 configuration.setProperty("digest.fallback.algorithm", "SHA256");
+                configuration.getLayout().setBlancLinesBefore("digest.fallback.algorithm", 1);
+                configuration.getLayout().setComment("digest.fallback.algorithm", "Allows old digest values to be verified");
                 configuration.setProperty("digest.fallback.iterations", "1000");
                 configuration.setProperty("digest.fallback.usepbe", "0");
             }
