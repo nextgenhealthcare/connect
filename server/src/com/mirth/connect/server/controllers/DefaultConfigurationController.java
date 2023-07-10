@@ -1450,6 +1450,11 @@ public class DefaultConfigurationController extends ConfigurationController {
         digester.setIterations(encryptionConfig.getDigestIterations());
         digester.setUsePBE(encryptionConfig.getDigestUsePBE());
         digester.setKeySizeBits(encryptionConfig.getDigestKeySize());
+        digester.setFallbackAlgorithm(encryptionConfig.getDigestFallbackAlgorithm());
+        digester.setFallbackSaltSizeBytes(encryptionConfig.getDigestFallbackSaltSize());
+        digester.setFallbackIterations(encryptionConfig.getDigestFallbackIterations());
+        digester.setFallbackUsePBE(encryptionConfig.getDigestFallbackUsePBE());
+        digester.setFallbackKeySizeBits(encryptionConfig.getDigestFallbackKeySize());
         digester.setFormat(Output.BASE64);
 
         if (StringUtils.equalsAnyIgnoreCase(encryptionConfig.getEncryptionAlgorithm(), "AES", "DES", "DESede")) {

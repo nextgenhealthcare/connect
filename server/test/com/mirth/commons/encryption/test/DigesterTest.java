@@ -78,7 +78,7 @@ public class DigesterTest {
         // Hardcoded hash used 600000 iterations
         assertFalse(digester.matches("admin", HASH_PBKDF2_ADMIN));
     }
-    
+
     @Test
     public void testArgon2id() throws Exception {
         Digester digester = createDigester(new org.bouncycastle.jce.provider.BouncyCastleProvider(), "Argon2", 3);
@@ -112,7 +112,7 @@ public class DigesterTest {
         assertFalse(digester.matches("admin", HASH_ARGON2D_ADMIN));
         assertFalse(digester.matches("admin", HASH_ARGON2I_ADMIN));
     }
-    
+
     @Test
     public void testArgon2d() throws Exception {
         Digester digester = createDigester(new org.bouncycastle.jce.provider.BouncyCastleProvider(), "Argon2d", 4);
@@ -146,7 +146,7 @@ public class DigesterTest {
         assertFalse(digester.matches("admin", HASH_ARGON2I_ADMIN));
         assertFalse(digester.matches("admin", HASH_ARGON2ID_ADMIN));
     }
-    
+
     @Test
     public void testArgon2i() throws Exception {
         Digester digester = createDigester(new org.bouncycastle.jce.provider.BouncyCastleProvider(), "Argon2i", 5);
@@ -179,6 +179,87 @@ public class DigesterTest {
         assertFalse(digester.matches("admin", HASH_ARGON2I_ADMIN));
         assertFalse(digester.matches("admin", HASH_ARGON2D_ADMIN));
         assertFalse(digester.matches("admin", HASH_ARGON2ID_ADMIN));
+    }
+
+    @Test
+    public void testFallback1() throws Exception {
+        Digester digester = createDigester(new org.bouncycastle.jce.provider.BouncyCastleProvider(), "PBKDF2WithHmacSHA256", 600000, true, 256);
+
+        assertFalse(digester.matches("admin", HASH_SHA256_ADMIN));
+
+        digester.setFallbackAlgorithm("SHA256");
+
+        assertTrue(digester.matches("admin", HASH_SHA256_ADMIN));
+    }
+
+    @Test
+    public void testFallback2() throws Exception {
+        Digester digester1 = createDigester(new org.bouncycastle.jce.provider.BouncyCastleProvider(), "Argon2", 3);
+
+        String input1 = "admin";
+        String digest1 = digester1.digest(input1);
+        assertFalse(StringUtils.isBlank(digest1));
+        assertFalse(input1.equals(digest1));
+        assertTrue(digester1.matches(input1, digest1));
+
+        Digester digester2 = createDigester(new org.bouncycastle.jce.provider.BouncyCastleProvider(), "PBKDF2WithHmacSHA256", 600000, true, 256);
+
+        assertFalse(digester2.matches(input1, digest1));
+
+        digester2.setFallbackAlgorithm(digester1.getAlgorithm());
+        digester2.setFallbackSaltSizeBytes(digester1.getSaltSizeBytes());
+        digester2.setFallbackIterations(digester1.getIterations());
+        digester2.setFallbackUsePBE(digester1.isUsePBE());
+        digester2.setFallbackKeySizeBits(digester1.getKeySizeBits());
+
+        assertTrue(digester2.matches(input1, digest1));
+    }
+
+    @Test
+    public void testFallback3() throws Exception {
+        Digester digester1 = createDigester(new org.bouncycastle.jce.provider.BouncyCastleProvider(), "PBKDF2WithHmacSHA256", 600000, true, 256);
+
+        String input1 = "admin";
+        String digest1 = digester1.digest(input1);
+        assertFalse(StringUtils.isBlank(digest1));
+        assertFalse(input1.equals(digest1));
+        assertTrue(digester1.matches(input1, digest1));
+
+        Digester digester2 = createDigester(new org.bouncycastle.jce.provider.BouncyCastleProvider(), "Argon2", 3);
+
+        assertFalse(digester2.matches(input1, digest1));
+
+        digester2.setFallbackAlgorithm(digester1.getAlgorithm());
+        digester2.setFallbackSaltSizeBytes(digester1.getSaltSizeBytes());
+        digester2.setFallbackIterations(digester1.getIterations());
+        digester2.setFallbackUsePBE(digester1.isUsePBE());
+        digester2.setFallbackKeySizeBits(digester1.getKeySizeBits());
+
+        assertTrue(digester2.matches(input1, digest1));
+    }
+
+    @Test
+    public void testFallback4() throws Exception {
+        Digester digester1 = createDigester(new org.bouncycastle.jce.provider.BouncyCastleProvider(), "PBKDF2WithHmacSHA256", 2222, true, 128);
+        digester1.setSaltSizeBytes(10);
+
+        String input1 = "admin";
+        String digest1 = digester1.digest(input1);
+        assertFalse(StringUtils.isBlank(digest1));
+        assertFalse(input1.equals(digest1));
+        assertTrue(digester1.matches(input1, digest1));
+
+        Digester digester2 = createDigester(new org.bouncycastle.jce.provider.BouncyCastleProvider(), "PBKDF2WithHmacSHA256", 600000, true, 256);
+
+        assertFalse(digester2.matches(input1, digest1));
+
+        digester2.setFallbackAlgorithm(digester1.getAlgorithm());
+        digester2.setFallbackSaltSizeBytes(digester1.getSaltSizeBytes());
+        digester2.setFallbackIterations(digester1.getIterations());
+        digester2.setFallbackUsePBE(digester1.isUsePBE());
+        digester2.setFallbackKeySizeBits(digester1.getKeySizeBits());
+
+        assertTrue(digester2.matches(input1, digest1));
     }
 
     private Digester createDigester(Provider provider, String algorithm, int iterations) {
