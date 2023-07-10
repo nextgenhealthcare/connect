@@ -25,14 +25,16 @@ public class Migrate4_4_0 extends Migrator implements ConfigurationMigrator {
         if (getStartingVersion() == null || getStartingVersion().ordinal() < Version.v4_4_0.ordinal()) {
             String digestAlgorithm = configuration.getString("digest.algorithm");
 
-            // If no explicit digest algorithm was set, then default to the old SHA256 on upgrade.
-            if (StringUtils.isBlank(digestAlgorithm)) {
-                configuration.setProperty("digest.algorithm", "SHA256");
+            if (StringUtils.isNotBlank(digestAlgorithm)) {
+                // Keep the current algorithm, and set these other properties since the defaults changed.
+                configuration.setProperty("digest.iterations", "1000");
+                configuration.setProperty("digest.usepbe", "0");
+            } else {
+                // Use the new algorithm, but set the old default as the fallback
+                configuration.setProperty("digest.fallback.algorithm", "SHA256");
+                configuration.setProperty("digest.fallback.iterations", "1000");
+                configuration.setProperty("digest.fallback.usepbe", "0");
             }
-            
-            // Always set these properties on upgrade since the defaults changed.
-            configuration.setProperty("digest.iterations", "1000");
-            configuration.setProperty("digest.usepbe", "0");
         }
     }
 

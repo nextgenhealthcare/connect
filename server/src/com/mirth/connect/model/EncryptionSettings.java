@@ -51,6 +51,12 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
     private static final String DIGEST_USE_PBE = "digest.usepbe";
     private static final String DIGEST_KEY_SIZE = "digest.keysizeinbits";
 
+    private static final String DIGEST_FALLBACK_ALGORITHM = "digest.fallback.algorithm";
+    private static final String DIGEST_FALLBACK_SALT_SIZE = "digest.fallback.saltsizeinbytes";
+    private static final String DIGEST_FALLBACK_ITERATIONS = "digest.fallback.iterations";
+    private static final String DIGEST_FALLBACK_USE_PBE = "digest.fallback.usepbe";
+    private static final String DIGEST_FALLBACK_KEY_SIZE = "digest.fallback.keysizeinbits";
+
     private static final String SECURITY_PROVIDER = "security.provider";
 
     private Boolean encryptExport;
@@ -65,6 +71,11 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
     private Integer digestIterations;
     private Boolean digestUsePBE;
     private Integer digestKeySize;
+    private String digestFallbackAlgorithm;
+    private Integer digestFallbackSaltSize;
+    private Integer digestFallbackIterations;
+    private Boolean digestFallbackUsePBE;
+    private Integer digestFallbackKeySize;
     private String securityProvider;
     private byte[] secretKey;
 
@@ -182,6 +193,46 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
         this.digestKeySize = digestKeySize;
     }
 
+    public String getDigestFallbackAlgorithm() {
+        return digestFallbackAlgorithm;
+    }
+
+    public void setDigestFallbackAlgorithm(String digestFallbackAlgorithm) {
+        this.digestFallbackAlgorithm = digestFallbackAlgorithm;
+    }
+
+    public Integer getDigestFallbackSaltSize() {
+        return digestFallbackSaltSize;
+    }
+
+    public void setDigestFallbackSaltSize(Integer digestFallbackSaltSize) {
+        this.digestFallbackSaltSize = digestFallbackSaltSize;
+    }
+
+    public Integer getDigestFallbackIterations() {
+        return digestFallbackIterations;
+    }
+
+    public void setDigestFallbackIterations(Integer digestFallbackIterations) {
+        this.digestFallbackIterations = digestFallbackIterations;
+    }
+
+    public Boolean getDigestFallbackUsePBE() {
+        return digestFallbackUsePBE;
+    }
+
+    public void setDigestFallbackUsePBE(Boolean digestFallbackUsePBE) {
+        this.digestFallbackUsePBE = digestFallbackUsePBE;
+    }
+
+    public Integer getDigestFallbackKeySize() {
+        return digestFallbackKeySize;
+    }
+
+    public void setDigestFallbackKeySize(Integer digestFallbackKeySize) {
+        this.digestFallbackKeySize = digestFallbackKeySize;
+    }
+
     public String getSecurityProvider() {
         return securityProvider;
     }
@@ -212,6 +263,11 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
         setDigestIterations(toIntegerObject(properties.getProperty(DIGEST_ITERATIONS), DEFAULT_DIGEST_ITERATIONS));
         setDigestUsePBE(intToBooleanObject(properties.getProperty(DIGEST_USE_PBE), DEFAULT_DIGEST_USE_PBE));
         setDigestKeySize(toIntegerObject(properties.getProperty(DIGEST_KEY_SIZE), DEFAULT_DIGEST_KEY_SIZE));
+        setDigestFallbackAlgorithm(properties.getProperty(DIGEST_FALLBACK_ALGORITHM, "SHA256"));
+        setDigestFallbackSaltSize(toIntegerObject(properties.getProperty(DIGEST_FALLBACK_SALT_SIZE), 8));
+        setDigestFallbackIterations(toIntegerObject(properties.getProperty(DIGEST_FALLBACK_ITERATIONS), 1000));
+        setDigestFallbackUsePBE(intToBooleanObject(properties.getProperty(DIGEST_FALLBACK_USE_PBE), false));
+        setDigestFallbackKeySize(toIntegerObject(properties.getProperty(DIGEST_FALLBACK_KEY_SIZE), 256));
         setSecurityProvider(properties.getProperty(SECURITY_PROVIDER, DEFAULT_SECURITY_PROVIDER));
     }
 
@@ -265,6 +321,26 @@ public class EncryptionSettings extends AbstractSettings implements Serializable
 
         if (getDigestKeySize() != null) {
             properties.put(DIGEST_KEY_SIZE, getDigestKeySize());
+        }
+
+        if (getDigestFallbackAlgorithm() != null) {
+            properties.put(DIGEST_FALLBACK_ALGORITHM, getDigestFallbackAlgorithm());
+        }
+
+        if (getDigestFallbackSaltSize() != null) {
+            properties.put(DIGEST_FALLBACK_SALT_SIZE, getDigestFallbackSaltSize());
+        }
+
+        if (getDigestFallbackIterations() != null) {
+            properties.put(DIGEST_FALLBACK_ITERATIONS, getDigestFallbackIterations());
+        }
+
+        if (getDigestFallbackUsePBE() != null) {
+            properties.put(DIGEST_FALLBACK_USE_PBE, getDigestFallbackUsePBE());
+        }
+
+        if (getDigestFallbackKeySize() != null) {
+            properties.put(DIGEST_FALLBACK_KEY_SIZE, getDigestFallbackKeySize());
         }
 
         if (getSecurityProvider() != null) {

@@ -35,6 +35,13 @@ public class Digester {
     private boolean usePBE = true;
     private int keySizeBits = DEFAULT_KEY_SIZE_BITS;
 
+    private String fallbackAlgorithm;
+    private int fallbackSaltSizeBytes = 8;
+    private int fallbackIterations = 1000;
+    private boolean fallbackUsePBE = false;
+    private int fallbackKeySizeBits = 256;
+    private Digester fallbackDigester;
+
     // Typically shouldn't need to be changed
     private Charset charset = Charset.forName(System.getProperty("mirth.digester.charset", StandardCharsets.UTF_8.name()));
 
@@ -60,6 +67,54 @@ public class Digester {
 
     public void setFormat(Output format) {
         this.format = format;
+    }
+
+    public String getFallbackAlgorithm() {
+        return fallbackAlgorithm;
+    }
+
+    public void setFallbackAlgorithm(String fallbackAlgorithm) {
+        this.fallbackAlgorithm = fallbackAlgorithm;
+    }
+
+    public int getFallbackSaltSizeBytes() {
+        return fallbackSaltSizeBytes;
+    }
+
+    public void setFallbackSaltSizeBytes(Integer fallbackSaltSizeBytes) {
+        if (fallbackSaltSizeBytes != null) {
+            this.fallbackSaltSizeBytes = fallbackSaltSizeBytes;
+        }
+    }
+
+    public int getFallbackIterations() {
+        return fallbackIterations;
+    }
+
+    public void setFallbackIterations(Integer fallbackIterations) {
+        if (fallbackIterations != null) {
+            this.fallbackIterations = fallbackIterations;
+        }
+    }
+
+    public boolean isFallbackUsePBE() {
+        return fallbackUsePBE;
+    }
+
+    public void setFallbackUsePBE(Boolean fallbackUsePBE) {
+        if (fallbackUsePBE != null) {
+            this.fallbackUsePBE = fallbackUsePBE;
+        }
+    }
+
+    public int getFallbackKeySizeBits() {
+        return fallbackKeySizeBits;
+    }
+
+    public void setFallbackKeySizeBits(Integer fallbackKeySizeBits) {
+        if (fallbackKeySizeBits != null) {
+            this.fallbackKeySizeBits = fallbackKeySizeBits;
+        }
     }
 
     public SecureRandom getSaltGenerator() {
@@ -191,6 +246,27 @@ public class Digester {
     }
 
     public boolean matches(final String message, final String digest) throws EncryptionException {
+        boolean matches = false;
+        EncryptionException firstCause = null;
+        try {
+            matches = doMatches(message, digest);
+        } catch (EncryptionException e) {
+            firstCause = e;
+        }
+
+        if (!matches && getFallback() != null) {
+            // Try fallback algorithm
+            try {
+                matches = getFallback().matches(message, digest);
+            } catch (EncryptionException e) {
+                throw firstCause != null ? firstCause : e;
+            }
+        }
+
+        return matches;
+    }
+
+    private boolean doMatches(final String message, final String digest) throws EncryptionException {
         try {
             byte[] digestBytes = null;
 
@@ -210,5 +286,19 @@ public class Digester {
         byte[] salt = new byte[saltSizeBytes];
         System.arraycopy(digest, 0, salt, 0, saltSizeBytes);
         return Arrays.equals(digest(message, salt), digest);
+    }
+
+    private Digester getFallback() {
+        if (fallbackDigester == null && fallbackAlgorithm != null) {
+            fallbackDigester = new Digester();
+            fallbackDigester.setProvider(provider);
+            fallbackDigester.setAlgorithm(fallbackAlgorithm);
+            fallbackDigester.setSaltSizeBytes(fallbackSaltSizeBytes);
+            fallbackDigester.setIterations(fallbackIterations);
+            fallbackDigester.setUsePBE(fallbackUsePBE);
+            fallbackDigester.setKeySizeBits(fallbackKeySizeBits);
+            fallbackDigester.setFormat(format);
+        }
+        return fallbackDigester;
     }
 }
