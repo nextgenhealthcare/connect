@@ -38,7 +38,6 @@
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-vocab.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/file/webdavclient4j-core-0.92.jar"/>
-	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc8-12.2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.55.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-core-2.0.29.jar"/>
@@ -270,5 +269,7 @@
 	<classpathentry kind="lib" path="lib/rhino-1.7.13.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-fileupload-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.4.19.jar"/>
+	<classpathentry kind="lib" path="lib/xercesImpl-2.12.2.jar"/>
+	<classpathentry kind="lib" path="lib/xml-apis-1.4.01.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
