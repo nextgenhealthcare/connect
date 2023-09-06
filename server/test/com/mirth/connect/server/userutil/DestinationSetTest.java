@@ -53,32 +53,6 @@ public class DestinationSetTest {
         return new DestinationSet(icm);
     }
 
-    // @Test
-    // public void validateAssumptionsEmptySet() throws Exception {
-    //     HashSet<Integer> set = new HashSet<>();
-
-    //     assertFalse(set.addAll(Collections.emptyList()));
-
-    //     assertFalse(set.contains(null));
-
-    //     assertTrue(set.containsAll(Collections.emptyList()));
-    //     assertFalse(set.containsAll(Arrays.asList("Invalid")));
-    //     assertFalse(set.containsAll(Collections.singleton(null)));
-    // }
-
-    // @Test
-    // public void validateAssumptionsPopulatedSet() throws Exception {
-    //     HashSet<Integer> set = new HashSet<>(Arrays.asList(1,2,3,4,5));
-
-    //     assertFalse(set.addAll(Collections.emptyList()));
-
-    //     assertFalse(set.contains(null));
-
-    //     assertTrue(set.containsAll(Collections.emptyList()));
-    //     assertFalse(set.containsAll(Arrays.asList("Invalid")));
-    //     assertFalse(set.containsAll(Collections.singleton(null)));
-    // }
-
     @Test
     public void testIsEmptyWithoutSourceMapKey() throws Exception {
         DestinationSet ds = getNewTestDestinationSetUsing(new Integer[0]);
@@ -136,7 +110,6 @@ public class DestinationSetTest {
         assertEquals(4, ds.size());
         assertTrue(ds.addAll(Arrays.asList(5, 6)));
         assertEquals(6, ds.size());
-        //TODO is this what we want?
         assertFalse(ds.addAll(null));
         assertEquals(6, ds.size());
     }
@@ -177,7 +150,6 @@ public class DestinationSetTest {
         assertFalse(ds.containsAll(Arrays.asList(4, 5)));
         assertFalse(ds.containsAll(Arrays.asList("Invalid")));
         assertFalse(ds.containsAll(Collections.singleton(null)));
-        //TODO is this what we want?
         assertFalse(ds.containsAll(null));
     }
 
@@ -221,7 +193,6 @@ public class DestinationSetTest {
         assertFalse(ds.remove(Arrays.asList(6)));
         assertEquals(0, ds.size());
         assertFalse(ds.iterator().hasNext());
-        //TODO is this what we want?
         assertFalse(ds.remove((Collection<Object>)null));
         assertEquals(0, ds.size());
         assertFalse(ds.iterator().hasNext());
@@ -266,7 +237,6 @@ public class DestinationSetTest {
         assertFalse(ds.removeAll(Arrays.asList(6,7,8)));
         assertEquals(2, ds.size());
         assertTrue(ds.iterator().hasNext());
-        //TODO is this what we want?
         assertFalse(ds.removeAll((Collection<Integer>)null));
         assertEquals(2, ds.size());
         assertTrue(ds.iterator().hasNext());
@@ -303,7 +273,6 @@ public class DestinationSetTest {
     public void testRemoveAllExceptCollectionWithNullCollection() throws Exception {
         DestinationSet ds = getNewTestDestinationSet();
 
-        //TODO is this what we want?
         assertFalse(ds.removeAllExcept((Collection<Object>)null));
         assertEquals(3, ds.size());
         assertTrue(ds.iterator().hasNext());
@@ -329,7 +298,6 @@ public class DestinationSetTest {
     public void testRemoveAllExceptObjectWithNull() throws Exception {
         DestinationSet ds = getNewTestDestinationSet();
 
-        //TODO is this what we want?
         assertTrue(ds.removeAllExcept((Object)null));
         assertEquals(0, ds.size());
         assertFalse(ds.iterator().hasNext());
@@ -364,7 +332,6 @@ public class DestinationSetTest {
     public void testRetainAllWithNullCollection() throws Exception {
         DestinationSet ds = getNewTestDestinationSet();
 
-        //TODO is this what we want?
         assertFalse(ds.retainAll((Collection<Object>)null));
         assertEquals(3, ds.size());
         assertTrue(ds.iterator().hasNext());

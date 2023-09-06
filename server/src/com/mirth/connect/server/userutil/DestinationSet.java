@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -62,14 +61,6 @@ public class DestinationSet implements Set<Integer> {
      */
     public boolean remove(Object metaDataIdOrConnectorName) {
         return remove(Collections.singleton(metaDataIdOrConnectorName));
-
-        // Optional<Integer> metaDataId = convertToMetaDataId(metaDataIdOrConnectorName);
-
-        // if (metaDataId.isPresent()) {
-        //     return metaDataIds.remove(metaDataId.get());
-        // }
-
-        // return false;
     }
 
     /**
@@ -91,26 +82,6 @@ public class DestinationSet implements Set<Integer> {
             .map(metaDataIds::remove)
             .filter(Boolean::booleanValue)
             .count() > 0;
-
-        // boolean removed = false;
-        // for(Object item : metaDataIdOrConnectorNames) {
-        //     Optional<Integer> m = convertToMetaDataId(item);
-        //     if(m.isPresent() && metaDataIds.remove(m.get())) {
-        //         removed = true;
-        //     }
-        // }
-        // return removed;
-
-        //working
-        // boolean removed = false;
-
-        // for (Object metaDataIdOrConnectorName : metaDataIdOrConnectorNames) {
-        //     if (remove(metaDataIdOrConnectorName)) {
-        //         removed = true;
-        //     }
-        // }
-
-        // return removed;
     }
 
     /**
@@ -123,8 +94,6 @@ public class DestinationSet implements Set<Integer> {
      *         from processing for this message.
      */
     public boolean removeAllExcept(Object metaDataIdOrConnectorName) {
-        //Optional<Integer> metaDataId = convertToMetaDataId(metaDataIdOrConnectorName);
-        //return metaDataId.isPresent() && metaDataIds.retainAll(Collections.singleton(metaDataId.get()));
         return removeAllExcept(Collections.singleton(metaDataIdOrConnectorName));
     }
 
@@ -243,17 +212,11 @@ public class DestinationSet implements Set<Integer> {
 
     @Override
     public boolean retainAll(Collection<?> metaDataIdOrConnectorNames) {
-        //List<Object> objList = metaDataIdOrConnectorNames.stream().map(m -> (Object)m).collect(Collectors.toList());
-        //return removeAllExcept(objList);
-
         return removeAllExcept((Collection<Object>)metaDataIdOrConnectorNames);
     }
 
     @Override
     public boolean removeAll(Collection<?> metaDataIdOrConnectorNames) {
-        //List<Object> list = metaDataIdOrConnectorNames.stream().map(m -> (Object)m).collect(Collectors.toList());
-        //return remove(list);
-
         return remove((Collection<Object>)metaDataIdOrConnectorNames);
     }
 
