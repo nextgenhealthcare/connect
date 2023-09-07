@@ -223,19 +223,19 @@
 	<classpathentry kind="lib" path="lib/aws/sdk-core-2.15.28.jar"/>
 	<classpathentry kind="lib" path="lib/aws/sts-2.15.28.jar"/>
 	<classpathentry kind="lib" path="lib/aws/utils-2.15.28.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-buffer-4.1.53.Final.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-codec-4.1.53.Final.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-codec-http2-4.1.53.Final.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-codec-http-4.1.53.Final.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-common-4.1.53.Final.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-handler-4.1.53.Final.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-nio-client-2.15.28.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-reactive-streams-2.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-reactive-streams-http-2.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-resolver-4.1.53.Final.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-transport-4.1.53.Final.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-transport-native-epoll-4.1.53.Final-linux-x86_64.jar"/>
-	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-transport-native-unix-common-4.1.53.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-buffer-4.1.97.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-codec-4.1.97.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-codec-http2-4.1.97.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-codec-http-4.1.97.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-common-4.1.97.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-handler-4.1.97.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-nio-client-2.20.140.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-reactive-streams-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-reactive-streams-http-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-resolver-4.1.97.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-transport-4.1.97.Final.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-transport-native-epoll-4.1.97.Final-linux-x86_64.jar"/>
+	<classpathentry kind="lib" path="lib/aws/ext/netty/netty-transport-native-unix-common-4.1.97.Final.jar"/>
 	<classpathentry kind="lib" path="lib/aws/ext/reactive-streams-1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons/httpclient-4.5.13.jar"/>
 	<classpathentry kind="lib" path="lib/commons/httpmime-4.5.13.jar"/>
