@@ -194,9 +194,9 @@
 	<classpathentry kind="lib" path="lib/commons-text-1.10.0.jar"/>
 	<classpathentry kind="lib" path="lib/regions-2.15.28.jar"/>
 	<classpathentry kind="lib" path="lib/utils-2.15.28.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-annotations-2.11.3.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-core-2.11.3.jar"/>
-	<classpathentry kind="lib" path="lib/jackson-databind-2.11.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.14.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.14.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.14.3.jar"/>
 	<classpathentry kind="lib" path="lib/httpclient-4.5.13.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.5.13.jar"/>
 	<classpathentry kind="lib" path="/Donkey/lib/slf4j-api-1.7.30.jar"/>
