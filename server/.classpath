@@ -239,12 +239,12 @@
 	<classpathentry kind="lib" path="lib/aws/ext/reactive-streams-1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons/httpclient-4.5.13.jar"/>
 	<classpathentry kind="lib" path="lib/commons/httpmime-4.5.13.jar"/>
-	<classpathentry kind="lib" path="lib/jackson/jackson-annotations-2.11.3.jar"/>
-	<classpathentry kind="lib" path="lib/jackson/jackson-core-2.11.3.jar"/>
-	<classpathentry kind="lib" path="lib/jackson/jackson-databind-2.11.3.jar"/>
-	<classpathentry kind="lib" path="lib/jackson/jackson-dataformat-cbor-2.11.3.jar"/>
-	<classpathentry kind="lib" path="lib/jackson/jackson-dataformat-yaml-2.11.3.jar"/>
-	<classpathentry kind="lib" path="lib/jackson/jackson-datatype-jsr310-2.11.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson/jackson-annotations-2.14.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson/jackson-core-2.14.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson/jackson-databind-2.14.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson/jackson-dataformat-cbor-2.14.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson/jackson-dataformat-yaml-2.14.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson/jackson-datatype-jsr310-2.14.3.jar"/>
 	<classpathentry kind="lib" path="/Donkey/lib/slf4j-api-1.7.30.jar"/>
 	<classpathentry kind="lib" path="lib/aws/metrics-spi-2.15.28.jar"/>
 	<classpathentry kind="lib" path="lib/database/postgresql-42.2.19.jar"/>
