@@ -145,7 +145,7 @@
 	<classpathentry kind="lib" path="/Server/setup/client-lib/userutil-sources.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout-swing-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout-core-4.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons-beanutils-1.9.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-beanutils-1.9.4.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-engine-core-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-generic-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration2-2.7.jar"/>
