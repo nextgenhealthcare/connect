@@ -84,7 +84,7 @@ public class DICOMViewer extends AttachmentViewer {
 
     @Override
     public boolean isContentTypeViewable(String contentType) {
-        return org.apache.commons.lang.StringUtils.containsIgnoreCase(contentType, "dicom");
+        return org.apache.commons.lang3.StringUtils.containsIgnoreCase(contentType, "dicom");
     }
 
     @Override
