@@ -11,7 +11,7 @@ package com.mirth.connect.client.ui.reference;
 
 import java.util.UUID;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.ui.components.rsta.ac.MirthCompletion;
 import com.mirth.connect.model.codetemplates.CodeTemplate;
