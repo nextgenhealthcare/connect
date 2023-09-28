@@ -13,7 +13,7 @@
 	<classpathentry kind="lib" path="lib/extensions/doc/itext-rtf-2.1.7.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.9.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-cli-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons/commons-configuration2-2.7.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-configuration2-2.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-dbcp2-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-dbutils-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-digester3-3.2.jar"/>
@@ -197,13 +197,13 @@
 	<classpathentry kind="lib" path="lib/bcprov-ext-jdk18on-171.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk18on-171.jar"/>
 	<classpathentry kind="lib" path="lib/bcutil-jdk18on-171.jar"/>
-	<classpathentry kind="lib" path="lib/commons/commons-vfs2-2.1.jar">
+	<classpathentry kind="lib" path="lib/commons/commons-vfs2-2.9.0.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/proper/commons-vfs/apidocs"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons/commons-compress-1.17.jar"/>
-	<classpathentry kind="lib" path="lib/commons/commons-codec-1.13.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-codec-1.16.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons/httpcore-4.4.13.jar"/>
 	<classpathentry kind="lib" path="lib/database/mssql-jdbc-8.4.1.jre8.jar"/>
 	<classpathentry kind="lib" path="lib/aws/annotations-2.15.28.jar"/>
