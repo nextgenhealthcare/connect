@@ -66,7 +66,7 @@
 	<classpathentry kind="lib" path="testlib/javax.inject-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="testlib/aopalliance-repackaged-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/guice-4.1.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons/commons-codec-1.13.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-codec-1.16.0.jar"/>
 	<classpathentry kind="lib" path="lib/guava/checker-qual-2.10.0.jar"/>
 	<classpathentry kind="lib" path="lib/guava/error_prone_annotations-2.3.4.jar"/>
 	<classpathentry kind="lib" path="lib/guava/failureaccess-1.0.1.jar"/>
