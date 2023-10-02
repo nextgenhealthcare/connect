@@ -1027,7 +1027,7 @@
 
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
-				<attribute name="Class-Path" value="server-lib/commons/commons-io-2.6.jar server-lib/commons/commons-configuration2-2.8.0.jar server-lib/commons/commons-lang3-3.13.0.jar server-lib/commons/commons-logging-1.2.jar server-lib/commons/commons-beanutils-1.9.4.jar server-lib/commons/commons-text-1.10.0.jar server-lib/commons/commons-collections-3.2.2.jar conf/" />
+				<attribute name="Class-Path" value="server-lib/commons/commons-io-2.13.0.jar server-lib/commons/commons-configuration2-2.8.0.jar server-lib/commons/commons-lang3-3.13.0.jar server-lib/commons/commons-logging-1.2.jar server-lib/commons/commons-beanutils-1.9.4.jar server-lib/commons/commons-text-1.10.0.jar server-lib/commons/commons-collections-3.2.2.jar conf/" />
 			</manifest>
 		</jar>
 		
@@ -1154,6 +1154,7 @@
 					<include name="log4j-1.2.16.jar" />
 					<include name="database/derby-10.10.2.0.jar" />
 					<include name="database/derbytools-10.10.2.0.jar" />
+					<!-- why is this 2.3? LMI -->
 					<include name="commons/commons-io-2.3.jar" />
 				</fileset>
 			</classpath>
