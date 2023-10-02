@@ -26,7 +26,7 @@ import javax.swing.text.html.StyleSheet;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
