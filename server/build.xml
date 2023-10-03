@@ -1154,8 +1154,7 @@
 					<include name="log4j-1.2.16.jar" />
 					<include name="database/derby-10.10.2.0.jar" />
 					<include name="database/derbytools-10.10.2.0.jar" />
-					<!-- why is this 2.3? LMI -->
-					<include name="commons/commons-io-2.3.jar" />
+					<include name="commons/commons-io-2.13.0.jar" />
 				</fileset>
 			</classpath>
 			<arg value="dbconf/derby/derby-database.sql" />
