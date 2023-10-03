@@ -227,6 +227,36 @@ public class ObjectXMLSerializer extends XStreamSerializer {
         return normalizedVersion;
     }
 
+    public void allowTypes(List<String> types, List<String> wildcardTypes, List<String> typeHierarchies) {
+        if (CollectionUtils.isNotEmpty(types)) {
+            String[] typesArray = types.toArray(new String[types.size()]);
+            getXStream().allowTypes(typesArray);
+            if (instanceWithReferences != null) {
+                instanceWithReferences.getXStream().allowTypes(typesArray);
+            }
+        }
+        if (CollectionUtils.isNotEmpty(wildcardTypes)) {
+            String[] wildcardTypesArray = wildcardTypes.toArray(new String[wildcardTypes.size()]);
+            getXStream().allowTypesByWildcard(wildcardTypesArray);
+            if (instanceWithReferences != null) {
+                instanceWithReferences.getXStream().allowTypesByWildcard(wildcardTypesArray);
+            }
+        }
+        if (CollectionUtils.isNotEmpty(typeHierarchies)) {
+            for (String typeHierarchy : typeHierarchies) {
+                try {
+                    Class<?> type = Class.forName(typeHierarchy);
+                    getXStream().allowTypeHierarchy(type);
+                    if (instanceWithReferences != null) {
+                        instanceWithReferences.getXStream().allowTypeHierarchy(type);
+                    }
+                } catch (Throwable t) {
+                    logger.error("Unable to allow custom type hierachy: " + typeHierarchy, t);
+                }
+            }
+        }
+    }
+
     public void denyTypes(List<String> types, List<String> wildcardTypes) {
         if (CollectionUtils.isNotEmpty(types)) {
             String[] typesArray = types.toArray(new String[types.size()]);
