@@ -191,6 +191,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String RHINO_LANGUAGE_VERSION = "rhino.languageversion";
     private static final String SERVER_STARTUP_LOCK_SLEEP = "server.startuplocksleep";
     private static final String XSTREAM_DENY_TYPES = "xstream.denytypes";
+    private static final String XSTREAM_ALLOW_TYPES = "xstream.allowtypes";
+    private static final String XSTREAM_ALLOW_TYPE_HIERARCHIES = "xstream.allowtypehierarchies";
 
     private static final String DEFAULT_STOREPASS = "81uWxplDtB";
 
@@ -407,16 +409,55 @@ public class DefaultConfigurationController extends ConfigurationController {
             if (ArrayUtils.isNotEmpty(xstreamDenyTypesArray)) {
                 List<String> denyTypes = new ArrayList<String>();
                 List<String> denyWildcards = new ArrayList<String>();
-                for (String denyType : xstreamDenyTypesArray) {
-                    if (StringUtils.isNotBlank(denyType)) {
-                        if (StringUtils.contains(denyType, "*")) {
-                            denyWildcards.add(denyType);
-                        } else {
-                            denyTypes.add(denyType);
+                for (String denyTypeElement : xstreamDenyTypesArray) {
+                    if (StringUtils.isNotBlank(denyTypeElement)) {
+                        for (String denyType : StringUtils.split(denyTypeElement, ',')) {
+                            if (StringUtils.isNotBlank(denyType)) {
+                                if (StringUtils.containsAny(denyType, '*', '?')) {
+                                    denyWildcards.add(denyType);
+                                } else {
+                                    denyTypes.add(denyType);
+                                }
+                            }
                         }
                     }
                 }
                 ObjectXMLSerializer.getInstance().denyTypes(denyTypes, denyWildcards);
+            }
+
+            String[] xstreamAllowTypesArray = mirthConfig.getStringArray(XSTREAM_ALLOW_TYPES);
+            String[] xstreamAllowTypeHierarchiesArray = mirthConfig.getStringArray(XSTREAM_ALLOW_TYPE_HIERARCHIES);
+            if (ArrayUtils.isNotEmpty(xstreamAllowTypesArray) || ArrayUtils.isNotEmpty(xstreamAllowTypeHierarchiesArray)) {
+                List<String> allowTypes = new ArrayList<String>();
+                List<String> allowWildcards = new ArrayList<String>();
+                List<String> typeHierarchies = new ArrayList<String>();
+                if (ArrayUtils.isNotEmpty(xstreamAllowTypesArray)) {
+                    for (String allowTypeElement : xstreamAllowTypesArray) {
+                        if (StringUtils.isNotBlank(allowTypeElement)) {
+                            for (String allowType : StringUtils.split(allowTypeElement, ',')) {
+                                if (StringUtils.isNotBlank(allowType)) {
+                                    if (StringUtils.containsAny(allowType, '*', '?')) {
+                                        allowWildcards.add(allowType);
+                                    } else {
+                                        allowTypes.add(allowType);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (ArrayUtils.isNotEmpty(xstreamAllowTypeHierarchiesArray)) {
+                    for (String allowTypeHierarchyElement : xstreamAllowTypeHierarchiesArray) {
+                        if (StringUtils.isNotBlank(allowTypeHierarchyElement)) {
+                            for (String allowTypeHierarchy : StringUtils.split(allowTypeHierarchyElement, ',')) {
+                                if (StringUtils.isNotBlank(allowTypeHierarchy)) {
+                                    typeHierarchies.add(allowTypeHierarchy);
+                                }
+                            }
+                        }
+                    }
+                }
+                ObjectXMLSerializer.getInstance().allowTypes(allowTypes, allowWildcards, typeHierarchies);
             }
         } catch (Exception e) {
             logger.error("Failed to initialize configuration controller", e);
