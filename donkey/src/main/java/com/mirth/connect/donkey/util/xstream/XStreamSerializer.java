@@ -28,7 +28,6 @@ import com.thoughtworks.xstream.core.util.HierarchicalStreams;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
-import com.thoughtworks.xstream.security.AnyTypePermission;
 
 public class XStreamSerializer implements Serializer {
 
@@ -65,27 +64,14 @@ public class XStreamSerializer implements Serializer {
             xstream = new XStream(new Xpp3Driver());
         }
 
-        /*
-         * Allow all types to be unmarshalled. Users can put anything they want into the
-         * channel/connector map etc, and those objects need to be unmarshalled by XStream when
-         * reading from the database.
-         */
-        xstream.addPermission(AnyTypePermission.ANY);
-
-        // Including all blacklist recommendations from XStream
-        // @formatter:off
-        xstream.denyTypesByWildcard(new String[]{ "sun.reflect.**", "sun.tracing.**", "com.sun.corba.**" });
-        xstream.denyTypesByRegExp(new String[]{ ".*\\.ws\\.client\\.sei\\..*", ".*\\$ProxyLazyValue", "com\\.sun\\.jndi\\..*Enumerat(?:ion|or)", ".*\\$URLData", ".*\\.xsltc\\.trax\\.TemplatesImpl" });
-        xstream.denyTypesByRegExp(new String[]{ ".*\\.Lazy(?:Search)?Enumeration.*", "(?:java|sun)\\.rmi\\..*" });
-        xstream.denyTypes(new String[]{ "sun.awt.datatransfer.DataTransferer$IndexOrderComparator", "com.sun.tools.javac.processing.JavacProcessingEnvironment$NameProcessIterator" });
-        xstream.denyTypesByRegExp(new String[]{ ".*\\$ServiceNameIterator", "(javax|sun.swing)\\..*LazyValue", "javafx\\.collections\\.ObservableList\\$.*", ".*\\.bcel\\..*\\.util\\.ClassLoader" });
-        xstream.denyTypeHierarchy(java.io.InputStream.class );
-        xstream.denyTypeHierarchy(java.nio.channels.Channel.class );
-        xstream.denyTypeHierarchy(javax.activation.DataSource.class );
-        xstream.denyTypeHierarchy(javax.sql.rowset.BaseRowSet.class );
-        xstream.denyTypes(new String[]{ "javax.imageio.ImageIO$ContainsFilter" });
-        xstream.denyTypes(new Class[]{ java.lang.ProcessBuilder.class });
-        // @formatter:on
+        xstream.allowTypes(new String[] { "java.awt.Color" });
+        xstream.allowTypes(new Class[] { com.thoughtworks.xstream.mapper.Mapper.Null.class });
+        xstream.allowTypesByWildcard(new String[] { "com.mirth.connect.client.core.**",
+                "com.mirth.connect.connectors.**", "com.mirth.connect.model.**",
+                "com.mirth.connect.plugins.**", "com.mirth.connect.util.**",
+                "com.mirth.connect.userutil.**", "com.mirth.connect.donkey.model.**",
+                "com.mirth.connect.donkey.util.**", "com.mirth.connect.jsonbuilder.**",
+                "com.mirth.generator.model.**" });
 
         if (classLoader != null) {
             xstream.setClassLoader(classLoader);
