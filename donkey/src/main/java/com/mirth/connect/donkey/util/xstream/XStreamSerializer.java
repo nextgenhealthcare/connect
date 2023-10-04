@@ -71,7 +71,7 @@ public class XStreamSerializer implements Serializer {
                 "com.mirth.connect.plugins.**", "com.mirth.connect.util.**",
                 "com.mirth.connect.userutil.**", "com.mirth.connect.donkey.model.**",
                 "com.mirth.connect.donkey.util.**", "com.mirth.connect.jsonbuilder.**",
-                "com.mirth.generator.model.**" });
+                "com.mirth.generator.model.**", "java.security.**" });
 
         if (classLoader != null) {
             xstream.setClassLoader(classLoader);
