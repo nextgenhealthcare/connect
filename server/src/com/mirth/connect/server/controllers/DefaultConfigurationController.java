@@ -405,26 +405,6 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             startupLockSleep = NumberUtils.toInt(mirthConfig.getString(SERVER_STARTUP_LOCK_SLEEP), 0);
 
-            String[] xstreamDenyTypesArray = mirthConfig.getStringArray(XSTREAM_DENY_TYPES);
-            if (ArrayUtils.isNotEmpty(xstreamDenyTypesArray)) {
-                List<String> denyTypes = new ArrayList<String>();
-                List<String> denyWildcards = new ArrayList<String>();
-                for (String denyTypeElement : xstreamDenyTypesArray) {
-                    if (StringUtils.isNotBlank(denyTypeElement)) {
-                        for (String denyType : StringUtils.split(denyTypeElement, ',')) {
-                            if (StringUtils.isNotBlank(denyType)) {
-                                if (StringUtils.containsAny(denyType, '*', '?')) {
-                                    denyWildcards.add(denyType);
-                                } else {
-                                    denyTypes.add(denyType);
-                                }
-                            }
-                        }
-                    }
-                }
-                ObjectXMLSerializer.getInstance().denyTypes(denyTypes, denyWildcards);
-            }
-
             String[] xstreamAllowTypesArray = mirthConfig.getStringArray(XSTREAM_ALLOW_TYPES);
             String[] xstreamAllowTypeHierarchiesArray = mirthConfig.getStringArray(XSTREAM_ALLOW_TYPE_HIERARCHIES);
             if (ArrayUtils.isNotEmpty(xstreamAllowTypesArray) || ArrayUtils.isNotEmpty(xstreamAllowTypeHierarchiesArray)) {
@@ -458,6 +438,26 @@ public class DefaultConfigurationController extends ConfigurationController {
                     }
                 }
                 ObjectXMLSerializer.getInstance().allowTypes(allowTypes, allowWildcards, typeHierarchies);
+            }
+
+            String[] xstreamDenyTypesArray = mirthConfig.getStringArray(XSTREAM_DENY_TYPES);
+            if (ArrayUtils.isNotEmpty(xstreamDenyTypesArray)) {
+                List<String> denyTypes = new ArrayList<String>();
+                List<String> denyWildcards = new ArrayList<String>();
+                for (String denyTypeElement : xstreamDenyTypesArray) {
+                    if (StringUtils.isNotBlank(denyTypeElement)) {
+                        for (String denyType : StringUtils.split(denyTypeElement, ',')) {
+                            if (StringUtils.isNotBlank(denyType)) {
+                                if (StringUtils.containsAny(denyType, '*', '?')) {
+                                    denyWildcards.add(denyType);
+                                } else {
+                                    denyTypes.add(denyType);
+                                }
+                            }
+                        }
+                    }
+                }
+                ObjectXMLSerializer.getInstance().denyTypes(denyTypes, denyWildcards);
             }
         } catch (Exception e) {
             logger.error("Failed to initialize configuration controller", e);
