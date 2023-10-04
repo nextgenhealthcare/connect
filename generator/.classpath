@@ -22,7 +22,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.13.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-io-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.13.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
