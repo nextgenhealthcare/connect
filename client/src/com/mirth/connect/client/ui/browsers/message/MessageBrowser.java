@@ -1772,6 +1772,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         try {
             final String attachmentId = getSelectedAttachmentId();
             final Long messageId = getSelectedMessageId();
+            final String selectedChannelId = getSelectedMessageChannelId();
             final String contentType = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 1);
 
             if (LoadedExtensions.getInstance().getAttachmentViewerPlugins().size() > 0) {
@@ -1795,7 +1796,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                         @Override
                         public Void doInBackground() {
-                            finalAttachmentViewer.viewAttachments(channelId, messageId, attachmentId);
+                            finalAttachmentViewer.viewAttachments(selectedChannelId, messageId, attachmentId);
                             return null;
                         }
 
