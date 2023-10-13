@@ -13,6 +13,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -20,6 +22,7 @@ import javax.swing.JSeparator;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
@@ -127,6 +130,13 @@ public class MessageExportDialog extends MirthDialog {
         add(cancelButton, "width 60");
     }
 
+    /**
+     * JDO TTD:
+     * Do we still want to create the README for all MC users and not just the ones that have the CURES or Enhancement Plugins?
+     * If the exportCount == 0, do we still want to create the README?
+     * Do we need to encrypt the README if the user checks Encrypt Content?
+     * At the end where we output the number of messages that have been exported, do we want to increment that number to account for the new README.txt file?
+     */
     private void export() {        
         String errorMessage = messageExportPanel.validate(true);
         if (StringUtils.isNotEmpty(errorMessage)) {
@@ -183,6 +193,12 @@ public class MessageExportDialog extends MirthDialog {
             } else if (exportCount == 0) {
                 parent.alertInformation(parent, "There are no messages to export.");
             } else {
+                File file = new File(writerOptions.getRootFolder() + System.getProperty("file.separator") + "README.txt");
+                String content = "Details pertaining to the Mirth Connect export file format can be found at https://www.nextgen.com/sldkjljieo0935jljsrnfkl."; 
+                if (!file.exists()) {
+                    FileUtils.writeStringToFile(file, content, Charset.defaultCharset());
+                }
+                
                 parent.alertInformation(parent, exportCount + " message" + ((exportCount == 1) ? " has" : "s have") + " been successfully exported to: " + writerOptions.getRootFolder());
             }
         } catch (Exception e) {
