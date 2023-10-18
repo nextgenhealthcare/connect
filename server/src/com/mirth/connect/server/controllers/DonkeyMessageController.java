@@ -481,7 +481,7 @@ public class DonkeyMessageController extends MessageController {
             }
         };
 
-        messageList.setPageSize(pageSize);
+        messageList.setPageSize(pageSize == 0 ? 100 : pageSize);
 
         try {
             MessageWriter messageWriter = MessageWriterFactory.getInstance().getMessageWriter(options, ConfigurationController.getInstance().getEncryptor());

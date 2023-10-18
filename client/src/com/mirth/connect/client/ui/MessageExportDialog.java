@@ -127,14 +127,6 @@ public class MessageExportDialog extends MirthDialog {
         add(cancelButton, "width 60");
     }
 
-    /**
-     * JDO TTD:
-     * If the exportCount == 0, do we still want to create the README? No
-     * Do we need to encrypt the README if the user checks Encrypt Content? No
-     * At the end where we output the number of messages that have been exported, do we want to increment that number to account for the new README.txt file? 
-     *  We don't want to increment the count but do we want to add an additional message to the export pop-up box that notifies the user the number and location of their exported files? Ask to team
-     * Do we also want to update the timestamp on the EXPORTREADME.txt when we copy it over from docs? Ask to team
-     */
     private void export() {        
         String errorMessage = messageExportPanel.validate(true);
         if (StringUtils.isNotEmpty(errorMessage)) {
