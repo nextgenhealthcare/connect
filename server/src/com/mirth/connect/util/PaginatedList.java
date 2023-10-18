@@ -28,7 +28,7 @@ public abstract class PaginatedList<T> extends ArrayList<T> {
      * Set the maximum number of items that can be contained in a page
      */
     public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
+        this.pageSize = pageSize <= 0 ? 100 : pageSize;
     }
 
     /**
