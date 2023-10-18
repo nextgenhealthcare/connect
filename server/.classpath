@@ -202,7 +202,7 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/proper/commons-vfs/apidocs"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons/commons-compress-1.17.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-compress-1.24.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-codec-1.16.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons/httpcore-4.4.13.jar"/>
 	<classpathentry kind="lib" path="lib/database/mssql-jdbc-8.4.1.jre8.jar"/>
