@@ -97,20 +97,15 @@ public class MessageExporter {
      * @return void
      */
     public synchronized void writeExportReadMe(MessageWriterOptions options) throws InterruptedException, MessageExportException {
-        String file = null;
-        if (ClassPathResource.getResourceURI("docs") != null) {
-            file = ClassPathResource.getResourceURI("docs").getPath();
-        } else {
-            file = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent() + File.separator + "docs";
-        }
+        String docsDirectory = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent() + File.separator + "docs";
         
-        File sourceFile = new File(file + File.separator + "EXPORTREADME.txt");
+        File sourceFile = new File(docsDirectory + File.separator + "EXPORTREADME.txt");
         File destinationDirectory = new File(options.getRootFolder());
         try {
             FileUtils.copyFileToDirectory(sourceFile, destinationDirectory);
         } catch(Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);
-            throw new MessageExportException("Failed to export message: " + cause.getMessage(), cause);
+            throw new MessageExportException("Failed to export the EXPORTREADME.txt file: " + cause.getMessage(), cause);
         }
     }
 
