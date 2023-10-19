@@ -97,7 +97,7 @@ public class MessageExporter {
      * @return void
      */
     public synchronized void writeExportReadMe(MessageWriterOptions options) throws InterruptedException, MessageExportException {
-        String docsDirectory = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent() + File.separator + "docs";
+        String docsDirectory = new File(this.getClass().getClassLoader().getResource("mirth.properties").getFile()).getParentFile().getParent() + File.separator + "docs";
         
         File sourceFile = new File(docsDirectory + File.separator + "EXPORTREADME.txt");
         File destinationDirectory = new File(options.getRootFolder());
