@@ -77,13 +77,19 @@ public class MessageWriterArchive implements MessageWriter {
                 File tempFile = new File(archiveFile.getParent() + IOUtils.DIR_SEPARATOR + "." + archiveFile.getName());
                 
                 if (tempFile.exists()) {
-                    FileUtils.forceDelete(tempFile);
+                    try {
+                        FileUtils.forceDelete(tempFile);   
+                    } catch (IOException e) {
+                    }
                 }
 
                 ArchiveUtils.createArchive(rootFolder, tempFile, archiver, compressor, password, encryptionType);
 
-                if (archiveFile.exists()) { 
-                    FileUtils.forceDelete(archiveFile);
+                if (archiveFile.exists()) {
+                    try {
+                        FileUtils.forceDelete(archiveFile);
+                    } catch (IOException e) {
+                    }
                 }
                 
                 FileUtils.moveFile(tempFile, archiveFile);
