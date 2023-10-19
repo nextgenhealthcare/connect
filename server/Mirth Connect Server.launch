@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
     <stringAttribute key="bad_container_name" value="\Server\eclipse-runconfig"/>
-    <booleanAttribute key="org.eclipse.debug.core.ATTR_FORCE_SYSTEM_CONSOLE_ENCODING" value="false"/>
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
         <listEntry value="/Server/src/com/mirth/connect/server/Mirth.java"/>
     </listAttribute>
@@ -15,5 +14,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.mirth.connect.server.Mirth"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="Server"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Server"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx512m&#13;&#10;-Djava.awt.headless=true&#13;&#10;-Dapple.awt.UIElement=true"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx512m&#10;-Djava.awt.headless=true&#10;-Dapple.awt.UIElement=true&#10;--add-modules=java.sql.rowset&#10;--add-exports=java.base/com.sun.crypto.provider=ALL-UNNAMED&#10;--add-exports=java.base/sun.security.provider=ALL-UNNAMED&#10;--add-opens=java.base/java.lang=ALL-UNNAMED&#10;--add-opens=java.base/java.lang.reflect=ALL-UNNAMED&#10;--add-opens=java.base/java.math=ALL-UNNAMED&#10;--add-opens=java.base/java.net=ALL-UNNAMED&#10;--add-opens=java.base/java.security=ALL-UNNAMED&#10;--add-opens=java.base/java.security.cert=ALL-UNNAMED&#10;--add-opens=java.base/java.text=ALL-UNNAMED&#10;--add-opens=java.base/java.util=ALL-UNNAMED&#10;--add-opens=java.base/sun.security.pkcs=ALL-UNNAMED&#10;--add-opens=java.base/sun.security.rsa=ALL-UNNAMED&#10;--add-opens=java.base/sun.security.x509=ALL-UNNAMED&#10;--add-opens=java.desktop/java.awt=ALL-UNNAMED&#10;--add-opens=java.desktop/java.awt.color=ALL-UNNAMED&#10;--add-opens=java.desktop/java.awt.font=ALL-UNNAMED&#10;--add-opens=java.xml/com.sun.org.apache.xalan.internal.xsltc.trax=ALL-UNNAMED"/>
 </launchConfiguration>
