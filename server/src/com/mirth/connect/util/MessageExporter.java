@@ -98,14 +98,7 @@ public class MessageExporter {
      * @return void
      */
     public synchronized void writeExportReadMe(MessageWriterOptions options) throws InterruptedException, MessageExportException {
-        String docsDirectory = new File(this.getClass().getClassLoader().getResource("mirth.properties").getFile()).getParentFile().getParent() + File.separator + "docs";
-
-        try {
-            docsDirectory = URLDecoder.decode(docsDirectory, "UTF-8");
-        } catch (UnsupportedEncodingException e1) {
-        }
-        
-        File sourceFile = new File(docsDirectory + File.separator + "EXPORTREADME.txt");
+        File sourceFile = new File(this.getClass().getResource("EXPORTREADME.txt").getFile());
         File destinationDirectory = new File(options.getRootFolder());
         try {
             FileUtils.copyFileToDirectory(sourceFile, destinationDirectory);
