@@ -103,6 +103,7 @@
 		<copy todir="${classes}/com/mirth/connect/util">
 			<fileset dir="${src}/com/mirth/connect/util">
 				<include name="*.js" />
+				<include name="*.txt" />
 			</fileset>
 		</copy>
 	</target>
