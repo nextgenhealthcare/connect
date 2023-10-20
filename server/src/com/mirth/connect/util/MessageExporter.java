@@ -10,8 +10,7 @@
 package com.mirth.connect.util;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -98,10 +97,10 @@ public class MessageExporter {
      * @return void
      */
     public synchronized void writeExportReadMe(MessageWriterOptions options) throws InterruptedException, MessageExportException {
-        File sourceFile = new File(this.getClass().getResource("EXPORTREADME.txt").getFile());
-        File destinationDirectory = new File(options.getRootFolder());
+        InputStream input = this.getClass().getResourceAsStream("EXPORTREADME.txt");
+        File exportReadMeFile = new File(options.getRootFolder() + File.separator + "EXPORTREADME.txt");
         try {
-            FileUtils.copyFileToDirectory(sourceFile, destinationDirectory);
+            FileUtils.copyInputStreamToFile(input, exportReadMeFile);
         } catch(Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);
             throw new MessageExportException("Failed to export the EXPORTREADME.txt file: " + cause.getMessage(), cause);
