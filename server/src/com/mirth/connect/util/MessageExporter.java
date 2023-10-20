@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.mirth.connect.donkey.model.message.Message;
@@ -97,8 +98,11 @@ public class MessageExporter {
      * @return void
      */
     public synchronized void writeExportReadMe(MessageWriterOptions options) throws InterruptedException, MessageExportException {
+        String baseFolder = StringUtils.defaultString(options.getBaseFolder(), System.getProperty("user.dir"));
+        String rootFolder = FilenameUtils.getAbsolutePath(new File(baseFolder), options.getRootFolder());
         InputStream input = this.getClass().getResourceAsStream("EXPORTREADME.txt");
-        File exportReadMeFile = new File(options.getRootFolder() + File.separator + "EXPORTREADME.txt");
+        File exportReadMeFile = new File(rootFolder + File.separator + "EXPORTREADME.txt");
+        
         try {
             FileUtils.copyInputStreamToFile(input, exportReadMeFile);
         } catch(Exception e) {
