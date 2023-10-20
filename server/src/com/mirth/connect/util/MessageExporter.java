@@ -10,6 +10,8 @@
 package com.mirth.connect.util;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -19,7 +21,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.ThreadUtils;
-import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.util.messagewriter.AttachmentSource;
 import com.mirth.connect.util.messagewriter.MessageWriter;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
@@ -98,6 +99,11 @@ public class MessageExporter {
      */
     public synchronized void writeExportReadMe(MessageWriterOptions options) throws InterruptedException, MessageExportException {
         String docsDirectory = new File(this.getClass().getClassLoader().getResource("mirth.properties").getFile()).getParentFile().getParent() + File.separator + "docs";
+
+        try {
+            docsDirectory = URLDecoder.decode(docsDirectory, "UTF-8");
+        } catch (UnsupportedEncodingException e1) {
+        }
         
         File sourceFile = new File(docsDirectory + File.separator + "EXPORTREADME.txt");
         File destinationDirectory = new File(options.getRootFolder());
