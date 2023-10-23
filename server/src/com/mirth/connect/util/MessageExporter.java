@@ -9,9 +9,13 @@
 
 package com.mirth.connect.util;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.mirth.connect.donkey.model.message.Message;
@@ -19,6 +23,7 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.util.ThreadUtils;
 import com.mirth.connect.util.messagewriter.AttachmentSource;
 import com.mirth.connect.util.messagewriter.MessageWriter;
+import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
 public class MessageExporter {
     private int numExported;
@@ -41,7 +46,7 @@ public class MessageExporter {
      *            The message writer to write messages to
      * @return A list of the message ids that were exported.
      */
-    public synchronized int exportMessages(PaginatedList<Message> messageList, MessageWriter messageWriter, AttachmentSource attachmentSource) throws InterruptedException, MessageExportException {
+    public synchronized int exportMessages(PaginatedList<Message> messageList, MessageWriter messageWriter, AttachmentSource attachmentSource, MessageWriterOptions options) throws InterruptedException, MessageExportException {
         int pageNumber = 0;
         numExported = 0;
 
@@ -77,8 +82,33 @@ public class MessageExporter {
                 }
             }
         } while (messageList.hasNextPage());
-
+        
+        if (numExported > 0) {
+            writeExportReadMe(options);
+        }
+        
         return numExported;
+    }
+    
+    /**
+     * Exports the EXPORTREADME.txt
+     * 
+     * @param options
+     *            The message writer options that contains the options from the MessageExportDialog screen
+     * @return void
+     */
+    public synchronized void writeExportReadMe(MessageWriterOptions options) throws InterruptedException, MessageExportException {
+        String baseFolder = StringUtils.defaultString(options.getBaseFolder(), System.getProperty("user.dir"));
+        String rootFolder = FilenameUtils.getAbsolutePath(new File(baseFolder), options.getRootFolder());
+        InputStream input = this.getClass().getResourceAsStream("EXPORTREADME.txt");
+        File exportReadMeFile = new File(rootFolder + File.separator + "EXPORTREADME.txt");
+        
+        try {
+            FileUtils.copyInputStreamToFile(input, exportReadMeFile);
+        } catch(Exception e) {
+            Throwable cause = ExceptionUtils.getRootCause(e);
+            throw new MessageExportException("Failed to export the EXPORTREADME.txt file: " + cause.getMessage(), cause);
+        }
     }
 
     public static class MessageExportException extends Exception {
