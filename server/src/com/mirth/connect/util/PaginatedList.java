@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class PaginatedList<T> extends ArrayList<T> {
-    private static final int DEFAULT_PAGE_SIZE = 100; 
+    private static final int DEFAULT_PAGE_SIZE = 100;
     private int pageSize = 0;
     private int pageNumber = 1;
     private boolean hasNextPage = false;
@@ -29,7 +29,7 @@ public abstract class PaginatedList<T> extends ArrayList<T> {
      * Set the maximum number of items that can be contained in a page
      */
     public void setPageSize(int pageSize) {
-        this.pageSize = pageSize <= 0 ? DEFAULT_PAGE_SIZE : pageSize; 
+        this.pageSize = pageSize <= 0 ? DEFAULT_PAGE_SIZE : pageSize;
     }
 
     /**
