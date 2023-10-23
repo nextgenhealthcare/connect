@@ -1364,7 +1364,7 @@ public class CommandLineInterface {
                     };
                 }
 
-                messageCount = new MessageExporter().exportMessages(messageList, messageWriter, attachmentSource);
+                messageCount = new MessageExporter().exportMessages(messageList, messageWriter, attachmentSource, writerOptions); 
                 messageWriter.finishWrite();
             } catch (Exception e) {
                 Throwable cause = ExceptionUtils.getRootCause(e);
