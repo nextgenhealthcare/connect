@@ -33,9 +33,9 @@ import javax.swing.tree.TreePath;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
