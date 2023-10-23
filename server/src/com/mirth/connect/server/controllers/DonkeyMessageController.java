@@ -497,7 +497,7 @@ public class DonkeyMessageController extends MessageController {
             }
 
             try {
-                int numExported = new MessageExporter().exportMessages(messageList, messageWriter, attachmentSource, options);
+                int numExported = new MessageExporter().exportMessages(messageList, messageWriter, attachmentSource);
                 messageWriter.finishWrite();
                 return numExported;
             } finally {

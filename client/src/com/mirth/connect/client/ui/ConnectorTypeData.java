@@ -9,7 +9,7 @@
 
 package com.mirth.connect.client.ui;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class ConnectorTypeData {
 

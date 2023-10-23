@@ -165,7 +165,7 @@ public class MessageExportDialog extends MirthDialog {
                     }
 
                     try {
-                        exportCount = new MessageExporter().exportMessages(messageList, messageWriter, attachmentSource, writerOptions);
+                        exportCount = new MessageExporter().exportMessages(messageList, messageWriter, attachmentSource);
                         messageWriter.finishWrite();
                     } finally {
                         messageWriter.close();

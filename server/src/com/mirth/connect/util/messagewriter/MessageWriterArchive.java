@@ -11,6 +11,7 @@ package com.mirth.connect.util.messagewriter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -74,19 +75,23 @@ public class MessageWriterArchive implements MessageWriter {
         if (messagesWritten) {
             try {
                 File tempFile = new File(archiveFile.getParent() + IOUtils.DIR_SEPARATOR + "." + archiveFile.getName());
-
-                try {
-                    FileUtils.forceDelete(tempFile);
-                } catch (FileNotFoundException e) {
+                
+                if (tempFile.exists()) {
+                    try {
+                        FileUtils.forceDelete(tempFile);   
+                    } catch (IOException e) {
+                    }
                 }
 
                 ArchiveUtils.createArchive(rootFolder, tempFile, archiver, compressor, password, encryptionType);
 
-                try {
-                    FileUtils.forceDelete(archiveFile);
-                } catch (FileNotFoundException e) {
+                if (archiveFile.exists()) {
+                    try {
+                        FileUtils.forceDelete(archiveFile);
+                    } catch (IOException e) {
+                    }
                 }
-
+                
                 FileUtils.moveFile(tempFile, archiveFile);
             } catch (Exception e) {
                 throw new MessageWriterException(e);
