@@ -37,7 +37,7 @@ APACHE-LICENSE-2.0.txt):
 	Netty 4.1.41 [Mirth Connect only]
 	Not-Going-To-Be-Commons-SSL 0.3.18
 	Quartz Scheduler 2.1.7 [Mirth Connect only]
-	SQLite JDBC Driver 3.7.2 [Mirth Connect only] (https://bitbucket.org/xerial/sqlite-jdbc)
+	SQLite JDBC Driver 3.43.2.1 [Mirth Connect only] (https://github.com/xerial/sqlite-jdbc)
 	StAXON 1.3 [Mirth Connect only] (https://github.com/beckchr/staxon)
 	Swagger Core 2.0.10 (https://github.com/swagger-api/swagger-core)
 	Swagger UI 2.2.10 (http://swagger.io/swagger-ui/)
@@ -1174,7 +1174,7 @@ Mirth Connect.
 
 
 The license below pertains to a portion of the software included with the SQLite
-JDBC Driver 3.7.2, which is included with Mirth Connect.
+JDBC Driver 3.43.2.1, which is included with Mirth Connect.
 
 =================== Beginning of License ===================
 
