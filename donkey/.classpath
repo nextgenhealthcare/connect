@@ -81,7 +81,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.7.30.jar"/>
-	<classpathentry kind="lib" path="lib/database/postgresql-42.2.19.jar"/>
+	<classpathentry kind="lib" path="lib/database/postgresql-42.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/xstream-1.4.19.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
