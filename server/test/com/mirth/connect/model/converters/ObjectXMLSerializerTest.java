@@ -9,6 +9,8 @@
 
 package com.mirth.connect.model.converters;
 
+import static org.junit.Assert.fail;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +48,37 @@ public class ObjectXMLSerializerTest {
         // Shouldn't cause any errors
         String xml = ObjectXMLSerializer.getInstance().serialize(connectorMessage);
         ObjectXMLSerializer.getInstance().deserialize(xml, ConnectorMessage.class);
+    }
+
+    @Test
+    public void testDisallowedTypes() throws Exception {
+        // Internal server classes
+        testDisallowedType("com.mirth.connect.server.Mirth");
+        testDisallowedType("com.mirth.connect.server.builders.JavaScriptBuilder");
+        testDisallowedType("com.mirth.connect.server.tools.ScriptRunner");
+
+        // Internal Java classes
+        testDisallowedType("java.lang.Thread");
+        testDisallowedType("java.lang.ProcessBuilder");
+        testDisallowedType("java.io.InputStream");
+        testDisallowedType("java.nio.channels.Channel");
+        testDisallowedType("javax.activation.DataSource");
+        testDisallowedType("javax.sql.rowset.BaseRowSet");
+        testDisallowedType("javax.mail.internet.MimeMessage");
+
+        // Third-party libraries
+        testDisallowedType("org.apache.commons.io.IO");
+        testDisallowedType("org.eclipse.jetty.server.HttpConnectionFactory");
+        testDisallowedType("software.amazon.awssdk.services.s3.model.CopyObjectRequest");
+    }
+
+    private void testDisallowedType(String className) {
+        try {
+            // Should throw an exception
+            ObjectXMLSerializer.getInstance().deserialize("<" + className + "/>", Class.forName(className));
+            fail("Deserializing " + className + " should have failed, but didn't.");
+        } catch (Exception ignore) {
+        }
     }
 
     // @formatter:off

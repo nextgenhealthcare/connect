@@ -246,7 +246,7 @@
 	<classpathentry kind="lib" path="lib/jackson/jackson-datatype-jsr310-2.14.3.jar"/>
 	<classpathentry kind="lib" path="/Donkey/lib/slf4j-api-1.7.30.jar"/>
 	<classpathentry kind="lib" path="lib/aws/metrics-spi-2.15.28.jar"/>
-	<classpathentry kind="lib" path="lib/database/postgresql-42.2.19.jar"/>
+	<classpathentry kind="lib" path="lib/database/postgresql-42.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/openhtmltopdf-core-1.0.9.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/openhtmltopdf-pdfbox-1.0.9.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/xmpbox-2.0.24.jar"/>
