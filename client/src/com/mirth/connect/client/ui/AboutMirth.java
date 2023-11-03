@@ -83,7 +83,7 @@ public class AboutMirth extends MirthDialog {
         content.append("This product includes the JCIFS SMB client library in Java version 1.3.17, copyright (C) 2002  \"Michael B. Allen\" <jcifs at samba dot org> and \"Eric Glass\" <jcifs at samba dot org>, licensed under the LGPL version 2.1 (http://www.gnu.org/licenses/lgpl-2.1.html).\n\n");
         content.append("This product includes the Pdf-renderer library (https://java.net/projects/pdf-renderer/), portions copyright Sun Microsystems, Inc., Pirion Systems Pty Ltd, intarsys consulting GmbH and Adobe Systems Incorporated. It is licensed under the LGPL version 2.1 (http://www.gnu.org/licenses/lgpl-2.1.html).\n\n");
         content.append("This product includes software developed by the JDOM Project (http://www.jdom.org/).\n\n");
-        content.append("This product includes software developed by xerial.org (Taro L. Saito) (https://bitbucket.org/xerial/sqlite-jdbc).\n\n");
+        content.append("This product includes software developed by xerial.org (Taro L. Saito) (https://github.com/xerial/sqlite-jdbc).\n\n");
         content.append("This product includes the SwingLabs SwingX library, copyright (c) 2005-2006 Sun Microsystems, Inc., licensed under the LGPL version 2.1 (http://www.gnu.org/licenses/lgpl-2.1.html).\n\n");
         content.append("This product includes libraries from OpenJFX, which is licensed under the GNU General Public License version 2, with the Classpath Exception (http://openjdk.java.net/legal/gplv2+ce.html). The source code for OpenJFX is available at: http://jdk.java.net/openjfx/\n\n");
 
