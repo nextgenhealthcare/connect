@@ -173,7 +173,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private List<Integer> selectedMetaDataIds;
 
 
-    private Boolean use24hourNotation = true;
+    private Boolean use24hourNotation = false;
 
     /**
      * Constructs the new message browser and sets up its default information/layout
@@ -253,6 +253,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             public void propertyChange(PropertyChangeEvent arg0) {
                 allDayCheckBox.setEnabled(mirthDatePicker1.getDate() != null || mirthDatePicker2.getDate() != null);
                 mirthTimePicker1.setEnabled(mirthDatePicker1.getDate() != null && !allDayCheckBox.isSelected());
+                hourNotation24.setEnabled(mirthDatePicker1.getDate() != null || mirthDatePicker2.getDate() != null);
             }
         });
 
@@ -261,6 +262,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             public void propertyChange(PropertyChangeEvent arg0) {
                 allDayCheckBox.setEnabled(mirthDatePicker1.getDate() != null || mirthDatePicker2.getDate() != null);
                 mirthTimePicker2.setEnabled(mirthDatePicker2.getDate() != null && !allDayCheckBox.isSelected());
+                hourNotation24.setEnabled(mirthDatePicker1.getDate() != null || mirthDatePicker2.getDate() != null);
             }
         });
 
