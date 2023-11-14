@@ -95,7 +95,7 @@ public class EventBrowser extends javax.swing.JPanel {
     private Map<Integer, String> userMapById = new LinkedHashMap<Integer, String>();
     private SwingWorker<Void, Void> worker;
 
-    private Boolean use24hourNotation = false;
+    private Boolean use24hourNotation = true;
     /**
      * Constructs the new event browser and sets up its default information/layout.
      */
@@ -585,7 +585,7 @@ public class EventBrowser extends javax.swing.JPanel {
         endDatePicker.setDate(null);
         nameField.setText("");
         allDayCheckBox.setSelected(false);
-        hourNotation24.setSelected(false);
+        hourNotation24.setSelected(true);
         levelBoxInformation.setSelected(false);
         levelBoxWarning.setSelected(false);
         levelBoxError.setSelected(false);

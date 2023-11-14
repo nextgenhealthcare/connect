@@ -173,7 +173,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     private List<Integer> selectedMetaDataIds;
 
 
-    private Boolean use24hourNotation = false;
+    private Boolean use24hourNotation = true;
 
     /**
      * Constructs the new message browser and sets up its default information/layout
@@ -428,7 +428,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         textSearchField.setText("");
         regexTextSearchCheckBox.setSelected(false);
         allDayCheckBox.setSelected(false);
-        hourNotation24.setSelected(false);
+        hourNotation24.setSelected(true);
         statusBoxReceived.setSelected(false);
         statusBoxTransformed.setSelected(false);
         statusBoxFiltered.setSelected(false);
