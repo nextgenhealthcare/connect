@@ -57,7 +57,7 @@
 	<classpathentry kind="lib" path="lib/database/mysql-connector-j-8.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/HikariCP-2.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.26.0-GA.jar"/>
-	<classpathentry kind="lib" path="lib/quartz-all-2.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/quartz-2.3.2.jar"/>
 	<classpathentry kind="lib" path="testlib/junit-4.8.1.jar"/>
 	<classpathentry kind="lib" path="testlib/mockito-core-2.7.9.jar"/>
 	<classpathentry kind="lib" path="testlib/byte-buddy-1.8.8.jar"/>

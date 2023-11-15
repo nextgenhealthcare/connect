@@ -36,7 +36,7 @@ APACHE-LICENSE-2.0.txt):
 	MyBatis 3.1.1 [Mirth Connect only]
 	Netty 4.1.41 [Mirth Connect only]
 	Not-Going-To-Be-Commons-SSL 0.3.18
-	Quartz Scheduler 2.1.7 [Mirth Connect only]
+	Quartz Scheduler 2.3.2 [Mirth Connect only]
 	SQLite JDBC Driver 3.43.2.1 [Mirth Connect only] (https://github.com/xerial/sqlite-jdbc)
 	StAXON 1.3 [Mirth Connect only] (https://github.com/beckchr/staxon)
 	Swagger Core 2.0.10 (https://github.com/swagger-api/swagger-core)
