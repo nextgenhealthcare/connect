@@ -41,7 +41,7 @@ APACHE-LICENSE-2.0.txt):
 	Swagger Core 2.0.10 (https://github.com/swagger-api/swagger-core)
 	Swagger UI 2.2.10 (http://swagger.io/swagger-ui/)
 	webdavclient4j 0.92 [Mirth Connect only] (http://sourceforge.net/projects/webdavclient4j/)
-	Woodstox 5.0.3 [Mirth Connect only] (https://github.com/FasterXML/woodstox)
+	Woodstox 6.5.1 [Mirth Connect only] (https://github.com/FasterXML/woodstox)
 	Zip4j 1.3.3 (http://www.lingala.net/zip4j/)
 
 
