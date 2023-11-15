@@ -200,7 +200,7 @@
         SUBSTRING(CHANNEL.CHANNEL, POSITION (<![CDATA['<port>']]> IN CHANNEL.CHANNEL )+6, 
         (POSITION (<![CDATA['</port>']]> IN CHANNEL.CHANNEL) - POSITION (<![CDATA['<port>']]> IN CHANNEL.CHANNEL)) - 6) AS PORTSTRING
         FROM CHANNEL
-        WHERE CHANNEL.CHANNEL LIKE '%listenerConnectorProperties%';
+        WHERE CHANNEL.CHANNEL LIKE <![CDATA['%<listenerConnectorProperties%']]>;
 	</query>
 	
 </queries>

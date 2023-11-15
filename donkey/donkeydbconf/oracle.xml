@@ -335,7 +335,7 @@
 		(
 		SELECT ID, TO_CHAR(SUBSTR(CHANNEL.CHANNEL, 1, 1000)) AS SUBSTRING 
 		FROM CHANNEL 
-		WHERE CHANNEL.CHANNEL LIKE '%listenerConnectorProperties%'
+		WHERE CHANNEL.CHANNEL LIKE <![CDATA['%<listenerConnectorProperties%']]>
 		) CHANNELTEMP ON CHANNEL.ID = CHANNELTEMP.ID
 	</query>
 </queries>
