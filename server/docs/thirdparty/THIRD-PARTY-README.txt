@@ -28,7 +28,6 @@ APACHE-LICENSE-2.0.txt):
 	HikariCP 2.3.2 [Mirth Connect only]
 	J2ObjC Annotations 1.3 [Mirth Connect only] (https://github.com/google/j2objc/)
 	Jackson Project (https://github.com/FasterXML/jackson)
-	Jasypt 1.7.1 [Mirth Connect only]
 	Java Native Access (JNA) 4.5.2 [Mirth Connect only] (https://github.com/java-native-access/jna)
 	Jetty 9.4.44 [Mirth Connect only]
 	Joda-Time 2.2 [Mirth Connect only]
