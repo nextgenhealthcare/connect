@@ -149,7 +149,7 @@
 	<classpathentry kind="lib" path="lib/autocomplete-2.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/language_support.jar"/>
 	<classpathentry kind="lib" path="lib/javaparser-1.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/quartz-all-2.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/quartz-2.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/jai_imageio.jar"/>
 	<classpathentry kind="lib" path="lib/javax.ws.rs-api-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-client-2.22.1.jar"/>
