@@ -103,7 +103,7 @@ public class JsonXmlUtilTest {
             "       \"@attr2\": \"some attribute 2\"\n" + 
             "   }\n" + 
             "}";
-	private static String EXPECTED_XML_FROM_JSON_1 = "<?xml version='1.0' encoding='UTF-8'?><key1 attr1=\"some attribute\" attr2=\"some attribute 2\"><prop1>some property</prop1></key1>";
-	private static String EXPECTED_NESTED_XML_FROM_JSON_1= "<?xml version='1.0' encoding='UTF-8'?><key1 attr1=\"some attribute\" attr2=\"some attribute 2\"><prop1 attrN1=\"valN1\" attrN3=\"valN3\"><propN1>valN2</propN1></prop1></key1>";
+	private static String EXPECTED_XML_FROM_JSON_1 = "<?xml version=\"1.0\" ?><key1 attr1=\"some attribute\" attr2=\"some attribute 2\"><prop1>some property</prop1></key1>";
+	private static String EXPECTED_NESTED_XML_FROM_JSON_1= "<?xml version=\"1.0\" ?><key1 attr1=\"some attribute\" attr2=\"some attribute 2\"><prop1 attrN1=\"valN1\" attrN3=\"valN3\"><propN1>valN2</propN1></prop1></key1>";
 
 }
