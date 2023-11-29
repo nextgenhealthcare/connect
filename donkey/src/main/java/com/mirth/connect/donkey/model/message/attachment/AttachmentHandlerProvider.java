@@ -9,6 +9,8 @@
 
 package com.mirth.connect.donkey.model.message.attachment;
 
+import java.util.Map;
+
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.server.channel.Channel;
 
@@ -19,6 +21,8 @@ public interface AttachmentHandlerProvider {
     public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach);
 
     public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach, boolean localOnly);
+
+    public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach, boolean localOnly, Map<String, Attachment> remainingAttachments);
 
     public String reAttachMessage(ConnectorMessage message, boolean reattach);
 

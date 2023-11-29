@@ -62,7 +62,11 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
     }
 
     public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach, boolean localOnly) {
-        return reAttachMessage(raw, new ImmutableConnectorMessage(connectorMessage), charsetEncoding, binary, reattach, localOnly);
+        return reAttachMessage(raw, connectorMessage, charsetEncoding, binary, reattach, localOnly, null);
+    }
+
+    public byte[] reAttachMessage(String raw, ConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach, boolean localOnly, Map<String, Attachment> remainingAttachments) {
+        return reAttachMessage(raw, new ImmutableConnectorMessage(connectorMessage), charsetEncoding, binary, reattach, localOnly, remainingAttachments);
     }
 
     @Override
@@ -93,6 +97,26 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
     public byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach) {
         return reAttachMessage(raw, connectorMessage, charsetEncoding, binary, reattach, false);
     }
+    
+    public byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach, boolean localOnly) {
+        return reAttachMessage(raw, connectorMessage, charsetEncoding, binary, reattach, localOnly, null);
+    }
+    
+    private Map<String, Attachment> loadLocalAttachments(ImmutableConnectorMessage connectorMessage, Map<String, Attachment> remainingAttachments) throws MessageSerializerException {
+        List<Attachment> list = getMessageAttachments(connectorMessage);
+
+        // Store the attachments in a map with the attachment's Id as the key
+        Map<String, Attachment> attachmentMap = new HashMap<String, Attachment>();
+        for (Attachment attachment : list) {
+            attachmentMap.put(attachment.getId(), attachment);
+
+            if (remainingAttachments != null) {
+                remainingAttachments.put(attachment.getId(), attachment);
+            }
+        }
+        
+        return attachmentMap;
+    }
 
     /**
      * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
@@ -116,10 +140,13 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
      * @param localOnly
      *            If true, only local attachment tokens will be replaced, and expanded tokens will
      *            be ignored. This is for the use-case of reprocessing messages.
+     * @param remainingAttachments
+     *            If not-null, then this map will be populated with all local message attachments
+     *            that were not actually replaced in the message.
      * @return The resulting message as a byte array, with all applicable attachment content
      *         re-inserted.
      */
-    public byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach, boolean localOnly) {
+    public byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach, boolean localOnly, Map<String, Attachment> remainingAttachments) {
         try {
             Map<Integer, Map<Integer, Object>> replacementObjects = new TreeMap<Integer, Map<Integer, Object>>();
             // Determine the buffersize during the first pass for better memory performance
@@ -128,7 +155,12 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
             int endIndex;
             // Initialize the objects here so only one retrieval of the attachment content is ever needed.
             byte[] dicomObject = null;
+
             Map<String, Attachment> attachmentMap = null;
+            // If remainingAttachments is passed in, then always initialize the local attachments
+            if (remainingAttachments != null) {
+                attachmentMap = loadLocalAttachments(connectorMessage, remainingAttachments);
+            }
 
             // Handle the special case if only a dicom message is requested. 
             // In this case we can skip any byte appending and thus do not need to base64 encode the dicom object
@@ -192,13 +224,7 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
                             if (reattach) {
                                 // Initialize the attachment map if necessary
                                 if (attachmentMap == null) {
-                                    List<Attachment> list = getMessageAttachments(connectorMessage);
-
-                                    // Store the attachments in a map with the attachment's Id as the key
-                                    attachmentMap = new HashMap<String, Attachment>();
-                                    for (Attachment attachment : list) {
-                                        attachmentMap.put(attachment.getId(), attachment);
-                                    }
+                                    attachmentMap = loadLocalAttachments(connectorMessage, remainingAttachments);
                                 }
 
                                 if (attachmentMap.containsKey(attachmentOrChannelId)) {
@@ -208,6 +234,10 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
                                     attachment.setContent(replaceOutboundAttachment(attachment.getContent()));
                                     replacementMap.put(KEY_DATA, attachment.getContent());
                                     bufferSize += attachment.getContent().length;
+
+                                    if (remainingAttachments != null) {
+                                        remainingAttachments.remove(attachment.getId());
+                                    }
                                 } else {
                                     // Otherwise, replace with nothing
                                     replacementMap.put(KEY_DATA, new byte[0]);
@@ -257,13 +287,7 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
                                         if (channelId.equals(connectorMessage.getChannelId()) && messageId == connectorMessage.getMessageId()) {
                                             // Initialize the attachment map if necessary
                                             if (attachmentMap == null) {
-                                                List<Attachment> list = getMessageAttachments(connectorMessage);
-
-                                                // Store the attachments in a map with the attachment's Id as the key
-                                                attachmentMap = new HashMap<String, Attachment>();
-                                                for (Attachment attachment : list) {
-                                                    attachmentMap.put(attachment.getId(), attachment);
-                                                }
+                                                attachmentMap = loadLocalAttachments(connectorMessage, remainingAttachments);
                                             }
 
                                             if (attachmentMap.containsKey(attachmentOrChannelId)) {
@@ -273,6 +297,10 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
                                                 attachment.setContent(replaceOutboundAttachment(attachment.getContent()));
                                                 replacementMap.put(KEY_DATA, attachment.getContent());
                                                 bufferSize += attachment.getContent().length;
+
+                                                if (remainingAttachments != null) {
+                                                    remainingAttachments.remove(attachment.getId());
+                                                }
                                             } else {
                                                 // Otherwise, replace with nothing
                                                 replacementMap.put(KEY_DATA, new byte[0]);
