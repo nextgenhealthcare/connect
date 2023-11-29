@@ -424,11 +424,7 @@ public class DonkeyMessageController extends MessageController {
 
                     // If there are any attachments that were not reattached into the raw data, then include them here
                     if (MapUtils.isNotEmpty(remainingAttachments)) {
-                        List<Attachment> attachments = new ArrayList<Attachment>();
-                        for (Attachment attachment : remainingAttachments.values()) {
-                            attachments.add(attachment);
-                        }
-                        rawMessage.setAttachments(attachments);
+                        rawMessage.setAttachments(new ArrayList<Attachment>(remainingAttachments.values()));
                     }
 
                     rawMessage.setOverwrite(replace);
