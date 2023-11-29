@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -411,12 +412,19 @@ public class DonkeyMessageController extends MessageController {
                     connectorMessage.setMetaDataId(0);
                     connectorMessage.setRaw(rawContent);
 
+                    Map<String, Attachment> remainingAttachments = new HashMap<String, Attachment>();
+
                     RawMessage rawMessage = null;
 
                     if (isBinary) {
                         rawMessage = new RawMessage(DICOMMessageUtil.getDICOMRawBytes(connectorMessage));
                     } else {
-                        rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(attachmentHandlerProvider.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false, true, true), Constants.ATTACHMENT_CHARSET));
+                        rawMessage = new RawMessage(org.apache.commons.codec.binary.StringUtils.newString(attachmentHandlerProvider.reAttachMessage(rawContent.getContent(), connectorMessage, Constants.ATTACHMENT_CHARSET, false, true, true, remainingAttachments), Constants.ATTACHMENT_CHARSET));
+                    }
+
+                    // If there are any attachments that were not reattached into the raw data, then include them here
+                    if (MapUtils.isNotEmpty(remainingAttachments)) {
+                        rawMessage.setAttachments(new ArrayList<Attachment>(remainingAttachments.values()));
                     }
 
                     rawMessage.setOverwrite(replace);
