@@ -101,22 +101,6 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
     public byte[] reAttachMessage(String raw, ImmutableConnectorMessage connectorMessage, String charsetEncoding, boolean binary, boolean reattach, boolean localOnly) {
         return reAttachMessage(raw, connectorMessage, charsetEncoding, binary, reattach, localOnly, null);
     }
-    
-    private Map<String, Attachment> loadLocalAttachments(ImmutableConnectorMessage connectorMessage, Map<String, Attachment> remainingAttachments) throws MessageSerializerException {
-        List<Attachment> list = getMessageAttachments(connectorMessage);
-
-        // Store the attachments in a map with the attachment's Id as the key
-        Map<String, Attachment> attachmentMap = new HashMap<String, Attachment>();
-        for (Attachment attachment : list) {
-            attachmentMap.put(attachment.getId(), attachment);
-
-            if (remainingAttachments != null) {
-                remainingAttachments.put(attachment.getId(), attachment);
-            }
-        }
-        
-        return attachmentMap;
-    }
 
     /**
      * Replaces any unique attachment tokens (e.g. "${ATTACH:id}") with the corresponding attachment
@@ -473,5 +457,21 @@ public abstract class MirthAttachmentHandlerProvider implements AttachmentHandle
         } catch (Exception e) {
             throw new MessageSerializerException(e.getMessage());
         }
+    }
+
+    private Map<String, Attachment> loadLocalAttachments(ImmutableConnectorMessage connectorMessage, Map<String, Attachment> remainingAttachments) throws MessageSerializerException {
+        List<Attachment> list = getMessageAttachments(connectorMessage);
+
+        // Store the attachments in a map with the attachment's Id as the key
+        Map<String, Attachment> attachmentMap = new HashMap<String, Attachment>();
+        for (Attachment attachment : list) {
+            attachmentMap.put(attachment.getId(), attachment);
+
+            if (remainingAttachments != null) {
+                remainingAttachments.put(attachment.getId(), attachment);
+            }
+        }
+
+        return attachmentMap;
     }
 }
