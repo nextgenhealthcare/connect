@@ -57,4 +57,6 @@ public interface Migratable {
     public void migrate3_12_0(DonkeyElement element);
     
     public default void migrate4_4_0(DonkeyElement element) {};
+    
+    public default void migrate4_5_0(DonkeyElement element) {};
 }
