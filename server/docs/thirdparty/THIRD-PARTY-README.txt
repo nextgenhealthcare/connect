@@ -937,7 +937,7 @@ which is included with Mirth Connect.
 --------------------------------------------------------------------------------
 
 
-The license below pertains to Jsch version 0.1.55, which is included with Mirth
+The license below pertains to Jsch version 0.2.13, which is included with Mirth
 Connect.
 
 =================== Beginning of License ===================
