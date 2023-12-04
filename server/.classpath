@@ -117,7 +117,7 @@
 	<classpathentry kind="lib" path="lib/jetty/jetty-annotations-9.4.53.v20231009.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-continuation-9.4.44.v20210927.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-http-9.4.53.v20231009.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-io-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-io-9.4.53.v20231009.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-plus-9.4.53.v20231009.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-jndi-9.4.53.v20231009.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-rewrite-9.4.44.v20210927.jar"/>
