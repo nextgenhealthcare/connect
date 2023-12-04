@@ -115,7 +115,7 @@
 	<classpathentry kind="lib" path="lib/javax/javax.mail-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.ws.rs-api-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-annotations-9.4.53.v20231009.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-continuation-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-continuation-9.4.53.v20231009.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-http-9.4.53.v20231009.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-io-9.4.53.v20231009.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-plus-9.4.53.v20231009.jar"/>
