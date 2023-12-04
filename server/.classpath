@@ -126,7 +126,7 @@
 	<classpathentry kind="lib" path="lib/jetty/jetty-util-9.4.44.v20210927.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-webapp-9.4.44.v20210927.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-xml-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jsp/org.eclipse.jetty.apache-jsp-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/apache-jsp-9.4.53.v20231009.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.apache.taglibs.taglibs-standard-impl-1.2.5.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.apache.taglibs.taglibs-standard-spec-1.2.5.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.mortbay.jasper.apache-el-8.5.70.jar"/>
