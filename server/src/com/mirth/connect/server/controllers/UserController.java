@@ -87,12 +87,14 @@ public abstract class UserController extends Controller {
      *            the username to authorize
      * @param plainPassword
      *            the user's password.
+     * @param serverURL
+     *            Server URL, used for possible redirection.
      * @return <code>true</code> if the specified password matches the user's password,
      *         <code>false</code> otherwise
      * @throws ControllerException
      *             if the user's password could not be retrieved or verified
      */
-    public abstract LoginStatus authorizeUser(String username, String plainPassword) throws ControllerException;
+    public abstract LoginStatus authorizeUser(String username, String plainPassword, String serverURL) throws ControllerException;
 
     /**
      * Checks a password against an encrypted password using the User encrypter.

@@ -12,7 +12,10 @@ package com.mirth.connect.client.ui;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Image;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -28,6 +31,7 @@ import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.client.core.UnauthorizedException;
+import com.mirth.connect.client.core.api.servlets.UserServletInterface;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.ExtendedLoginStatus;
 import com.mirth.connect.model.LoginStatus;
@@ -433,7 +437,9 @@ public class LoginPanel extends javax.swing.JFrame {
                     // Attempt to login
                     LoginStatus loginStatus = null;
                     try {
-                        loginStatus = client.login(username.getText(), String.valueOf(password.getPassword()));
+                        Map<String, List<String>> customHeaders = new HashMap<String, List<String>>();
+                        customHeaders.put(UserServletInterface.LOGIN_SERVER_URL_HEADER, Collections.singletonList(PlatformUI.SERVER_URL));
+                        loginStatus = client.getServlet(UserServletInterface.class, null, customHeaders).login(username.getText(), String.valueOf(password.getPassword()));
                     } catch (ClientException ex) {
                         ex.printStackTrace();
 
