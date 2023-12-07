@@ -148,14 +148,14 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                                     } else if (extElement instanceof SOAP12Operation) {
                                         soapOp = ((SOAP12Operation) extElement).toString();
                                     }
-                                    
+                                    return soapOp;
                                 }
                             }
                         }
                     }
                 }
             }
-            return soapOp;
+            return null;
         } catch (Exception e) {
             throw new MirthApiException(e);
         }
@@ -242,10 +242,9 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
 
     public Definition importWsdlInterfaces(final WSDLFactory wsdlFactory, final String wsdlUrl, final WSDLReader wsdlReader, int timeout) throws Exception {
         try {
-            Definition wsdlInstance = wsdlReader.readWSDL(null, wsdlUrl);
             Future<Definition> future = executor.submit(new Callable<Definition>() {
                 public Definition call() throws Exception {
-                    return wsdlInstance;
+                    return wsdlReader.readWSDL(null, wsdlUrl);
                 }
             });
 
