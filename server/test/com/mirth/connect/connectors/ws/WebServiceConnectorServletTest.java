@@ -19,7 +19,6 @@ import org.apache.commons.ssl.TrustMaterial;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.eviware.soapui.SoapUI;
 import com.mirth.connect.server.api.ServletTestBase;
 
 public class WebServiceConnectorServletTest extends ServletTestBase {
