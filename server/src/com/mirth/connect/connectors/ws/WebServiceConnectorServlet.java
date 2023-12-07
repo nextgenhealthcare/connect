@@ -155,7 +155,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                     }
                 }
             }
-            return null;
+            return soapOp;
         } catch (Exception e) {
             throw new MirthApiException(e);
         }
