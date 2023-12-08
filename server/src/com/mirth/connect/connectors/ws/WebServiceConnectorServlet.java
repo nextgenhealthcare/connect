@@ -90,10 +90,6 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
     private static final ExecutorService executor = Executors.newCachedThreadPool();
     private static final Logger logger = LogManager.getLogger(WebServiceConnectorServlet.class);  //log4j2.x
 
-//    static {
-//        SoapUI.setSoapUICore(new EmbeddedSoapUICore());
-//    }
-
     public WebServiceConnectorServlet(@Context HttpServletRequest request, @Context SecurityContext sc) {
         super(request, sc, PLUGIN_POINT);
     }
@@ -376,11 +372,12 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
         // Add elements
         // This is just a dummy example. We'll need to use the information extracted from the WSDL to create this SOAP Envelope.
         SOAPFactory soapFactory = SOAPFactory.newInstance();
-        Name bodyName  = soapFactory.createName("getEmployeeDetails","ns1","urn:MySoapServices");
+        
+        Name bodyName  = soapFactory.createName(operation.toString(),"ws", "");
         SOAPBodyElement purchaseLineItems = soapBody.addBodyElement(bodyName);
         Name childName = soapFactory.createName("param1");
         SOAPElement order = purchaseLineItems.addChildElement(childName);
-        order.addTextNode("1016577");
+        order.addTextNode("?");
 
         // Get SOAP message as a String
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -400,24 +397,6 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
         transformer.transform(xmlInput, xmlOutput);
 
         System.out.println(xmlOutput.getWriter().toString());
-        return envelope;
+        return xmlOutput.getWriter().toString();
     }
-
-//    /*
-//     * This is needed to prevent soapUI from disabling logging for the entire application.
-//     */
-//    private static class EmbeddedSoapUICore extends DefaultSoapUICore {
-//        @Override
-//        protected void initLog() {
-//            logger = org.apache.log4j.Logger.getLogger(DefaultSoapUICore.class); //still uses log4j1 using bridge
-//        }
-//
-//        @Override
-//        public Settings getSettings() {
-//            if (log == null) {
-//                initLog();
-//            }
-//            return super.getSettings();
-//        }
-//    }
 }

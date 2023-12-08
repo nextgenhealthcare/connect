@@ -151,10 +151,7 @@
 	<classpathentry kind="lib" path="lib/oshi-core-3.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/aws/eventstream-1.0.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/extensions/ws/soapui-4.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/ws/soapui-xmlbeans-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/ws/wsdl4j-1.6.2-fixed.jar"/>
-	<classpathentry kind="lib" path="lib/extensions/ws/xbean-fixed-2.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxb/ext/istack-commons-runtime-3.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxb/ext/txw2-2.4.0-b180725.0644.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxb/jaxb-api-2.4.0-b180725.0427.jar"/>
