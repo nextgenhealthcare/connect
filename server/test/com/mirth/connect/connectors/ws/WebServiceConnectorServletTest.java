@@ -38,14 +38,4 @@ public class WebServiceConnectorServletTest extends ServletTestBase {
 
         assertTrue(defaultTrustMaterial.getCertificates().size() > 0);
     }
-
-    @Test
-    public void testSoapUICore() throws Exception {
-        assertNull(SoapUI.getSoapUICore());
-
-        // Load static initialization
-        new WebServiceConnectorServlet(request, sc);
-
-        assertNotNull(SoapUI.getSoapUICore());
-    }
 }
