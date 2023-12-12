@@ -131,6 +131,7 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="/Server/lib/extensions/dicomviewer/ij.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/extensions/pdfviewer/PDFRenderer.jar"/>
+	<classpathentry kind="lib" path="/Server/lib/extensions/ws/wsdl4j-1.6.2-fixed.jar"/>
 	<classpathentry kind="lib" path="lib/swingx-core-1.6.2.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://www.jarvana.com/jarvana/view/org/swinglabs/swingx-core/1.6.2-2/swingx-core-1.6.2-2-javadoc.jar!/"/>
