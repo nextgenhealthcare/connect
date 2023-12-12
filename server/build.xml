@@ -408,7 +408,6 @@
 			<fileset dir="${lib.extensions}/ws" />
 		</copy>
 		<jar destfile="${connectors.ws}/ws-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/ws/**" />
 			<include name="com/mirth/connect/connectors/ws/Binding.class" />
 			<include name="com/mirth/connect/connectors/ws/WebServiceReceiverProperties.class" />
 			<include name="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties.class" />
@@ -419,6 +418,7 @@
 		</jar>
 		<jar destfile="${connectors.ws}/ws-server.jar">
 			<fileset dir="${classes}">
+				<include name="com/mirth/connect/connectors/ws/**" />
 				<exclude name="com/mirth/connect/connectors/ws/Binding.class" />
 				<exclude name="com/mirth/connect/connectors/ws/WebServiceReceiverProperties.class" />
 				<exclude name="com/mirth/connect/connectors/ws/WebServiceDispatcherProperties.class" />
