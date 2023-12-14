@@ -219,7 +219,7 @@ public class DatabaseConnectionPoolTests {
         adminUser.setId(1);
         adminUser.setUsername("admin");
         doReturn(adminUser).when(userController).getUser(null, adminUser.getUsername());
-        userController.authorizeUser("admin", "admin");
+        userController.authorizeUser("admin", "admin", null);
 
         userController.getUserCredentials(1);
         userController.getUserPreferences(1, null);

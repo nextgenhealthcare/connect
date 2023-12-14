@@ -172,7 +172,7 @@ public abstract class MirthServlet {
                         try {
                             int status = configurationController.getStatus(false);
                             if (status == ConfigurationController.STATUS_INITIAL_DEPLOY || status == ConfigurationController.STATUS_OK) {
-                                LoginStatus loginStatus = userController.authorizeUser(username, password);
+                                LoginStatus loginStatus = userController.authorizeUser(username, password, null);
 
                                 if ((loginStatus.getStatus() == LoginStatus.Status.SUCCESS) || (loginStatus.getStatus() == LoginStatus.Status.SUCCESS_GRACE_PERIOD)) {
                                     User user = userController.getUser(null, username);
