@@ -381,6 +381,6 @@
         SUBSTR(CHANNEL.CHANNEL, LOCATE (<![CDATA['<port>']]>, CHANNEL.CHANNEL )+6, 
         (LOCATE (<![CDATA['</port>']]>, CHANNEL.CHANNEL) - LOCATE (<![CDATA['<port>']]>, CHANNEL.CHANNEL)) - 6) AS PORTSTRING
         FROM CHANNEL
-        WHERE CHANNEL.CHANNEL LIKE '%listenerConnectorProperties%'
+        WHERE CHANNEL.CHANNEL LIKE <![CDATA['%<listenerConnectorProperties%']]>
 	</query>
 </queries>

@@ -28,21 +28,19 @@ APACHE-LICENSE-2.0.txt):
 	HikariCP 2.3.2 [Mirth Connect only]
 	J2ObjC Annotations 1.3 [Mirth Connect only] (https://github.com/google/j2objc/)
 	Jackson Project (https://github.com/FasterXML/jackson)
-	Jasypt 1.7.1 [Mirth Connect only]
 	Java Native Access (JNA) 4.5.2 [Mirth Connect only] (https://github.com/java-native-access/jna)
-	Jetty 9.4.44 [Mirth Connect only]
+	Jetty 9.4.53 [Mirth Connect only]
 	Joda-Time 2.2 [Mirth Connect only]
 	JSR305 Annotations for Findbugs 3.0.2 [Mirth Connect only] (http://findbugs.sourceforge.net/)
 	MyBatis 3.1.1 [Mirth Connect only]
 	Netty 4.1.41 [Mirth Connect only]
 	Not-Going-To-Be-Commons-SSL 0.3.18
-	Quartz Scheduler 2.1.7 [Mirth Connect only]
+	Quartz Scheduler 2.3.2 [Mirth Connect only]
 	SQLite JDBC Driver 3.43.2.1 [Mirth Connect only] (https://github.com/xerial/sqlite-jdbc)
 	StAXON 1.3 [Mirth Connect only] (https://github.com/beckchr/staxon)
 	Swagger Core 2.0.10 (https://github.com/swagger-api/swagger-core)
 	Swagger UI 2.2.10 (http://swagger.io/swagger-ui/)
 	webdavclient4j 0.92 [Mirth Connect only] (http://sourceforge.net/projects/webdavclient4j/)
-	Woodstox 5.0.3 [Mirth Connect only] (https://github.com/FasterXML/woodstox)
 	Zip4j 1.3.3 (http://www.lingala.net/zip4j/)
 
 
@@ -176,7 +174,7 @@ the Common Development and Distribution License version 1.0 (see CDDL-1.0.txt):
 	Java Servlet API 3.1.0 (source code can be downloaded from: https://java.net
 	/projects/glassfish/sources/svn/show/tags/javax.servlet-api-3.1.0)
 	
-	Jetty Apache JSP Implementation 9.4.44 (source code can be downloaded from:
+	Jetty Apache JSP Implementation 9.4.53 (source code can be downloaded from:
 	http://download.eclipse.org/jetty/)
 
 	Swinglabs Wizard (source code can be downloaded from:
@@ -939,7 +937,7 @@ which is included with Mirth Connect.
 --------------------------------------------------------------------------------
 
 
-The license below pertains to Jsch version 0.1.55, which is included with Mirth
+The license below pertains to Jsch version 0.2.13, which is included with Mirth
 Connect.
 
 =================== Beginning of License ===================
@@ -1312,39 +1310,6 @@ BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-=================== End of License Information ===================
-
-
---------------------------------------------------------------------------------
-
-
-The license below pertains to Stax2 API, which is included with Mirth Connect.
-
-=================== Beginning of License Information ===================
-
-Copyright (c) 2014, FasterXML, LLC
-
-Redistribution and use in source and binary forms, with or without 
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, 
-this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation and/or 
-other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
-OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
-OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =================== End of License Information ===================
 

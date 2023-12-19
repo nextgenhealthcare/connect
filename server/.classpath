@@ -38,7 +38,7 @@
 	<classpathentry kind="lib" path="lib/mirth-vocab.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/file/webdavclient4j-core-0.92.jar"/>
 	<classpathentry kind="lib" path="lib/database/ojdbc8-12.2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jsch-0.1.55.jar"/>
+	<classpathentry kind="lib" path="lib/jsch-0.2.13.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-core-2.0.29.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-filecache-2.0.29.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-net-2.0.29.jar"/>
@@ -71,9 +71,9 @@
 	<classpathentry kind="lib" path="lib/database/derbytools-10.14.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/jms/geronimo-jms_1.1_spec-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jms/geronimo-j2ee-management_1.1_spec-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/quartz-all-2.1.7.jar">
+	<classpathentry kind="lib" path="lib/quartz-2.3.2.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="http://quartz-scheduler.org/api/2.1.7/"/>
+			<attribute name="javadoc_location" value="http://quartz-scheduler.org/api/2.3.0/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/database/mysql-connector-j-8.1.0.jar"/>
@@ -108,25 +108,27 @@
 	<classpathentry kind="lib" path="lib/jersey/jersey-guava-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.26.0-GA.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.servlet-api-3.1.0.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-schemas-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-schemas-3.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.inject-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.json-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.json-api-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.mail-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.ws.rs-api-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-annotations-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-continuation-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-http-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-io-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-plus-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-rewrite-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-security-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-server-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-servlet-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-util-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-webapp-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jetty-xml-9.4.44.v20210927.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jsp/org.eclipse.jetty.apache-jsp-9.4.44.v20210927.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-annotations-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-continuation-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-http-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-io-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-plus-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-jndi-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-rewrite-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-security-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-server-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-servlet-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-util-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-util-ajax-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-webapp-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jetty-xml-9.4.53.v20231009.jar"/>
+	<classpathentry kind="lib" path="lib/jetty/jsp/apache-jsp-9.4.53.v20231009.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.apache.taglibs.taglibs-standard-impl-1.2.5.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.apache.taglibs.taglibs-standard-spec-1.2.5.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jsp/org.mortbay.jasper.apache-el-8.5.70.jar"/>
@@ -139,10 +141,11 @@
 	<classpathentry kind="lib" path="testlib/objenesis-2.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/guice-4.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/staxon-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/jersey/ext/asm-7.2.jar"/>
-	<classpathentry kind="lib" path="lib/jersey/ext/asm-commons-7.2.jar"/>
-	<classpathentry kind="lib" path="lib/jersey/ext/asm-tree-7.2.jar"/>
-	<classpathentry kind="lib" path="lib/jersey/ext/asm-util-7.2.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/asm-9.6.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/asm-analysis-9.6.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/asm-commons-9.6.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/asm-tree-9.6.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/ext/asm-util-9.6.jar"/>
 	<classpathentry kind="lib" path="lib/jna-4.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/jna-platform-4.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/oshi-core-3.9.1.jar"/>
@@ -165,16 +168,14 @@
 	<classpathentry kind="lib" path="lib/javax/jaxws/ext/policy-2.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/ext/saaj-impl-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/ext/stax-ex-1.8.jar"/>
-	<classpathentry kind="lib" path="lib/javax/jaxws/ext/stax2-api-3.1.4.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/ext/streambuffer-1.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/javax/jaxws/ext/woodstox-core-5.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/javax.xml.soap-api-1.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/jaxws-api-2.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/jaxws-rt-2.3.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/javax/jaxws/jaxws-tools-2.3.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.activation-1.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.activation-api-1.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/javax/javax.annotation-api-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/javax/javax.annotation-api-1.3.2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Donkey">
 		<accessrules>
 			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/server/**"/>

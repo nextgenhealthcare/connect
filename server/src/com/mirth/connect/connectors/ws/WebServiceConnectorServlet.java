@@ -31,14 +31,18 @@ import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.http.HTTPAddress;
 import javax.wsdl.extensions.http.HTTPOperation;
 import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.extensions.soap12.SOAP12Address;
+import javax.wsdl.extensions.soap12.SOAP12Operation;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
@@ -46,13 +50,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.eviware.soapui.DefaultSoapUICore;
 import com.eviware.soapui.SoapUI;
-import com.eviware.soapui.impl.WsdlInterfaceFactory;
 import com.eviware.soapui.impl.wsdl.WsdlInterface;
-import com.eviware.soapui.impl.wsdl.WsdlProject;
-import com.eviware.soapui.impl.wsdl.WsdlProjectFactory;
 import com.eviware.soapui.impl.wsdl.support.soap.SoapMessageBuilder;
-import com.eviware.soapui.impl.wsdl.support.wsdl.UrlWsdlLoader;
-import com.eviware.soapui.impl.wsdl.support.wsdl.WsdlLoader;
 import com.eviware.soapui.model.settings.Settings;
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.connectors.ws.DefinitionServiceMap.DefinitionPortMap;
@@ -72,7 +71,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
      * either a list of operation names or a WsdlInterface object.
      */
     private static final Map<String, DefinitionServiceMap> definitionCache = new HashMap<String, DefinitionServiceMap>();
-    private static final Map<String, Map<String, Map<String, WsdlInterface>>> wsdlInterfaceCache = new HashMap<String, Map<String, Map<String, WsdlInterface>>>();
+    private static final Map<String, Map<String, Map<String, Definition>>> wsdlInterfaceCache = new HashMap<String, Map<String, Map<String, Definition>>>();
     private static final ExecutorService executor = Executors.newCachedThreadPool();
     private static final Logger logger = LogManager.getLogger(WebServiceConnectorServlet.class);  //log4j2.x
 
@@ -88,7 +87,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
     public Object cacheWsdlFromUrl(String channelId, String channelName, WebServiceDispatcherProperties properties) {
         try {
             String wsdlUrl = getWsdlUrl(channelId, channelName, properties.getWsdlUrl(), properties.getUsername(), properties.getPassword());
-            cacheWsdlInterfaces(wsdlUrl, getWsdlInterfaces(wsdlUrl, properties, channelId));
+            cacheWsdlInterfaces(wsdlUrl, getDefinition(wsdlUrl, properties, channelId));
             return null;
         } catch (Exception e) {
             throw new MirthApiException(e);
@@ -122,7 +121,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
     public String generateEnvelope(String channelId, String channelName, String wsdlUrl, String username, String password, String service, String port, String operation, boolean buildOptional) {
         try {
             wsdlUrl = getWsdlUrl(channelId, channelName, wsdlUrl, username, password);
-            return buildEnvelope(getCachedWsdlInterface(wsdlUrl, service, port, channelId, channelName), operation, buildOptional);
+            return buildEnvelope(getCachedDefinition(wsdlUrl, service, port, channelId, channelName), operation, buildOptional);
         } catch (Exception e) {
             throw new MirthApiException(e);
         }
@@ -132,8 +131,31 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
     public String getSoapAction(String channelId, String channelName, String wsdlUrl, String username, String password, String service, String port, String operation) {
         try {
             wsdlUrl = getWsdlUrl(channelId, channelName, wsdlUrl, username, password);
-            WsdlInterface wsdlInterface = getCachedWsdlInterface(wsdlUrl, service, port, channelId, channelName);
-            return wsdlInterface.getOperationByName(operation).getAction();
+            Definition definition = getCachedDefinition(wsdlUrl, service, port, channelId, channelName);
+            String soapOp = "";
+            for (Object serviceObject : definition.getServices().values()) {
+                Service defService = (Service) serviceObject;
+                if (MapUtils.isNotEmpty(defService.getPorts())) {
+                    for (Object portObject : defService.getPorts().values()) {
+                        Port defPort = (Port) portObject;
+                        List extensions = defPort.getExtensibilityElements();                    
+                        if (extensions != null) {
+                            for (int i = 0; i < extensions.size(); i++) {
+                                ExtensibilityElement extElement = (ExtensibilityElement) extensions.get(i);
+                                if (defPort.getName().equals(port)) {
+                                    if (extElement instanceof SOAPOperation) {
+                                        soapOp = ((SOAPOperation) extElement).toString();
+                                    } else if (extElement instanceof SOAP12Operation) {
+                                        soapOp = ((SOAP12Operation) extElement).toString();
+                                    }
+                                    return soapOp;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return soapOp;
         } catch (Exception e) {
             throw new MirthApiException(e);
         }
@@ -169,26 +191,26 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
         return getURIWithCredentials(new URI(wsdlUrl), username, password).toURL().toString();
     }
 
-    private WsdlInterface getCachedWsdlInterface(String wsdlUrl, String service, String port, String channelId, String channelName) throws Exception {
+    private Definition getCachedDefinition(String wsdlUrl, String service, String port, String channelId, String channelName) throws Exception {
         service = replacer.replaceValues(service, channelId, channelName);
         port = replacer.replaceValues(port, channelId, channelName);
 
-        Map<String, Map<String, WsdlInterface>> serviceMap = wsdlInterfaceCache.get(wsdlUrl);
+        Map<String, Map<String, Definition>> serviceMap = wsdlInterfaceCache.get(wsdlUrl);
         if (serviceMap == null) {
             throw new Exception("WSDL not cached for URL: " + wsdlUrl);
         }
 
-        Map<String, WsdlInterface> portMap = serviceMap.get(service);
+        Map<String, Definition> portMap = serviceMap.get(service);
         if (portMap == null) {
             throw new Exception("No service \"" + service + "\" found in cached WSDL.");
         }
 
         if (portMap.containsKey(port)) {
-            WsdlInterface wsdlInterface = portMap.get(port);
-            if (wsdlInterface == null) {
+            Definition definition = portMap.get(port);
+            if (definition == null) {
                 throw new Exception("No interface found for port \"" + port + "\" and service \"" + service + "\" in cached WSDL.");
             }
-            return wsdlInterface;
+            return definition;
         } else {
             throw new Exception("No port \"" + port + "\" found for service \"" + service + "\" in cached WSDL.");
         }
@@ -203,7 +225,6 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
             }
             wsdlUrl = new URI(wsdlUrl.getScheme(), hostWithCredentials, wsdlUrl.getPath(), wsdlUrl.getQuery(), wsdlUrl.getFragment());
         }
-
         return wsdlUrl;
     }
 
@@ -212,18 +233,18 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
      * Future to execute the request in the background and timeout after 30 seconds if the server
      * could not be contacted.
      */
-    private WsdlInterface[] getWsdlInterfaces(String wsdlUrl, WebServiceDispatcherProperties props, String channelId) throws Exception {
-        WsdlProject wsdlProject = new WsdlProjectFactory().createNew();
-        WsdlLoader wsdlLoader = new UrlWsdlLoader(wsdlUrl);
+    private Definition getDefinition(String wsdlUrl, WebServiceDispatcherProperties props, String channelId) throws Exception {
+        WSDLFactory wsdlFactory = WSDLFactory.newInstance();
+        WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
         int timeout = NumberUtils.toInt(props.getSocketTimeout());
-        return importWsdlInterfaces(wsdlProject, wsdlUrl, wsdlLoader, timeout);
+        return importWsdlInterfaces(wsdlFactory, wsdlUrl, wsdlReader, timeout);
     }
 
-    public WsdlInterface[] importWsdlInterfaces(final WsdlProject wsdlProject, final String wsdlUrl, final WsdlLoader wsdlLoader, int timeout) throws Exception {
+    public Definition importWsdlInterfaces(final WSDLFactory wsdlFactory, final String wsdlUrl, final WSDLReader wsdlReader, int timeout) throws Exception {
         try {
-            Future<WsdlInterface[]> future = executor.submit(new Callable<WsdlInterface[]>() {
-                public WsdlInterface[] call() throws Exception {
-                    return WsdlInterfaceFactory.importWsdl(wsdlProject, wsdlUrl, false, wsdlLoader);
+            Future<Definition> future = executor.submit(new Callable<Definition>() {
+                public Definition call() throws Exception {
+                    return wsdlReader.readWSDL(null, wsdlUrl);
                 }
             });
 
@@ -234,32 +255,30 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
             }
             return future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            wsdlLoader.abort();
             if (e instanceof TimeoutException) {
                 e = new Exception("WSDL import operation timed out");
             }
             throw e;
         }
     }
-
-    public void cacheWsdlInterfaces(String wsdlUrl, WsdlInterface[] wsdlInterfaces) throws Exception {
-        if (ArrayUtils.isNotEmpty(wsdlInterfaces)) {
-            Definition definition = wsdlInterfaces[0].getWsdlContext().getDefinition();
+      
+    public void cacheWsdlInterfaces(String wsdlUrl, Definition definition) throws Exception {
+        if (definition != null) {
             DefinitionServiceMap definitionServiceMap = new DefinitionServiceMap();
-            Map<String, Map<String, WsdlInterface>> wsdlInterfaceServiceMap = new LinkedHashMap<String, Map<String, WsdlInterface>>();
+            Map<String, Map<String, Definition>> wsdlInterfaceServiceMap = new LinkedHashMap<String, Map<String, Definition>>();
 
             if (MapUtils.isNotEmpty(definition.getServices())) {
                 for (Object serviceObject : definition.getServices().values()) {
                     Service service = (Service) serviceObject;
                     logger.debug("Service: " + service.getQName().toString());
                     DefinitionPortMap definitionPortMap = new DefinitionPortMap();
-                    Map<String, WsdlInterface> wsdlInterfacePortMap = new LinkedHashMap<String, WsdlInterface>();
+                    Map<String, Definition> wsdlInterfacePortMap = new LinkedHashMap<String, Definition>();
 
                     if (MapUtils.isNotEmpty(service.getPorts())) {
                         for (Object portObject : service.getPorts().values()) {
                             Port port = (Port) portObject;
                             String portQName = new QName(service.getQName().getNamespaceURI(), port.getName()).toString();
-                            logger.debug("    Port: " + portQName);
+                            logger.debug("    Port: " + service);
 
                             String locationURI = null;
                             for (Object element : port.getExtensibilityElements()) {
@@ -281,31 +300,33 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                                 operations.add(operationName);
                             }
 
-                            WsdlInterface bindingInterface = null;
-                            for (WsdlInterface wsdlInterface : wsdlInterfaces) {
-                                if (wsdlInterface.getBindingName().equals(port.getBinding().getQName())) {
-                                    bindingInterface = wsdlInterface;
+                            List<String> actions = new ArrayList<String>();
+                            if (port.getBinding().getBindingOperations() != null) {
+                                for (Object bindOperationObject : port.getBinding().getBindingOperations()) {
+                                    logger.debug("        Interface: " + bindOperationObject);
+                                    List extensions = port.getExtensibilityElements();
+                                    if (extensions != null) {
+                                        for (int i = 0; i < extensions.size(); i++) {
+                                            ExtensibilityElement extElement = (ExtensibilityElement) extensions.get(i);
+                                            if (extElement instanceof SOAPOperation) {
+                                                SOAPOperation soapOp = (SOAPOperation) extElement;
+                                                actions.add(soapOp.toString());
+                                            } else if (extElement instanceof SOAP12Operation) {
+                                                SOAP12Operation soapOp = (SOAP12Operation) extElement;
+                                                actions.add(soapOp.toString());
+                                            }
+                                        }
+                                    }
                                 }
-                            }
-                            logger.debug("        Interface: " + bindingInterface);
-                            if (bindingInterface != null) {
-                                List<String> actions = new ArrayList<String>();
-
-                                for (String operation : operations) {
-                                    actions.add(bindingInterface.getOperationByName(operation).getAction());
-                                }
-
                                 definitionPortMap.getMap().put(portQName, new PortInformation(operations, actions, locationURI));
-                                wsdlInterfacePortMap.put(portQName, bindingInterface);
-                            }
+                                wsdlInterfacePortMap.put(portQName, definition);   
+                            }        
                         }
                     }
-
                     definitionServiceMap.getMap().put(service.getQName().toString(), definitionPortMap);
                     wsdlInterfaceServiceMap.put(service.getQName().toString(), wsdlInterfacePortMap);
                 }
             }
-
             definitionCache.put(wsdlUrl, definitionServiceMap);
             wsdlInterfaceCache.put(wsdlUrl, wsdlInterfaceServiceMap);
         } else {
@@ -313,9 +334,9 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
         }
     }
 
-    private String buildEnvelope(WsdlInterface wsdlInterface, String operationName, boolean buildOptional) throws Exception {
-        SoapMessageBuilder messageBuilder = wsdlInterface.getMessageBuilder();
-        BindingOperation bindingOperation = wsdlInterface.getOperationByName(operationName).getBindingOperation();
+    private String buildEnvelope(Definition definition, String operationName, boolean buildOptional) throws Exception {
+        SoapMessageBuilder messageBuilder = ((WsdlInterface) definition).getMessageBuilder();
+        BindingOperation bindingOperation = ((WsdlInterface) definition).getOperationByName(operationName).getBindingOperation();
         return messageBuilder.buildSoapMessageFromInput(bindingOperation, buildOptional);
     }
 
@@ -333,7 +354,6 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
             if (log == null) {
                 initLog();
             }
-
             return super.getSettings();
         }
     }
