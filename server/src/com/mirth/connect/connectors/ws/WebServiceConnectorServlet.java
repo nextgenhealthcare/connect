@@ -36,6 +36,7 @@ import javax.wsdl.Service;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.http.HTTPAddress;
 import javax.wsdl.extensions.http.HTTPOperation;
+import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.extensions.soap12.SOAP12Address;
@@ -67,10 +68,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Node;
 
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.connectors.ws.DefinitionServiceMap.DefinitionPortMap;
 import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
+import com.mirth.connect.connectors.ws.SchemaType.SchemaTypeElement;
 import com.mirth.connect.server.api.MirthServlet;
 import com.mirth.connect.server.util.ConnectorUtil;
 import com.mirth.connect.server.util.TemplateValueReplacer;
@@ -356,7 +359,13 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
 //    </soapenv:Envelope>
     
     private String buildEnvelope(Definition definition, String operationName, boolean buildOptional) throws Exception {
-        MessageFactory messageFactory = MessageFactory.newInstance();
+        final String PREFIX = "ws";
+        final String ELEMENT = "element";
+        final String COMPLEX_TYPE = "complexType";
+        final String SEQUENCE = "sequence";
+        final String ATTRIBUTE = "attribute";
+    	
+    	MessageFactory messageFactory = MessageFactory.newInstance();
         SOAPMessage soapMessage = messageFactory.createMessage();
 
         // Retrieve different parts
@@ -370,15 +379,78 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
         SOAPBody soapBody = soapEnvelope.getBody();
 
         // Add elements
-        // This is just a dummy example. We'll need to use the information extracted from the WSDL to create this SOAP Envelope.
         SOAPFactory soapFactory = SOAPFactory.newInstance();
         
-        Name bodyName  = soapFactory.createName(operation.toString(),"ws", "");
-        SOAPBodyElement purchaseLineItems = soapBody.addBodyElement(bodyName);
-        Name childName = soapFactory.createName("param1");
-        SOAPElement order = purchaseLineItems.addChildElement(childName);
-        order.addTextNode("?");
-
+        soapEnvelope.addNamespaceDeclaration(PREFIX, definition.getTargetNamespace());
+        
+        Name bodyName  = soapFactory.createName(operationName, PREFIX, "");
+        SOAPBodyElement bodyElement = soapBody.addBodyElement(bodyName);
+       
+        // Map of element names and their types
+        Map<String, String> elementTypes = new HashMap<>();
+        
+        // Map of schema types. key = type name, value = type of that field
+        Map<String, SchemaType> typeDefinitions = new HashMap<>();
+        
+        List extensibilityElements = definition.getTypes().getExtensibilityElements();
+        for (Object extensibilityElement : extensibilityElements) {
+        	if (extensibilityElement instanceof Schema) {
+        		Schema schema = (Schema)extensibilityElement;
+        		String schemaPrefix = schema.getElement().getPrefix();
+        		
+        		// An element can specify a type name or it can define its type using child nodes
+        		// Complex (non-primitive) types can be defined in a separate node or as a child nodes of the element
+        		for (int i = 0; i < schema.getElement().getChildNodes().getLength(); i++) {
+        			Node node = schema.getElement().getChildNodes().item(i);
+        			if (ELEMENT.equals(node.getLocalName())) {
+        				String elementName = node.getAttributes().getNamedItem("name") != null ? node.getAttributes().getNamedItem("name").getNodeValue() : null;
+        				
+        				// If there is no type name, that means the type is defined in the child nodes, so we'll use the element name as a placeholder
+        				String elementTypeName = node.getAttributes().getNamedItem("type") != null ? node.getAttributes().getNamedItem("type").getNodeValue() : elementName;
+        				Boolean elementOptional = node.getAttributes().getNamedItem("minOccurs") != null ? "0".equals(node.getAttributes().getNamedItem("minOccurs").getNodeValue()) : null;
+        				
+        				elementTypes.put(elementName, elementTypeName);
+        				
+        				SchemaType schemaType = new SchemaType(elementTypeName);
+        				typeDefinitions.put(elementTypeName, schemaType);
+        				
+        				// If type name wasn't set, then we need to traverse the child nodes to find the type
+        				if (elementName.equals(elementTypeName)) {
+	        				Node complexTypeNode = node.getFirstChild();
+	        				for (int j = 0; j < complexTypeNode.getChildNodes().getLength(); j++) {
+	        					Node innerNode = complexTypeNode.getChildNodes().item(j);
+	        					if (SEQUENCE.equals(innerNode.getLocalName())) {
+	        						// TODO Modify schemaType
+	        					} else if (ATTRIBUTE.equals(innerNode.getLocalName())) {
+	        						// TODO Add attributes to schemaType
+	        					}
+	        				}
+        				}
+        			} else if (COMPLEX_TYPE.equals(node.getLocalName())) {
+        				String typeName = node.getAttributes().getNamedItem("type") != null ? node.getAttributes().getNamedItem("type").getNodeValue() : null;
+        				//TODO Parse complex type. Add and/or modify the corresponding SchemaType in typeDefinitions map.
+        			}
+        		}
+        		break;
+        	}
+        }
+        
+        // Add arguments to body
+        SchemaType operationSchemaType = typeDefinitions.get(elementTypes.get(operationName));
+        if (operationSchemaType.isComplex()) {
+	        for (SchemaTypeElement operationSchemaTypeElement : operationSchemaType.getSequence()) {
+	        	if (!operationSchemaTypeElement.isOptional() || buildOptional) {
+	        		Name childName = soapFactory.createName(operationSchemaTypeElement.getName());
+	            	SOAPElement childElement = bodyElement.addChildElement(childName);
+	            	childElement.addTextNode("?");
+	        	}
+	        }
+        } else {
+        	Name childName = soapFactory.createName(operationSchemaType.getName());
+        	SOAPElement childElement = bodyElement.addChildElement(childName);
+        	childElement.addTextNode("?");
+        }
+ 
         // Get SOAP message as a String
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         soapMessage.writeTo(out);
@@ -396,7 +468,6 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.transform(xmlInput, xmlOutput);
 
-        System.out.println(xmlOutput.getWriter().toString());
         return xmlOutput.getWriter().toString();
     }
 }
