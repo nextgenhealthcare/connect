@@ -16,9 +16,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -70,6 +72,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Node;
 
+import com.ibm.wsdl.MessageImpl;
+import com.ibm.wsdl.PartImpl;
+import com.ibm.wsdl.extensions.schema.SchemaImpl;
+import com.ibm.wsdl.extensions.schema.SchemaImportImpl;
 import com.mirth.connect.client.core.api.MirthApiException;
 import com.mirth.connect.connectors.ws.DefinitionServiceMap.DefinitionPortMap;
 import com.mirth.connect.connectors.ws.DefinitionServiceMap.PortInformation;
@@ -359,11 +365,22 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
 //    </soapenv:Envelope>
     
     private String buildEnvelope(Definition definition, String operationName, boolean buildOptional) throws Exception {
-        final String PREFIX = "ws";
-        final String ELEMENT = "element";
-        final String COMPLEX_TYPE = "complexType";
-        final String SEQUENCE = "sequence";
-        final String ATTRIBUTE = "attribute";
+        String PREFIX = "ws";
+        
+        // add the name space
+        String urlString = definition.getTargetNamespace();
+        Map<String, String> nameSpaceMap = definition.getNamespaces();
+        Iterator<Map.Entry<String, String>> iteratorNameSpaces = nameSpaceMap.entrySet().iterator(); 
+        while(iteratorNameSpaces.hasNext()) { 
+             Map.Entry<String, String> entry = iteratorNameSpaces.next(); 
+             String url = entry.getValue().toString(); 
+             if (url.equals(urlString)) {
+                 if (!StringUtils.isEmpty(entry.getKey())) {
+                     PREFIX = entry.getKey();
+                 }
+                 break;
+             }
+        }
     	
     	MessageFactory messageFactory = MessageFactory.newInstance();
         SOAPMessage soapMessage = messageFactory.createMessage();
@@ -397,38 +414,54 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
         	if (extensibilityElement instanceof Schema) {
         		Schema schema = (Schema)extensibilityElement;
         		String schemaPrefix = schema.getElement().getPrefix();
+        		// if we have an imported schema, we will need to get the import instead of using the schema above
+        		if (schema.getImports() != null && !schema.getImports().isEmpty()) {
+        		    HashMap<String, Vector> test = (HashMap<String, Vector>) schema.getImports();
+        		    Iterator<Map.Entry<String, Vector>> schemaIt = schema.getImports().entrySet().iterator();
+        		    Map.Entry<String, Vector> schemaEntry = schemaIt.next();
+        		    Vector schemaValue = schemaEntry.getValue();
+        		    SchemaImpl tmpSchema = (SchemaImpl) ((SchemaImportImpl)schemaValue.get(0)).getReferencedSchema();
+        		    schema = tmpSchema;
+        		}
+        		
+        		// we may have embedded names in the messages to access the right schema
+                HashMap<QName, MessageImpl> messages = (HashMap<QName, MessageImpl>) definition.getMessages();
+                Iterator<Map.Entry<QName, MessageImpl>> messageIt = definition.getMessages().entrySet().iterator();
+                while (messageIt.hasNext()) {
+                    Map.Entry<QName, MessageImpl> messageEntry = messageIt.next();
+                    String messageKey = messageEntry.getKey().getLocalPart();
+                    if (messageKey.equals(operationName)) {
+                        // this currently errors but I need the PartImpl and get the hashmap 0?
+                        MessageImpl messagePartsValue = (MessageImpl) messageEntry.getValue().getParts();
+                        
+                    }
+                    
+                }
+                
+
+                //TO DO: I think all the elements within the body are not getting the namespace and they should be
         		
         		// An element can specify a type name or it can define its type using child nodes
         		// Complex (non-primitive) types can be defined in a separate node or as a child nodes of the element
-        		for (int i = 0; i < schema.getElement().getChildNodes().getLength(); i++) {
+        		// go through main elements getting all related to operationName
+        		for (int i = 1; i < schema.getElement().getChildNodes().getLength(); i+=2) {
         			Node node = schema.getElement().getChildNodes().item(i);
-        			if (ELEMENT.equals(node.getLocalName())) {
-        				String elementName = node.getAttributes().getNamedItem("name") != null ? node.getAttributes().getNamedItem("name").getNodeValue() : null;
-        				
-        				// If there is no type name, that means the type is defined in the child nodes, so we'll use the element name as a placeholder
-        				String elementTypeName = node.getAttributes().getNamedItem("type") != null ? node.getAttributes().getNamedItem("type").getNodeValue() : elementName;
-        				Boolean elementOptional = node.getAttributes().getNamedItem("minOccurs") != null ? "0".equals(node.getAttributes().getNamedItem("minOccurs").getNodeValue()) : null;
-        				
-        				elementTypes.put(elementName, elementTypeName);
-        				
-        				SchemaType schemaType = new SchemaType(elementTypeName);
-        				typeDefinitions.put(elementTypeName, schemaType);
-        				
-        				// If type name wasn't set, then we need to traverse the child nodes to find the type
-        				if (elementName.equals(elementTypeName)) {
-	        				Node complexTypeNode = node.getFirstChild();
-	        				for (int j = 0; j < complexTypeNode.getChildNodes().getLength(); j++) {
-	        					Node innerNode = complexTypeNode.getChildNodes().item(j);
-	        					if (SEQUENCE.equals(innerNode.getLocalName())) {
-	        						// TODO Modify schemaType
-	        					} else if (ATTRIBUTE.equals(innerNode.getLocalName())) {
-	        						// TODO Add attributes to schemaType
-	        					}
-	        				}
-        				}
-        			} else if (COMPLEX_TYPE.equals(node.getLocalName())) {
-        				String typeName = node.getAttributes().getNamedItem("type") != null ? node.getAttributes().getNamedItem("type").getNodeValue() : null;
-        				//TODO Parse complex type. Add and/or modify the corresponding SchemaType in typeDefinitions map.
+        			String name = node.getAttributes().getNamedItem("name") != null ? node.getAttributes().getNamedItem("name").getNodeValue() : null;
+        			Node tmpNode = node;
+        			// get last node for the name of the tag
+        			if (name.equals(operationName)) {
+            			while (tmpNode.getChildNodes().getLength() != 0) {
+            			    int j = tmpNode.getChildNodes().getLength();
+                            for (int k = 1; k < j; k+=2) {
+                                String tagName = tmpNode.getChildNodes().item(k).getAttributes().getNamedItem("name") != null ? tmpNode.getChildNodes().item(k).getAttributes().getNamedItem("name").getNodeValue() : null;
+                                if (!StringUtils.isEmpty(tagName)) {
+                                    elementTypes.put(name, tagName);
+                                    SchemaType schemaType = new SchemaType(tagName);
+                                    typeDefinitions.put(tagName, schemaType);
+                                }
+                                tmpNode = tmpNode.getChildNodes().item(1);
+                            }
+            			}
         			}
         		}
         		break;
@@ -470,4 +503,57 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
 
         return xmlOutput.getWriter().toString();
     }
+    
+//    THIS IS THE ORIGINAL ATTEMPT TO ACCOMPLIOSH THIS. EVENTUALLY REMOVE THIS
+//  if (ELEMENT.equals(node.getLocalName())) {
+//  String elementName = node.getAttributes().getNamedItem("name") != null ? node.getAttributes().getNamedItem("name").getNodeValue() : null;
+//  if (elementName.equals(operationName)) {
+//      // If there is no type name, that means the type is defined in the child nodes, so we'll use the element name as a placeholder
+//      String elementTypeName = node.getAttributes().getNamedItem("type") != null ? node.getAttributes().getNamedItem("type").getNodeValue() : elementName;
+//      Boolean elementOptional = node.getAttributes().getNamedItem("minOccurs") != null ? "0".equals(node.getAttributes().getNamedItem("minOccurs").getNodeValue()) : null;
+//      
+////        elementTypes.put(elementName, elementTypeName);
+////        
+////        SchemaType schemaType = new SchemaType(elementTypeName);
+////        typeDefinitions.put(elementTypeName, schemaType);
+//      // If type name wasn't set, then we need to traverse the child nodes to find the type
+//      
+//      
+//      if (elementName.equals(elementTypeName)) {
+//          int k = node.getChildNodes().getLength();                                               
+//          for (int j = 1; j < k; j+=2) {
+//              Node complexTypeNode = node.getChildNodes().item(j);
+//              if (COMPLEX_TYPE.equals(complexTypeNode.getLocalName())) {
+//                  String complexTypeName = complexTypeNode.getAttributes().getNamedItem("name") != null ? complexTypeNode.getAttributes().getNamedItem("name").getNodeValue() : null;
+//                  int l = complexTypeNode.getChildNodes().getLength();
+//                  for (int m = 1; m < l; m+=2) {
+//                      Node SequenceNode = complexTypeNode.getChildNodes().item(m);
+//                      if (SEQUENCE.equals(SequenceNode.getLocalName())) {
+//                          String SequenceName = SequenceNode.getAttributes().getNamedItem("name") != null ? SequenceNode.getAttributes().getNamedItem("name").getNodeValue() : null;
+//                          int n = SequenceNode.getChildNodes().getLength();
+//                          for (int o = 1; o < n; o+=2) {
+//                              Node elementNode = SequenceNode.getChildNodes().item(m);
+//                              if (SEQUENCE.equals(SequenceNode.getLocalName())) {
+//                                  String tagName = elementNode.getAttributes().getNamedItem("name") != null ? elementNode.getAttributes().getNamedItem("name").getNodeValue() : null;
+//                                  elementTypes.put(elementName, tagName);
+//                                  
+//                                  SchemaType schemaType = new SchemaType(tagName);
+//                                  typeDefinitions.put(tagName, schemaType);
+//                              }
+//                              
+//                          }
+//                      }
+//                  }
+//                  
+////                                    // TODO Modify schemaType
+////                                } else if (ATTRIBUTE.equals(innerNode.getLocalName())) {
+////                                    // TODO Add attributes to schemaType
+//              }
+//          }
+//      }
+//  }
+////} else if (COMPLEX_TYPE.equals(node.getLocalName())) {
+////    String typeName = node.getAttributes().getNamedItem("type") != null ? node.getAttributes().getNamedItem("type").getNodeValue() : null;
+////    //TODO Parse complex type. Add and/or modify the corresponding SchemaType in typeDefinitions map.
+//}
 }
