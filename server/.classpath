@@ -32,7 +32,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/extensions/dicomviewer/ij.jar"/>
-	<classpathentry kind="lib" path="lib/jdom-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jdom2-2.0.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/backport-util-concurrent-Java60-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-vocab.jar"/>

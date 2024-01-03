@@ -29,13 +29,14 @@ public abstract class MultiFactorAuthenticationPlugin implements ServicePlugin {
      *
      * @param username The username of the user attempting to authenticate.
      * @param primaryStatus The result of the primary authentication process.
+     * @param serverURL The server URL, used for possible redirection.
      *
      * @return Either the <code>primaryStatus</code> to proceed with login
      *         or an <code>ExtendedloginStatus</code> which specifies the
      *         client-side plug-in class to perform a second-factor
      *         authentication step.
      */
-    public abstract LoginStatus authenticate(String username, LoginStatus primaryStatus);
+    public abstract LoginStatus authenticate(String username, LoginStatus primaryStatus, String serverURL);
 
     /**
      * Called when secondary authentication is being attempted.

@@ -583,16 +583,14 @@ Mirth Connect.
 --------------------------------------------------------------------------------
 
 
-The license below pertains to JDOM version 1.1.1, which is included with Mirth
+The license below pertains to JDOM2 version 2.0.6.1, which is included with Mirth
 Connect.
 
 =================== Beginning of License ===================
 
 /*-- 
 
- $Id: LICENSE.txt,v 1.11 2004/02/06 09:32:57 jhunter Exp $
-
- Copyright (C) 2000-2004 Jason Hunter & Brett McLaughlin.
+ Copyright (C) 2000-2012 Jason Hunter & Brett McLaughlin.
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without

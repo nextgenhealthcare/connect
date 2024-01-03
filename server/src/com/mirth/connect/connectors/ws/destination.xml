@@ -14,7 +14,7 @@
 	<library type="SERVER" path="ws-server.jar" />
 	<library type="CLIENT" path="ws-client.jar" />
 	<library type="SHARED" path="ws-shared.jar" />
+	<library type="SHARED" path="lib/wsdl4j-1.6.2-fixed.jar" />
 	<apiProvider type="SERVLET_INTERFACE" name="com.mirth.connect.connectors.ws.WebServiceConnectorServletInterface"/>
-	<library type="SERVER" path="lib/wsdl4j-1.6.2-fixed.jar" />
 	<apiProvider type="SERVER_CLASS" name="com.mirth.connect.connectors.ws.WebServiceConnectorServlet"/>
 </connectorMetaData>

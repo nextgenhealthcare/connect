@@ -92,7 +92,7 @@ public class ServletTestBase {
         when(controllerFactory.createConfigurationController()).thenReturn(configurationController);
 
         userController = mock(UserController.class);
-        when(userController.authorizeUser(anyString(), anyString())).thenReturn(new LoginStatus(Status.SUCCESS, ""));
+        when(userController.authorizeUser(anyString(), anyString(), anyString())).thenReturn(new LoginStatus(Status.SUCCESS, ""));
         when(userController.getUser(any(), any())).thenAnswer((invocation) -> {
             User user = new User();
             user.setId(invocation.getArgument(0) != null ? invocation.getArgument(0) : 1);

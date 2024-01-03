@@ -49,6 +49,7 @@ import com.mirth.connect.model.User;
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 public interface UserServletInterface extends BaseServletInterface {
 
+    public static final String LOGIN_SERVER_URL_HEADER = "X-Mirth-Server-Url";
     public static final String LOGIN_DATA_HEADER = "X-Mirth-Login-Data";
 
     @POST

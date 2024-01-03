@@ -268,7 +268,7 @@ public class DefaultUserController extends UserController {
         }
     }
 
-    public LoginStatus authorizeUser(String username, String plainPassword) throws ControllerException {
+    public LoginStatus authorizeUser(String username, String plainPassword, String serverURL) throws ControllerException {
         StatementLock.getInstance(VACUUM_LOCK_PERSON_STATEMENT_ID).readLock();
         try {
             // Invoke and return from the Authorization Plugin if one exists
@@ -285,7 +285,7 @@ public class DefaultUserController extends UserController {
                  * authentication.
                  */
                 if (loginStatus != null) {
-                    return handleSecondaryAuthentication(StringUtils.defaultString(loginStatus.getUpdatedUsername(), username), loginStatus, null);
+                    return handleSecondaryAuthentication(StringUtils.defaultString(loginStatus.getUpdatedUsername(), username), loginStatus, null, serverURL);
                 }
             }
 
@@ -401,7 +401,7 @@ public class DefaultUserController extends UserController {
                 loginStatus = new LoginStatus(status, failMessage);
             }
 
-            return handleSecondaryAuthentication(username, loginStatus, loginRequirementsChecker);
+            return handleSecondaryAuthentication(username, loginStatus, loginRequirementsChecker, serverURL);
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
@@ -620,9 +620,9 @@ public class DefaultUserController extends UserController {
         }
     }
 
-    private LoginStatus handleSecondaryAuthentication(String username, LoginStatus loginStatus, LoginRequirementsChecker loginRequirementsChecker) {
+    private LoginStatus handleSecondaryAuthentication(String username, LoginStatus loginStatus, LoginRequirementsChecker loginRequirementsChecker, String serverURL) {
         if (loginStatus != null && extensionController.getMultiFactorAuthenticationPlugin() != null && (loginStatus.getStatus() == Status.SUCCESS || loginStatus.getStatus() == Status.SUCCESS_GRACE_PERIOD)) {
-            loginStatus = extensionController.getMultiFactorAuthenticationPlugin().authenticate(username, loginStatus);
+            loginStatus = extensionController.getMultiFactorAuthenticationPlugin().authenticate(username, loginStatus, serverURL);
         }
 
         // Only reset strikes if the final status is successful 

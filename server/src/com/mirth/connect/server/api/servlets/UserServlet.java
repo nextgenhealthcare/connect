@@ -73,6 +73,8 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
             }
 
             if (loginStatus == null) {
+                // In case redirection is needed
+                String serverURL = request.getHeader(LOGIN_SERVER_URL_HEADER);
                 // Used for the second leg of multi-factor authentication
                 String loginData = request.getHeader(LOGIN_DATA_HEADER);
 
@@ -81,7 +83,7 @@ public class UserServlet extends MirthServlet implements UserServletInterface {
                     loginStatus = ControllerFactory.getFactory().createExtensionController().getMultiFactorAuthenticationPlugin().authenticate(loginData);
                 } else {
                     // Primary authentication
-                    loginStatus = userController.authorizeUser(username, password);
+                    loginStatus = userController.authorizeUser(username, password, serverURL);
                 }
 
                 ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
