@@ -9,15 +9,9 @@
 
 package com.mirth.connect.connectors.ws;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.security.Security;
-
-import javax.wsdl.WSDLException;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
 
 import org.apache.commons.ssl.TrustMaterial;
 import org.junit.BeforeClass;
@@ -41,12 +35,5 @@ public class WebServiceConnectorServletTest extends ServletTestBase {
         TrustMaterial defaultTrustMaterial = TrustMaterial.DEFAULT;
 
         assertTrue(defaultTrustMaterial.getCertificates().size() > 0);
-    }
-    
-    public static void testWsdlGetOperations() throws WSDLException {
-        String url = "https://www.dataaccess.com/webservicesserver/NumberConversion.wso?WSDL";
-        WSDLFactory factory = WSDLFactory.newInstance();
-        WSDLReader reader = factory.newWSDLReader();
-        
     }
 }
