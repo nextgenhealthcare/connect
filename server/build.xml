@@ -40,7 +40,7 @@
 		<property name="plugins.datatype-xml" value="${extensions}/datatype-xml" />
 		<property name="plugins.datatype-raw" value="${extensions}/datatype-raw" />
 		<property name="plugins.datatype-json" value="${extensions}/datatype-json" />
-
+		
 		<!-- plugins -->
 		<property name="plugins.directoryresource" value="${extensions}/directoryresource" />
 		<property name="plugins.dashboardstatus" value="${extensions}/dashboardstatus" />
@@ -108,7 +108,7 @@
 		</copy>
 	</target>
 
-
+	
 	<target name="create-crypto" depends="compile">
 		<jar destfile="${setup.server.lib}/${crypto.jar}" basedir="${classes}">
 			<include name="com/mirth/commons/encryption/**" />
@@ -457,7 +457,7 @@
 			<include name="com/mirth/connect/plugins/datatypes/delimited/DelimitedBatchAdaptor.class" />
 			<include name="com/mirth/connect/plugins/datatypes/delimited/DelimitedBatchReader.class" />
 		</jar>
-
+		
 		<!-- plugins.datatype-dicom -->
 		<mkdir dir="${plugins.datatype-dicom}" />
 		<copy todir="${plugins.datatype-dicom}">
@@ -475,8 +475,8 @@
 		<jar destfile="${plugins.datatype-dicom}/datatype-dicom-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/dicom/DICOMDataTypeServerPlugin.class" />
 		</jar>
-
-
+		
+		
 		<!-- plugins.datatype-edi -->
 		<mkdir dir="${plugins.datatype-edi}" />
 		<copy todir="${plugins.datatype-edi}">
@@ -498,7 +498,7 @@
 		<jar destfile="${plugins.datatype-edi}/datatype-edi-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/edi/EDIDataTypeServerPlugin.class" />
 		</jar>
-
+		
 		<!-- plugins.datatype-hl7v2 -->
 		<mkdir dir="${plugins.datatype-hl7v2}" />
 		<copy todir="${plugins.datatype-hl7v2}">
@@ -518,7 +518,7 @@
 			<include name="com/mirth/connect/plugins/datatypes/hl7v2/HL7v2DataTypeServerPlugin.class" />
 			<include name="com/mirth/connect/plugins/datatypes/hl7v2/HL7v2BatchAdaptor.class" />
 		</jar>
-
+		
 		<!-- plugins.datatype-hl7v3 -->
 		<mkdir dir="${plugins.datatype-hl7v3}" />
 		<copy todir="${plugins.datatype-hl7v3}">
@@ -536,7 +536,7 @@
 		<jar destfile="${plugins.datatype-hl7v3}/datatype-hl7v3-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/hl7v3/HL7V3DataTypeServerPlugin.class" />
 		</jar>
-
+		
 		<!-- plugins.datatype-ncpdp -->
 		<mkdir dir="${plugins.datatype-ncpdp}" />
 		<copy todir="${plugins.datatype-ncpdp}">
@@ -554,7 +554,7 @@
 		<jar destfile="${plugins.datatype-ncpdp}/datatype-ncpdp-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/ncpdp/NCPDPDataTypeServerPlugin.class" />
 		</jar>
-
+		
 		<!-- plugins.datatype-xml -->
 		<mkdir dir="${plugins.datatype-xml}" />
 		<copy todir="${plugins.datatype-xml}">
@@ -572,7 +572,7 @@
 		<jar destfile="${plugins.datatype-xml}/datatype-xml-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/xml/XMLDataTypeServerPlugin.class" />
 		</jar>
-
+		
 		<!-- plugins.datatype-raw -->
 		<mkdir dir="${plugins.datatype-raw}" />
 		<copy todir="${plugins.datatype-raw}">
@@ -590,7 +590,7 @@
 		<jar destfile="${plugins.datatype-raw}/datatype-raw-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/raw/RawDataTypeServerPlugin.class" />
 		</jar>
-
+		
 		<!-- plugins.datatype-json -->
 		<mkdir dir="${plugins.datatype-json}" />
 		<copy todir="${plugins.datatype-json}">
@@ -608,7 +608,7 @@
 		<jar destfile="${plugins.datatype-json}/datatype-json-server.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/datatypes/json/JSONDataTypeServerPlugin.class" />
 		</jar>
-
+		
 		<!-- plugins.directoryresource -->
 		<mkdir dir="${plugins.directoryresource}" />
 		<copy todir="${plugins.directoryresource}">
@@ -628,7 +628,7 @@
 			<exclude name="com/mirth/connect/plugins/directoryresource/DirectoryResourceProperties.class" />
 			<exclude name="com/mirth/connect/plugins/directoryresource/DirectoryResourceServletInterface.class" />
 		</jar>
-
+		
 		<!-- plugins.dashboardstatus -->
 		<mkdir dir="${plugins.dashboardstatus}" />
 		<copy todir="${plugins.dashboardstatus}">
@@ -648,7 +648,7 @@
 			<exclude name="com/mirth/connect/plugins/dashboardstatus/ConnectionLogItem.class" />
 			<exclude name="com/mirth/connect/plugins/dashboardstatus/DashboardConnectorStatusServletInterface.class" />
 		</jar>
-
+		
 		<!-- plugins.destinationsetfilter -->
 		<mkdir dir="${plugins.destinationsetfilter}" />
 		<copy todir="${plugins.destinationsetfilter}">
@@ -675,7 +675,7 @@
 		<copy todir="${plugins.dicomviewer}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/dicomviewer" />
 		</copy>
-
+		
 		<!-- plugins.globalmapviewer -->
 		<mkdir dir="${plugins.globalmapviewer}" />
 		<copy todir="${plugins.globalmapviewer}">
@@ -693,7 +693,7 @@
 			<include name="com/mirth/connect/plugins/globalmapviewer/**" />
 			<exclude name="com/mirth/connect/plugins/globalmapviewer/GlobalMapServletInterface.class" />
 		</jar>
-
+		
 		<!-- plugins.httpauth -->
 		<mkdir dir="${plugins.httpauth}" />
 		<copy todir="${plugins.httpauth}">
@@ -711,7 +711,7 @@
 			<include name="com/mirth/connect/plugins/httpauth/basic/BasicHttpAuthProperties.class" />
 			<include name="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties.class" />
 			<include name="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties$Algorithm.class" />
-			<include name="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties$QOPMode.class" />
+			<include name="com/mirth/connect/plugins/httpauth/digest/DigestHttpAuthProperties$QOPMode.class" />				
 			<include name="com/mirth/connect/plugins/httpauth/custom/CustomHttpAuthProperties.class" />
 			<include name="com/mirth/connect/plugins/httpauth/javascript/JavaScriptHttpAuthProperties.class" />
 			<include name="com/mirth/connect/plugins/httpauth/oauth2/OAuth2HttpAuthProperties.class" />
@@ -980,11 +980,11 @@
 				<exclude name="Thumbs.db" />
 			</fileset>
 		</copy>
-
+		
 		<replace dir="${setup.public_html}" token="@mirthversion" value="${version}">
 			<include name="*.html" />
 		</replace>
-
+		
 		<!-- copy Swagger UI files -->
 		<copy todir="${setup.public_api_html}">
 			<fileset dir="${public_api_html}">
@@ -1031,7 +1031,7 @@
 				<attribute name="Class-Path" value="server-lib/commons/commons-io-2.13.0.jar server-lib/commons/commons-configuration2-2.8.0.jar server-lib/commons/commons-lang3-3.13.0.jar server-lib/commons/commons-logging-1.2.jar server-lib/commons/commons-beanutils-1.9.4.jar server-lib/commons/commons-text-1.10.0.jar server-lib/commons/commons-collections-3.2.2.jar conf/" />
 			</manifest>
 		</jar>
-
+		
 		<!-- create the userutil-sources jar -->
 		<jar destfile="${setup.client.lib}/${userutil-sources.jar}" basedir="${src}">
 			<include name="com/mirth/connect/userutil/**.java" />
@@ -1043,29 +1043,29 @@
 		<delete>
 			<fileset dir="${setup}" includes="**/.svn" />
 		</delete>
-
+		
 		<taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="classpath" />
 
 		<!-- modify jar manifests -->
 		<!-- don't modify bcprov, since it already has the manifest changes and is signed by BC -->
 		<echo message="[Thread Count: ${manifest_thread_count}] Modifying jar manifests to add Permissions: all-permissions; Codebase: *; Application-Name: Mirth Connect" />
 		<for param="jarFile" parallel="true" threadCount="${manifest_thread_count}">
-			<fileset dir="${setup.client.lib}" includes="**/*.jar" excludes="bcp*.jar,bcutil*.jar"/>
-			<fileset dir="${setup.extensions}" includes="**/*.jar" />
+	    	<fileset dir="${setup.client.lib}" includes="**/*.jar" excludes="bcp*.jar,bcutil*.jar"/>
+	    	<fileset dir="${setup.extensions}" includes="**/*.jar" />
 			<sequential>
 				<apply executable="jar">
-					<arg value="umf" />
-					<arg line="custom_manifest.mf" />
-					<srcfile />
-					<fileset file="@{jarFile}"/>
-				</apply>
+			        <arg value="umf" />
+			        <arg line="custom_manifest.mf" />
+			        <srcfile />
+			    	<fileset file="@{jarFile}"/>
+			    </apply>
 			</sequential>
 		</for>
 
 		<!-- sign jars for webstart -->
 		<echo message="[Thread Count: ${signjar_thread_count}] Signing jars for Java Web Start" />
 		<property file="${keystore_property_file}" />
-
+		
 		<for param="jarFile" parallel="true" threadCount="${signjar_thread_count}">
 			<fileset dir="${setup.client.lib}" includes="**/*.jar" />
 			<fileset dir="${setup.extensions}" includes="**/*.jar" />
@@ -1096,7 +1096,7 @@
 		<zip destfile="${dist.extensions}/js-${version}.zip" basedir="${extensions}" includes="js/**/*" />
 		<zip destfile="${dist.extensions}/ws-${version}.zip" basedir="${extensions}" includes="ws/**/*" />
 		<zip destfile="${dist.extensions}/vm-${version}.zip" basedir="${extensions}" includes="vm/**/*" />
-
+		
 		<zip destfile="${dist.extensions}/datatype-delimited-${version}.zip" basedir="${extensions}" includes="datatype-delimited/**/*" />
 		<zip destfile="${dist.extensions}/datatype-dicom-${version}.zip" basedir="${extensions}" includes="datatype-dicom/**/*" />
 		<zip destfile="${dist.extensions}/datatype-edi-${version}.zip" basedir="${extensions}" includes="datatype-edi/**/*" />
@@ -1129,10 +1129,10 @@
 	<target name="create-dist" depends="create-extension-zips">
 		<mkdir dir="${dist}" />
 	</target>
-
+	
 	<target name="create-javadocs" depends="init">
 		<mkdir dir="${docs.javadocs}" />
-
+		
 		<javadoc sourcepath="${src}:${jdk_src_path}" destdir="${docs.javadocs.userapi}" packagenames="com.mirth.connect.server.userutil,com.mirth.connect.userutil,com.mirth.connect.plugins.httpauth.userutil" link="https://docs.oracle.com/javase/8/docs/api/">
 			<classpath refid="classpath" />
 			<!-- Uncomment the following and add additional dashes in front of the arguments to allow Java 9+
@@ -1154,8 +1154,8 @@
 				<fileset dir="${lib}">
 					<include name="log4j/log4j-api-2.17.2.jar" />
 					<include name="log4j/log4j-core-2.17.2.jar" />
-					<include name="database/derby-10.14.2.0.jar" />
-					<include name="database/derbytools-10.14.2.0.jar" />
+					<include name="database/derby-10.10.2.0.jar" />
+					<include name="database/derbytools-10.10.2.0.jar" />
 					<include name="commons/commons-io-2.13.0.jar" />
 				</fileset>
 			</classpath>
@@ -1184,21 +1184,21 @@
 			</classpath>
 		</java>
 	</target>
-
+	
 	<target name="test-init" depends="init">
 		<delete dir="${test_classes}" />
-
+		
 		<path id="testclasspath">
 			<fileset dir="testlib" includes="**/*.jar" />
 			<dirset dir="${classes}"/>
 			<path refid="classpath" />
 		</path>
 	</target>
-
+	
 	<target name="test-compile" depends="test-init">
 		<!-- compile the source -->
 		<mkdir dir="${test_classes}" />
-
+		
 		<javac srcdir="${test}" destdir="${test_classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="testclasspath" />
 			<!-- Uncomment the following and add additional dashes in front of the arguments to allow Java 9+
@@ -1208,30 +1208,29 @@
 				<compilerarg value="java.sql.rowset/com.sun.rowset=ALL-UNNAMED" />
 			-->
 		</javac>
-
+		
 		<copy todir="${test_classes}">
 			<fileset dir="${test}">
 				<include name="**/*.xml" />
 			</fileset>
 		</copy>
-
+		
 		<jar destfile="${test.dist}/${tests.jar}" basedir="${test_classes}">
 			<include name="**/*" />
 		</jar>
 	</target>
-
+	
 	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
 		<classpath path="lib/ant/jacocoant.jar"/>
 	</taskdef>
-
+	
 	<target name="test-run" depends="test-compile">
 		<property name="junit-reports" value="junit-reports" />
 		<property name="code-coverage-reports" value="code-coverage-reports" />
 		<mkdir dir="${junit-reports}" />
 		<mkdir dir="${code-coverage-reports}" />
-
-		<jacoco:coverage destfile="${code-coverage-reports}/jacoco.exec"
-			xmlns:jacoco="antlib:org.jacoco.ant" exclclassloader="sun.reflect.DelegatingClassLoader:javassist.Loader">
+		
+		<jacoco:coverage destfile="${code-coverage-reports}/jacoco.exec" xmlns:jacoco="antlib:org.jacoco.ant" exclclassloader="sun.reflect.DelegatingClassLoader:javassist.Loader" >
 			<junit haltonfailure="false" fork="true" forkmode="once">
 				<jvmarg value="-Xms128m" />
 				<jvmarg value="-Xmx1024m" />
@@ -1257,7 +1256,7 @@
 			</junit>
 		</jacoco:coverage>
 	</target>
-
+	
 	<target name="remove-classes" depends="init">
 		<!-- delete the compiled classes folder -->
 		<delete dir="${classes}" />
