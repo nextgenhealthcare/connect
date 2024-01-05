@@ -354,6 +354,9 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
 
     private String buildEnvelope(Definition definition, String operationName, boolean buildOptional) throws Exception {
         String prefix = "ws";
+        String isQualified = "";
+        String isSchemaImportQualified = "";
+        
 
         // add the name space
         String urlString = definition.getTargetNamespace();
@@ -392,64 +395,76 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
         SOAPBodyElement bodyElement = soapBody.addBodyElement(bodyName);
 
         // Map of element names and their types
-        Map<String, String> elementTypes = new HashMap<>();
+        List<String> elementTags = new ArrayList<String>();
+        Map<String, List<String>> elementTypes = new HashMap<>();
 
-        // Map of schema types. key = type name, value = type of that field
-        Map<String, SchemaType> typeDefinitions = new HashMap<>();
-
-        List extensibilityElements = definition.getTypes().getExtensibilityElements();
+        List<?> extensibilityElements = definition.getTypes().getExtensibilityElements();
         for (Object extensibilityElement : extensibilityElements) {
             if (extensibilityElement instanceof Schema) {
                 Schema schema = (Schema) extensibilityElement;
+                
                 // if we have an imported schema, we will need to get the import instead of using the schema above
                 if (schema.getImports() != null && !schema.getImports().isEmpty()) {
                     Iterator<Map.Entry<String, Vector>> schemaIt = schema.getImports().entrySet().iterator();
                     Map.Entry<String, Vector> schemaEntry = schemaIt.next();
-                    Vector schemaValue = schemaEntry.getValue();
-                    SchemaImpl tmpSchema = (SchemaImpl) ((SchemaImportImpl) schemaValue.get(0)).getReferencedSchema();
+                    SchemaImpl tmpSchema = (SchemaImpl) ((SchemaImportImpl) schemaEntry.getValue().get(0)).getReferencedSchema();
                     schema = tmpSchema;
+                    isSchemaImportQualified = schema.getElement().getAttribute("elementFormDefault");
+                    urlString = schema.getElement().getAttribute("targetNamespace");
+                    for (int i = 0; i < schema.getElement().getAttributes().getLength(); i++) {
+                        Node schemaNode = schema.getElement().getAttributes().item(i);
+                        if (schemaNode.getNamespaceURI() != null) {
+                            String url = schemaNode.getNodeValue();
+                            if (url.equals(urlString)) {
+                                if (!StringUtils.isEmpty(schemaNode.getNodeValue())) {
+                                    prefix = schemaNode.getLocalName();
+                                }
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    isQualified = schema.getElement().getAttribute("elementFormDefault");
                 }
-
+                
                 // An element can specify a type name or it can define its type using child nodes
                 // Complex (non-primitive) types can be defined in a separate node or as a child nodes of the element
-                // go through main elements getting all related to operationName
+                // go through all main elements
                 for (int i = 1; i < schema.getElement().getChildNodes().getLength(); i += 2) {
                     Node node = schema.getElement().getChildNodes().item(i);
                     String name = node.getAttributes().getNamedItem("name") != null ? node.getAttributes().getNamedItem("name").getNodeValue() : null;
                     Node tmpNode = node;
-                    // get last node for the name of the tag
+                    
+                    // go through child nodes of all elements related to operationName
                     if (name.equals(operationName)) {
                         while (tmpNode.getChildNodes().getLength() != 0) {
                             int j = tmpNode.getChildNodes().getLength();
                             for (int k = 1; k < j; k += 2) {
+                                
+                                // get last node for the name of the tag(s) - this should be the sequence
                                 String tagName = tmpNode.getChildNodes().item(k).getAttributes().getNamedItem("name") != null ? tmpNode.getChildNodes().item(k).getAttributes().getNamedItem("name").getNodeValue() : null;
                                 if (!StringUtils.isEmpty(tagName)) {
-                                    elementTypes.put(name, tagName);
-                                    SchemaType schemaType = new SchemaType(tagName);
-                                    typeDefinitions.put(tagName, schemaType);
+                                    elementTags.add(tagName);
                                 }
-                                tmpNode = tmpNode.getChildNodes().item(1);
                             }
+                            elementTypes.put(name, elementTags);
+                            tmpNode = tmpNode.getChildNodes().item(1);
                         }
                     }
                 }
                 break;
             }
         }
-
+        
         // Add arguments to body
         if (elementTypes.get(operationName) != null) {
-            SchemaType operationSchemaType = typeDefinitions.get(elementTypes.get(operationName));
-            if (operationSchemaType.isComplex()) {
-                for (SchemaTypeElement operationSchemaTypeElement : operationSchemaType.getSequence()) {
-                    if (!operationSchemaTypeElement.isOptional() || buildOptional) {
-                        Name childName = soapFactory.createName(operationSchemaTypeElement.getName(), prefix, urlString);
-                        SOAPElement childElement = bodyElement.addChildElement(childName);
-                        childElement.addTextNode("?");
-                    }
+            for (String element : elementTypes.get(operationName)) {
+                Name childName = null;
+                if (isSchemaImportQualified.equals("qualified") || isQualified.equals("qualified")) {
+                    childName = soapFactory.createName(element, prefix, urlString);
+                } else {
+                    childName = soapFactory.createName(element);
                 }
-            } else {
-                Name childName = soapFactory.createName(operationSchemaType.getName(), prefix, urlString);
                 SOAPElement childElement = bodyElement.addChildElement(childName);
                 childElement.addTextNode("?");
             }
