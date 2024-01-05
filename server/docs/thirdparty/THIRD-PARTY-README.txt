@@ -16,7 +16,6 @@ APACHE-LICENSE-2.0.txt):
 	Apache Tomcat Jasper Expression Language Impl 8.5.70 [Mirth Connect only]
 	Apache Velocity Engine 2.2
 	Apache Velocity Tools 3.0
-	Apache XMLBeans [Mirth Connect only]
 	AWS SDK v2 for Java [Mirth Connect only] (https://github.com/aws/aws-sdk-java-v2)
 	Bean Validation API 1.1.0 (http://beanvalidation.org/)
 	Error Prone Annotations 2.3.4 [Mirth Connect only] (https://github.com/google/error-prone)
@@ -237,24 +236,6 @@ Or in the Mirth Connect source code distribution, it can be found at:
 --------------------------------------------------------------------------------
 
 
-Mirth Connect includes the following software:
-
-	Apache XmlBeans
-
-Licensing information for this software can be found in the LICENSE.txt and
-NOTICE.txt files contained within the xbean-fixed-2.4.0.jar file. This file can
-be found within the Mirth Connect installation folder at:
-
-	[Mirth Connect Install Folder]/extensions/ws/lib
-
-Or in the Mirth Connect source code distribution, it can be found at:
-
-	[Mirth Connect Server Source Folder]/lib/extensions/ws
-
-
---------------------------------------------------------------------------------
-
-
 Mirth Connect includes the jTDS JDBC driver version 1.3.1. This library and its
 use are covered by the LGPL version 2.1 (see LGPL-2.1.txt). The library source
 code is available at http://jtds.sourceforge.net/. The following file has
@@ -275,14 +256,6 @@ library and its use are covered by the GPL version 2 with Oracle's Free and
 Open Source Software ("FOSS") License Exception (see 
 MYSQL-CONNECTOR-LICENSE.txt). The library source code is available at 
 http://mirrors.ibiblio.org/maven2/mysql/mysql-connector-j/8.1.0/src/.
-
-
---------------------------------------------------------------------------------
-
-
-Mirth Connect includes SoapUI version 4.0.1. This library and its use are
-covered by the LGPL version 2.1 (see LGPL-2.1.txt). The library source code is
-available at http://www.soapui.org/.
 
 
 --------------------------------------------------------------------------------

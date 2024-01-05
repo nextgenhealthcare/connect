@@ -9,8 +9,6 @@
 
 package com.mirth.connect.connectors.ws;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.security.Security;
@@ -19,7 +17,6 @@ import org.apache.commons.ssl.TrustMaterial;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.eviware.soapui.SoapUI;
 import com.mirth.connect.server.api.ServletTestBase;
 
 public class WebServiceConnectorServletTest extends ServletTestBase {
@@ -38,15 +35,5 @@ public class WebServiceConnectorServletTest extends ServletTestBase {
         TrustMaterial defaultTrustMaterial = TrustMaterial.DEFAULT;
 
         assertTrue(defaultTrustMaterial.getCertificates().size() > 0);
-    }
-
-    @Test
-    public void testSoapUICore() throws Exception {
-        assertNull(SoapUI.getSoapUICore());
-
-        // Load static initialization
-        new WebServiceConnectorServlet(request, sc);
-
-        assertNotNull(SoapUI.getSoapUICore());
     }
 }
