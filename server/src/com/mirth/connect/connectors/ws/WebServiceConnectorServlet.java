@@ -39,6 +39,7 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.http.HTTPAddress;
 import javax.wsdl.extensions.http.HTTPOperation;
 import javax.wsdl.extensions.schema.Schema;
+import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.extensions.soap12.SOAP12Address;
@@ -407,8 +408,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                 if (schema.getImports() != null && !schema.getImports().isEmpty()) {
                     Iterator<Map.Entry<String, Vector>> schemaIt = schema.getImports().entrySet().iterator();
                     Map.Entry<String, Vector> schemaEntry = schemaIt.next();
-                    SchemaImpl tmpSchema = (SchemaImpl) ((SchemaImportImpl) schemaEntry.getValue().get(0)).getReferencedSchema();
-                    schema = tmpSchema;
+                    schema = ((SchemaImport) schemaEntry.getValue().get(0)).getReferencedSchema();
                     isSchemaImportQualified = schema.getElement().getAttribute("elementFormDefault");
                     urlString = schema.getElement().getAttribute("targetNamespace");
                     for (int i = 0; i < schema.getElement().getAttributes().getLength(); i++) {
@@ -416,9 +416,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                         if (schemaNode.getNamespaceURI() != null) {
                             String url = schemaNode.getNodeValue();
                             if (url.equals(urlString)) {
-                                if (!StringUtils.isEmpty(schemaNode.getNodeValue())) {
-                                    prefix = schemaNode.getLocalName();
-                                }
+                                prefix = schemaNode.getLocalName();
                                 break;
                             }
                         }
@@ -430,26 +428,34 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                 // An element can specify a type name or it can define its type using child nodes
                 // Complex (non-primitive) types can be defined in a separate node or as a child nodes of the element
                 // go through all main elements
-                for (int i = 1; i < schema.getElement().getChildNodes().getLength(); i += 2) {
-                    Node node = schema.getElement().getChildNodes().item(i);
-                    String name = node.getAttributes().getNamedItem("name") != null ? node.getAttributes().getNamedItem("name").getNodeValue() : null;
-                    Node tmpNode = node;
-                    
-                    // go through child nodes of all elements related to operationName
-                    if (name.equals(operationName)) {
-                        while (tmpNode.getChildNodes().getLength() != 0) {
-                            int j = tmpNode.getChildNodes().getLength();
-                            for (int k = 1; k < j; k += 2) {
-                                
-                                // get last node for the name of the tag(s) - this should be the sequence
-                                String tagName = tmpNode.getChildNodes().item(k).getAttributes().getNamedItem("name") != null ? tmpNode.getChildNodes().item(k).getAttributes().getNamedItem("name").getNodeValue() : null;
-                                if (!StringUtils.isEmpty(tagName)) {
-                                    elementTags.add(tagName);
+                for (int i = 0; i < schema.getElement().getChildNodes().getLength(); i++) {
+                    try {
+                        Node node = schema.getElement().getChildNodes().item(i);
+                        String name = node.getAttributes().getNamedItem("name") != null ? node.getAttributes().getNamedItem("name").getNodeValue() : null;
+                        
+                        // go through child nodes of all elements related to operationName
+                        if (name.equals(operationName)) {
+                            while (node.getChildNodes().getLength() != 0) {
+                                int j = node.getChildNodes().getLength();
+                                for (int k = 0; k < j; k++) {
+                                    try {
+                                        // get last node for the name of the tag(s) - this should be the sequence
+                                        String tagName = node.getChildNodes().item(k).getAttributes().getNamedItem("name") != null ? node.getChildNodes().item(k).getAttributes().getNamedItem("name").getNodeValue() : null;
+                                        if (!StringUtils.isEmpty(tagName)) {
+                                            elementTags.add(tagName);
+                                        }
+                                    } catch (Exception ex) {
+                                        // go to next child node
+                                    }
                                 }
+                                elementTypes.put(name, elementTags);
+                                // get the next child of this child
+                                node = node.getChildNodes().item(0);
+
                             }
-                            elementTypes.put(name, elementTags);
-                            tmpNode = tmpNode.getChildNodes().item(1);
                         }
+                    } catch (Exception e) {
+                        // go to next main element
                     }
                 }
                 break;
