@@ -428,34 +428,27 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                 // An element can specify a type name or it can define its type using child nodes
                 // Complex (non-primitive) types can be defined in a separate node or as a child nodes of the element
                 // go through all main elements
-                for (int i = 0; i < schema.getElement().getChildNodes().getLength(); i++) {
-                    try {
-                        Node node = schema.getElement().getChildNodes().item(i);
-                        String name = node.getAttributes().getNamedItem("name") != null ? node.getAttributes().getNamedItem("name").getNodeValue() : null;
-                        
-                        // go through child nodes of all elements related to operationName
-                        if (name.equals(operationName)) {
-                            while (node.getChildNodes().getLength() != 0) {
-                                int j = node.getChildNodes().getLength();
-                                for (int k = 0; k < j; k++) {
-                                    try {
-                                        // get last node for the name of the tag(s) - this should be the sequence
-                                        String tagName = node.getChildNodes().item(k).getAttributes().getNamedItem("name") != null ? node.getChildNodes().item(k).getAttributes().getNamedItem("name").getNodeValue() : null;
-                                        if (!StringUtils.isEmpty(tagName)) {
-                                            elementTags.add(tagName);
-                                        }
-                                    } catch (Exception ex) {
-                                        // go to next child node
-                                    }
+                for (int i = 1; i < schema.getElement().getChildNodes().getLength(); i += 2) {
+                    Node node = schema.getElement().getChildNodes().item(i);
+                    String name = node.getAttributes().getNamedItem("name") != null ? node.getAttributes().getNamedItem("name").getNodeValue() : null;
+                    
+                    // go through child nodes of all elements related to operationName
+                    if (name.equals(operationName)) {
+                        while (node.getChildNodes().getLength() != 0) {
+                            int j = node.getChildNodes().getLength();
+                            for (int k = 1; k < j; k += 2) {
+                                // get last node for the name of the tag(s) - this should be the sequence
+                                String tagName = node.getChildNodes().item(k).getAttributes().getNamedItem("name") != null ? node.getChildNodes().item(k).getAttributes().getNamedItem("name").getNodeValue() : null;
+                                if (!StringUtils.isEmpty(tagName)) {
+                                    elementTags.add(tagName);
                                 }
-                                elementTypes.put(name, elementTags);
-                                // get the next child of this child
-                                node = node.getChildNodes().item(0);
-
                             }
+                            if (!elementTags.isEmpty()) {
+                                elementTypes.put(name, elementTags);
+                            }
+                            // get the next child of this child
+                            node = node.getChildNodes().item(1);
                         }
-                    } catch (Exception e) {
-                        // go to next main element
                     }
                 }
                 break;
