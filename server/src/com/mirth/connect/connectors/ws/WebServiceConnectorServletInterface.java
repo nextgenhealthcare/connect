@@ -81,7 +81,7 @@ public interface WebServiceConnectorServletInterface extends BaseServletInterfac
             @FormParam("channelName") String channelName,
             
             @Param("wsdlUrl") 
-            @Parameter(description = "The WSDL URL to check.", required = true, schema = @Schema(description = "The WSDL URL to check.")) 
+            @Parameter(description = "The full URL to the WSDL describing the web service method to be called.", required = true, schema = @Schema(description = "The full URL to the WSDL describing the web service method to be called.")) 
             @FormParam("wsdlUrl") String wsdlUrl,
             
             @Param("username") 
@@ -112,7 +112,7 @@ public interface WebServiceConnectorServletInterface extends BaseServletInterfac
             @FormParam("channelName") String channelName,
             
             @Param("wsdlUrl") 
-            @Parameter(description = "The WSDL URL to check.", required = true, schema = @Schema(description = "The WSDL URL to check.")) 
+            @Parameter(description = "The full URL to the WSDL describing the web service method to be called.", required = true, schema = @Schema(description = "The full URL to the WSDL describing the web service method to be called.")) 
             @FormParam("wsdlUrl") String wsdlUrl,
             
             @Param("username") 
@@ -142,7 +142,7 @@ public interface WebServiceConnectorServletInterface extends BaseServletInterfac
             @FormParam("channelName") String channelName,
             
             @Param("wsdlUrl") 
-            @Parameter(description = "The WSDL URL to check.", required = true, schema = @Schema(description = "The WSDL URL to check.")) 
+            @Parameter(description = "The full URL to the WSDL describing the web service method to be called.", required = true, schema = @Schema(description = "The full URL to the WSDL describing the web service method to be called.")) 
             @FormParam("wsdlUrl") String wsdlUrl,
             
             @Param("username") 
@@ -154,15 +154,15 @@ public interface WebServiceConnectorServletInterface extends BaseServletInterfac
             @FormParam("password") String password,
             
             @Param("service") 
-            @Parameter(description = "The service name for the WSDL operation.", schema = @Schema(description = "The service name for the WSDL operation.")) 
+            @Parameter(description = "The service name for the WSDL defined above.", required = true, schema = @Schema(description = "The service name for the WSDL defined above.")) 
             @FormParam("service") String service,
             
             @Param("port") 
-            @Parameter(description = "The port / endpoint name for the service.", schema = @Schema(description = "The port / endpoint name for the service.")) 
+            @Parameter(description = "The port / endpoint name for the service defined above.", required = true, schema = @Schema(description = "The port / endpoint name for the service defined above.")) 
             @FormParam("port") String port,
             
             @Param("operation") 
-            @Parameter(description = "The name of the operation to generate an envelope for.", schema = @Schema(description = "The name of the operation to generate an envelope for.")) 
+            @Parameter(description = "The name of the operation. This is a method provided by the web service.", required = true, schema = @Schema(description = "The name of the operation. This is a method provided by the web service")) 
             @FormParam("operation") String operation, 
             
             @Param("buildOptional") 
@@ -175,7 +175,7 @@ public interface WebServiceConnectorServletInterface extends BaseServletInterfac
     @Path("/_getSoapAction")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_PLAIN)
-    @Operation(summary = "Retrieves the default SOAP Action for a given WSDL operation.")
+    @Operation(summary = "Retrieves the default SOAP Action (URI string) for a given WSDL operation.")
     @ApiResponse(content = { @Content(mediaType = MediaType.TEXT_PLAIN, examples = {
             @ExampleObject(value = "SomeAction") }) })
     @MirthOperation(name = "getSoapAction", display = "Get SOAP Action for operation", type = ExecuteType.ASYNC, auditable = false)
@@ -189,7 +189,7 @@ public interface WebServiceConnectorServletInterface extends BaseServletInterfac
             @FormParam("channelName") String channelName,
             
             @Param("wsdlUrl") 
-            @Parameter(description = "The WSDL URL to check.", required = true, schema = @Schema(description = "The WSDL URL to check.")) 
+            @Parameter(description = "The full URL to the WSDL describing the web service method to be called.", required = true, schema = @Schema(description = "The full URL to the WSDL describing the web service method to be called.")) 
             @FormParam("wsdlUrl") String wsdlUrl,
             
             @Param("username") 
@@ -201,15 +201,15 @@ public interface WebServiceConnectorServletInterface extends BaseServletInterfac
             @FormParam("password") String password,
             
             @Param("service") 
-            @Parameter(description = "The service name for the WSDL operation.", schema = @Schema(description = "The service name for the WSDL operation.")) 
+            @Parameter(description = "The service name for the WSDL defined above.", required = true, schema = @Schema(description = "The service name for the WSDL defined above.")) 
             @FormParam("service") String service,
             
             @Param("port") 
-            @Parameter(description = "The port / endpoint name for the service.", schema = @Schema(description = "The port / endpoint name for the service.")) 
+            @Parameter(description = "The port / endpoint name for the service defined above.", required = true, schema = @Schema(description = "The port / endpoint name for the service defined above.")) 
             @FormParam("port") String port,
             
             @Param("operation") 
-            @Parameter(description = "The name of the operation to generate an envelope for.", schema = @Schema(description = "The name of the operation to generate an envelope for.")) 
+            @Parameter(description = "The name of the operation. This is a method provided by the web service.", required = true, schema = @Schema(description = "The name of the operation. This is a method provided by the web service.")) 
             @FormParam("operation") String operation) throws ClientException;
     // @formatter:on
 
