@@ -157,17 +157,16 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                 if (MapUtils.isNotEmpty(defService.getPorts())) {
                     for (Object portObject : defService.getPorts().values()) {
                         Port defPort = (Port) portObject;
-                        List extensions = defPort.getExtensibilityElements();
-                        if (extensions != null) {
-                            for (int i = 0; i < extensions.size(); i++) {
-                                ExtensibilityElement extElement = (ExtensibilityElement) extensions.get(i);
-                                if (defPort.getName().equals(port)) {
+                        for (Object BindingOperation : defPort.getBinding().getBindingOperations()) {
+                            List extensions = ((BindingOperation) BindingOperation).getExtensibilityElements();  
+                            if (extensions != null) {
+                                for (int i = 0; i < extensions.size(); i++) {
+                                    ExtensibilityElement extElement = (ExtensibilityElement) extensions.get(i); 
                                     if (extElement instanceof SOAPOperation) {
-                                        soapOp = ((SOAPOperation) extElement).toString();
+                                        return ((SOAPOperation) extElement).getSoapActionURI();
                                     } else if (extElement instanceof SOAP12Operation) {
-                                        soapOp = ((SOAP12Operation) extElement).toString();
+                                        return ((SOAP12Operation) extElement).getSoapActionURI();
                                     }
-                                    return soapOp;
                                 }
                             }
                         }
@@ -323,16 +322,16 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                             if (port.getBinding().getBindingOperations() != null) {
                                 for (Object bindOperationObject : port.getBinding().getBindingOperations()) {
                                     logger.debug("        Interface: " + bindOperationObject);
-                                    List extensions = port.getExtensibilityElements();
+                                    List extensions = ((BindingOperation) bindOperationObject).getExtensibilityElements();  
                                     if (extensions != null) {
                                         for (int i = 0; i < extensions.size(); i++) {
-                                            ExtensibilityElement extElement = (ExtensibilityElement) extensions.get(i);
+                                            ExtensibilityElement extElement = (ExtensibilityElement) extensions.get(i); 
                                             if (extElement instanceof SOAPOperation) {
                                                 SOAPOperation soapOp = (SOAPOperation) extElement;
-                                                actions.add(soapOp.toString());
+                                                actions.add(soapOp.getSoapActionURI());
                                             } else if (extElement instanceof SOAP12Operation) {
                                                 SOAP12Operation soapOp = (SOAP12Operation) extElement;
-                                                actions.add(soapOp.toString());
+                                                actions.add(soapOp.getSoapActionURI());
                                             }
                                         }
                                     }
