@@ -149,6 +149,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
     @Override
     public String getSoapAction(String channelId, String channelName, String wsdlUrl, String username, String password, String service, String port, String operation) {
         try {
+            
             wsdlUrl = getWsdlUrl(channelId, channelName, wsdlUrl, username, password);
             Definition definition = getCachedDefinition(wsdlUrl, service, port, channelId, channelName);
             String soapOp = "";
@@ -161,7 +162,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                             List extensions = ((BindingOperation) bindingOperation).getExtensibilityElements();  
                             if (extensions != null) {
                                 for (int i = 0; i < extensions.size(); i++) {
-                                    if (((BindingOperation) bindingOperation).getName().equalsIgnoreCase(operation)) {
+                                    if (StringUtils.equalsIgnoreCase(((BindingOperation) bindingOperation).getName(), operation)) {
                                         ExtensibilityElement extElement = (ExtensibilityElement) extensions.get(i); 
                                         if (extElement instanceof SOAPOperation) {
                                             return ((SOAPOperation) extElement).getSoapActionURI();
