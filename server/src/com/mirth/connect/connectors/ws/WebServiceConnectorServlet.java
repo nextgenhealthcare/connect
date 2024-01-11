@@ -161,7 +161,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                             List extensions = ((BindingOperation) bindingOperation).getExtensibilityElements();  
                             if (extensions != null) {
                                 for (int i = 0; i < extensions.size(); i++) {
-                                    if (((BindingOperation) bindingOperation).getName().toLowerCase().equalsIgnoreCase(operation.toLowerCase())) {
+                                    if (((BindingOperation) bindingOperation).getName().equalsIgnoreCase(operation)) {
                                         ExtensibilityElement extElement = (ExtensibilityElement) extensions.get(i); 
                                         if (extElement instanceof SOAPOperation) {
                                             return ((SOAPOperation) extElement).getSoapActionURI();
