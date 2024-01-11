@@ -53,7 +53,7 @@ public interface WebServiceConnectorServletInterface extends BaseServletInterfac
             @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
             @Param("channelName") @Parameter(description = "The name of the channel.") @QueryParam("channelName") String channelName,
             @Param("properties") 
-            @RequestBody(description = "The Web Service Sender properties to use. These properties can be found in the exported channel's XML file. Copy the data from the opening tag 'destinationConnectorProperties' to the closing tag '/wsdlDefinitionMap' (including the tags). Paste over the information below between the opening and closing tags for 'com.mirth.connect.connectors.ws.WebServiceDispatcherProperties'.", required = true, content = {
+            @RequestBody(description = "The Web Service Sender properties to use. These properties can be found in the exported channel's XML file. Copy the data from the opening tag &lt;destinationConnectorProperties&gt; to the closing tag &lt;/wsdlDefinitionMap&gt; (including the tags). Paste over the information below between the opening and closing tags for &lt;com.mirth.connect.connectors.ws.WebServiceDispatcherProperties&gt;.", required = true, content = {
                     @Content(mediaType = MediaType.APPLICATION_XML, examples = {
                             @ExampleObject(name = "ws_dispatcher_properties", ref = "../apiexamples/ws_dispatcher_properties_xml") }),
                     @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
@@ -225,7 +225,7 @@ public interface WebServiceConnectorServletInterface extends BaseServletInterfac
             @Param("channelId") @Parameter(description = "The ID of the channel.", required = true) @QueryParam("channelId") String channelId,
             @Param("channelName") @Parameter(description = "The name of the channel.") @QueryParam("channelName") String channelName,
             @Param("properties") 
-            @RequestBody(description = "The Web Service Sender properties to use. These properties can be found in the exported channel's XML file. Copy the data from the opening tag 'destinationConnectorProperties' to the closing tag '/wsdlDefinitionMap' (including the tags). Paste over the information below between the opening and closing tags for 'com.mirth.connect.connectors.ws.WebServiceDispatcherProperties'.", required = true, content = {
+            @RequestBody(description = "The Web Service Sender properties to use. These properties can be found in the exported channel's XML file. Copy the data from the opening tag &lt;destinationConnectorProperties&gt; to the closing tag &lt;/wsdlDefinitionMap&gt; (including the tags). Paste over the information below between the opening and closing tags for &lt;com.mirth.connect.connectors.ws.WebServiceDispatcherProperties&gt;.", required = true, content = {
                     @Content(mediaType = MediaType.APPLICATION_XML, examples = {
                             @ExampleObject(name = "ws_dispatcher_properties", ref = "../apiexamples/ws_dispatcher_properties_xml") }),
                     @Content(mediaType = MediaType.APPLICATION_JSON, examples = {
