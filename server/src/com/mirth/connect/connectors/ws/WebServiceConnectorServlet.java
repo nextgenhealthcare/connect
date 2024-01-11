@@ -157,11 +157,11 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                 if (MapUtils.isNotEmpty(defService.getPorts())) {
                     for (Object portObject : defService.getPorts().values()) {
                         Port defPort = (Port) portObject;
-                        for (Object BindingOperation : defPort.getBinding().getBindingOperations()) {
-                            List extensions = ((BindingOperation) BindingOperation).getExtensibilityElements();  
+                        for (Object bindingOperation : defPort.getBinding().getBindingOperations()) {
+                            List extensions = ((BindingOperation) bindingOperation).getExtensibilityElements();  
                             if (extensions != null) {
                                 for (int i = 0; i < extensions.size(); i++) {
-                                    if (((BindingOperation) BindingOperation).getName().toLowerCase().equals(operation.toLowerCase())) {
+                                    if (((BindingOperation) bindingOperation).getName().toLowerCase().equalsIgnoreCase(operation.toLowerCase())) {
                                         ExtensibilityElement extElement = (ExtensibilityElement) extensions.get(i); 
                                         if (extElement instanceof SOAPOperation) {
                                             return ((SOAPOperation) extElement).getSoapActionURI();
