@@ -435,7 +435,7 @@ public class WebServiceConnectorServlet extends MirthServlet implements WebServi
                     String name = node.getAttributes().getNamedItem("name") != null ? node.getAttributes().getNamedItem("name").getNodeValue() : null;
                     
                     // go through child nodes of all elements related to operationName
-                    if (name.equals(operationName)) {
+                    if (StringUtils.equalsIgnoreCase(name, operationName)) {
                         while (node.getChildNodes().getLength() != 0) {
                             int j = node.getChildNodes().getLength();
                             for (int k = 1; k < j; k += 2) {
