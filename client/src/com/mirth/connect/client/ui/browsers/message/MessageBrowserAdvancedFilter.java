@@ -235,7 +235,7 @@ public class MessageBrowserAdvancedFilter extends MirthDialog {
             }
 
         };
-//lmi - might need to pull this section out for the enhanced bundle this way we can include the and or button
+
         TableColumn operatorColumn = metaDataSearchTable.getColumnModel().getColumn(1);
         operatorColumn.setCellRenderer(new MirthComboBoxTableCellRenderer(MetaDataSearchOperator.values()));
         operatorColumn.setCellEditor(operatorEditor);
