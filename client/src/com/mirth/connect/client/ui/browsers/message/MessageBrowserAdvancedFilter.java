@@ -601,8 +601,8 @@ public class MessageBrowserAdvancedFilter extends MirthDialog {
         importDashLabel = new JLabel(" - ");
         importIdUpperField = new MirthTextField();
 
-        serverIdField = new MirthTextField();
         serverIdLabel = new JLabel("Server Id:");
+        serverIdField = new MirthTextField();
         serverIdField.setToolTipText("<html>The GUID of the message in the Mirth Connect database.<br>This can be retrieved from the Meta Data tab in the Message Browser.</html>");
 
         sendAttemptsLabel = new JLabel("Send Attempts:");
