@@ -603,7 +603,7 @@ public class MessageBrowserAdvancedFilter extends MirthDialog {
 
         serverIdField = new MirthTextField();
         serverIdLabel = new JLabel("Server Id:");
-//       serverIdField.createToolTip("<html>The GUID of the message in the Mirth Connect database.<br>This can be retrieved from the Meta Data tab in the Message Browser.</html>");
+        serverIdField.setToolTipText("<html>The GUID of the message in the Mirth Connect database.<br>This can be retrieved from the Meta Data tab in the Message Browser.</html>");
 
         sendAttemptsLabel = new JLabel("Send Attempts:");
         sendAttemptsLower = new javax.swing.JSpinner();
