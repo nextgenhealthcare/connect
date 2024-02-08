@@ -251,11 +251,11 @@ been changed:
 --------------------------------------------------------------------------------
 
 
-Mirth Connect includes the MySQL Connector/J JDBC Driver version 5.1.25. This 
+Mirth Connect includes the MySQL Connector/J JDBC Driver version 8.3.0. This 
 library and its use are covered by the GPL version 2 with Oracle's Free and 
 Open Source Software ("FOSS") License Exception (see 
 MYSQL-CONNECTOR-LICENSE.txt). The library source code is available at 
-http://mirrors.ibiblio.org/maven2/mysql/mysql-connector-j/8.1.0/src/.
+https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-j-8.3.0-1.sl15.src.rpm.
 
 
 --------------------------------------------------------------------------------

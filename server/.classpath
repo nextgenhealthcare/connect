@@ -75,7 +75,7 @@
 			<attribute name="javadoc_location" value="http://quartz-scheduler.org/api/2.3.0/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/database/mysql-connector-j-8.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/database/mysql-connector-j-8.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-common-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-container-servlet-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey/jersey-container-servlet-core-2.22.1.jar"/>
