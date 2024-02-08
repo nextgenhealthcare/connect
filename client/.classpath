@@ -165,6 +165,7 @@
 	<classpathentry kind="lib" path="lib/guava-28.2-jre.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.26.0-GA.jar"/>
 	<classpathentry kind="lib" path="lib/javax.inject-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta.inject-2.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/jersey-media-multipart-2.22.1.jar"/>
 	<classpathentry kind="lib" path="lib/mimepull-1.9.7.jar"/>
 	<classpathentry kind="lib" path="lib/zip4j_1.3.3.jar"/>

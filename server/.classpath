@@ -109,6 +109,7 @@
 	<classpathentry kind="lib" path="lib/javax/javax.servlet-api-3.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jetty-schemas-3.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.inject-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jakarta.inject-2.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.json-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.json-api-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax/javax.mail-1.5.0.jar"/>

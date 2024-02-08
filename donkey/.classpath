@@ -64,6 +64,7 @@
 	<classpathentry kind="lib" path="testlib/byte-buddy-agent-1.8.8.jar"/>
 	<classpathentry kind="lib" path="testlib/objenesis-2.5.1.jar"/>
 	<classpathentry kind="lib" path="testlib/javax.inject-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="testlib/jakarta.inject-2.6.1.jar"/>
 	<classpathentry kind="lib" path="testlib/aopalliance-repackaged-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="lib/guice-4.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-codec-1.16.0.jar"/>
