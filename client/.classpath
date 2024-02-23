@@ -153,19 +153,19 @@
 	<classpathentry kind="lib" path="lib/quartz-2.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/jai_imageio.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta.ws.rs-api-2.1.6.jar"/>
-	<classpathentry kind="lib" path="lib/jersey-client-2.41.jar"/>
-	<classpathentry kind="lib" path="lib/jersey-proxy-client-2.41.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-client-2.35.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-proxy-client-2.35.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections4-4.4.jar"/>
 	<classpathentry kind="lib" path="lib/reflections-0.9.10.jar"/>
-	<classpathentry kind="lib" path="lib/jersey-common-2.41.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-common-2.35.jar"/>
 	<classpathentry kind="lib" path="lib/hk2-api-2.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/hk2-locator-2.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/hk2-utils-2.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/jersey-hk2-2.41.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-hk2-2.35.jar"/>
 	<classpathentry kind="lib" path="lib/guava-28.2-jre.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.29.2-GA.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta.inject-2.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/jersey-media-multipart-2.41.jar"/>
+	<classpathentry kind="lib" path="lib/jersey-media-multipart-2.35.jar"/>
 	<classpathentry kind="lib" path="lib/mimepull-1.9.15.jar"/>
 	<classpathentry kind="lib" path="lib/zip4j_1.3.3.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-2.9.9.jar"/>
