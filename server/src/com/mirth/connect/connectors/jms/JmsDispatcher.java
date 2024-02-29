@@ -261,7 +261,7 @@ public class JmsDispatcher extends DestinationConnector {
                 ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 
                 try {
-                    MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+                    MirthContextFactory contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(getResourceIds());
                     Thread.currentThread().setContextClassLoader(contextFactory.getApplicationClassLoader());
 
                     Hashtable<String, Object> env = new Hashtable<String, Object>();
@@ -280,7 +280,7 @@ public class JmsDispatcher extends DestinationConnector {
             } else {
                 String className = jmsDispatcherProperties.getConnectionFactoryClass();
 
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+                MirthContextFactory contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(getResourceIds());
                 connectionFactory = (ConnectionFactory) Class.forName(className, true, contextFactory.getApplicationClassLoader()).newInstance();
             }
 

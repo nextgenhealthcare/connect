@@ -104,6 +104,7 @@ import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.client.core.ForbiddenException;
+import com.mirth.connect.client.core.MetaDataUtil;
 import com.mirth.connect.client.core.RequestAbortedException;
 import com.mirth.connect.client.core.TaskConstants;
 import com.mirth.connect.client.core.UnauthorizedException;
@@ -163,13 +164,14 @@ import com.mirth.connect.util.DirectedAcyclicGraphNode;
 import com.mirth.connect.util.HttpUtil;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.MigrationUtil;
+import com.sun.xml.internal.ws.util.MetadataUtil;
 
 import javafx.application.Platform;
 
 /**
  * The main content frame for the Mirth Client Application. Extends JXFrame and sets up all content.
  */
-public class Frame extends JXFrame {
+public class Frame extends FrameBase {
 
     private Logger logger = LogManager.getLogger(this.getClass());
     public Client mirthClient;
@@ -322,6 +324,11 @@ public class Frame extends JXFrame {
             }
         };
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyEventDispatcher);
+    }
+
+    @Override
+    public Client getClient() {
+        return mirthClient;
     }
 
     /**
@@ -745,7 +752,7 @@ public class Frame extends JXFrame {
         for (Object extensionMetaData : CollectionUtils.union(loadedPlugins.values(), loadedConnectors.values())) {
             MetaData metaData = (MetaData) extensionMetaData;
             if (mirthClient.isExtensionEnabled(metaData.getName())) {
-                for (ApiProvider provider : metaData.getApiProviders(Version.getLatest())) {
+                for (ApiProvider provider : MetaDataUtil.getApiProviders(metaData, Version.getLatest())) {
                     switch (provider.getType()) {
                         case SERVLET_INTERFACE_PACKAGE:
                         case CORE_PACKAGE:
@@ -1266,10 +1273,12 @@ public class Frame extends JXFrame {
         otherPane.setVisible(true);
     }
 
+    @Override
     public JXTaskPane getOtherPane() {
         return otherPane;
     }
 
+    @Override
     public void updateNotificationTaskName(int notifications) {
         String taskName = UIConstants.VIEW_NOTIFICATIONS;
         if (notifications > 0) {
@@ -1278,6 +1287,7 @@ public class Frame extends JXFrame {
         ((JXHyperlink) otherPane.getContentPane().getComponent(UIConstants.VIEW_NOTIFICATIONS_TASK_NUMBER)).setText(taskName);
     }
 
+    @Override
     public int addTask(String callbackMethod, String displayName, String toolTip, String shortcutKey, ImageIcon icon, JXTaskPane pane, JPopupMenu menu) {
         return addTask(callbackMethod, displayName, toolTip, shortcutKey, icon, pane, menu, this);
     }
@@ -1286,6 +1296,7 @@ public class Frame extends JXFrame {
      * Initializes the bound method call for the task pane actions and adds them to the
      * taskpane/popupmenu.
      */
+    @Override
     public int addTask(String callbackMethod, String displayName, String toolTip, String shortcutKey, ImageIcon icon, JXTaskPane pane, JPopupMenu menu, Object handler) {
         BoundAction boundAction = ActionFactory.createBoundAction(callbackMethod, displayName, shortcutKey);
 
@@ -1305,6 +1316,7 @@ public class Frame extends JXFrame {
         return (pane.getContentPane().getComponentCount() - 1);
     }
 
+    @Override
     public Map<Component, String> getComponentTaskMap() {
         return componentTaskMap;
     }
@@ -1312,6 +1324,7 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with a yes/no option with the passed in 'message'
      */
+    @Override
     public boolean alertOption(Component parentComponent, String message) {
         int option = JOptionPane.showConfirmDialog(getVisibleComponent(parentComponent), message, "Select an Option", JOptionPane.YES_NO_OPTION);
         if (option == JOptionPane.YES_OPTION) {
@@ -1324,6 +1337,7 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with a Ok/cancel option with the passed in 'message'
      */
+    @Override
     public boolean alertOkCancel(Component parentComponent, String message) {
         int option = JOptionPane.showConfirmDialog(getVisibleComponent(parentComponent), message, "Select an Option", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
@@ -1333,13 +1347,10 @@ public class Frame extends JXFrame {
         }
     }
 
-    public enum ConflictOption {
-        YES, YES_APPLY_ALL, NO, NO_APPLY_ALL;
-    }
-
     /**
      * Alerts the user with a conflict resolution dialog
      */
+    @Override
     public ConflictOption alertConflict(Component parentComponent, String message, int count) {
         final JCheckBox conflictCheckbox = new JCheckBox("Do this for the next " + String.valueOf(count - 1) + " conflicts");
         conflictCheckbox.setSelected(false);
@@ -1367,6 +1378,7 @@ public class Frame extends JXFrame {
         return conflictOption;
     }
 
+    @Override
     public boolean alertRefresh() {
         boolean cancelRefresh = false;
 
@@ -1386,6 +1398,7 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with an information dialog with the passed in 'message'
      */
+    @Override
     public void alertInformation(Component parentComponent, String message) {
         JOptionPane.showMessageDialog(getVisibleComponent(parentComponent), message, "Information", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -1393,6 +1406,7 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with a warning dialog with the passed in 'message'
      */
+    @Override
     public void alertWarning(Component parentComponent, String message) {
         JOptionPane.showMessageDialog(getVisibleComponent(parentComponent), message, "Warning", JOptionPane.WARNING_MESSAGE);
     }
@@ -1400,6 +1414,7 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with an error dialog with the passed in 'message'
      */
+    @Override
     public void alertError(Component parentComponent, String message) {
         JOptionPane.showMessageDialog(getVisibleComponent(parentComponent), message, "Error", JOptionPane.ERROR_MESSAGE);
     }
@@ -1407,6 +1422,7 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with an error dialog with the passed in 'message' and a 'question'.
      */
+    @Override
     public void alertCustomError(Component parentComponent, String message, String question) {
         parentComponent = getVisibleComponent(parentComponent);
 
@@ -1422,7 +1438,7 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
-
+    @Override
     public void alertThrowable(Component parentComponent, Throwable t) {
         alertThrowable(parentComponent, t, null);
     }
@@ -1430,6 +1446,7 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
+    @Override
     public void alertThrowable(Component parentComponent, Throwable t, String customMessage) {
         alertThrowable(parentComponent, t, customMessage, true);
     }
@@ -1437,6 +1454,7 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
+    @Override
     public void alertThrowable(Component parentComponent, Throwable t, boolean showMessageOnForbidden) {
         alertThrowable(parentComponent, t, null, showMessageOnForbidden);
     }
@@ -1444,6 +1462,7 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
+    @Override
     public void alertThrowable(Component parentComponent, Throwable t, String customMessage, boolean showMessageOnForbidden) {
         alertThrowable(parentComponent, t, customMessage, showMessageOnForbidden, null);
     }
@@ -1451,6 +1470,7 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
+    @Override
     public void alertThrowable(Component parentComponent, Throwable t, String customMessage, String safeErrorKey) {
         alertThrowable(parentComponent, t, customMessage, true, safeErrorKey);
     }
@@ -1458,6 +1478,7 @@ public class Frame extends JXFrame {
     /**
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
+    @Override
     public void alertThrowable(Component parentComponent, Throwable t, String customMessage, boolean showMessageOnForbidden, String safeErrorKey) {
         if (connectionError) {
             return;
@@ -1646,6 +1667,7 @@ public class Frame extends JXFrame {
      * indices (end index should be -1 to go to the end), as well as a whether they should be set to
      * visible or not-visible.
      */
+    @Override
     public void setVisibleTasks(JXTaskPane pane, JPopupMenu menu, int startIndex, int endIndex, boolean visible) {
         // If the endIndex is -1, disregard it, otherwise stop there.
         for (int i = startIndex; (endIndex == -1 ? true : i <= endIndex) && (i < pane.getContentPane().getComponentCount()); i++) {
@@ -2022,6 +2044,7 @@ public class Frame extends JXFrame {
     /**
      * Enables the save button for needed page.
      */
+    @Override
     public void setSaveEnabled(boolean enabled) {
         if (currentContentPage == channelPanel) {
             channelPanel.setSaveEnabled(enabled);
@@ -4768,6 +4791,7 @@ public class Frame extends JXFrame {
         return true;
     }
 
+    @Override
     public void setCanSave(boolean canSave) {
         this.canSave = canSave;
     }
@@ -4855,10 +4879,12 @@ public class Frame extends JXFrame {
         new NotificationDialog();
     }
 
+    @Override
     public Map<String, PluginMetaData> getPluginMetaData() {
         return this.loadedPlugins;
     }
 
+    @Override
     public Map<String, ConnectorMetaData> getConnectorMetaData() {
         return this.loadedConnectors;
     }

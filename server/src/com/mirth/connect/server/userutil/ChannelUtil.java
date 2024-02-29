@@ -686,7 +686,7 @@ public class ChannelUtil {
         resetableStatuses.add(com.mirth.connect.donkey.model.message.Status.ERROR);
         resetableStatuses.add(com.mirth.connect.donkey.model.message.Status.SENT);
 
-        com.mirth.connect.donkey.server.channel.Channel deployedChannel = engineController.getDeployedChannel(convertId(channelIdOrName));
+        com.mirth.connect.donkey.server.channel.Channel deployedChannel = (com.mirth.connect.donkey.server.channel.Channel) engineController.getDeployedChannel(convertId(channelIdOrName));
         if (deployedChannel != null) {
             List<Integer> connectorList = deployedChannel.getMetaDataIds();
 

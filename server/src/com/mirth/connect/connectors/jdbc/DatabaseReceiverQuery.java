@@ -61,7 +61,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
 
         MirthContextFactory contextFactory;
         try {
-            contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+            contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(connector.getResourceIds());
             contextFactoryId = contextFactory.getId();
         } catch (Exception e) {
             throw new ConnectorTaskException("Error retrieving context factory.", e);
@@ -315,7 +315,7 @@ public class DatabaseReceiverQuery implements DatabaseReceiverDelegate {
     }
 
     private boolean checkContextFactory() throws Exception {
-        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+        MirthContextFactory contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(connector.getResourceIds());
         if (!contextFactoryId.equals(contextFactory.getId())) {
             initDriver(contextFactory);
             contextFactoryId = contextFactory.getId();

@@ -76,7 +76,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
             Map<String, MirthContextFactory> contextFactories = new HashMap<>();
             
             if (debug) {
-                contextFactory = contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId);
+                contextFactory = (MirthContextFactory) contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId);
                 contextFactoryIdList.add(contextFactory.getId());
                 contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
                 contextFactory.setScriptText(connectorProperties.getQuery());
@@ -84,7 +84,7 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
                 contextFactories.put(scriptId, contextFactory);
                 debugger = getDebugger(channel, contextFactory);
             } else {
-                contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+                contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(connector.getResourceIds());
             }
             
             contextFactoryId = contextFactory.getId();
@@ -148,12 +148,12 @@ public class DatabaseDispatcherScript implements DatabaseDispatcherDelegate {
     @Override
     public Response send(DatabaseDispatcherProperties connectorProperties, ConnectorMessage connectorMessage) throws DatabaseDispatcherException, InterruptedException {
         try {
-            MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId) : contextFactoryController.getContextFactory(connector.getResourceIds()); 
+            MirthContextFactory contextFactory = (MirthContextFactory) (debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId) : contextFactoryController.getContextFactory(connector.getResourceIds())); 
 
 
             if (!contextFactoryId.equals(contextFactory.getId())) {
                 synchronized (this) {
-                    contextFactory = debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId) : contextFactoryController.getContextFactory(connector.getResourceIds());
+                    contextFactory = (MirthContextFactory) (debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId) : contextFactoryController.getContextFactory(connector.getResourceIds()));
 
                     if (contextFactoryId.equals(contextFactory.getId())) {
                         JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);

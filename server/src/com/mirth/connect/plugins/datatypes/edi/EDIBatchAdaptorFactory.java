@@ -22,7 +22,7 @@ public class EDIBatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
 
     @Override
     public BatchAdaptor createBatchAdaptor(BatchRawMessage batchRawMessage) {
-        EDIBatchAdaptor batchAdaptor = new EDIBatchAdaptor(this, sourceConnector, batchRawMessage);
+        EDIBatchAdaptor batchAdaptor = new EDIBatchAdaptor(this, (SourceConnector) sourceConnector, batchRawMessage);
 
         batchAdaptor.setBatchProperties(batchProperties);
 

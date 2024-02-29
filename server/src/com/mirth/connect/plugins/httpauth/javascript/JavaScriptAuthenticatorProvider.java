@@ -33,7 +33,7 @@ public class JavaScriptAuthenticatorProvider extends AuthenticatorProvider {
         JavaScriptHttpAuthProperties props = (JavaScriptHttpAuthProperties) properties;
 
         scriptId = UUID.randomUUID().toString();
-        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+        MirthContextFactory contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(connector.getResourceIds());
         contextFactoryId = contextFactory.getId();
         JavaScriptUtil.compileAndAddScript(connector.getChannelId(), contextFactory, scriptId, props.getScript(), ContextType.SOURCE_RECEIVER, null, null);
     }
@@ -43,11 +43,11 @@ public class JavaScriptAuthenticatorProvider extends AuthenticatorProvider {
     }
 
     MirthContextFactory getContextFactory() throws Exception {
-        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getConnector().getResourceIds());
+        MirthContextFactory contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(getConnector().getResourceIds());
 
         if (!contextFactoryId.equals(contextFactory.getId())) {
             synchronized (this) {
-                contextFactory = contextFactoryController.getContextFactory(getConnector().getResourceIds());
+                contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(getConnector().getResourceIds());
 
                 if (!contextFactoryId.equals(contextFactory.getId())) {
                     JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);

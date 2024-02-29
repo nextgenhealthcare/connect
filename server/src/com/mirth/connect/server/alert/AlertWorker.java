@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -39,11 +38,10 @@ import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
 import com.mirth.connect.server.controllers.ExtensionController;
-import com.mirth.connect.server.event.EventListener;
 import com.mirth.connect.server.util.ServerSMTPConnectionFactory;
 import com.mirth.connect.server.util.TemplateValueReplacer;
 
-public abstract class AlertWorker extends EventListener implements AlertActionAcceptor {
+public abstract class AlertWorker extends AlertWorkerBase {
     private static final String DEFAULT_SUBJECT = "Mirth Connect Alert";
 
     protected Logger logger = LogManager.getLogger(this.getClass());
@@ -66,6 +64,7 @@ public abstract class AlertWorker extends EventListener implements AlertActionAc
         }
     }
 
+    @Override
     public void enableAlert(AlertModel alertModel) {
         Alert alert = new Alert(alertModel);
         enabledAlerts.put(alertModel.getId(), alert);
@@ -73,6 +72,7 @@ public abstract class AlertWorker extends EventListener implements AlertActionAc
         alertEnabled(alert);
     }
 
+    @Override
     public void disableAlert(String alertId) {
         Alert alert = enabledAlerts.remove(alertId);
 
@@ -81,6 +81,7 @@ public abstract class AlertWorker extends EventListener implements AlertActionAc
         }
     }
 
+    @Override
     public AlertStatus getAlertStatus(String alertId) {
         Alert alert = enabledAlerts.get(alertId);
 
@@ -93,6 +94,7 @@ public abstract class AlertWorker extends EventListener implements AlertActionAc
         return null;
     }
 
+    @Override
     public Alert getEnabledAlert(String alertId) {
         return enabledAlerts.get(alertId);
     }
@@ -106,117 +108,92 @@ public abstract class AlertWorker extends EventListener implements AlertActionAc
         }
         return true;
     }
+    
+    @Override
+    protected Void callActionTask(String alertId, AlertActionGroup actionGroup, Map<String, Object> context, long taskCreatedNanoTime) throws Exception {
+        Alert alert = enabledAlerts.get(alertId);
 
-    protected abstract void alertEnabled(Alert alert);
+        if (alert != null && alert.getEnabledNanoTime() <= taskCreatedNanoTime) {
+            TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-    protected abstract void alertDisabled(Alert alert);
+            String subject = null;
+            String body = null;
 
-    public abstract Class<?> getTriggerClass();
-
-    protected abstract void triggerAction(Alert alert, Map<String, Object> context);
-
-    protected class ActionTask implements Callable<Void> {
-
-        private String alertId;
-        private AlertActionGroup actionGroup;
-        private Map<String, Object> context;
-        private long taskCreatedNanoTime;
-
-        public ActionTask(String alertId, AlertActionGroup actionGroup, Map<String, Object> context) {
-            this.alertId = alertId;
-            this.actionGroup = actionGroup;
-            this.context = context;
-            this.taskCreatedNanoTime = System.nanoTime();
-        }
-
-        @Override
-        public Void call() throws Exception {
-            Alert alert = enabledAlerts.get(alertId);
-
-            if (alert != null && alert.getEnabledNanoTime() <= taskCreatedNanoTime) {
-                TemplateValueReplacer replacer = new TemplateValueReplacer();
-
-                String subject = null;
-                String body = null;
-
-                if (actionGroup.getSubject() != null) {
-                    subject = replacer.replaceValues(actionGroup.getSubject(), context);
-                }
-
-                if (actionGroup.getTemplate() != null) {
-                    body = replacer.replaceValues(actionGroup.getTemplate(), context);
-                }
-
-                if (StringUtils.isEmpty(subject)) {
-                    subject = DEFAULT_SUBJECT;
-                }
-
-                Map<String, List<String>> protocolRecipients = new LinkedHashMap<String, List<String>>();
-
-                for (AlertAction action : actionGroup.getActions()) {
-                    String recipient = replacer.replaceValues(action.getRecipient(), context);
-
-                    if (StringUtils.isNotBlank(recipient)) {
-                        List<String> recipients = protocolRecipients.get(action.getProtocol());
-
-                        if (recipients == null) {
-                            recipients = new ArrayList<String>();
-                            protocolRecipients.put(action.getProtocol(), recipients);
-                        }
-
-                        recipients.add(recipient);
-                    }
-                }
-
-                if (alertController == null) {
-                    alertController = ControllerFactory.getFactory().createAlertController();
-                }
-
-                Set<String> emailAddresses = new HashSet<>();
-
-                for (Entry<String, List<String>> protocolEntry : protocolRecipients.entrySet()) {
-                    String protocolName = protocolEntry.getKey();
-
-                    try {
-                        Protocol alertProtocol = alertController.getAlertActionProtocol(protocolName);
-
-                        if (alertProtocol == null) {
-                            logger.warn("Alert protocol '" + protocolName + "' is not currently installed, skipping.");
-                        } else {
-                            List<String> recipients = protocolEntry.getValue();
-                            List<String> protocolEmailAddresses = alertProtocol.getEmailAddressesForDispatch(recipients);
-
-                            alertProtocol.doCustomDispatch(recipients, subject, body);
-
-                            if (CollectionUtils.isNotEmpty(protocolEmailAddresses)) {
-                                emailAddresses.addAll(protocolEmailAddresses);
-                            }
-                        }
-                    } catch (Exception e) {
-                        logger.error("An error occurred while attempting to dispatch '" + protocolName + "' alerts.", e);
-                    }
-                }
-
-                if (!emailAddresses.isEmpty()) {
-                    try {
-                        ServerSMTPConnectionFactory.createSMTPConnection().send(StringUtils.join(emailAddresses, ","), null, subject, body);
-                    } catch (Exception e) {
-                        logger.error("Error sending alert email.", e);
-                    }
-                }
-
-                // Dispatch a server event to notify that an alert was dispatched
-                ServerEvent serverEvent = new ServerEvent(serverId, "Alert Dispatched");
-                for (Entry<String, Object> entry : context.entrySet()) {
-                    String value = entry.getValue().toString();
-                    serverEvent.addAttribute(entry.getKey(), value);
-                }
-                eventController.dispatchEvent(serverEvent);
+            if (actionGroup.getSubject() != null) {
+                subject = replacer.replaceValues(actionGroup.getSubject(), context);
             }
 
-            return null;
+            if (actionGroup.getTemplate() != null) {
+                body = replacer.replaceValues(actionGroup.getTemplate(), context);
+            }
+
+            if (StringUtils.isEmpty(subject)) {
+                subject = DEFAULT_SUBJECT;
+            }
+
+            Map<String, List<String>> protocolRecipients = new LinkedHashMap<String, List<String>>();
+
+            for (AlertAction action : actionGroup.getActions()) {
+                String recipient = replacer.replaceValues(action.getRecipient(), context);
+
+                if (StringUtils.isNotBlank(recipient)) {
+                    List<String> recipients = protocolRecipients.get(action.getProtocol());
+
+                    if (recipients == null) {
+                        recipients = new ArrayList<String>();
+                        protocolRecipients.put(action.getProtocol(), recipients);
+                    }
+
+                    recipients.add(recipient);
+                }
+            }
+
+            if (alertController == null) {
+                alertController = ControllerFactory.getFactory().createAlertController();
+            }
+
+            Set<String> emailAddresses = new HashSet<>();
+
+            for (Entry<String, List<String>> protocolEntry : protocolRecipients.entrySet()) {
+                String protocolName = protocolEntry.getKey();
+
+                try {
+                    Protocol alertProtocol = alertController.getAlertActionProtocol(protocolName);
+
+                    if (alertProtocol == null) {
+                        logger.warn("Alert protocol '" + protocolName + "' is not currently installed, skipping.");
+                    } else {
+                        List<String> recipients = protocolEntry.getValue();
+                        List<String> protocolEmailAddresses = alertProtocol.getEmailAddressesForDispatch(recipients);
+
+                        alertProtocol.doCustomDispatch(recipients, subject, body);
+
+                        if (CollectionUtils.isNotEmpty(protocolEmailAddresses)) {
+                            emailAddresses.addAll(protocolEmailAddresses);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("An error occurred while attempting to dispatch '" + protocolName + "' alerts.", e);
+                }
+            }
+
+            if (!emailAddresses.isEmpty()) {
+                try {
+                    ServerSMTPConnectionFactory.createSMTPConnection().send(StringUtils.join(emailAddresses, ","), null, subject, body);
+                } catch (Exception e) {
+                    logger.error("Error sending alert email.", e);
+                }
+            }
+
+            // Dispatch a server event to notify that an alert was dispatched
+            ServerEvent serverEvent = new ServerEvent(serverId, "Alert Dispatched");
+            for (Entry<String, Object> entry : context.entrySet()) {
+                String value = entry.getValue().toString();
+                serverEvent.addAttribute(entry.getKey(), value);
+            }
+            eventController.dispatchEvent(serverEvent);
         }
 
+        return null;
     }
-
 }

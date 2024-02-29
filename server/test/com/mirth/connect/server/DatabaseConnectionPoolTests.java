@@ -57,6 +57,7 @@ import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.codetemplates.CodeTemplate;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.EventFilter;
 import com.mirth.connect.model.filters.MessageFilter;
 import com.mirth.connect.server.controllers.AlertController;
@@ -345,7 +346,7 @@ public class DatabaseConnectionPoolTests {
         });
         donkeyConnectionPoolsInjector.getInstance(DonkeyConnectionPools.class);
 
-        DonkeyConnectionPools.getInstance().init(databaseSettings.getProperties());
+        DonkeyConnectionPools.getInstance().init(databaseSettings.getProperties(ObjectXMLSerializer.getInstance()));
 
         donkey = spy(Donkey.class);
 
@@ -391,7 +392,7 @@ public class DatabaseConnectionPoolTests {
         });
         sqlConfigInjector.getInstance(SqlConfig.class);
 
-        donkey.startEngine(new DonkeyConfiguration("appdata", databaseSettings.getProperties(), null, null, "testserverid"));
+        donkey.startEngine(new DonkeyConfiguration("appdata", databaseSettings.getProperties(ObjectXMLSerializer.getInstance()), null, null, "testserverid"));
 
         // These use connections from the write pool, so initialize them now before resetting mocks
         StatementLock.getInstance(DefaultChannelController.VACUUM_LOCK_CHANNEL_STATEMENT_ID);

@@ -58,6 +58,7 @@ import com.mirth.connect.donkey.server.data.ChannelDoesNotExistException;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoException;
 import com.mirth.connect.donkey.server.data.StatisticsUpdater;
+import com.mirth.connect.donkey.server.event.DonkeyEventDispatcherProvider;
 import com.mirth.connect.donkey.util.MapUtil;
 import com.mirth.connect.donkey.util.SerializerProvider;
 
@@ -76,7 +77,7 @@ public class JdbcDao implements DonkeyDao {
     private Encryptor encryptor;
     private Statistics currentStats;
     private Statistics totalStats;
-    private Statistics transactionStats = new Statistics(false, true);
+    private Statistics transactionStats = new Statistics(new DonkeyEventDispatcherProvider(), false, true);
     private Map<String, Map<Integer, Set<Status>>> resetCurrentStats = new HashMap<String, Map<Integer, Set<Status>>>();
     private Map<String, Map<Integer, Set<Status>>> resetTotalStats = new HashMap<String, Map<Integer, Set<Status>>>();
     private List<String> removedChannelIds = new ArrayList<String>();
@@ -2343,7 +2344,7 @@ public class JdbcDao implements DonkeyDao {
     private Statistics getChannelStatistics(String serverId, boolean total) {
         Map<String, Long> channelIds = getLocalChannelIds();
         String queryId = (total) ? "getChannelTotalStatistics" : "getChannelStatistics";
-        Statistics statistics = new Statistics(!total);
+        Statistics statistics = new Statistics(new DonkeyEventDispatcherProvider(), !total);
         ResultSet resultSet = null;
 
         for (String channelId : channelIds.keySet()) {

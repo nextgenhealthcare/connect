@@ -49,11 +49,11 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
     }
 
     MirthContextFactory getContextFactory(Channel channel) throws Exception {
-        MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), scriptId) : contextFactoryController.getContextFactory(resourceIds);
+        MirthContextFactory contextFactory = (MirthContextFactory) (debug ? contextFactoryController.getDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), scriptId) : contextFactoryController.getContextFactory(resourceIds));
         
         if (!contextFactoryId.equals(contextFactory.getId())) {
             synchronized (this) {
-                contextFactory = contextFactoryController.getContextFactory(resourceIds);
+                contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(resourceIds);
 
                 if (!contextFactoryId.equals(contextFactory.getId())) {
                     JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
@@ -66,7 +66,8 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
     }
 
     @Override
-    public void setProperties(Channel channel, AttachmentHandlerProperties attachmentProperties) {
+    public void setProperties(Object channelObj, AttachmentHandlerProperties attachmentProperties) {
+        Channel channel = (Channel) channelObj;
         String attachmentScript = attachmentProperties.getProperties().get("javascript.script");
 
         if (attachmentScript != null) {
@@ -81,14 +82,14 @@ public class JavaScriptAttachmentHandlerProvider extends MirthAttachmentHandlerP
                 resourceIds = channel.getResourceIds();
                 
                 if (debug) {
-                    contextFactory = contextFactoryController.getDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), scriptId);
+                    contextFactory = (MirthContextFactory) contextFactoryController.getDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), scriptId);
                     contextFactory.setContextType(ContextType.CHANNEL_ATTACHMENT);
                     contextFactory.setScriptText(attachmentScript);
                     contextFactory.setDebugType(true);
                     debugger = getDebugger(contextFactory, channel);
                 } else {
                     // default case
-                    contextFactory = contextFactoryController.getContextFactory(resourceIds);
+                    contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(resourceIds);
                 }
                 
                 contextFactoryId = contextFactory.getId();

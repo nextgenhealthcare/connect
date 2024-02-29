@@ -61,10 +61,10 @@ public abstract class DebuggableBatchAdaptorFactory extends BatchAdaptorFactory 
     @Override
     public void onDeploy() throws DeployException {
         String batchScript = batchProperties.getBatchScript();
-        debug = sourceConnector.getChannel().getDebugOptions() != null && sourceConnector.getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
+        debug = ((SourceConnector) sourceConnector).getChannel().getDebugOptions() != null && ((SourceConnector) sourceConnector).getChannel().getDebugOptions().isAttachmentBatchScripts() == true;
         
         if (StringUtils.isNotEmpty(batchScript)) {
-            batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
+            batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, ((SourceConnector) sourceConnector).getChannelId());
             try {
                 MirthContextFactory contextFactory = generateContextFactory(debug, batchScript);
                 setContextFactoryId(contextFactory.getId());
@@ -72,7 +72,7 @@ public abstract class DebuggableBatchAdaptorFactory extends BatchAdaptorFactory 
                     setDebugger(getDebugger(contextFactory, false));
                 }
             } catch (Exception e) {
-                throw new DeployException("Error compiling " + sourceConnector.getConnectorProperties().getName() + " script " + batchScriptId + ".", e);
+                throw new DeployException("Error compiling " + ((SourceConnector) sourceConnector).getConnectorProperties().getName() + " script " + batchScriptId + ".", e);
             }
         }
     }
@@ -80,7 +80,7 @@ public abstract class DebuggableBatchAdaptorFactory extends BatchAdaptorFactory 
     @Override
     public void onUndeploy() throws UndeployException {
         if (debug && debugger != null) {
-            contextFactoryController.removeDebugContextFactory(sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId);
+            contextFactoryController.removeDebugContextFactory(((SourceConnector) sourceConnector).getChannel().getResourceIds(), ((SourceConnector) sourceConnector).getChannelId(), batchScriptId);
             debugger.dispose();
             debugger = null;
         }
@@ -109,11 +109,11 @@ public abstract class DebuggableBatchAdaptorFactory extends BatchAdaptorFactory 
     }
     
     protected MirthMain getDebugger(MirthContextFactory contextFactory, boolean showDebugger) {
-        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, sourceConnector.getChannel().getName() + "-" + sourceConnector.getChannelId(), batchScriptId, showDebugger);
+        return MirthMain.mirthMainEmbedded(contextFactory, scopeProvider, ((SourceConnector) sourceConnector).getChannel().getName() + "-" + ((SourceConnector) sourceConnector).getChannelId(), batchScriptId, showDebugger);
     }
     
     protected MirthContextFactory generateContextFactory(boolean debug, String script) throws ConnectorTaskException {
-        return JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, script, ContextType.CHANNEL_BATCH);
+        return JavaScriptUtil.generateContextFactory(debug, ((SourceConnector) sourceConnector).getChannel().getResourceIds(), ((SourceConnector) sourceConnector).getChannelId(), batchScriptId, script, ContextType.CHANNEL_BATCH);
     }
     
 }

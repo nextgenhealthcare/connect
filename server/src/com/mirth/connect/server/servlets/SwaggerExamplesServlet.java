@@ -1322,7 +1322,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	}
 	
 	private ServerSettings getServerSettingsExample() {
-	    ServerSettings serverSettings = new ServerSettings("Environment 1", "Server 1", getPropertiesExample());
+	    ServerSettings serverSettings = new ServerSettings("Environment 1", "Server 1", getPropertiesExample(), ObjectXMLSerializer.getInstance());
 	    serverSettings.setClearGlobalMap(true);
 	    serverSettings.setSmtpHost("");
 	    serverSettings.setSmtpPort("");
@@ -1336,7 +1336,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	}
 	
 	private PublicServerSettings getPublicServerSettingsExample() {
-	    return new PublicServerSettings(getServerSettingsExample());
+	    return new PublicServerSettings(getServerSettingsExample(), ObjectXMLSerializer.getInstance());
 	}
 	
 	private SystemInfo getSystemInfoExample() {
@@ -1389,7 +1389,7 @@ public class SwaggerExamplesServlet extends HttpServlet {
 	    UpdateSettings updateSettings = new UpdateSettings();
 	    updateSettings.setLastStatsTime(dateNow.getTimeInMillis());
 	    updateSettings.setStatsEnabled(true);
-	    updateSettings.setProperties(getPropertiesExample());
+	    updateSettings.setProperties(getPropertiesExample(), ObjectXMLSerializer.getInstance());
 	    return updateSettings;
 	}
 	

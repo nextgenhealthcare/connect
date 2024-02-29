@@ -25,7 +25,7 @@ public class DelimitedBatchAdaptorFactory extends DebuggableBatchAdaptorFactory 
 
     @Override
     public BatchAdaptor createBatchAdaptor(BatchRawMessage batchRawMessage) {
-        DelimitedBatchAdaptor batchAdaptor = new DelimitedBatchAdaptor(this, sourceConnector, batchRawMessage);
+        DelimitedBatchAdaptor batchAdaptor = new DelimitedBatchAdaptor(this, (SourceConnector) sourceConnector, batchRawMessage);
 
         batchAdaptor.setSerializationProperties(serializationProperties);
         batchAdaptor.setBatchProperties(batchProperties);

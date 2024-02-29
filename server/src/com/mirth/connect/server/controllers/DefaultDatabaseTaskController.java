@@ -298,7 +298,7 @@ public class DefaultDatabaseTaskController implements DatabaseTaskController {
                             ChannelTask addIndexTask = new ChannelTask(channelId) {
                                 @Override
                                 public Void execute() throws Exception {
-                                    Channel channel = engineController.getDeployedChannel(channelId);
+                                    Channel channel = (Channel) engineController.getDeployedChannel(channelId);
                                     if (channel != null && channel.getCurrentState() != DeployedState.STOPPED) {
                                         throw new ChannelStoppedException();
                                     }

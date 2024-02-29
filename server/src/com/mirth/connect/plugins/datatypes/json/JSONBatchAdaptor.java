@@ -94,13 +94,13 @@ public class JSONBatchAdaptor extends DebuggableBatchAdaptor {
             }
 
             try {
-                final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, sourceConnector.getChannelId());
+                final String batchScriptId = ScriptController.getScriptId(ScriptController.BATCH_SCRIPT_KEY, ((SourceConnector) sourceConnector).getChannelId());
                 final Boolean debug = ((DebuggableBatchAdaptorFactory) getFactory()).isDebug();
                 MirthContextFactory contextFactory = getContextFactoryAndRecompile(contextFactoryController, debug, batchScriptId, batchProperties.getBatchScript());                
                 
                 triggerDebug(debug);
 
-                String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "JSON Batch Adaptor", sourceConnector) {
+                String result = JavaScriptUtil.execute(new JavaScriptTask<String>(contextFactory, "JSON Batch Adaptor", (SourceConnector) sourceConnector) {
                     @Override
                     public String doCall() throws Exception {
                         Script compiledScript = CompiledScriptCache.getInstance().getCompiledScript(batchScriptId);
@@ -112,7 +112,7 @@ public class JSONBatchAdaptor extends DebuggableBatchAdaptor {
                             Logger scriptLogger = LogManager.getLogger(ScriptController.BATCH_SCRIPT_KEY.toLowerCase());
 
                             try {
-                                Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(getContextFactory(), scriptLogger, sourceConnector.getChannelId(), sourceConnector.getChannel().getName(), getScopeObjects(bufferedReader));
+                                Scriptable scope = JavaScriptScopeUtil.getBatchProcessorScope(getContextFactory(), scriptLogger, ((SourceConnector) sourceConnector).getChannelId(), ((SourceConnector) sourceConnector).getChannel().getName(), getScopeObjects(bufferedReader));
                                 return (String) Context.jsToJava(executeScript(compiledScript, scope), String.class);
                             } finally {
                                 Context.exit();

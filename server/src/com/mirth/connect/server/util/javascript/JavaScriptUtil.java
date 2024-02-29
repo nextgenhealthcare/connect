@@ -27,6 +27,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.RhinoException;
@@ -555,11 +556,11 @@ public class JavaScriptUtil {
     }
 
     private static MirthContextFactory getGlobalScriptContextFactory() throws Exception {
-        MirthContextFactory contextFactory = contextFactoryController.getGlobalScriptContextFactory();
+        MirthContextFactory contextFactory = (MirthContextFactory) contextFactoryController.getGlobalScriptContextFactory();
 
         if (!contextFactory.getId().equals(globalScriptContextFactoryId)) {
             synchronized (JavaScriptUtil.class) {
-                contextFactory = contextFactoryController.getGlobalScriptContextFactory();
+                contextFactory = (MirthContextFactory) contextFactoryController.getGlobalScriptContextFactory();
 
                 if (!contextFactory.getId().equals(globalScriptContextFactoryId)) {
                     ControllerFactory.getFactory().createScriptController().compileGlobalScripts(contextFactory, false);
@@ -832,10 +833,10 @@ public class JavaScriptUtil {
         return source.toString();
     }
 
-    public static void compileChannelScripts(Map<String, MirthContextFactory> contextFactories, com.mirth.connect.model.Channel channel) {
-        for (Entry<String, MirthContextFactory> item : contextFactories.entrySet()){
+    public static void compileChannelScripts(Map<String, ContextFactory> contextFactories, com.mirth.connect.model.Channel channel) {
+        for (Entry<String, ContextFactory> item : contextFactories.entrySet()){
             String scriptIdString = item.getKey();
-            MirthContextFactory factory = item.getValue();
+            MirthContextFactory factory = (MirthContextFactory) item.getValue();
             try {
                 JavaScriptUtil.compileAndAddScript(channel.getId(), factory, scriptIdString, factory.getScriptText(), factory.getContextType(), null, null);
             } catch (Exception e) {
@@ -869,12 +870,12 @@ public class JavaScriptUtil {
         MirthContextFactory contextFactory;
 		try {
 			if (debug) {
-				contextFactory = contextFactoryController.getDebugContextFactory(libraryResourceIds, channelId, scriptId);
+				contextFactory = (MirthContextFactory) contextFactoryController.getDebugContextFactory(libraryResourceIds, channelId, scriptId);
 				contextFactory.setContextType(contextType);
 				contextFactory.setScriptText(script);
 				contextFactory.setDebugType(debug);
 			} else {
-	            contextFactory = contextFactoryController.getContextFactory(libraryResourceIds);
+	            contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(libraryResourceIds);
 	        }
             JavaScriptUtil.compileAndAddScript(channelId, contextFactory, scriptId, script, contextType);
             return contextFactory;

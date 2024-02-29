@@ -174,7 +174,7 @@ public class WebServiceReceiver extends SourceConnector {
 
         try {
             try {
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+                MirthContextFactory contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(getResourceIds());
 
                 // Set the current thread context classloader in case custom web service classes need it 
                 Thread.currentThread().setContextClassLoader(contextFactory.getApplicationClassLoader());

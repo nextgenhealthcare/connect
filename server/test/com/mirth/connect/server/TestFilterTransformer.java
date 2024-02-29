@@ -34,6 +34,7 @@ import com.mirth.connect.server.controllers.ContextFactoryController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.transformers.JavaScriptFilterTransformer;
 import com.mirth.connect.server.util.javascript.JavaScriptUtil;
+import com.mirth.connect.server.util.javascript.MirthContextFactory;
 
 public class TestFilterTransformer {
     private final static String TEST_HL7_MESSAGE = "MSH|^~\\&|LABNET|Acme Labs|||20090601105700||ORU^R01|HMCDOOGAL-0088|D|2.2\rPID|1|8890088|8890088^^^72777||McDoogal^Hattie^||19350118|F||2106-3|100 Beach Drive^Apt. 5^Mission Viejo^CA^92691^US^H||(949) 555-0025|||||8890088^^^72|604422825\rPV1|1|R|C3E^C315^B||||2^HIBBARD^JULIUS^|5^ZIMMERMAN^JOE^|9^ZOIDBERG^JOHN^|CAR||||4|||2301^OBRIEN, KEVIN C|I|1783332658^1^1||||||||||||||||||||DISNEY CLINIC||N|||20090514205600\rORC|RE|928272608|056696716^LA||CM||||20090601105600||||  C3E|||^RESULT PERFORMED\rOBR|1|928272608|056696716^LA|1001520^K|||20090601101300|||MLH25|||HEMOLYZED/VP REDRAW|20090601102400||2301^OBRIEN, KEVIN C||||01123085310001100100152023509915823509915800000000101|0000915200932|20090601105600||LAB|F||^^^20090601084100^^ST~^^^^^ST\rOBX|1|NM|1001520^K||5.3|MMOL/L|3.5-5.5||||F|||20090601105600|IIM|IIM\r";
@@ -69,7 +70,7 @@ public class TestFilterTransformer {
         script.append("if ((new Date().getTime() - start) > " + SCRIPT_SLEEP_MILLIS + ") break;");
         script.append("} return false;");
 
-        JavaScriptUtil.compileAndAddScript(CHANNEL_ID, contextFactoryController.getGlobalContextFactory(), TEST_SCRIPT_ID, script.toString(), ContextType.SOURCE_FILTER_TRANSFORMER);
+        JavaScriptUtil.compileAndAddScript(CHANNEL_ID, (MirthContextFactory) contextFactoryController.getGlobalContextFactory(), TEST_SCRIPT_ID, script.toString(), ContextType.SOURCE_FILTER_TRANSFORMER);
 
         script = new StringBuilder();
         script.append("var result;");
@@ -77,7 +78,7 @@ public class TestFilterTransformer {
         script.append("result = Math.sqrt(i);");
         script.append("} return false;");
 
-        JavaScriptUtil.compileAndAddScript(CHANNEL_ID, contextFactoryController.getGlobalContextFactory(), PERFORMANCE_SCRIPT_ID, script.toString(), ContextType.SOURCE_FILTER_TRANSFORMER);
+        JavaScriptUtil.compileAndAddScript(CHANNEL_ID, (MirthContextFactory) contextFactoryController.getGlobalContextFactory(), PERFORMANCE_SCRIPT_ID, script.toString(), ContextType.SOURCE_FILTER_TRANSFORMER);
 
         initJavaScriptFilterTransformer();
     }

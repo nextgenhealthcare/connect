@@ -32,12 +32,19 @@ public class JavaScriptAttachmentHandler implements AttachmentHandler {
     }
 
     @Override
-    public void initialize(RawMessage message, Channel channel) throws AttachmentException {
+    public void initialize(RawMessage message, Object channel) throws AttachmentException {
+        String channelId = null;
+        String channelName = null;
+        if (channel instanceof Channel) {
+            channelId = ((Channel) channel).getChannelId();
+            channelName = ((Channel) channel).getName();
+        }
+        
         index = 0;
         attachments = new ArrayList<com.mirth.connect.server.userutil.Attachment>();
         try {
             provider.showDebugger();
-            newMessage = JavaScriptUtil.executeAttachmentScript(provider.getContextFactory(channel), message, channel.getChannelId(), channel.getName(), attachments);
+            newMessage = JavaScriptUtil.executeAttachmentScript(provider.getContextFactory((Channel) channel), message, channelId, channelName, attachments);
         } catch (Throwable t) {
             if (t instanceof JavaScriptExecutorException) {
                 t = t.getCause();

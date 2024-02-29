@@ -16,6 +16,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.mirth.connect.donkey.model.channel.MetaDataColumn;
 import com.mirth.connect.donkey.model.channel.MetaDataColumnType;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
 
@@ -26,19 +27,6 @@ public class PublicServerSettingsTest {
     
     @BeforeClass
     public static void setup() throws Exception {
-        ControllerFactory controllerFactory = mock(ControllerFactory.class);
-
-        ScriptController scriptController = mock(ScriptController.class);
-        when(controllerFactory.createScriptController()).thenReturn(scriptController);
-
-        Injector injector = Guice.createInjector(new AbstractModule() {
-            @Override
-            protected void configure() {
-                requestStaticInjection(ControllerFactory.class);
-                bind(ControllerFactory.class).toInstance(controllerFactory);
-            }
-        });
-        injector.getInstance(ControllerFactory.class);
         serverSettings.setEnvironmentName("envName");
         serverSettings.setServerName("serverName");
         serverSettings.setDefaultMetaDataColumns(null);
@@ -51,13 +39,13 @@ public class PublicServerSettingsTest {
     
     @Test
     public void defaultMetaDataColumnsTest() {
-        PublicServerSettings publicServerSettings = new PublicServerSettings(serverSettings);      
-        assertEquals(COLUMNS, publicServerSettings.getDefaultMetaDataColumns());
+        PublicServerSettings publicServerSettings = new PublicServerSettings(serverSettings, ObjectXMLSerializer.getInstance());
+        assertEquals(COLUMNS, publicServerSettings.getDefaultMetaDataColumns()); 
     }
     
     @Test
     public void queueBufferSizeTest() {
-        PublicServerSettings publicServerSettings = new PublicServerSettings(serverSettings);
+        PublicServerSettings publicServerSettings = new PublicServerSettings(serverSettings, ObjectXMLSerializer.getInstance());
         assertTrue(1000 == publicServerSettings.getQueueBufferSize());
     }
     

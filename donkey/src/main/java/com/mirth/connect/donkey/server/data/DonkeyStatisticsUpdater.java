@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.channel.Statistics;
+import com.mirth.connect.donkey.server.event.DonkeyEventDispatcherProvider;
 
 public class DonkeyStatisticsUpdater extends Thread implements StatisticsUpdater {
 
@@ -24,7 +25,7 @@ public class DonkeyStatisticsUpdater extends Thread implements StatisticsUpdater
 
     private DonkeyDaoFactory daoFactory;
     private int updateInterval;
-    private Statistics statistics = new Statistics(false, true);
+    private Statistics statistics = new Statistics(new DonkeyEventDispatcherProvider(), false, true);
     private Logger logger = LogManager.getLogger(getClass());
 
     public DonkeyStatisticsUpdater(DonkeyDaoFactory daoFactory, int updateInterval) {
@@ -78,7 +79,7 @@ public class DonkeyStatisticsUpdater extends Thread implements StatisticsUpdater
 
     private void commit() throws InterruptedException {
         if (!statistics.isEmpty() && daoFactory != null) {
-            Statistics tempStats = new Statistics(false, true);
+            Statistics tempStats = new Statistics(new DonkeyEventDispatcherProvider(), false, true);
 
             Map<String, Map<Integer, Map<Status, Long>>> stats = statistics.getStats();
             tempStats.update(stats);

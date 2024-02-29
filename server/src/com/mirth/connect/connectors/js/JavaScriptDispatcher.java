@@ -17,6 +17,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
@@ -106,10 +107,10 @@ public class JavaScriptDispatcher extends DestinationConnector {
 
         try {
             MirthContextFactory contextFactory = null;
-            Map<String, MirthContextFactory> contextFactories = new HashMap<>();
+            Map<String, ContextFactory> contextFactories = new HashMap<>();
             
             if (debug) {
-                contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
+                contextFactory = (MirthContextFactory) contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
                 contextFactoryIdList.add(contextFactory.getId());
                 contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
                 contextFactory.setScriptText(connectorProperties.getScript());
@@ -118,7 +119,7 @@ public class JavaScriptDispatcher extends DestinationConnector {
                 debugger = getDebugger(contextFactory);
             } else {
                 //default case
-                contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+                contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(getResourceIds());
                 contextFactory.setContextType(ContextType.DESTINATION_DISPATCHER);
                 contextFactoryIdList.add(contextFactory.getId());
                 contextFactory.setScriptText(connectorProperties.getScript());
@@ -190,11 +191,11 @@ public class JavaScriptDispatcher extends DestinationConnector {
         JavaScriptDispatcherProperties javaScriptDispatcherProperties = (JavaScriptDispatcherProperties) connectorProperties;
 
         try {
-            MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId) : contextFactoryController.getContextFactory(getResourceIds()); 
+            MirthContextFactory contextFactory = (MirthContextFactory) (debug ? contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId) : contextFactoryController.getContextFactory(getResourceIds())); 
 
             if (!contextFactoryIdList.contains(contextFactory.getId())) {
                 synchronized (this) {
-                    contextFactory = debug ? contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId) : contextFactoryController.getContextFactory(getResourceIds());
+                    contextFactory = (MirthContextFactory) (debug ? contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId) : contextFactoryController.getContextFactory(getResourceIds()));
 
                     if (!contextFactoryIdList.contains(contextFactory.getId())) {
                         JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);

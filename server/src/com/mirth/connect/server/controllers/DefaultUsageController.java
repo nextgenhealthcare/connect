@@ -33,6 +33,7 @@ import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
 import com.mirth.connect.model.purged.PurgedDocument;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.server.ExtensionLoader;
+import com.mirth.connect.server.util.ServerPurgeHelper;
 
 public class DefaultUsageController extends UsageController {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -139,7 +140,7 @@ public class DefaultUsageController extends UsageController {
         int invalidChannels = 0;
         for (Channel channel : channelController.getChannels(null)) {
             if (!(channel instanceof InvalidChannel)) {
-                purgedChannels.add(channel.getPurgedProperties());
+                purgedChannels.add(channel.getPurgedProperties(new ServerPurgeHelper()));
             } else {
                 invalidChannels++;
             }

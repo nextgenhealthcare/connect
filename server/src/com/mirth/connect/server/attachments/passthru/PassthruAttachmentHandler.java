@@ -13,11 +13,10 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
-import com.mirth.connect.donkey.server.channel.Channel;
 
 public class PassthruAttachmentHandler implements AttachmentHandler {
     @Override
-    public void initialize(RawMessage message, Channel channel) throws AttachmentException {}
+    public void initialize(RawMessage message, Object channel) throws AttachmentException {}
 
     @Override
     public Attachment nextAttachment() throws AttachmentException {

@@ -59,7 +59,7 @@ public class JavaScriptPreprocessor implements PreProcessor {
         
         if (!debug) {
             try {
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(channel.getResourceIds());
+                MirthContextFactory contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(channel.getResourceIds());
                 contextFactoryId = contextFactory.getId();
                 JavaScriptUtil.compileAndAddScript(channel.getChannelId(), contextFactory, scriptId, preProcessingScript, ContextType.CHANNEL_PREPROCESSOR);
             } catch (Exception e) {
@@ -137,9 +137,9 @@ public class JavaScriptPreprocessor implements PreProcessor {
 
     protected MirthContextFactory getContextFactory() throws Exception {
         if (debug) {
-            return contextFactoryController.getDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), scriptId);
+            return (MirthContextFactory) contextFactoryController.getDebugContextFactory(channel.getResourceIds(), channel.getChannelId(), scriptId);
         } else {
-            return contextFactoryController.getContextFactory(channel.getResourceIds());
+            return (MirthContextFactory) contextFactoryController.getContextFactory(channel.getResourceIds());
         }
     }
    

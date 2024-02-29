@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
-import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.server.attachments.MirthAttachmentHandlerProvider;
 import com.mirth.connect.server.controllers.MessageController;
 import com.mirth.connect.server.util.TemplateValueReplacer;
@@ -36,7 +35,7 @@ public class IdentityAttachmentHandlerProvider extends MirthAttachmentHandlerPro
     }
 
     @Override
-    public void setProperties(Channel channel, AttachmentHandlerProperties attachmentProperties) {
+    public void setProperties(Object channel, AttachmentHandlerProperties attachmentProperties) {
         mimeType = attachmentProperties.getProperties().get("identity.mimetype");
         if (StringUtils.isBlank(mimeType)) {
             mimeType = "text/plain";

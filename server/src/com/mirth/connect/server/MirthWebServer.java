@@ -96,6 +96,7 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
+import com.mirth.connect.client.core.MetaDataUtil;
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.Replaces;
@@ -571,7 +572,7 @@ public class MirthWebServer extends Server {
         // Add JAX-RS providers from extensions
         for (MetaData metaData : CollectionUtils.union(extensionController.getPluginMetaData().values(), extensionController.getConnectorMetaData().values())) {
             if (extensionController.isExtensionEnabled(metaData.getName())) {
-                for (ApiProvider apiProvider : metaData.getApiProviders(version)) {
+                for (ApiProvider apiProvider : MetaDataUtil.getApiProviders(metaData, version)) {
                     try {
                         switch (apiProvider.getType()) {
                             case SERVLET_INTERFACE_PACKAGE:

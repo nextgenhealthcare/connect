@@ -613,7 +613,7 @@ public class AttachmentUtil {
     }
 
     private static MirthAttachmentHandlerProvider getAttachmentHandlerProvider(String channelId) {
-        Channel deployedChannel = engineController.getDeployedChannel(channelId);
+        Channel deployedChannel = (Channel) engineController.getDeployedChannel(channelId);
         if (deployedChannel != null) {
             MirthAttachmentHandlerProvider provider = (MirthAttachmentHandlerProvider) deployedChannel.getAttachmentHandlerProvider();
             if (provider != null) {

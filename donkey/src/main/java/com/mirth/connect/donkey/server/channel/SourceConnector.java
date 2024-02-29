@@ -44,7 +44,7 @@ import com.mirth.connect.donkey.server.message.batch.SimpleResponseHandler;
 /**
  * The base class for all source connectors.
  */
-public abstract class SourceConnector extends Connector {
+public abstract class SourceConnector extends Connector implements ISourceConnector {
 
     private boolean respondAfterProcessing = true;
     private MetaDataReplacer metaDataReplacer;

@@ -561,12 +561,12 @@ public class DefaultConfigurationController extends ConfigurationController {
         String environmentName = getProperty(PROPERTIES_CORE, "environment.name");
         serverName = getProperty(PROPERTIES_CORE + "." + serverId, "server.name");
         Properties serverSettings = getPropertiesForGroup(PROPERTIES_CORE);
-        return new ServerSettings(environmentName, serverName, serverSettings);
+        return new ServerSettings(environmentName, serverName, serverSettings, ObjectXMLSerializer.getInstance());
     }
     
     @Override
     public PublicServerSettings getPublicServerSettings() throws ControllerException {
-        return new PublicServerSettings(getServerSettings());
+        return new PublicServerSettings(getServerSettings(), ObjectXMLSerializer.getInstance());
     }
 
     @Override
@@ -581,7 +581,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public void setServerSettings(ServerSettings settings) throws ControllerException {        
-        Properties properties = settings.getProperties();
+        Properties properties = settings.getProperties(ObjectXMLSerializer.getInstance());
 
         validateServerSettings(properties);
         
@@ -646,12 +646,12 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     @Override
     public UpdateSettings getUpdateSettings() throws ControllerException {
-        return new UpdateSettings(getPropertiesForGroup(PROPERTIES_CORE));
+        return new UpdateSettings(getPropertiesForGroup(PROPERTIES_CORE), ObjectXMLSerializer.getInstance());
     }
 
     @Override
     public void setUpdateSettings(UpdateSettings settings) throws ControllerException {
-        Properties properties = settings.getProperties();
+        Properties properties = settings.getProperties(ObjectXMLSerializer.getInstance());
         for (Object name : properties.keySet()) {
             saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));
         }
@@ -1217,7 +1217,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             /*
              * Load the encryption settings so that they can be referenced client side.
              */
-            encryptionConfig = new EncryptionSettings(ConfigurationConverter.getProperties(mirthConfig));
+            encryptionConfig = new EncryptionSettings(ConfigurationConverter.getProperties(mirthConfig), ObjectXMLSerializer.getInstance());
 
             File keyStoreFile = new File(mirthConfig.getString("keystore.path"));
             char[] keyStorePassword = mirthConfig.getString("keystore.storepass").toCharArray();
@@ -1288,7 +1288,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     @Override
     public void initializeDatabaseSettings() {
         try {
-            databaseConfig = new DatabaseSettings(ConfigurationConverter.getProperties(mirthConfig));
+            databaseConfig = new DatabaseSettings(ConfigurationConverter.getProperties(mirthConfig), ObjectXMLSerializer.getInstance());
 
             // dir.base is not included in mirth.properties, so set it manually
             databaseConfig.setDirBase(getBaseDir());

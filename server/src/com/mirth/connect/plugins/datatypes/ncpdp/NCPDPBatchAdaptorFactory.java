@@ -22,7 +22,7 @@ public class NCPDPBatchAdaptorFactory extends DebuggableBatchAdaptorFactory  {
 
     @Override
     public BatchAdaptor createBatchAdaptor(BatchRawMessage batchRawMessage) {
-        NCPDPBatchAdaptor batchAdaptor = new NCPDPBatchAdaptor(this, sourceConnector, batchRawMessage);
+        NCPDPBatchAdaptor batchAdaptor = new NCPDPBatchAdaptor(this, (SourceConnector) sourceConnector, batchRawMessage);
 
         batchAdaptor.setBatchProperties(batchProperties);
 

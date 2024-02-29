@@ -65,9 +65,11 @@ public class RegexAttachmentHandlerProvider extends MirthAttachmentHandlerProvid
     }
 
     @Override
-    public void setProperties(Channel channel, AttachmentHandlerProperties attachmentProperties) {
-        channelId = channel.getChannelId();
-        channelName = channel.getName();
+    public void setProperties(Object channel, AttachmentHandlerProperties attachmentProperties) {
+        if (channel instanceof Channel) {
+            channelId = ((Channel) channel).getChannelId();
+            channelName = ((Channel) channel).getName();
+        }
 
         if (attachmentProperties.getProperties().containsKey("regex.pattern")) {
             String regex = attachmentProperties.getProperties().get("regex.pattern");

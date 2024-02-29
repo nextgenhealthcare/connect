@@ -90,7 +90,7 @@ public class JavaScriptReceiver extends PollConnector {
             this.debug = debugOptions != null && debugOptions.isSourceConnectorScripts();
 
             if (debug) {
-                contextFactory = contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
+                contextFactory = (MirthContextFactory) contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId);
                 contextFactory.setContextType(ContextType.SOURCE_RECEIVER);
                 contextFactory.setScriptText(connectorProperties.getScript());
                 contextFactory.setDebugType(true);
@@ -98,7 +98,7 @@ public class JavaScriptReceiver extends PollConnector {
 
             } else {
                 //default case
-                contextFactory = contextFactoryController.getContextFactory(getResourceIds());
+                contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(getResourceIds());
 
             }
 
@@ -152,7 +152,7 @@ public class JavaScriptReceiver extends PollConnector {
         eventController.dispatchEvent(new ConnectionStatusEvent(getChannelId(), getMetaDataId(), getSourceName(), ConnectionStatusEventType.READING));
 
         try {
-            MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId) : contextFactoryController.getContextFactory(getResourceIds());
+            MirthContextFactory contextFactory = (MirthContextFactory) (debug ? contextFactoryController.getDebugContextFactory(getResourceIds(), getChannelId(), scriptId) : contextFactoryController.getContextFactory(getResourceIds()));
             if (!contextFactoryId.equals(contextFactory.getId())) {
                 JavaScriptUtil.recompileGeneratedScript(contextFactory, scriptId);
                 contextFactoryId = contextFactory.getId();

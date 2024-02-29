@@ -83,5 +83,8 @@
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.7.30.jar"/>
 	<classpathentry kind="lib" path="lib/database/postgresql-42.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/xstream-1.4.20.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-server-plugins"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

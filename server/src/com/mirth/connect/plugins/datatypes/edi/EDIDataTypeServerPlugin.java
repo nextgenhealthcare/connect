@@ -9,6 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.edi;
 
+import com.mirth.connect.donkey.server.channel.ISourceConnector;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.model.datatype.DataTypeDelegate;
@@ -30,8 +31,8 @@ public class EDIDataTypeServerPlugin extends DataTypeServerPlugin {
     public void stop() {}
 
     @Override
-    public BatchAdaptorFactory getBatchAdaptorFactory(SourceConnector sourceConnector, SerializerProperties properties) {
-        return new EDIBatchAdaptorFactory(sourceConnector, properties);
+    public BatchAdaptorFactory getBatchAdaptorFactory(ISourceConnector sourceConnector, SerializerProperties properties) {
+        return new EDIBatchAdaptorFactory((SourceConnector) sourceConnector, properties);
     }
 
     @Override

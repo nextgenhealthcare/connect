@@ -21,7 +21,6 @@ import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
 import com.mirth.connect.donkey.server.Constants;
-import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.donkey.util.StringUtil;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
@@ -42,7 +41,7 @@ public class RegexAttachmentHandler implements AttachmentHandler {
     }
 
     @Override
-    public void initialize(RawMessage message, Channel channel) throws AttachmentException {
+    public void initialize(RawMessage message, Object channel) throws AttachmentException {
         try {
             if (message.isBinary()) {
                 String messageData = org.apache.commons.codec.binary.StringUtils.newStringUsAscii(Base64Util.encodeBase64(message.getRawBytes()));

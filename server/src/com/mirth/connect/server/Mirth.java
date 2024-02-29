@@ -228,7 +228,7 @@ public class Mirth extends Thread {
             int maxRetryTimeout = configurationController.getDatabaseSettings().getDatabaseConnectionMaxRetryWaitTimeInMs();
             do {
                 try {
-                    DonkeyConnectionPools.getInstance().init(configurationController.getDatabaseSettings().getProperties());
+                    DonkeyConnectionPools.getInstance().init(configurationController.getDatabaseSettings().getProperties(ObjectXMLSerializer.getInstance()));
                     break;
                 }catch(Exception e) {
                     maxRetry--;
@@ -380,13 +380,13 @@ public class Mirth extends Thread {
 
             MirthContextFactory contextFactory;
             try {
-                contextFactory = contextFactoryController.getGlobalScriptContextFactory();
+                contextFactory = (MirthContextFactory) contextFactoryController.getGlobalScriptContextFactory();
             } catch (LinkageError e) {
                 logger.warn("Unable to initialize global script context factory.", e);
-                contextFactory = contextFactoryController.getGlobalContextFactory();
+                contextFactory = (MirthContextFactory) contextFactoryController.getGlobalContextFactory();
             } catch (Exception e) {
                 logger.warn("Unable to initialize global script context factory.", e);
-                contextFactory = contextFactoryController.getGlobalContextFactory();
+                contextFactory = (MirthContextFactory) contextFactoryController.getGlobalContextFactory();
             }
             scriptController.compileGlobalScripts(contextFactory, false);
 

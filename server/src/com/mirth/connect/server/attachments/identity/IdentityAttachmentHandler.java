@@ -33,10 +33,17 @@ public class IdentityAttachmentHandler implements AttachmentHandler {
     }
 
     @Override
-    public void initialize(RawMessage message, Channel channel) throws AttachmentException {
+    public void initialize(RawMessage message, Object channel) throws AttachmentException {
         try {
+            String channelId = null;
+            String channelName = null;
+            if (channel instanceof Channel) {
+                channelId = ((Channel) channel).getChannelId();
+                channelName = ((Channel) channel).getName();
+            }
+            
             String uuid = ServerUUIDGenerator.getUUID();
-            String mimeType = provider.getReplacer().replaceValues(provider.getMimeType(), channel.getChannelId(), channel.getName(), message.getSourceMap());
+            String mimeType = provider.getReplacer().replaceValues(provider.getMimeType(), channelId, channelName, message.getSourceMap());
             if (StringUtils.isBlank(mimeType)) {
                 mimeType = "text/plain";
             }

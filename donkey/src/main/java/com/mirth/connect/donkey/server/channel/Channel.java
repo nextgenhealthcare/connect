@@ -90,7 +90,7 @@ import com.mirth.connect.donkey.util.MessageMaps;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
-public class Channel implements Runnable {
+public class Channel implements IChannel, Runnable {
     private String channelId;
     private long localChannelId;
     private String name;

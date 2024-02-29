@@ -41,11 +41,11 @@ public abstract class DebuggableBatchAdaptor extends BatchAdaptor {
     }
     
     protected MirthContextFactory getContextFactoryAndRecompile(ContextFactoryController contextFactoryController, boolean debug, String batchScriptId, String batchScript) throws Exception {
-        MirthContextFactory contextFactory = JavaScriptUtil.generateContextFactory(debug, sourceConnector.getChannel().getResourceIds(), sourceConnector.getChannelId(), batchScriptId, batchScript, ContextType.CHANNEL_BATCH);                
+        MirthContextFactory contextFactory = JavaScriptUtil.generateContextFactory(debug, ((SourceConnector) sourceConnector).getChannel().getResourceIds(), ((SourceConnector) sourceConnector).getChannelId(), batchScriptId, batchScript, ContextType.CHANNEL_BATCH);                
         DebuggableBatchAdaptorFactory factory = (DebuggableBatchAdaptorFactory) getFactory();
         if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
             synchronized (factory) {
-                contextFactory = contextFactoryController.getContextFactory(sourceConnector.getChannel().getResourceIds());
+                contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(((SourceConnector) sourceConnector).getChannel().getResourceIds());
                 if (!factory.getContextFactoryId().equals(contextFactory.getId())) {
                     JavaScriptUtil.recompileGeneratedScript(contextFactory, batchScriptId);
                     factory.setContextFactoryId(contextFactory.getId());

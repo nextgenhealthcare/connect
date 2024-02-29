@@ -267,5 +267,12 @@
 	<classpathentry kind="lib" path="lib/xstream-1.4.20.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.12.2.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-1.4.01.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-base"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-version"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-server-plugins"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

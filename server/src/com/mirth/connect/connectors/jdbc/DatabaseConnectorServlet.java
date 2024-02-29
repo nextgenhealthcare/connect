@@ -62,7 +62,7 @@ public class DatabaseConnectorServlet extends MirthServlet implements DatabaseCo
             String schema = null;
 
             try {
-                MirthContextFactory contextFactory = contextFactoryController.getContextFactory(resourceIds);
+                MirthContextFactory contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(resourceIds);
 
                 try {
                     ClassLoader isolatedClassLoader = contextFactory.getIsolatedClassLoader();

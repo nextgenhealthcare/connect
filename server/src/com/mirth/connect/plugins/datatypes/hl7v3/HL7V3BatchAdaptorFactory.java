@@ -22,7 +22,7 @@ public class HL7V3BatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
 
     @Override
     public BatchAdaptor createBatchAdaptor(BatchRawMessage batchRawMessage) {
-        HL7V3BatchAdaptor batchAdaptor = new HL7V3BatchAdaptor(this, sourceConnector, batchRawMessage);
+        HL7V3BatchAdaptor batchAdaptor = new HL7V3BatchAdaptor(this, (SourceConnector) sourceConnector, batchRawMessage);
 
         batchAdaptor.setBatchProperties(batchProperties);
 

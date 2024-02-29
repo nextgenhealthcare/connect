@@ -46,7 +46,7 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
     public void deploy() throws ConnectorTaskException {
         MirthContextFactory contextFactory;
         try {
-            contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+            contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(connector.getResourceIds());
             contextFactoryId = contextFactory.getId();
         } catch (Exception e) {
             throw new ConnectorTaskException("Error retrieving context factory.", e);
@@ -161,13 +161,13 @@ public class DatabaseDispatcherQuery implements DatabaseDispatcherDelegate {
 
     private boolean checkContextFactory() throws Exception {
         boolean contextFactoryChanged = false;
-        MirthContextFactory contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+        MirthContextFactory contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(connector.getResourceIds());
 
         if (!contextFactoryId.equals(contextFactory.getId())) {
             contextFactoryChanged = true;
 
             synchronized (this) {
-                contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+                contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(connector.getResourceIds());
 
                 if (!contextFactoryId.equals(contextFactory.getId())) {
                     initDriver(contextFactory);

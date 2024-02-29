@@ -18,7 +18,6 @@ import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentException;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandler;
-import com.mirth.connect.donkey.server.channel.Channel;
 import com.mirth.connect.donkey.util.Base64Util;
 import com.mirth.connect.model.converters.DICOMConverter;
 import com.mirth.connect.server.util.ServerUUIDGenerator;
@@ -31,7 +30,7 @@ public class DICOMAttachmentHandler implements AttachmentHandler {
     private String attachmentId;
 
     @Override
-    public void initialize(RawMessage message, Channel channel) throws AttachmentException {
+    public void initialize(RawMessage message, Object channel) throws AttachmentException {
         index = 0;
         try {
             byte[] messageBytes = null;

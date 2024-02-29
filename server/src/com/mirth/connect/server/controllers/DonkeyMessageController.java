@@ -333,7 +333,7 @@ public class DonkeyMessageController extends MessageController {
             }
         }
 
-        Channel channel = engineController.getDeployedChannel(channelId);
+        Channel channel = (Channel) engineController.getDeployedChannel(channelId);
         if (channel != null) {
             // Invalidate the queue buffer to ensure stats are updated.
             channel.invalidateQueues();
@@ -342,7 +342,7 @@ public class DonkeyMessageController extends MessageController {
 
     public void reprocessMessages(String channelId, MessageFilter filter, boolean replace, Collection<Integer> reprocessMetaDataIds) throws ControllerException {
         EngineController engineController = ControllerFactory.getFactory().createEngineController();
-        Channel deployedChannel = engineController.getDeployedChannel(channelId);
+        Channel deployedChannel = (Channel) engineController.getDeployedChannel(channelId);
         if (deployedChannel == null) {
             throw new ControllerException("Channel is no longer deployed!");
         }

@@ -74,14 +74,14 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
         try {
             
         	if (debug) {
-                contextFactory = contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId);
+                contextFactory = (MirthContextFactory) contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId);
                 contextFactory.setContextType(ContextType.SOURCE_RECEIVER);
                 contextFactory.setScriptText(connectorProperties.getSelect());
                 contextFactory.setDebugType(true);
                 debugger = getDebugger(channel, contextFactory);
         		
         	} else {
-        		contextFactory = contextFactoryController.getContextFactory(connector.getResourceIds());
+        		contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(connector.getResourceIds());
         	}
         	
         	contextFactoryId = contextFactory.getId();
@@ -325,11 +325,11 @@ public class DatabaseReceiverScript implements DatabaseReceiverDelegate {
 
     private MirthContextFactory getContextFactory() throws Exception {
     	
-    	MirthContextFactory contextFactory = debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId) : contextFactoryController.getContextFactory(connector.getResourceIds()); 
+    	MirthContextFactory contextFactory = (MirthContextFactory) (debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId) : contextFactoryController.getContextFactory(connector.getResourceIds())); 
 
         if (!contextFactoryIdList.contains(contextFactory.getId())) {
             synchronized (this) {
-                contextFactory = debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId) : contextFactoryController.getContextFactory(connector.getResourceIds());
+                contextFactory = (MirthContextFactory) (debug ? contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), selectScriptId) : contextFactoryController.getContextFactory(connector.getResourceIds()));
 
                 if (!contextFactoryIdList.contains(contextFactory.getId())) {
                     JavaScriptUtil.recompileGeneratedScript(contextFactory, selectScriptId);

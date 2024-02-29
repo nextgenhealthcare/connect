@@ -22,7 +22,7 @@ public class JSONBatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
 
     @Override
     public BatchAdaptor createBatchAdaptor(BatchRawMessage batchRawMessage) {
-        JSONBatchAdaptor batchAdaptor = new JSONBatchAdaptor(this, sourceConnector, batchRawMessage);
+        JSONBatchAdaptor batchAdaptor = new JSONBatchAdaptor(this, (SourceConnector) sourceConnector, batchRawMessage);
 
         batchAdaptor.setBatchProperties(batchProperties);
 

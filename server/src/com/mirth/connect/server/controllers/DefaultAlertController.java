@@ -27,6 +27,7 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.alert.Alert;
 import com.mirth.connect.server.alert.AlertWorker;
+import com.mirth.connect.server.alert.AlertWorkerBase;
 import com.mirth.connect.server.alert.DefaultAlertWorker;
 import com.mirth.connect.server.alert.action.ChannelProtocol;
 import com.mirth.connect.server.alert.action.EmailProtocol;
@@ -83,8 +84,8 @@ public class DefaultAlertController extends AlertController {
     }
 
     @Override
-    public void addWorker(AlertWorker alertWorker) {
-        alertWorkers.put(alertWorker.getTriggerClass(), alertWorker);
+    public void addWorker(AlertWorkerBase alertWorker) {
+        alertWorkers.put(alertWorker.getTriggerClass(), (AlertWorker) alertWorker);
 
         eventController.addListener(alertWorker);
     }

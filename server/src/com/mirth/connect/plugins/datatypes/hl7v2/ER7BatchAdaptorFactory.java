@@ -45,7 +45,7 @@ public class ER7BatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
 
     @Override
     public BatchAdaptor createBatchAdaptor(BatchRawMessage batchRawMessage) {
-        ER7BatchAdaptor batchAdaptor = new ER7BatchAdaptor(this, sourceConnector, batchRawMessage);
+        ER7BatchAdaptor batchAdaptor = new ER7BatchAdaptor(this, (SourceConnector) sourceConnector, batchRawMessage);
 
         batchAdaptor.setBatchProperties(batchProperties);
         batchAdaptor.setSegmentDelimiter(segmentDelimiter);

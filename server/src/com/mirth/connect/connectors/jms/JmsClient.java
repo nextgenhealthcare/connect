@@ -111,7 +111,7 @@ public class JmsClient implements ExceptionListener {
         try {
             MirthContextFactory contextFactory = null;
             try {
-                contextFactory = contextFactoryController.getContextFactory(resourceIds);
+                contextFactory = (MirthContextFactory) contextFactoryController.getContextFactory(resourceIds);
                 Thread.currentThread().setContextClassLoader(contextFactory.getApplicationClassLoader());
             } catch (Exception e) {
                 throw new ConnectorTaskException("Failed to set ContextClassLoader on thread", e);

@@ -122,7 +122,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
     }
 
     protected MirthContextFactory getDebugContextFactory() throws Exception {
-        return contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId);
+        return (MirthContextFactory) contextFactoryController.getDebugContextFactory(connector.getResourceIds(), connector.getChannelId(), scriptId);
     }
 
     protected void compileAndAddScript(String script, MirthContextFactory contextFactory) throws Exception {
@@ -130,7 +130,7 @@ public class JavaScriptFilterTransformer implements FilterTransformer {
     }
 
     protected MirthContextFactory getContextFactory() throws Exception {
-        return contextFactoryController.getContextFactory(connector.getResourceIds());
+        return (MirthContextFactory) contextFactoryController.getContextFactory(connector.getResourceIds());
     }
 
     @Override

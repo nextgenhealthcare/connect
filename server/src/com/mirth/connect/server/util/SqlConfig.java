@@ -35,6 +35,7 @@ import com.mirth.connect.donkey.util.DonkeyElement;
 import com.mirth.connect.model.DatabaseSettings;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
 
@@ -137,7 +138,7 @@ public class SqlConfig {
         Reader reader = new StringReader(docSerializer.toXML(document));
 
         Properties dbProperties = new Properties();
-        dbProperties.putAll(databaseSettings.getProperties());
+        dbProperties.putAll(databaseSettings.getProperties(ObjectXMLSerializer.getInstance()));
         dbProperties.setProperty(DatabaseConstants.DATABASE, database);
 
         if (environment != null) {

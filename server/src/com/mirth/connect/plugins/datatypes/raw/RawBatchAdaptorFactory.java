@@ -22,7 +22,7 @@ public class RawBatchAdaptorFactory extends DebuggableBatchAdaptorFactory {
 
     @Override
     public BatchAdaptor createBatchAdaptor(BatchRawMessage batchRawMessage) {
-        RawBatchAdaptor batchAdaptor = new RawBatchAdaptor(this, sourceConnector, batchRawMessage);
+        RawBatchAdaptor batchAdaptor = new RawBatchAdaptor(this, (SourceConnector) sourceConnector, batchRawMessage);
 
         batchAdaptor.setBatchProperties(batchProperties);
 
