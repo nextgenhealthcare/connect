@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-base"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
+	<classpathentry kind="lib" path="lib/commons/commons-collections4-4.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-io-2.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons/httpclient-4.5.13.jar"/>
+	<classpathentry kind="lib" path="lib/commons/httpcore-4.4.13.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-client-2.35.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-common-2.35.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-media-multipart-2.35.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-proxy-client-2.35.jar"/>
+	<classpathentry kind="lib" path="lib/reflections-0.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jakarta.ws.rs-api-2.1.6.jar"/>
+	<classpathentry kind="lib" path="lib/log4j/log4j-api-2.17.2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-version"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

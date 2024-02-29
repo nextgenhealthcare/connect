@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.20.jar"/>
+	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.9.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-collections4-4.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-configuration2-2.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/log4j/log4j-api-2.17.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-codec-1.16.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-io-2.13.0.jar"/>
+	<classpathentry kind="lib" path="testlib/junit-4.8.1.jar"/>
+	<classpathentry kind="lib" path="testlib/mockito-core-2.7.9.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-text-1.10.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

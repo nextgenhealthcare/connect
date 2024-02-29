@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-version"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-base"/>
+	<classpathentry kind="lib" path="lib/commons/commons-configuration2-2.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-dbutils-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-io-2.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jakarta.ws.rs-api-2.1.6.jar"/>
+	<classpathentry kind="lib" path="lib/javax/javax.servlet-api-3.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-codec-1.16.0.jar"/>
+	<classpathentry kind="lib" path="lib/log4j/log4j-api-2.17.2.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-tools-generic-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-collections4-4.4.jar"/>
+	<classpathentry kind="lib" path="lib/rhino-1.7.13.jar"/>
+	<classpathentry kind="lib" path="lib/guice-4.1.0.jar"/>
+	<classpathentry kind="lib" path="testlib/junit-4.8.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

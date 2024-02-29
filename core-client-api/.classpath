@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-base"/>
+	<classpathentry kind="lib" path="lib/javax/jakarta.ws.rs-api-2.1.6.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/swagger-annotations-2.0.10.jar"/>
+	<classpathentry kind="lib" path="lib/swagger/swagger-core-2.0.10.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-media-multipart-2.35.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-common-2.35.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-version"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

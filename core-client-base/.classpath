@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
+	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jakarta.ws.rs-api-2.1.6.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-client-2.35.jar"/>
+	<classpathentry kind="lib" path="lib/jersey/jersey-common-2.35.jar"/>
+	<classpathentry kind="lib" path="lib/log4j/log4j-api-2.17.2.jar"/>
+	<classpathentry kind="lib" path="lib/javax/jakarta.inject-2.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-io-2.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/reflections-0.9.10.jar"/>
+	<classpathentry kind="lib" path="testlib/junit-4.8.1.jar"/>
+	<classpathentry kind="lib" path="testlib/mockito-core-2.7.9.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-version"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
