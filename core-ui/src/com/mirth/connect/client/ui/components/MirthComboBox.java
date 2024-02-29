@@ -16,7 +16,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 
 /**
@@ -24,7 +24,7 @@ import com.mirth.connect.client.ui.PlatformUI;
  */
 public class MirthComboBox<E> extends javax.swing.JComboBox<E> {
 
-    private Frame parent;
+    private FrameBase parent;
     private boolean autoResizeDropdown = false;
     private boolean canEnableSave = true;
     private Object initialValue = "";

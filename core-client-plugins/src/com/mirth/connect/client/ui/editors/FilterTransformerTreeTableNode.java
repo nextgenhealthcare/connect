@@ -14,17 +14,17 @@ import java.util.List;
 
 import org.jdesktop.swingx.treetable.AbstractMutableTreeTableNode;
 
-import com.mirth.connect.client.ui.editors.BaseEditorPane.OperatorNamePair;
+import com.mirth.connect.client.ui.editors.BaseEditorPaneBase.OperatorNamePair;
 import com.mirth.connect.model.FilterTransformer;
 import com.mirth.connect.model.FilterTransformerElement;
 import com.mirth.connect.model.IteratorElement;
 
 public abstract class FilterTransformerTreeTableNode<T extends FilterTransformer<C>, C extends FilterTransformerElement> extends AbstractMutableTreeTableNode {
 
-    protected BaseEditorPane<T, C> editorPane;
+    protected BaseEditorPaneBase<T, C> editorPane;
     protected C element;
 
-    public FilterTransformerTreeTableNode(BaseEditorPane<T, C> editorPane, C element) {
+    public FilterTransformerTreeTableNode(BaseEditorPaneBase<T, C> editorPane, C element) {
         this.editorPane = editorPane;
         setElement(element);
     }
@@ -62,13 +62,13 @@ public abstract class FilterTransformerTreeTableNode<T extends FilterTransformer
 
     @Override
     public Object getValueAt(int column) {
-        if (column == editorPane.numColumn) {
+        if (column == editorPane.getNumColumn()) {
             return element.getSequenceNumber();
-        } else if (column == editorPane.nameColumn) {
+        } else if (column == editorPane.getNameColumn()) {
             return new OperatorNamePair(element.getName());
-        } else if (column == editorPane.typeColumn) {
+        } else if (column == editorPane.getTypeColumn()) {
             return element.getType();
-        } else if (column == editorPane.enabledColumn) {
+        } else if (column == editorPane.getEnabledColumn()) {
             return element.isEnabled();
         }
         return null;
@@ -76,11 +76,11 @@ public abstract class FilterTransformerTreeTableNode<T extends FilterTransformer
 
     @Override
     public void setValueAt(Object value, int column) {
-        if (column == editorPane.numColumn) {
+        if (column == editorPane.getNumColumn()) {
             element.setSequenceNumber((String) value);
-        } else if (column == editorPane.nameColumn) {
+        } else if (column == editorPane.getNameColumn()) {
             element.setName(((OperatorNamePair) value).getName());
-        } else if (column == editorPane.enabledColumn) {
+        } else if (column == editorPane.getEnabledColumn()) {
             element.setEnabled((Boolean) value);
         }
     }

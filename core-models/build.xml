@@ -1,0 +1,34 @@
+<project name="connect-core-models" basedir="." default="dist">
+	<target name="help">
+		<echo>Mirth Connect Core - Models</echo>
+	</target>
+
+	<target name="init">
+		<property file="build.properties" />
+
+		<path id="classpath">
+			<fileset dir="${lib}" includes="**/*.jar" />
+		</path>
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${classes}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="compile" depends="clean">
+		<mkdir dir="${classes}" />
+
+		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+
+	<target name="dist" depends="compile">
+		<mkdir dir="${dist}" />
+
+		<jar destfile="${dist}/${name}-${version}.jar">
+			<fileset dir="${classes}" />
+		</jar>
+	</target>
+</project>

@@ -20,10 +20,10 @@ import com.mirth.connect.model.codetemplates.CodeTemplateProperties;
 
 public abstract class CodeTemplatePropertiesPanel {
 
-    protected CodeTemplatePanel parent;
+    protected CodeTemplatePanelBase parent;
     protected DocumentListener codeChangeListener;
 
-    public CodeTemplatePropertiesPanel(CodeTemplatePanel parent, DocumentListener codeChangeListener) {
+    public CodeTemplatePropertiesPanel(CodeTemplatePanelBase parent, DocumentListener codeChangeListener) {
         this.parent = parent;
         this.codeChangeListener = codeChangeListener;
     }

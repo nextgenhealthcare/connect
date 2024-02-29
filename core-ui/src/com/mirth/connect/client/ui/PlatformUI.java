@@ -23,6 +23,7 @@ import com.mirth.connect.util.MirthSSLUtil;
 public class PlatformUI {
 
     public static FrameBase MIRTH_FRAME;
+    public static ReferenceListFactoryBase MIRTH_REFERENCE_LIST_FACTORY;
     public static ImageIcon BACKGROUND_IMAGE;
     public static String ENVIRONMENT_NAME;
     public static String SERVER_NAME;

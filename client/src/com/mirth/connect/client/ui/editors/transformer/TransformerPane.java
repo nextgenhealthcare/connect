@@ -44,9 +44,6 @@ import com.mirth.connect.util.StringUtil;
 
 public class TransformerPane extends BaseEditorPane<Transformer, Step> {
 
-    public static final String MAPPER = "Mapper";
-    public static final String MESSAGE_BUILDER = "Message Builder";
-
     private Map<String, FilterTransformerTypePlugin<Transformer, Step>> sourcePlugins;
     private Map<String, FilterTransformerTypePlugin<Transformer, Step>> destinationPlugins;
     private IteratorStepPlugin iteratorPlugin;

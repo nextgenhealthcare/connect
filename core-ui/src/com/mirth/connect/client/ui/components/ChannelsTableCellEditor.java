@@ -17,7 +17,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JTable;
 
 import com.mirth.connect.client.ui.UIConstants;
-import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel;
+import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanelBase;
 
 public class ChannelsTableCellEditor extends DefaultCellEditor {
 
@@ -40,7 +40,7 @@ public class ChannelsTableCellEditor extends DefaultCellEditor {
         checkBox.setBackground(row % 2 == 0 ? UIConstants.HIGHLIGHTER_COLOR : UIConstants.BACKGROUND_COLOR);
         checkBox.setSelected(channelInfo.isEnabled());
         checkBox.setText(channelInfo.getName());
-        if (channelInfo.getName().equals(CodeTemplatePanel.NEW_CHANNELS)) {
+        if (channelInfo.getName().equals(CodeTemplatePanelBase.NEW_CHANNELS)) {
             checkBox.setToolTipText(table.getToolTipText());
         } else {
             checkBox.setToolTipText(channelInfo.getName());

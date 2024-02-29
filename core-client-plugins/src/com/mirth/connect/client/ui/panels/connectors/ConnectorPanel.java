@@ -26,7 +26,7 @@ import javax.swing.border.TitledBorder;
 import net.miginfocom.swing.MigLayout;
 
 import com.mirth.connect.client.ui.AbstractConnectorPropertiesPanel;
-import com.mirth.connect.client.ui.ChannelSetup;
+import com.mirth.connect.client.ui.ChannelSetupBase;
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.UIConstants;
@@ -43,7 +43,7 @@ import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.plugins.ConnectorPropertiesPlugin;
 
 public class ConnectorPanel extends JPanel {
-    private ChannelSetup channelSetup;
+    private ChannelSetupBase channelSetup;
     private ConnectorSettingsPanel currentPanel;
     private JPanel connectorSettingsContainer;
     private ListenerSettingsPanel listenerSettingsPanel;
@@ -62,7 +62,7 @@ public class ConnectorPanel extends JPanel {
         }
     }
 
-    public void setChannelSetup(ChannelSetup channelSetup) {
+    public void setChannelSetup(ChannelSetupBase channelSetup) {
         this.channelSetup = channelSetup;
         destinationSettingsPanel.setChannelSetup(channelSetup);
         sourceSettingsPanel.setChannelSetup(channelSetup);
@@ -299,11 +299,11 @@ public class ConnectorPanel extends JPanel {
 
         if (properties instanceof SourceConnectorPropertiesInterface) {
             if (((SourceConnectorPropertiesInterface) properties).getSourceConnectorProperties().getQueueBufferSize() == 0) {
-                ((SourceConnectorPropertiesInterface) properties).getSourceConnectorProperties().setQueueBufferSize(channelSetup.defaultQueueBufferSize);
+                ((SourceConnectorPropertiesInterface) properties).getSourceConnectorProperties().setQueueBufferSize(channelSetup.getDefaultQueueBufferSize());
             }
         } else if (properties instanceof DestinationConnectorPropertiesInterface) {
             if (((DestinationConnectorPropertiesInterface) properties).getDestinationConnectorProperties().getQueueBufferSize() == 0) {
-                ((DestinationConnectorPropertiesInterface) properties).getDestinationConnectorProperties().setQueueBufferSize(channelSetup.defaultQueueBufferSize);
+                ((DestinationConnectorPropertiesInterface) properties).getDestinationConnectorProperties().setQueueBufferSize(channelSetup.getDefaultQueueBufferSize());
             }
         }
 

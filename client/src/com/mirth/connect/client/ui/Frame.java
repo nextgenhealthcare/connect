@@ -122,6 +122,7 @@ import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel;
 import com.mirth.connect.client.ui.components.rsta.ac.js.MirthJavaScriptLanguageSupport;
 import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
+import com.mirth.connect.client.ui.reference.ReferenceListFactory;
 import com.mirth.connect.client.ui.tag.SettingsPanelTags;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.donkey.model.channel.DebugOptions;
@@ -329,6 +330,16 @@ public class Frame extends FrameBase {
     @Override
     public Client getClient() {
         return mirthClient;
+    }
+    
+    @Override
+    public ChannelSetupBase getChannelSetup() {
+        return channelEditPanel;
+    }
+
+    @Override
+    public Component getCurrentContentPage() {
+        return currentContentPage;
     }
 
     /**
@@ -710,6 +721,8 @@ public class Frame extends FrameBase {
         	listener.start();
         }
         
+        PlatformUI.MIRTH_REFERENCE_LIST_FACTORY = ReferenceListFactory.getInstance();
+        
         // DEBUGGING THE UIDefaults:
 
 //         UIDefaults uiDefaults = UIManager.getDefaults(); Enumeration enum1 =
@@ -814,6 +827,7 @@ public class Frame extends FrameBase {
         statusBar.setStatusText("");
     }
 
+    @Override
     public String startWorking(final String displayText) {
         String id = null;
 
@@ -829,6 +843,7 @@ public class Frame extends FrameBase {
         return id;
     }
 
+    @Override
     public void stopWorking(final String workingId) {
         synchronized (workingStatuses) {
             if ((statusBar != null) && (workingId != null)) {
@@ -2064,6 +2079,7 @@ public class Frame extends FrameBase {
     /**
      * Enables the save button for needed page.
      */
+    @Override
     public boolean isSaveEnabled() {
         boolean enabled = false;
 
@@ -3323,6 +3339,7 @@ public class Frame extends FrameBase {
         worker.execute();
     }
 
+    @Override
     public boolean changesHaveBeenMade() {
         if (currentContentPage == channelPanel) {
             return channelPanel.changesHaveBeenMade();
@@ -3610,6 +3627,7 @@ public class Frame extends FrameBase {
      * 
      * @return
      */
+    @Override
     public String browseForFileString(String fileExtension) {
         File file = browseForFile(fileExtension);
 
@@ -3625,6 +3643,7 @@ public class Frame extends FrameBase {
      * 
      * @return
      */
+    @Override
     public byte[] browseForFileBytes(String fileExtension) {
         File file = browseForFile(fileExtension);
 
@@ -3639,6 +3658,7 @@ public class Frame extends FrameBase {
         return null;
     }
 
+    @Override
     public String readFileToString(File file) {
         try {
             String content = FileUtils.readFileToString(file, UIConstants.CHARSET);
@@ -3655,6 +3675,7 @@ public class Frame extends FrameBase {
         return null;
     }
 
+    @Override
     public File browseForFile(String fileExtension) {
         JFileChooser importFileChooser = new JFileChooser();
 
@@ -3676,6 +3697,7 @@ public class Frame extends FrameBase {
         return null;
     }
     
+    @Override
     public File[] browseForFiles(String fileExtension) {
     	JFileChooser importFileChooser = new JFileChooser();
         importFileChooser.setMultiSelectionEnabled(true);
@@ -4796,6 +4818,7 @@ public class Frame extends FrameBase {
         this.canSave = canSave;
     }
 
+    @Override
     public void doContextSensitiveSave() {
         if (canSave) {
             if (currentContentPage == channelPanel) {
@@ -4818,6 +4841,7 @@ public class Frame extends FrameBase {
         }
     }
 
+    @Override
     public void doFind(JEditTextArea text) {
         FindRplDialog find;
         Window owner = getWindowForComponent(text);

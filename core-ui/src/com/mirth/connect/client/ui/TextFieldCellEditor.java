@@ -24,7 +24,7 @@ public abstract class TextFieldCellEditor extends AbstractCellEditor implements 
 
     private JTextField textField = new JTextField();
     private String originalValue;
-    private Frame parent;
+    private FrameBase parent;
 
     /**
      * Checks whether or not the value change is valid.
@@ -114,7 +114,7 @@ public abstract class TextFieldCellEditor extends AbstractCellEditor implements 
         this.originalValue = originalValue;
     }
 
-    public Frame getParent() {
+    public FrameBase getParent() {
         return parent;
     }
 }

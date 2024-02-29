@@ -14,6 +14,7 @@ import javax.swing.UIManager;
 
 import org.jdesktop.swingx.JXDatePicker;
 
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.UIConstants;
 
 /**
@@ -32,7 +33,7 @@ public class MirthDatePicker extends JXDatePicker {
 
         super.getMonthView().setMonthStringBackground(UIConstants.JX_CONTAINER_BACKGROUND_COLOR);
         super.getMonthView().setMonthStringForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
-        UIManager.put("JXDatePicker.arrowIcon", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/calendar_view_month.png")));
+        UIManager.put("JXDatePicker.arrowIcon", new ImageIcon(FrameBase.class.getResource("images/calendar_view_month.png")));
 
         // old swingx 0.8 key
         // UIManager.put("JXDatePicker.arrowDown.image", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/calendar_view_month.png")));

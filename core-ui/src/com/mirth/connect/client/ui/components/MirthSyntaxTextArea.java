@@ -19,7 +19,7 @@ import javax.swing.event.DocumentListener;
 import org.syntax.jedit.JEditTextArea;
 import org.syntax.jedit.SyntaxDocument;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.actions.CopyAction;
 import com.mirth.connect.client.ui.actions.CutAction;
@@ -37,7 +37,7 @@ import com.mirth.connect.client.ui.actions.UndoAction;
  */
 public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInterface {
 
-    private Frame parent;
+    private FrameBase parent;
     private CutAction cutAction;
     private CopyAction copyAction;
     private PasteAction pasteAction;

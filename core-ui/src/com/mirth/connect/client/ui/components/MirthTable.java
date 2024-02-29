@@ -46,9 +46,9 @@ import org.jdesktop.swingx.table.ColumnControlButton;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.table.TableColumnModelExt;
 
-import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
+import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MirthTable extends JXTable {
@@ -70,11 +70,11 @@ public class MirthTable extends JXTable {
         this.prefix = prefix;
         this.defaultVisibleColumns = defaultVisibleColumns;
 
-        userPreferences = Preferences.userNodeForPackage(Mirth.class);
+        userPreferences = Preferences.userNodeForPackage(UIConstants.PREFERENCE_USER_NODE);
         columnOrderMap = new HashMap<String, Integer>();
         if (StringUtils.isNotEmpty(prefix)) {
             try {
-                userPreferences = Preferences.userNodeForPackage(Mirth.class);
+                userPreferences = Preferences.userNodeForPackage(UIConstants.PREFERENCE_USER_NODE);
                 String columns = userPreferences.get(prefix + "ColumnOrderMap", "");
 
                 if (StringUtils.isNotEmpty(columns)) {

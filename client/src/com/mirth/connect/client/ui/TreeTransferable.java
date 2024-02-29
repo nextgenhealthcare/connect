@@ -21,11 +21,9 @@ import com.mirth.connect.client.ui.editors.MessageTreePanel;
 /**
  * Package TreeNodes for movement.
  */
-public class TreeTransferable implements Transferable {
+public class TreeTransferable extends TreeTransferableBase {
 
-    public static final DataFlavor MAPPER_DATA_FLAVOR = new DataFlavor(MapperDropData.class, "MapperDropData");
-    public static final DataFlavor MESSAGE_BUILDER_DATA_FLAVOR = new DataFlavor(MessageBuilderDropData.class, "MessageBuilderDropData");
-    public static final DataFlavor RULE_DATA_FLAVOR = new DataFlavor(RuleDropData.class, "RuleDropData");
+    
     private static DataFlavor[] flavors = null;
     private BaseEditorPane<?, ?> editorPane;
     private TreeNode data = null;

@@ -55,12 +55,12 @@ import org.jdesktop.swingx.table.TableColumnModelExt;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 import com.mirth.connect.client.ui.AbstractDashboardTableNode;
-import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.SortableHeaderCellRenderer;
 import com.mirth.connect.client.ui.SortableTreeTable;
 import com.mirth.connect.client.ui.SortableTreeTableModel;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
+import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
@@ -104,7 +104,7 @@ public class MirthTreeTable extends SortableTreeTable {
 
         if (StringUtils.isNotEmpty(prefix)) {
             try {
-                userPreferences = Preferences.userNodeForPackage(Mirth.class);
+                userPreferences = Preferences.userNodeForPackage(UIConstants.PREFERENCE_USER_NODE);
                 String columns = userPreferences.get(prefix + PREFERENCE_COLUMN_ORDER_MAP, "");
 
                 if (StringUtils.isNotEmpty(columns)) {

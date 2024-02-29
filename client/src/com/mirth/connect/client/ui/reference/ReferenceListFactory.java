@@ -35,6 +35,7 @@ import org.reflections.scanners.ResourcesScanner;
 
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.ReferenceListFactoryBase;
 import com.mirth.connect.client.ui.components.rsta.ac.MirthCompletionCacheInterface;
 import com.mirth.connect.client.ui.components.rsta.ac.MirthLanguageSupport;
 import com.mirth.connect.client.ui.reference.Reference.Type;
@@ -47,7 +48,7 @@ import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.util.DefaultMetaData;
 import com.mirth.connect.plugins.CodeTemplatePlugin;
 
-public class ReferenceListFactory {
+public class ReferenceListFactory extends ReferenceListFactoryBase {
 
     private static final CodeTemplateContextSet CONTEXT_GLOBAL = CodeTemplateContextSet.getGlobalContextSet();
     private static final CodeTemplateContextSet CONTEXT_CHANNEL = CodeTemplateContextSet.getChannelContextSet();
@@ -155,6 +156,7 @@ public class ReferenceListFactory {
         completionCache.addReferences(references);
     }
 
+    @Override
     public synchronized void loadPluginReferences() {
         if (pluginReferencesLoaded) {
             return;
@@ -201,6 +203,7 @@ public class ReferenceListFactory {
         }
     }
 
+    @Override
     public synchronized void loadReferencesAfterPlugins() {
         if (afterPluginReferencesLoaded) {
             return;

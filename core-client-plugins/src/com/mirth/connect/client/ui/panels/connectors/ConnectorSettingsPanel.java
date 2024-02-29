@@ -210,10 +210,10 @@ public abstract class ConnectorSettingsPanel extends JPanel {
                             @Override
                             public Object doInBackground() throws ClientException {
                                 try {
-                                    if (servletInterface.isAssignableFrom(PlatformUI.MIRTH_FRAME.mirthClient.getClass())) {
-                                        return method.invoke(PlatformUI.MIRTH_FRAME.mirthClient, args);
+                                    if (servletInterface.isAssignableFrom(PlatformUI.MIRTH_FRAME.getClient().getClass())) {
+                                        return method.invoke(PlatformUI.MIRTH_FRAME.getClient(), args);
                                     }
-                                    return method.invoke(PlatformUI.MIRTH_FRAME.mirthClient.getServlet(servletInterface), args);
+                                    return method.invoke(PlatformUI.MIRTH_FRAME.getClient().getServlet(servletInterface), args);
                                 } catch (Throwable t) {
                                     Throwable cause = t;
                                     if (cause instanceof InvocationTargetException && cause.getCause() != null) {
@@ -269,11 +269,11 @@ public abstract class ConnectorSettingsPanel extends JPanel {
     }
 
     public final String getChannelId() {
-        return PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getId();
+        return PlatformUI.MIRTH_FRAME.getChannelSetup().getCurrentChannel().getId();
     }
 
     public final String getChannelName() {
-        return PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getName();
+        return PlatformUI.MIRTH_FRAME.getChannelSetup().getCurrentChannel().getName();
     }
 
     public SwingWorker<Object, Void> getWorker(String workerId) {

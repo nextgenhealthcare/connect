@@ -9,7 +9,7 @@
 
 package com.mirth.connect.client.ui.components;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 
 /**
@@ -17,7 +17,7 @@ import com.mirth.connect.client.ui.PlatformUI;
  */
 public class MirthRadioButton extends javax.swing.JRadioButton {
 
-    private Frame parent;
+    private FrameBase parent;
 
     public MirthRadioButton() {
         super();

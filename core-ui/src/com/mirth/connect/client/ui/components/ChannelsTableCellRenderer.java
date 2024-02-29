@@ -16,7 +16,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel;
+import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanelBase;
 
 public class ChannelsTableCellRenderer extends JCheckBox implements TableCellRenderer {
     @Override
@@ -25,7 +25,7 @@ public class ChannelsTableCellRenderer extends JCheckBox implements TableCellRen
         setEnabled(table.isEnabled());
         setSelected(channelInfo.isEnabled());
         setText(channelInfo.getName());
-        if (channelInfo.getName().equals(CodeTemplatePanel.NEW_CHANNELS)) {
+        if (channelInfo.getName().equals(CodeTemplatePanelBase.NEW_CHANNELS)) {
             setToolTipText(table.getToolTipText());
         } else {
             setToolTipText(channelInfo.getName());

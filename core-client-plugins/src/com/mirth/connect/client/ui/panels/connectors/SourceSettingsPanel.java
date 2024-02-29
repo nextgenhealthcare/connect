@@ -31,12 +31,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.math.NumberUtils;
 
-import com.mirth.connect.client.ui.ChannelSetup;
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.ChannelSetupBase;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
@@ -53,10 +51,12 @@ import com.mirth.connect.model.Rule;
 import com.mirth.connect.model.Step;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 
+import net.miginfocom.swing.MigLayout;
+
 public class SourceSettingsPanel extends JPanel {
 
-    private Frame parent;
-    private ChannelSetup channelSetup;
+    private FrameBase parent;
+    private ChannelSetupBase channelSetup;
     private List<String> queueOnRespondFromNames;
     private List<Object> queueOffRespondFromNames;
 
@@ -67,7 +67,7 @@ public class SourceSettingsPanel extends JPanel {
         queueWarningLabel.setVisible(false);
     }
 
-    public void setChannelSetup(ChannelSetup channelSetup) {
+    public void setChannelSetup(ChannelSetupBase channelSetup) {
         this.channelSetup = channelSetup;
     }
 
@@ -99,7 +99,7 @@ public class SourceSettingsPanel extends JPanel {
         if (properties.getQueueBufferSize() > 0) {
             queueBufferSizeField.setText(String.valueOf(properties.getQueueBufferSize()));
         } else {
-            queueBufferSizeField.setText(String.valueOf(channelSetup.defaultQueueBufferSize));
+            queueBufferSizeField.setText(String.valueOf(channelSetup.getDefaultQueueBufferSize()));
         }
 
         processBatchLabel.setEnabled(propertiesInterface.canBatch());
@@ -130,7 +130,7 @@ public class SourceSettingsPanel extends JPanel {
         SourceConnectorProperties properties = propertiesInterface.getSourceConnectorProperties();
 
         boolean enabled = parent.isSaveEnabled();
-        Channel channel = parent.channelEditPanel.currentChannel;
+        Channel channel = parent.getChannelSetup().getCurrentChannel();
 
         Set<Object> variables = new LinkedHashSet<Object>();
 

@@ -17,8 +17,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.model.CalendarToStringStyle;
-import com.mirth.connect.util.CodeTemplateUtil;
-import com.mirth.connect.util.CodeTemplateUtil.CodeTemplateDocumentation;
 
 public abstract class CodeTemplateProperties implements Serializable, Purgable {
 
@@ -88,9 +86,10 @@ public abstract class CodeTemplateProperties implements Serializable, Purgable {
         CodeTemplateFunctionDefinition functionDefinition = null;
 
         if (StringUtils.isNotBlank(code)) {
-            CodeTemplateDocumentation documentation = CodeTemplateUtil.getDocumentation(code);
-            description = documentation.getDescription();
-            functionDefinition = documentation.getFunctionDefinition();
+            // FIXME
+//            CodeTemplateDocumentation documentation = CodeTemplateUtil.getDocumentation(code);
+//            description = documentation.getDescription();
+//            functionDefinition = documentation.getFunctionDefinition();
         }
 
         this.description = description;

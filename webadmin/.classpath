@@ -10,23 +10,13 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/displaytag-1.2.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/json-simple-1.1.1.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/stripes.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Server">
-		<accessrules>
-			<accessrule kind="accessible" pattern="com/mirth/connect/client/core/**"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/model/**"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/util/**"/>
-			<accessrule kind="accessible" pattern="org/mozilla/**"/>
-			<accessrule kind="nonaccessible" pattern="*/**"/>
-		</accessrules>
-	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/Donkey">
-		<accessrules>
-			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/model/**"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/util/**"/>
-			<accessrule kind="nonaccessible" pattern="*/**"/>
-		</accessrules>
-	</classpathentry>
 	<classpathentry kind="lib" path="/Server/lib/javax/javax.servlet-api-3.1.0.jar"/>
 	<classpathentry kind="lib" path="/Server/lib/jetty/jsp/org.mortbay.jasper.apache-jsp-8.5.70.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-base"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-version"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

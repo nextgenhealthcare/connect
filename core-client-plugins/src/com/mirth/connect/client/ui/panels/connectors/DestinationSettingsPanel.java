@@ -12,6 +12,7 @@ package com.mirth.connect.client.ui.panels.connectors;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -35,14 +36,11 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.ui.AbstractConnectorPropertiesPanel;
-import com.mirth.connect.client.ui.ChannelSetup;
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.ChannelSetupBase;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -57,11 +55,13 @@ import com.mirth.connect.model.InvalidConnectorPluginProperties;
 import com.mirth.connect.model.MessageStorageMode;
 import com.mirth.connect.plugins.ConnectorPropertiesPlugin;
 
+import net.miginfocom.swing.MigLayout;
+
 public class DestinationSettingsPanel extends JPanel {
 
     public static final String ADVANCED_QUEUE_PLUGIN_PROPERTIES = "destinationAdvancedQueuePluginProperties";
 
-    private ChannelSetup channelSetup;
+    private ChannelSetupBase channelSetup;
     private boolean regenerateTemplate;
     private boolean rotate;
     private boolean includeFilterTransformer;
@@ -77,7 +77,7 @@ public class DestinationSettingsPanel extends JPanel {
         initLayout();
     }
 
-    public void setChannelSetup(ChannelSetup channelSetup) {
+    public void setChannelSetup(ChannelSetupBase channelSetup) {
         this.channelSetup = channelSetup;
     }
 
@@ -107,7 +107,7 @@ public class DestinationSettingsPanel extends JPanel {
         if (properties.getQueueBufferSize() > 0) {
             queueBufferSize = properties.getQueueBufferSize();
         } else {
-            queueBufferSize = channelSetup.defaultQueueBufferSize;
+            queueBufferSize = channelSetup.getDefaultQueueBufferSize();
         }
 
         validateResponseLabel.setEnabled(propertiesInterface.canValidateResponse());

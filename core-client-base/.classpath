@@ -14,6 +14,12 @@
 	<classpathentry kind="lib" path="lib/reflections-0.9.10.jar"/>
 	<classpathentry kind="lib" path="testlib/junit-4.8.1.jar"/>
 	<classpathentry kind="lib" path="testlib/mockito-core-2.7.9.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-engine-core-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-tools-generic-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-codec-1.16.0.jar"/>
+	<classpathentry kind="lib" path="lib/staxon-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-collections4-4.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-compress-1.24.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Core-version"/>
 	<classpathentry kind="output" path="bin"/>

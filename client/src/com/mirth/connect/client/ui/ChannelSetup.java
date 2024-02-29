@@ -134,7 +134,7 @@ import com.mirth.connect.util.PropertyVerifier;
 import net.miginfocom.swing.MigLayout;
 
 /** The channel editor panel. Majority of the client application */
-public class ChannelSetup extends JPanel {
+public class ChannelSetup extends ChannelSetupBase {
     private static final String METADATA_NAME_COLUMN_NAME = "Column Name";
     private static final String METADATA_TYPE_COLUMN_NAME = "Type";
     private static final String METADATA_MAPPING_COLUMN_NAME = "Variable Mapping";
@@ -160,7 +160,7 @@ public class ChannelSetup extends JPanel {
     public TransformerPane transformerPane = new TransformerPane();
     public FilterPane filterPane = new FilterPane();
 
-    private Frame parent;
+    private FrameBase parent;
     private String saveGroupId;
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
@@ -174,6 +174,21 @@ public class ChannelSetup extends JPanel {
         initComponents();
         initToolTips();
         initLayout();
+    }
+    
+    @Override
+    public int getDefaultQueueBufferSize() {
+        return defaultQueueBufferSize;
+    }
+    
+    @Override
+    public Channel getCurrentChannel() {
+        return currentChannel;
+    }
+
+    @Override
+    public TransformerPane getTransformerPane() {
+        return transformerPane;
     }
 
     public void closePopupWindow() {
@@ -875,6 +890,7 @@ public class ChannelSetup extends JPanel {
         }
     }
 
+    @Override
     public void decorateConnectorType(ConnectorTypeDecoration connectorTypeDecoration, boolean isDestination) {
         if (connectorTypeDecoration != null && isDestination && destinationTable.getSelectedModelIndex() >= 0) {
             ConnectorTypeData connectorTypeData = (ConnectorTypeData) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));
@@ -1028,10 +1044,12 @@ public class ChannelSetup extends JPanel {
         destinationConnectorPanel.updateQueueWarning(messageStorageMode);
     }
 
+    @Override
     public MessageStorageMode getMessageStorageMode() {
         return MessageStorageMode.fromInt(messageStorageSlider.getValue());
     }
 
+    @Override
     public void updateQueueWarning(MessageStorageMode messageStorageMode) {
         String errorString = getQueueErrorString(messageStorageMode);
 
@@ -1113,6 +1131,7 @@ public class ChannelSetup extends JPanel {
         return scriptMap;
     }
 
+    @Override
     public void saveSourcePanel() {
         currentChannel.getSourceConnector().setProperties(sourceConnectorPanel.getProperties());
         
@@ -1121,6 +1140,7 @@ public class ChannelSetup extends JPanel {
         }
     }
 
+    @Override
     public void saveDestinationPanel() {
         Connector temp;
 

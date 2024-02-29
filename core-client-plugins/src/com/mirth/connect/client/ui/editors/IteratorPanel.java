@@ -35,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.RefreshTableModel;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
@@ -211,7 +210,7 @@ public abstract class IteratorPanel<C extends FilterTransformerElement> extends 
         prefixSubstitutionsTable.setEditable(true);
         prefixSubstitutionsTable.getTableHeader().setReorderingAllowed(false);
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+        if (Preferences.userNodeForPackage(UIConstants.PREFERENCE_USER_NODE).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
             prefixSubstitutionsTable.setHighlighters(highlighter);
         }

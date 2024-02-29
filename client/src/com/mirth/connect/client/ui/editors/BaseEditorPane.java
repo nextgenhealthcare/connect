@@ -128,7 +128,7 @@ import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.ScriptBuilderException;
 
 @SuppressWarnings("serial")
-public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends FilterTransformerElement> extends JPanel implements DropTargetListener {
+public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends FilterTransformerElement> extends BaseEditorPaneBase<T, C> {
 
     private static final int TASK_ADD = 0;
     private static final int TASK_DELETE = 1;
@@ -163,6 +163,26 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     public BaseEditorPane() {
         initComponents();
         initLayout();
+    }
+    
+    @Override
+    protected int getNumColumn() {
+        return numColumn;
+    }
+    
+    @Override
+    protected int getNameColumn() {
+        return nameColumn;
+    }
+    
+    @Override
+    protected int getTypeColumn() {
+        return typeColumn;
+    }
+    
+    @Override
+    protected int getEnabledColumn() {
+        return enabledColumn;
     }
 
     public Connector getConnector() {
@@ -398,13 +418,13 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         addNewElement();
     }
 
-    public abstract void addNewElement();
-
+    @Override
     public void addNewElement(String name, String variable, String mapping, String type) {
         addNewElement(name, variable, mapping, type, false);
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public void addNewElement(String name, String variable, String mapping, String type, boolean showIteratorWizard) {
         updating.set(true);
         try {
@@ -2073,25 +2093,6 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             setMaximumSize(new Dimension(21, 17));
             setMinimumSize(new Dimension(21, 17));
             setPreferredSize(new Dimension(21, 17));
-        }
-    }
-
-    protected static class OperatorNamePair extends MutablePair<Operator, String> {
-
-        public OperatorNamePair(String name) {
-            this(null, name);
-        }
-
-        public OperatorNamePair(Operator operator, String name) {
-            super(operator, name);
-        }
-
-        public Operator getOperator() {
-            return getLeft();
-        }
-
-        public String getName() {
-            return getRight();
         }
     }
 

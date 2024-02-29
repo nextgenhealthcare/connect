@@ -1,6 +1,7 @@
 package com.mirth.connect.client.ui;
 
 import java.awt.Component;
+import java.io.File;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
@@ -8,6 +9,7 @@ import javax.swing.JPopupMenu;
 
 import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXTaskPane;
+import org.syntax.jedit.JEditTextArea;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.ui.FrameBase.ConflictOption;
@@ -17,6 +19,10 @@ import com.mirth.connect.model.PluginMetaData;
 public abstract class FrameBase extends JXFrame {
     
     public abstract Client getClient();
+    
+    public abstract ChannelSetupBase getChannelSetup();
+    
+    public abstract Component getCurrentContentPage();
     
     public abstract JXTaskPane getOtherPane();
     
@@ -38,9 +44,42 @@ public abstract class FrameBase extends JXFrame {
     
     public abstract Map<String, ConnectorMetaData> getConnectorMetaData();
     
+    /**
+     * Enables the save button for needed page.
+     */
+    public abstract boolean isSaveEnabled();
+    
     public abstract void setSaveEnabled(boolean enabled);
     
     public abstract void setCanSave(boolean canSave);
+    
+    public abstract void doContextSensitiveSave();
+    
+    public abstract boolean changesHaveBeenMade();
+    
+    public abstract String startWorking(final String displayText);
+    
+    public abstract void stopWorking(final String workingId);
+    
+    /**
+     * Import a file with the default defined file filter type.
+     * 
+     * @return
+     */
+    public abstract String browseForFileString(String fileExtension);
+    
+    /**
+     * Read the bytes from a file with the default defined file filter type.
+     * 
+     * @return
+     */
+    public abstract byte[] browseForFileBytes(String fileExtension);
+    
+    public abstract String readFileToString(File file);
+    
+    public abstract File browseForFile(String fileExtension);
+    
+    public abstract File[] browseForFiles(String fileExtension);
     
     /**
      * Alerts the user with a yes/no option with the passed in 'message'
@@ -113,5 +152,5 @@ public abstract class FrameBase extends JXFrame {
      */
     public abstract void alertThrowable(Component parentComponent, Throwable t, String customMessage, boolean showMessageOnForbidden, String safeErrorKey);
     
-    
+    public abstract void doFind(JEditTextArea text);
 }

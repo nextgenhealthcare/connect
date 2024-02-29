@@ -2,15 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Server">
-		<accessrules>
-			<accessrule kind="accessible" pattern="com/mirth/connect/client/core/**"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/model/**"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/util/**"/>
-			<accessrule kind="accessible" pattern="org/mozilla/**"/>
-			<accessrule kind="nonaccessible" pattern="*/**"/>
-		</accessrules>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2-api-2.17.2.jar">
 		<attributes>
@@ -32,13 +23,6 @@
 	<classpathentry kind="lib" path="lib/commons-configuration2-2.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.13.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections4-4.4.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Donkey">
-		<accessrules>
-			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/model/**"/>
-			<accessrule kind="accessible" pattern="com/mirth/connect/donkey/util/**"/>
-			<accessrule kind="nonaccessible" pattern="*/**"/>
-		</accessrules>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout-core-4.2.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout-swing-4.2.jar"/>
@@ -51,5 +35,11 @@
 	<classpathentry kind="lib" path="lib/httpmime-4.5.13.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7.13.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.4.20.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-version"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-base"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

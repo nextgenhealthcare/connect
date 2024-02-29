@@ -11,5 +11,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Core-version"/>
 	<classpathentry kind="lib" path="lib/swingx-core-1.6.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/miglayout-core-4.2.jar"/>
+	<classpathentry kind="lib" path="lib/miglayout-swing-4.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-collections4-4.4.jar"/>
+	<classpathentry kind="lib" path="lib/looks-2.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-io-2.13.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

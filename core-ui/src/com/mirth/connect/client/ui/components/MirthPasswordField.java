@@ -19,7 +19,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.actions.CopyAction;
 import com.mirth.connect.client.ui.actions.CutAction;
@@ -33,7 +33,7 @@ import com.mirth.connect.client.ui.actions.SelectAllAction;
  */
 public class MirthPasswordField extends javax.swing.JPasswordField implements MirthTextInterface {
 
-    private Frame parent;
+    private FrameBase parent;
     private boolean visible = false;
     private JPopupMenu menu;
     private CutAction cutAction;

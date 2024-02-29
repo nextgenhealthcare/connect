@@ -26,8 +26,7 @@ import javax.swing.table.TableColumn;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.mirth.connect.client.ui.Frame;
-import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
@@ -36,7 +35,7 @@ public class MirthPropertiesTable extends MirthTable {
     private final static String PROPERTY_TITLE = "Property";
     private final static String VALUE_TITLE = "Value";
 
-    private Frame parent;
+    private FrameBase parent;
     private DefaultTableModel model;
     private int lastIndex;
 
@@ -64,7 +63,7 @@ public class MirthPropertiesTable extends MirthTable {
         setSortable(false);
         getTableHeader().setReorderingAllowed(false);
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+        if (Preferences.userNodeForPackage(UIConstants.PREFERENCE_USER_NODE).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
             setHighlighters(highlighter);
         }

@@ -18,7 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthRadioButton;
@@ -32,7 +32,7 @@ import net.miginfocom.swing.MigLayout;
 public class ListenerSettingsPanel extends JPanel {
 
     public static final String FIELD_PORT = ListenerSettingsPanel.class.getSimpleName() + ".PORT";
-    private Frame parent;
+    private FrameBase parent;
 
     public ListenerSettingsPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;

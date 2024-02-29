@@ -16,12 +16,7 @@ import javax.swing.border.TitledBorder;
 
 import com.mirth.connect.client.ui.TreePanel;
 
-public class MessageTreePanel extends javax.swing.JPanel {
-
-    public static final String MAPPER_PREFIX = "msg";
-    public static final String MAPPER_SUFFIX = ".toString()";
-    public static final String MESSAGE_BUILDER_PREFIX = "tmp";
-    public static final String MESSAGE_BUILDER_SUFFIX = "";
+public class MessageTreePanel extends MessageTreePanelBase {
 
     private BaseEditorPane<?, ?> editorPane;
 

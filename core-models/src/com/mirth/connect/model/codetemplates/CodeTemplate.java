@@ -27,7 +27,6 @@ import com.mirth.connect.donkey.util.purge.PurgeUtil;
 import com.mirth.connect.donkey.util.xstream.SerializerException;
 import com.mirth.connect.model.Cacheable;
 import com.mirth.connect.model.codetemplates.CodeTemplateProperties.CodeTemplateType;
-import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("codeTemplate")
@@ -168,64 +167,65 @@ public class CodeTemplate implements Serializable, Migratable, Purgable, Cacheab
 
     @Override
     public void migrate3_3_0(DonkeyElement element) {
-        element.addChildElement("revision", "1");
-
-        try {
-            element.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(Calendar.getInstance())).setNodeName("lastModified");
-        } catch (DonkeyElementException e) {
-            throw new SerializerException("Failed to migrate code template last modified date.", e);
-        }
-
-        String type = element.getChildElement("type").getTextContent();
-        if (type.equals("CODE") || type.equals("VARIABLE")) {
-            element.getChildElement("type").setTextContent("DRAG_AND_DROP_CODE");
-        }
-
-        DonkeyElement codeElement = element.getChildElement("code");
-        String code = StringUtils.trim(codeElement.getTextContent());
-        String toolTip = StringUtils.trim(element.removeChild("tooltip").getTextContent());
-
-        if (StringUtils.isNotBlank(toolTip)) {
-            if (code.startsWith("/**")) {
-                // Code already has a documentation block, so put the tooltip inside it
-                int index = StringUtils.indexOfAnyBut(code.substring(1), '*') + 1;
-                StringBuilder builder = new StringBuilder(code.substring(0, index)).append("\n\t").append(WordUtils.wrap(toolTip, 100, "\n\t", false)).append('\n');
-                String remaining = code.substring(index);
-                if (StringUtils.indexOfAnyBut(remaining.trim(), '*', '/') == 0) {
-                    builder.append("\n\t");
-                }
-                code = builder.append(remaining).toString();
-            } else {
-                // Add a new documentation block
-                code = new StringBuilder("/**\n\t").append(WordUtils.wrap(toolTip, 100, "\n\t", false)).append("\n*/\n").append(code).toString();
-            }
-
-            codeElement.setTextContent(code);
-        }
-
-        DonkeyElement contextSet = element.addChildElement("contextSet").addChildElement("delegate");
-
-        switch (Integer.parseInt(element.removeChild("scope").getTextContent())) {
-            case 0:
-            case 1:
-                contextSet.addChildElement("contextType", "GLOBAL_DEPLOY");
-                contextSet.addChildElement("contextType", "GLOBAL_UNDEPLOY");
-                contextSet.addChildElement("contextType", "GLOBAL_PREPROCESSOR");
-            case 2:
-                contextSet.addChildElement("contextType", "GLOBAL_POSTPROCESSOR");
-                contextSet.addChildElement("contextType", "CHANNEL_DEPLOY");
-                contextSet.addChildElement("contextType", "CHANNEL_UNDEPLOY");
-                contextSet.addChildElement("contextType", "CHANNEL_PREPROCESSOR");
-                contextSet.addChildElement("contextType", "CHANNEL_POSTPROCESSOR");
-                contextSet.addChildElement("contextType", "CHANNEL_ATTACHMENT");
-                contextSet.addChildElement("contextType", "CHANNEL_BATCH");
-            case 3:
-                contextSet.addChildElement("contextType", "SOURCE_RECEIVER");
-                contextSet.addChildElement("contextType", "SOURCE_FILTER_TRANSFORMER");
-                contextSet.addChildElement("contextType", "DESTINATION_FILTER_TRANSFORMER");
-                contextSet.addChildElement("contextType", "DESTINATION_DISPATCHER");
-                contextSet.addChildElement("contextType", "DESTINATION_RESPONSE_TRANSFORMER");
-        }
+        // FIXME
+//        element.addChildElement("revision", "1");
+//
+//        try {
+//            element.addChildElementFromXml(ObjectXMLSerializer.getInstance().serialize(Calendar.getInstance())).setNodeName("lastModified");
+//        } catch (DonkeyElementException e) {
+//            throw new SerializerException("Failed to migrate code template last modified date.", e);
+//        }
+//
+//        String type = element.getChildElement("type").getTextContent();
+//        if (type.equals("CODE") || type.equals("VARIABLE")) {
+//            element.getChildElement("type").setTextContent("DRAG_AND_DROP_CODE");
+//        }
+//
+//        DonkeyElement codeElement = element.getChildElement("code");
+//        String code = StringUtils.trim(codeElement.getTextContent());
+//        String toolTip = StringUtils.trim(element.removeChild("tooltip").getTextContent());
+//
+//        if (StringUtils.isNotBlank(toolTip)) {
+//            if (code.startsWith("/**")) {
+//                // Code already has a documentation block, so put the tooltip inside it
+//                int index = StringUtils.indexOfAnyBut(code.substring(1), '*') + 1;
+//                StringBuilder builder = new StringBuilder(code.substring(0, index)).append("\n\t").append(WordUtils.wrap(toolTip, 100, "\n\t", false)).append('\n');
+//                String remaining = code.substring(index);
+//                if (StringUtils.indexOfAnyBut(remaining.trim(), '*', '/') == 0) {
+//                    builder.append("\n\t");
+//                }
+//                code = builder.append(remaining).toString();
+//            } else {
+//                // Add a new documentation block
+//                code = new StringBuilder("/**\n\t").append(WordUtils.wrap(toolTip, 100, "\n\t", false)).append("\n*/\n").append(code).toString();
+//            }
+//
+//            codeElement.setTextContent(code);
+//        }
+//
+//        DonkeyElement contextSet = element.addChildElement("contextSet").addChildElement("delegate");
+//
+//        switch (Integer.parseInt(element.removeChild("scope").getTextContent())) {
+//            case 0:
+//            case 1:
+//                contextSet.addChildElement("contextType", "GLOBAL_DEPLOY");
+//                contextSet.addChildElement("contextType", "GLOBAL_UNDEPLOY");
+//                contextSet.addChildElement("contextType", "GLOBAL_PREPROCESSOR");
+//            case 2:
+//                contextSet.addChildElement("contextType", "GLOBAL_POSTPROCESSOR");
+//                contextSet.addChildElement("contextType", "CHANNEL_DEPLOY");
+//                contextSet.addChildElement("contextType", "CHANNEL_UNDEPLOY");
+//                contextSet.addChildElement("contextType", "CHANNEL_PREPROCESSOR");
+//                contextSet.addChildElement("contextType", "CHANNEL_POSTPROCESSOR");
+//                contextSet.addChildElement("contextType", "CHANNEL_ATTACHMENT");
+//                contextSet.addChildElement("contextType", "CHANNEL_BATCH");
+//            case 3:
+//                contextSet.addChildElement("contextType", "SOURCE_RECEIVER");
+//                contextSet.addChildElement("contextType", "SOURCE_FILTER_TRANSFORMER");
+//                contextSet.addChildElement("contextType", "DESTINATION_FILTER_TRANSFORMER");
+//                contextSet.addChildElement("contextType", "DESTINATION_DISPATCHER");
+//                contextSet.addChildElement("contextType", "DESTINATION_RESPONSE_TRANSFORMER");
+//        }
     }
 
     @Override

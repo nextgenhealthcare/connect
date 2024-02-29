@@ -25,7 +25,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.DateFormatter;
 import javax.swing.text.DefaultFormatterFactory;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 
@@ -33,7 +33,7 @@ public class MirthTimePicker extends JSpinner {
 
     private DateFormatter formatter;
     private final JSpinner spinner;
-    private Frame parent;
+    private FrameBase parent;
     private boolean saveEnabled = true;
 
     public MirthTimePicker() {

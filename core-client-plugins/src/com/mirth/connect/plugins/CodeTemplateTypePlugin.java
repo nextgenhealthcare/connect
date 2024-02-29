@@ -11,7 +11,7 @@ package com.mirth.connect.plugins;
 
 import javax.swing.event.DocumentListener;
 
-import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel;
+import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanelBase;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplatePropertiesPanel;
 
 public abstract class CodeTemplateTypePlugin extends ClientPlugin {
@@ -20,5 +20,5 @@ public abstract class CodeTemplateTypePlugin extends ClientPlugin {
         super(pluginName);
     }
 
-    public abstract CodeTemplatePropertiesPanel getPanel(CodeTemplatePanel parent, DocumentListener codeChangeListener);
+    public abstract CodeTemplatePropertiesPanel getPanel(CodeTemplatePanelBase parent, DocumentListener codeChangeListener);
 }
