@@ -32,7 +32,7 @@ import javax.swing.text.html.StyleSheet;
 import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 
 import com.mirth.connect.client.ui.Frame.ChannelTask;
 import com.mirth.connect.client.ui.MirthDialog;

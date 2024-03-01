@@ -12,7 +12,7 @@ package com.mirth.connect.connectors.doc;
 import static com.mirth.connect.connectors.doc.Unit.INCHES;
 import static com.mirth.connect.connectors.doc.Unit.MM;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 
 public enum PageSize {
 
