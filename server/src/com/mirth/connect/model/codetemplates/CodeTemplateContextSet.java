@@ -12,7 +12,7 @@ package com.mirth.connect.model.codetemplates;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -25,7 +25,7 @@ public class CodeTemplateContextSet implements Set<ContextType>, Serializable {
     }
 
     public CodeTemplateContextSet(Collection<ContextType> contextTypes) {
-        delegate = new HashSet<ContextType>(contextTypes);
+        delegate = new TreeSet<ContextType>(contextTypes);
     }
 
     public CodeTemplateContextSet addContext(ContextType... contextTypes) {

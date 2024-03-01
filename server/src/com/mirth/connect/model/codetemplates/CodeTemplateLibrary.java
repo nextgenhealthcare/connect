@@ -15,7 +15,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,8 +46,8 @@ public class CodeTemplateLibrary implements Serializable, Migratable, Purgable, 
 
     public CodeTemplateLibrary() {
         id = UUID.randomUUID().toString();
-        enabledChannelIds = new HashSet<String>();
-        disabledChannelIds = new HashSet<String>();
+        enabledChannelIds = new TreeSet<String>();
+        disabledChannelIds = new TreeSet<String>();
         codeTemplates = new ArrayList<CodeTemplate>();
     }
 
@@ -58,8 +58,8 @@ public class CodeTemplateLibrary implements Serializable, Migratable, Purgable, 
         lastModified = library.getLastModified();
         description = library.getDescription();
         includeNewChannels = library.isIncludeNewChannels();
-        enabledChannelIds = new HashSet<String>(library.getEnabledChannelIds());
-        disabledChannelIds = new HashSet<String>(library.getDisabledChannelIds());
+        enabledChannelIds = new TreeSet<String>(library.getEnabledChannelIds());
+        disabledChannelIds = new TreeSet<String>(library.getDisabledChannelIds());
         codeTemplates = new ArrayList<CodeTemplate>();
         if (CollectionUtils.isNotEmpty(library.getCodeTemplates())) {
             for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
