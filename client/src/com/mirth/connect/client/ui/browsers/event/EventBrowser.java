@@ -95,6 +95,7 @@ public class EventBrowser extends javax.swing.JPanel {
     private Map<Integer, String> userMapById = new LinkedHashMap<Integer, String>();
     private SwingWorker<Void, Void> worker;
 
+    private Boolean use24hourNotation = true;
     /**
      * Constructs the new event browser and sets up its default information/layout.
      */
@@ -138,6 +139,7 @@ public class EventBrowser extends javax.swing.JPanel {
             public void propertyChange(PropertyChangeEvent arg0) {
                 allDayCheckBox.setEnabled(startDatePicker.getDate() != null || endDatePicker.getDate() != null);
                 startTimePicker.setEnabled(startDatePicker.getDate() != null && !allDayCheckBox.isSelected());
+                hourNotation24.setEnabled(startDatePicker.getDate() != null || endDatePicker.getDate() != null);
             }
         });
 
@@ -146,6 +148,7 @@ public class EventBrowser extends javax.swing.JPanel {
             public void propertyChange(PropertyChangeEvent arg0) {
                 allDayCheckBox.setEnabled(startDatePicker.getDate() != null || endDatePicker.getDate() != null);
                 endTimePicker.setEnabled(endDatePicker.getDate() != null && !allDayCheckBox.isSelected());
+                hourNotation24.setEnabled(startDatePicker.getDate() != null || endDatePicker.getDate() != null);
             }
         });
 
@@ -207,7 +210,7 @@ public class EventBrowser extends javax.swing.JPanel {
     }
 
     private Calendar getCalendar(MirthDatePicker datePicker, MirthTimePicker timePicker) throws ParseException {
-        DateFormatter timeFormatter = new DateFormatter(new SimpleDateFormat("hh:mm aa"));
+        DateFormatter timeFormatter = new DateFormatter(new SimpleDateFormat((use24hourNotation ? "HH:mm" : "hh:mm aa")));
         Date date = datePicker.getDate();
         String time = timePicker.getDate();
 
@@ -582,6 +585,7 @@ public class EventBrowser extends javax.swing.JPanel {
         endDatePicker.setDate(null);
         nameField.setText("");
         allDayCheckBox.setSelected(false);
+        hourNotation24.setSelected(true);
         levelBoxInformation.setSelected(false);
         levelBoxWarning.setSelected(false);
         levelBoxError.setSelected(false);
@@ -892,6 +896,7 @@ public class EventBrowser extends javax.swing.JPanel {
         eventAttributesTable = null;
         resetButton = new javax.swing.JButton();
         allDayCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        hourNotation24 = new com.mirth.connect.client.ui.components.MirthCheckBox();
         lastSearchCriteriaPane = new javax.swing.JScrollPane();
         lastSearchCriteria = new javax.swing.JTextArea();
         nextPageButton = new javax.swing.JButton();
@@ -909,8 +914,8 @@ public class EventBrowser extends javax.swing.JPanel {
         endDatePicker = new com.mirth.connect.client.ui.components.MirthDatePicker();
         startDatePicker = new com.mirth.connect.client.ui.components.MirthDatePicker();
         nameField = new javax.swing.JTextField();
-        startTimePicker = new com.mirth.connect.client.ui.components.MirthTimePicker();
-        endTimePicker = new com.mirth.connect.client.ui.components.MirthTimePicker();
+        startTimePicker = new com.mirth.connect.client.ui.components.MirthTimePicker((use24hourNotation ? "HH:mm" : "hh:mm aa"), Calendar.MINUTE);
+        endTimePicker = new com.mirth.connect.client.ui.components.MirthTimePicker((use24hourNotation ? "HH:mm" : "hh:mm aa"), Calendar.MINUTE);
         filterButton = new javax.swing.JButton();
         advSearchButton = new javax.swing.JButton();
         levelBoxInformation = new com.mirth.connect.client.ui.components.MirthCheckBox();
@@ -966,6 +971,16 @@ public class EventBrowser extends javax.swing.JPanel {
         allDayCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 allDayCheckBoxActionPerformed(evt);
+            }
+        });
+
+        hourNotation24.setBackground(new java.awt.Color(255, 255, 255));
+        hourNotation24.setText("24 hour");
+        hourNotation24.setToolTipText("Use 24 hour notation");
+        hourNotation24.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        hourNotation24.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hourNotation24ActionPerformed(evt);
             }
         });
 
@@ -1108,7 +1123,9 @@ public class EventBrowser extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(hourNotation24, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(19, 19, 19)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(levelBoxInformation, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
@@ -1192,7 +1209,9 @@ public class EventBrowser extends javax.swing.JPanel {
                             .addComponent(levelBoxInformation, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(levelBoxWarning, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(levelBoxWarning, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(hourNotation24, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(levelBoxError, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
@@ -1211,6 +1230,12 @@ public class EventBrowser extends javax.swing.JPanel {
         startTimePicker.setEnabled(startDatePicker.getDate() != null && !allDayCheckBox.isSelected());
         endTimePicker.setEnabled(endDatePicker.getDate() != null && !allDayCheckBox.isSelected());
     }//GEN-LAST:event_allDayCheckBoxActionPerformed
+
+    private void hourNotation24ActionPerformed(java.awt.event.ActionEvent evt) {
+        use24hourNotation = hourNotation24.isSelected();
+        startTimePicker.setFormatter((use24hourNotation ? "HH:mm" : "hh:mm aa"));
+        endTimePicker.setFormatter((use24hourNotation ? "HH:mm" : "hh:mm aa"));
+    }
 
     private void nextPageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextPageButtonActionPerformed
         loadPageNumber(events.getPageNumber() + 1);
@@ -1289,6 +1314,7 @@ public class EventBrowser extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton advSearchButton;
     private com.mirth.connect.client.ui.components.MirthCheckBox allDayCheckBox;
+    private com.mirth.connect.client.ui.components.MirthCheckBox hourNotation24;
     private com.mirth.connect.client.ui.components.MirthButton countButton;
     private com.mirth.connect.client.ui.components.MirthDatePicker endDatePicker;
     private com.mirth.connect.client.ui.components.MirthTimePicker endTimePicker;

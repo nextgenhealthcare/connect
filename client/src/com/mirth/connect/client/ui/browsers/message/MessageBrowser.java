@@ -172,6 +172,9 @@ public class MessageBrowser extends javax.swing.JPanel {
 
     private List<Integer> selectedMetaDataIds;
 
+
+    private Boolean use24hourNotation = true;
+
     /**
      * Constructs the new message browser and sets up its default information/layout
      */
@@ -250,6 +253,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             public void propertyChange(PropertyChangeEvent arg0) {
                 allDayCheckBox.setEnabled(mirthDatePicker1.getDate() != null || mirthDatePicker2.getDate() != null);
                 mirthTimePicker1.setEnabled(mirthDatePicker1.getDate() != null && !allDayCheckBox.isSelected());
+                hourNotation24.setEnabled(mirthDatePicker1.getDate() != null || mirthDatePicker2.getDate() != null);
             }
         });
 
@@ -258,6 +262,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             public void propertyChange(PropertyChangeEvent arg0) {
                 allDayCheckBox.setEnabled(mirthDatePicker1.getDate() != null || mirthDatePicker2.getDate() != null);
                 mirthTimePicker2.setEnabled(mirthDatePicker2.getDate() != null && !allDayCheckBox.isSelected());
+                hourNotation24.setEnabled(mirthDatePicker1.getDate() != null || mirthDatePicker2.getDate() != null);
             }
         });
 
@@ -423,6 +428,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         textSearchField.setText("");
         regexTextSearchCheckBox.setSelected(false);
         allDayCheckBox.setSelected(false);
+        hourNotation24.setSelected(true);
         statusBoxReceived.setSelected(false);
         statusBoxTransformed.setSelected(false);
         statusBoxFiltered.setSelected(false);
@@ -499,7 +505,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     private Calendar getCalendar(MirthDatePicker datePicker, MirthTimePicker timePicker) throws ParseException {
-        DateFormatter timeFormatter = new DateFormatter(new SimpleDateFormat("hh:mm aa"));
+        DateFormatter timeFormatter = new DateFormatter(new SimpleDateFormat((use24hourNotation ? "HH:mm" : "hh:mm aa")));
         Date date = datePicker.getDate();
         String time = timePicker.getDate();
 
@@ -2381,11 +2387,12 @@ public class MessageBrowser extends javax.swing.JPanel {
         advSearchButton = new javax.swing.JButton();
         pageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
         statusBoxError = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        mirthTimePicker2 = new com.mirth.connect.client.ui.components.MirthTimePicker();
+        mirthTimePicker2 = new com.mirth.connect.client.ui.components.MirthTimePicker((use24hourNotation ? "HH:mm" : "hh:mm aa"), Calendar.MINUTE);
         statusBoxReceived = new com.mirth.connect.client.ui.components.MirthCheckBox();
         pageGoButton = new javax.swing.JButton();
         statusBoxTransformed = new com.mirth.connect.client.ui.components.MirthCheckBox();
-        mirthTimePicker1 = new com.mirth.connect.client.ui.components.MirthTimePicker();
+        mirthTimePicker1 = new com.mirth.connect.client.ui.components.MirthTimePicker((use24hourNotation ? "HH:mm" : "hh:mm aa"), Calendar.MINUTE);
+        hourNotation24 = new com.mirth.connect.client.ui.components.MirthCheckBox();
         jLabel3 = new javax.swing.JLabel();
         allDayCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         mirthDatePicker2 = new com.mirth.connect.client.ui.components.MirthDatePicker();
@@ -2917,6 +2924,16 @@ public class MessageBrowser extends javax.swing.JPanel {
         regexTextSearchCheckBox.setText("Regex");
         regexTextSearchCheckBox.setToolTipText("<html> Search all message content for a match to the regular expression pattern.<br/> Regex matching could be a very costly operation and should be used with<br/> caution, specially with large amount of messages. Any message content<br/> that was encrypted by this channel will not be searchable. Only supported<br/> on PostgreSQL, Oracle and MySQL databases.</html> ");
 
+        hourNotation24.setBackground(new java.awt.Color(255, 255, 255));
+        hourNotation24.setText("24 hour");
+        hourNotation24.setToolTipText("Use 24 hour notation");
+        hourNotation24.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        hourNotation24.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hourNotation24ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -2948,8 +2965,9 @@ public class MessageBrowser extends javax.swing.JPanel {
                         .addComponent(textSearchField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(allDayCheckBox,          javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(hourNotation24,          javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(filterButton,            javax.swing.GroupLayout.PREFERRED_SIZE, 63,                              javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(regexTextSearchCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -3044,7 +3062,9 @@ public class MessageBrowser extends javax.swing.JPanel {
                                     .addComponent(statusBoxReceived, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(allDayCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(statusBoxTransformed, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(statusBoxTransformed, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(hourNotation24, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(statusBoxFiltered, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -3191,6 +3211,12 @@ public class MessageBrowser extends javax.swing.JPanel {
         mirthTimePicker2.setEnabled(mirthDatePicker2.getDate() != null && !allDayCheckBox.isSelected());
     }//GEN-LAST:event_allDayCheckBoxActionPerformed
 
+    private void hourNotation24ActionPerformed(java.awt.event.ActionEvent evt) {
+        use24hourNotation = hourNotation24.isSelected();
+        mirthTimePicker1.setFormatter((use24hourNotation ? "HH:mm" : "hh:mm aa"));
+        mirthTimePicker2.setFormatter((use24hourNotation ? "HH:mm" : "hh:mm aa"));
+    }
+
     private void pageGoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pageGoButtonActionPerformed
         jumpToPageNumber();
     }//GEN-LAST:event_pageGoButtonActionPerformed
@@ -3269,6 +3295,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JScrollPane messageScrollPane;
     protected com.mirth.connect.client.ui.components.MirthTreeTable messageTreeTable;
     private javax.swing.ButtonGroup messagesGroup;
+
+    private com.mirth.connect.client.ui.components.MirthCheckBox hourNotation24;
     private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker1;
     private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker2;
     private com.mirth.connect.client.ui.components.MirthTimePicker mirthTimePicker1;
