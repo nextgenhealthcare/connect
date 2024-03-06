@@ -218,7 +218,7 @@ public class TreePanel extends javax.swing.JPanel {
                     }
 
                     String variable = MirthTree.constructVariable(tp);
-                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewElement(variable, variable, MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), TransformerPane.MAPPER, true);
+                    ((Frame) PlatformUI.MIRTH_FRAME).channelEditPanel.transformerPane.addNewElement(variable, variable, MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), TransformerPane.MAPPER, true);
                 }
             });
             popupMenu.add(popupMenuMapToVariable);
@@ -237,7 +237,7 @@ public class TreePanel extends javax.swing.JPanel {
                         return;
                     }
 
-                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewElement(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), "").toString(), "", TransformerPane.MESSAGE_BUILDER, true);
+                    ((Frame) PlatformUI.MIRTH_FRAME).channelEditPanel.transformerPane.addNewElement(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), "").toString(), "", TransformerPane.MESSAGE_BUILDER, true);
                 }
             });
             popupMenu.add(popupMenuMapSegment);
@@ -257,7 +257,7 @@ public class TreePanel extends javax.swing.JPanel {
                         return;
                     }
 
-                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewElement(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), "", TransformerPane.MESSAGE_BUILDER, true);
+                    ((Frame) PlatformUI.MIRTH_FRAME).channelEditPanel.transformerPane.addNewElement(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), "", TransformerPane.MESSAGE_BUILDER, true);
                 }
             });
             popupMenu.add(popupMenuMapSegmentFilter);
@@ -277,7 +277,7 @@ public class TreePanel extends javax.swing.JPanel {
                     return;
                 }
 
-                PlatformUI.MIRTH_FRAME.channelEditPanel.filterPane.addNewElement("", MirthTree.constructNodeDescription(tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), FilterPane.RULE_BUILDER, true);
+                ((Frame) PlatformUI.MIRTH_FRAME).channelEditPanel.filterPane.addNewElement("", MirthTree.constructNodeDescription(tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), FilterPane.RULE_BUILDER, true);
             }
         });
         popupMenu.add(popupMenuFilterSegment);
@@ -365,8 +365,8 @@ public class TreePanel extends javax.swing.JPanel {
         if (source.length() > 0 && !source.equals(ignoreText)) {
             IMessageSerializer serializer;
 
-            if (PlatformUI.MIRTH_FRAME.displayNameToDataType.containsKey(messageType)) {
-                dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(messageType);
+            if (PlatformUI.MIRTH_FRAME.getDisplayNameToDataTypeMap().containsKey(messageType)) {
+                dataType = PlatformUI.MIRTH_FRAME.getDisplayNameToDataTypeMap().get(messageType);
             } else {
                 logger.error("Invalid data type");
                 return;
@@ -450,7 +450,7 @@ public class TreePanel extends javax.swing.JPanel {
                                 vocabs.put(dataTypePlugin.getPluginPointName(), vocabulary);
                             }
                         }
-                        vocabulary = MessageVocabularyFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient, vocabs).getVocabulary(dataType, version, type);
+                        vocabulary = MessageVocabularyFactory.getInstance(PlatformUI.MIRTH_FRAME.getClient(), vocabs).getVocabulary(dataType, version, type);
                         messageDescription = vocabulary.getDescription(type.replaceAll("-", ""));
 
                         docBuilder = docFactory.newDocumentBuilder();
@@ -533,7 +533,7 @@ public class TreePanel extends javax.swing.JPanel {
                          * This is because a release may have never been triggered the last time it
                          * was pressed if it was released during a mouse drag.
                          */
-                        PlatformUI.MIRTH_FRAME.updateAcceleratorKeyPressed(evt);
+                        ((Frame) PlatformUI.MIRTH_FRAME).updateAcceleratorKeyPressed(evt);
                     }
                 }
             }

@@ -9,14 +9,14 @@
 
 package com.mirth.connect.connectors.vm;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
 public class ChannelReader extends ConnectorSettingsPanel {
 
-    private Frame parent;
+    private FrameBase parent;
 
     public ChannelReader() {
         parent = PlatformUI.MIRTH_FRAME;

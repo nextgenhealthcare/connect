@@ -41,7 +41,7 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
     private AlertModel alertModel;
 
     public DefaultAlertEditPanel() {
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         initComponents();
     }
 
@@ -172,7 +172,7 @@ public class DefaultAlertEditPanel extends AlertEditPanel {
         // ActionGroups are modified directly so they do not need to be set back to the alert model.
 
         try {
-            parent.mirthClient.updateAlert(alertModel);
+            parent.getClient().updateAlert(alertModel);
             updated = true;
         } catch (ClientException e) {
             if (e.getMessage().contains("An alert with that name already exists.")) {

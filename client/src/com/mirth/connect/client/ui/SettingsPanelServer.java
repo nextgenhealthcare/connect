@@ -104,8 +104,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
             public Void doInBackground() {
                 try {
-                    serverSettings = getFrame().mirthClient.getServerSettings();
-                    updateSettings = getFrame().mirthClient.getUpdateSettings();
+                    serverSettings = getFrame().getClient().getServerSettings();
+                    updateSettings = getFrame().getClient().getUpdateSettings();
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
@@ -173,7 +173,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
             public Void doInBackground() {
                 try {
-                    getFrame().mirthClient.setServerSettings(serverSettings);
+                    getFrame().getClient().setServerSettings(serverSettings);
 
                     String environmentName = environmentNameField.getText();
                     String serverName = serverNameField.getText();
@@ -205,7 +205,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     statusBarText.append(PlatformUI.SERVER_URL);
                     titleText.append(" - (" + PlatformUI.SERVER_VERSION + ")");
                     getFrame().setTitle(titleText.toString());
-                    User currentUser = getFrame().mirthClient.getCurrentUser();
+                    User currentUser = getFrame().getClient().getCurrentUser();
                     statusBarText.append(" as " + currentUser.getUsername());
                     if (!StringUtils.isBlank(currentUser.getFirstName()) || !StringUtils.isBlank(currentUser.getLastName())) {
                         if (!StringUtils.isBlank(currentUser.getFirstName())) {                     // first name is not blank
@@ -219,9 +219,9 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                             statusBarText.append(" (" + currentUser.getLastName() + ")");           // format with only the last name
                         }
                     }
-                    getFrame().statusBar.setServerText(statusBarText.toString());
+                    ((Frame) getFrame()).statusBar.setServerText(statusBarText.toString());
 
-                    getFrame().mirthClient.setUpdateSettings(updateSettings);
+                    getFrame().getClient().setUpdateSettings(updateSettings);
                 } catch (Exception e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
@@ -232,7 +232,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                         PlatformUI.DEFAULT_BACKGROUND_COLOR = defaultBackgroundColor;
                     }
 
-                    String backgroundColorStr = getFrame().mirthClient.getUserPreference(getFrame().getCurrentUser(getFrame()).getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR);
+                    String backgroundColorStr = getFrame().getClient().getUserPreference(getFrame().getCurrentUser(getFrame()).getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR);
                     if (StringUtils.isNotBlank(backgroundColorStr)) {
                         Color backgroundColor = ObjectXMLSerializer.getInstance().deserialize(backgroundColorStr, Color.class);
                         if (backgroundColor != null) {
@@ -249,7 +249,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
             @Override
             public void done() {
                 if (usingServerDefaultColor) {
-                    getFrame().setupBackgroundPainters(PlatformUI.DEFAULT_BACKGROUND_COLOR);
+                    ((Frame) getFrame()).setupBackgroundPainters(PlatformUI.DEFAULT_BACKGROUND_COLOR);
                 }
                 setSaveEnabled(false);
                 getFrame().stopWorking(workingId);
@@ -527,7 +527,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                     ServerConfiguration configuration = null;
 
                     try {
-                        configuration = getFrame().mirthClient.getServerConfiguration();
+                        configuration = getFrame().getClient().getServerConfiguration();
                     } catch (ClientException e) {
                         getFrame().alertThrowable(SettingsPanelServer.this, e);
                         return null;
@@ -535,7 +535,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
                     // Update resource names
                     for (Channel channel : configuration.getChannels()) {
-                        getFrame().updateResourceNames(channel, configuration.getResourceProperties().getList());
+                        ((Frame) getFrame()).updateResourceNames(channel, configuration.getResourceProperties().getList());
                     }
 
                     configuration.setDate(backupDate);
@@ -568,7 +568,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
         if (content != null) {
             try {
-                if (!getFrame().promptObjectMigration(content, "server configuration")) {
+                if (!((Frame) getFrame()).promptObjectMigration(content, "server configuration")) {
                     return;
                 }
 
@@ -585,7 +585,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
                 if (option == JOptionPane.YES_OPTION) {
                     final Set<String> alertIds = new HashSet<String>();
-                    for (AlertStatus alertStatus : PlatformUI.MIRTH_FRAME.mirthClient.getAlertStatusList()) {
+                    for (AlertStatus alertStatus : PlatformUI.MIRTH_FRAME.getClient().getAlertStatusList()) {
                         alertIds.add(alertStatus.getId());
                     }
 
@@ -597,8 +597,8 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
                         public Void doInBackground() {
                             try {
-                                getFrame().mirthClient.setServerConfiguration(configuration, deployChannelsCheckBox.isSelected(), overwriteConfigMap.isSelected());
-                                getFrame().channelPanel.clearChannelCache();
+                                getFrame().getClient().setServerConfiguration(configuration, deployChannelsCheckBox.isSelected(), overwriteConfigMap.isSelected());
+                                ((Frame) getFrame()).channelPanel.clearChannelCache();
                                 doRefresh();
                                 getFrame().alertInformation(SettingsPanelServer.this, "Your configuration was successfully restored.");
                                 updateAlerts = true;
@@ -609,12 +609,12 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                         }
 
                         public void done() {
-                            if (getFrame().alertPanel == null) {
-                                getFrame().alertPanel = new DefaultAlertPanel();
+                            if (((Frame) getFrame()).alertPanel == null) {
+                                ((Frame) getFrame()).alertPanel = new DefaultAlertPanel();
                             }
 
                             if (updateAlerts) {
-                                getFrame().alertPanel.updateAlertDetails(alertIds);
+                                ((Frame) getFrame()).alertPanel.updateAlertDetails(alertIds);
                             }
                             getFrame().stopWorking(workingId);
                         }
@@ -645,7 +645,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
 
                 public Void doInBackground() {
                     try {
-                        getFrame().mirthClient.clearAllStatistics();
+                        getFrame().getClient().clearAllStatistics();
                     } catch (ClientException e) {
                         exception = e;
                         getFrame().alertThrowable(SettingsPanelServer.this, e);
@@ -1077,7 +1077,7 @@ public class SettingsPanelServer extends AbstractSettingsPanel {
                 public Void doInBackground() {
 
                     try {
-                        ConnectionTestResponse response = (ConnectionTestResponse) PlatformUI.MIRTH_FRAME.mirthClient.sendTestEmail(properties);
+                        ConnectionTestResponse response = (ConnectionTestResponse) PlatformUI.MIRTH_FRAME.getClient().sendTestEmail(properties);
 
                         if (response == null) {
                             PlatformUI.MIRTH_FRAME.alertError(PlatformUI.MIRTH_FRAME, "Failed to send email.");

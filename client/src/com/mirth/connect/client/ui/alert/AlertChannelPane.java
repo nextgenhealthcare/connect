@@ -40,12 +40,11 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 import com.mirth.connect.client.ui.AbstractSortableTreeTableNode;
+import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.SortableTreeTableModel;
 import com.mirth.connect.client.ui.UIConstants;
@@ -54,6 +53,8 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.alert.AlertChannels;
+
+import net.miginfocom.swing.MigLayout;
 
 public class AlertChannelPane extends JPanel {
 
@@ -174,11 +175,11 @@ public class AlertChannelPane extends JPanel {
     }
 
     public void setChannels(AlertChannels alertChannels, boolean includeConnectors) {
-        if (PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelStatuses() != null) {
+        if (((Frame) PlatformUI.MIRTH_FRAME).channelPanel.getCachedChannelStatuses() != null) {
             TreeMap<String, Channel> channelMap = new TreeMap<String, Channel>(String.CASE_INSENSITIVE_ORDER);
 
             // Sort the channels by channel name
-            for (ChannelStatus channelStatus : PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelStatuses().values()) {
+            for (ChannelStatus channelStatus : ((Frame) PlatformUI.MIRTH_FRAME).channelPanel.getCachedChannelStatuses().values()) {
                 Channel channel = channelStatus.getChannel();
                 channelMap.put(channel.getName(), channel);
             }

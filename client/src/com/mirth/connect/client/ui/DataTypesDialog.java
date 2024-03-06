@@ -73,7 +73,7 @@ public class DataTypesDialog extends MirthDialog {
 
     public DataTypesDialog() {
         super(PlatformUI.MIRTH_FRAME);
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         initComponents();
 
         inboundPropertiesPanel.setInbound(true);
@@ -82,8 +82,8 @@ public class DataTypesDialog extends MirthDialog {
         inboundPropertiesPanel.setUseTitleBorder(true);
         outboundPropertiesPanel.setUseTitleBorder(true);
 
-        String[] dataTypes = new String[PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.values().size()];
-        PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.values().toArray(dataTypes);
+        String[] dataTypes = new String[PlatformUI.MIRTH_FRAME.getDataTypeToDisplayNameMap().values().size()];
+        PlatformUI.MIRTH_FRAME.getDataTypeToDisplayNameMap().values().toArray(dataTypes);
         inboundPropertiesPanel.getDataTypeComboBox().setModel(new DefaultComboBoxModel(dataTypes));
         outboundPropertiesPanel.getDataTypeComboBox().setModel(new DefaultComboBoxModel(dataTypes));
 
@@ -205,7 +205,7 @@ public class DataTypesDialog extends MirthDialog {
                         DataTypeConnectorTableNode tableNode = (DataTypeConnectorTableNode) connectorTreeTable.getPathForRow(connectorTreeTable.getSelectedRow()).getLastPathComponent();
                         updateSingleDataType(tableNode, dataTypeDisplayName, true);
                     } else {
-                        String dataType = parent.displayNameToDataType.get(dataTypeDisplayName);
+                        String dataType = parent.getDisplayNameToDataTypeMap().get(dataTypeDisplayName);
                         if (dataType != null) {
                             TreeTableNode root = (TreeTableNode) connectorTreeTable.getTreeTableModel().getRoot();
                             // Update the selected inbound data types in the connector tree table
@@ -221,7 +221,7 @@ public class DataTypesDialog extends MirthDialog {
                                     if (type == TransformerType.SOURCE) {
                                         DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
 
-                                        tableNode.setValueAt(parent.dataTypeToDisplayName.get(dataType), OUTBOUND_COLUMN);
+                                        tableNode.setValueAt(parent.getDataTypeToDisplayNameMap().get(dataType), OUTBOUND_COLUMN);
                                         transformer.setOutboundDataType(dataType);
                                         transformer.setOutboundProperties(defaultProperties);
                                     }
@@ -242,7 +242,7 @@ public class DataTypesDialog extends MirthDialog {
             public void actionPerformed(ActionEvent e) {
                 DataTypeConnectorTableNode tableNode = (DataTypeConnectorTableNode) connectorTreeTable.getTreeSelectionModel().getSelectionPath().getLastPathComponent();
                 String dataTypeDisplayName = (String) tableNode.getValueAt(INBOUND_COLUMN);
-                String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataTypeDisplayName);
+                String dataType = PlatformUI.MIRTH_FRAME.getDisplayNameToDataTypeMap().get(dataTypeDisplayName);
 
                 if (editMode == EditMode.SINGLE) {
                     int containerIndex = tableNode.getContainerIndex();
@@ -277,7 +277,7 @@ public class DataTypesDialog extends MirthDialog {
                         DataTypeConnectorTableNode tableNode = (DataTypeConnectorTableNode) connectorTreeTable.getPathForRow(connectorTreeTable.getSelectedRow()).getLastPathComponent();
                         updateSingleDataType(tableNode, dataTypeDisplayName, false);
                     } else {
-                        String dataType = parent.displayNameToDataType.get(dataTypeDisplayName);
+                        String dataType = parent.getDisplayNameToDataTypeMap().get(dataTypeDisplayName);
                         if (dataType != null) {
 
                             TreeTableNode root = (TreeTableNode) connectorTreeTable.getTreeTableModel().getRoot();
@@ -302,7 +302,7 @@ public class DataTypesDialog extends MirthDialog {
             public void actionPerformed(ActionEvent e) {
                 DataTypeConnectorTableNode tableNode = (DataTypeConnectorTableNode) connectorTreeTable.getTreeSelectionModel().getSelectionPath().getLastPathComponent();
                 String dataTypeDisplayName = (String) tableNode.getValueAt(OUTBOUND_COLUMN);
-                String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataTypeDisplayName);
+                String dataType = PlatformUI.MIRTH_FRAME.getDisplayNameToDataTypeMap().get(dataTypeDisplayName);
 
                 if (editMode == EditMode.SINGLE) {
                     int containerIndex = tableNode.getContainerIndex();
@@ -338,7 +338,7 @@ public class DataTypesDialog extends MirthDialog {
                 DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
                 Transformer transformer = transformerContainer.get(tableNode.getContainerIndex()).getTransformer();
 
-                tableNode.setValueAt(parent.dataTypeToDisplayName.get(dataType), INBOUND_COLUMN);
+                tableNode.setValueAt(parent.getDataTypeToDisplayNameMap().get(dataType), INBOUND_COLUMN);
 
                 if (inbound) {
                     transformer.setInboundProperties(defaultProperties);
@@ -364,11 +364,11 @@ public class DataTypesDialog extends MirthDialog {
             DataTypeConnectorTableNode tableNode = (DataTypeConnectorTableNode) node;
             TransformerType type = transformerContainer.get(tableNode.getContainerIndex()).getType();
 
-            if (!(PlatformUI.MIRTH_FRAME.channelEditPanel.getRequiredInboundDataType() != null && type == TransformerType.SOURCE) && ((!updateDestinationInbound && (Boolean) tableNode.getValueAt(SELECTION_COLUMN) && type != TransformerType.DESTINATION) || (updateDestinationInbound && type == TransformerType.DESTINATION))) {
+            if (!(((Frame) PlatformUI.MIRTH_FRAME).channelEditPanel.getRequiredInboundDataType() != null && type == TransformerType.SOURCE) && ((!updateDestinationInbound && (Boolean) tableNode.getValueAt(SELECTION_COLUMN) && type != TransformerType.DESTINATION) || (updateDestinationInbound && type == TransformerType.DESTINATION))) {
                 DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
                 Transformer transformer = transformerContainer.get(tableNode.getContainerIndex()).getTransformer();
 
-                tableNode.setValueAt(parent.dataTypeToDisplayName.get(dataType), INBOUND_COLUMN);
+                tableNode.setValueAt(parent.getDataTypeToDisplayNameMap().get(dataType), INBOUND_COLUMN);
                 transformer.setInboundDataType(dataType);
                 transformer.setInboundProperties(defaultProperties);
             } else if (!updateDestinationInbound && (Boolean) tableNode.getValueAt(SELECTION_COLUMN) && type == TransformerType.DESTINATION) {
@@ -400,7 +400,7 @@ public class DataTypesDialog extends MirthDialog {
                 Transformer transformer = transformerContainer.get(tableNode.getContainerIndex()).getTransformer();
                 TransformerType type = transformerContainer.get(tableNode.getContainerIndex()).getType();
 
-                tableNode.setValueAt(parent.dataTypeToDisplayName.get(dataType), OUTBOUND_COLUMN);
+                tableNode.setValueAt(parent.getDataTypeToDisplayNameMap().get(dataType), OUTBOUND_COLUMN);
                 transformer.setOutboundDataType(dataType);
                 transformer.setOutboundProperties(defaultProperties);
 
@@ -433,8 +433,8 @@ public class DataTypesDialog extends MirthDialog {
         table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        String[] dataTypes = new String[parent.dataTypeToDisplayName.values().size()];
-        parent.dataTypeToDisplayName.values().toArray(dataTypes);
+        String[] dataTypes = new String[parent.getDataTypeToDisplayNameMap().values().size()];
+        parent.getDataTypeToDisplayNameMap().values().toArray(dataTypes);
 
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -451,11 +451,11 @@ public class DataTypesDialog extends MirthDialog {
 
                         inboundPropertiesPanel.setDataTypeProperties(inboundDataType, new DataTypePropertiesContainer(transformer.getInboundProperties(), type));
                         inboundPropertiesPanel.getDataTypeComboBox().getModel().setSelectedItem(inboundDataType);
-                        inboundPropertiesPanel.getDataTypeComboBox().setEnabled(!(type == TransformerType.DESTINATION || (type == TransformerType.SOURCE && PlatformUI.MIRTH_FRAME.channelEditPanel.getRequiredInboundDataType() != null)));
+                        inboundPropertiesPanel.getDataTypeComboBox().setEnabled(!(type == TransformerType.DESTINATION || (type == TransformerType.SOURCE && ((Frame) PlatformUI.MIRTH_FRAME).channelEditPanel.getRequiredInboundDataType() != null)));
 
                         outboundPropertiesPanel.setDataTypeProperties(outboundDataType, new DataTypePropertiesContainer(transformer.getOutboundProperties(), type));
                         outboundPropertiesPanel.getDataTypeComboBox().getModel().setSelectedItem(outboundDataType);
-                        outboundPropertiesPanel.getDataTypeComboBox().setEnabled(type == TransformerType.DESTINATION || (type == TransformerType.SOURCE && PlatformUI.MIRTH_FRAME.channelEditPanel.getRequiredOutboundDataType() == null));
+                        outboundPropertiesPanel.getDataTypeComboBox().setEnabled(type == TransformerType.DESTINATION || (type == TransformerType.SOURCE && ((Frame) PlatformUI.MIRTH_FRAME).channelEditPanel.getRequiredOutboundDataType() == null));
                     } else {
                         // Need to set a type for the null value because of overloaded method
                         DataTypePropertiesContainer propertiesContainer = null;
@@ -624,7 +624,7 @@ public class DataTypesDialog extends MirthDialog {
     }
 
     public void updateSingleDataType(DataTypeConnectorTableNode tableNode, String dataTypeDisplayName, boolean inbound) {
-        String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(dataTypeDisplayName);
+        String dataType = PlatformUI.MIRTH_FRAME.getDisplayNameToDataTypeMap().get(dataTypeDisplayName);
         DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
         TransformerContainer container = transformerContainer.get(tableNode.getContainerIndex());
         Transformer transformer = container.getTransformer();
@@ -715,8 +715,8 @@ public class DataTypesDialog extends MirthDialog {
         tableData = new Object[1][columnNames.length];
         tableData[0][SELECTION_COLUMN] = false;
         tableData[0][CONNECTOR_COLUMN] = "Source Connector";
-        tableData[0][INBOUND_COLUMN] = parent.dataTypeToDisplayName.get(sourceConnector.getTransformer().getInboundDataType());
-        tableData[0][OUTBOUND_COLUMN] = parent.dataTypeToDisplayName.get(sourceConnector.getTransformer().getOutboundDataType());
+        tableData[0][INBOUND_COLUMN] = parent.getDataTypeToDisplayNameMap().get(sourceConnector.getTransformer().getInboundDataType());
+        tableData[0][OUTBOUND_COLUMN] = parent.getDataTypeToDisplayNameMap().get(sourceConnector.getTransformer().getOutboundDataType());
 
         tableModel.addConnector(containerIndex++, tableData);
 
@@ -728,15 +728,15 @@ public class DataTypesDialog extends MirthDialog {
             transformerContainer.put(containerIndex, new TransformerContainer(transformer, TransformerType.DESTINATION, transformer.getInboundDataType(), transformer.getOutboundDataType(), transformer.getInboundProperties().clone(), transformer.getOutboundProperties().clone()));
             tableData[0][SELECTION_COLUMN] = false;
             tableData[0][CONNECTOR_COLUMN] = destinationConnector.getName();
-            tableData[0][INBOUND_COLUMN] = parent.dataTypeToDisplayName.get(currentChannel.getSourceConnector().getTransformer().getOutboundDataType());
-            tableData[0][OUTBOUND_COLUMN] = parent.dataTypeToDisplayName.get(destinationConnector.getTransformer().getOutboundDataType());
+            tableData[0][INBOUND_COLUMN] = parent.getDataTypeToDisplayNameMap().get(currentChannel.getSourceConnector().getTransformer().getOutboundDataType());
+            tableData[0][OUTBOUND_COLUMN] = parent.getDataTypeToDisplayNameMap().get(destinationConnector.getTransformer().getOutboundDataType());
 
             transformer = destinationConnector.getResponseTransformer();
             transformerContainer.put(containerIndex + 1, new TransformerContainer(transformer, TransformerType.RESPONSE, transformer.getInboundDataType(), transformer.getOutboundDataType(), transformer.getInboundProperties().clone(), transformer.getOutboundProperties().clone()));
             tableData[1][SELECTION_COLUMN] = false;
             tableData[1][CONNECTOR_COLUMN] = "Response";
-            tableData[1][INBOUND_COLUMN] = parent.dataTypeToDisplayName.get(destinationConnector.getResponseTransformer().getInboundDataType());
-            tableData[1][OUTBOUND_COLUMN] = parent.dataTypeToDisplayName.get(destinationConnector.getResponseTransformer().getOutboundDataType());
+            tableData[1][INBOUND_COLUMN] = parent.getDataTypeToDisplayNameMap().get(destinationConnector.getResponseTransformer().getInboundDataType());
+            tableData[1][OUTBOUND_COLUMN] = parent.getDataTypeToDisplayNameMap().get(destinationConnector.getResponseTransformer().getOutboundDataType());
 
             tableModel.addConnector(containerIndex, tableData);
 
@@ -867,7 +867,7 @@ public class DataTypesDialog extends MirthDialog {
                         // If the combined inbound data type has not been set yet, set it to the currently selected inbound data type.
                         inboundDataType = container.getTransformer().getInboundDataType();
                         // Set the data type's display name
-                        inboundDataTypeDisplayName = parent.dataTypeToDisplayName.get(inboundDataType);
+                        inboundDataTypeDisplayName = parent.getDataTypeToDisplayNameMap().get(inboundDataType);
                     } else if (!inboundDataType.equals(container.getTransformer().getInboundDataType())) {
                         inboundPropertiesPanel.getDataTypeComboBox().getModel().setSelectedItem("<Different Data Types>");
                         inboundDataTypeDisplayName = null;
@@ -882,7 +882,7 @@ public class DataTypesDialog extends MirthDialog {
                         // If the combined inbound data type has not been set yet, set it to the currently selected inbound data type.
                         outboundDataType = container.getTransformer().getOutboundDataType();
                         // Set the data type's display name
-                        outboundDataTypeDisplayName = parent.dataTypeToDisplayName.get(outboundDataType);
+                        outboundDataTypeDisplayName = parent.getDataTypeToDisplayNameMap().get(outboundDataType);
                     } else if (!outboundDataType.equals(container.getTransformer().getOutboundDataType())) {
                         outboundPropertiesPanel.getDataTypeComboBox().getModel().setSelectedItem("<Different Data Types>");
                         outboundDataTypeDisplayName = null;

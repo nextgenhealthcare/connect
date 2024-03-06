@@ -19,7 +19,7 @@ import javax.swing.JDialog;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
@@ -28,7 +28,7 @@ import com.mirth.connect.util.JavaScriptSharedUtil;
 
 public class JavaScriptAttachmentDialog extends MirthDialog {
 
-    private Frame parent;
+    private FrameBase parent;
     private AttachmentHandlerProperties attachmentHandlerProperties;
 
     public JavaScriptAttachmentDialog(AttachmentHandlerProperties properties) {
@@ -178,7 +178,7 @@ public class JavaScriptAttachmentDialog extends MirthDialog {
         StringBuilder sb = new StringBuilder();
         Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
         try {
-            context.compileString("function rhinoWrapper() {" + scriptContent.getText() + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
+            context.compileString("function rhinoWrapper() {" + scriptContent.getText() + "\n}", PlatformUI.MIRTH_FRAME.getClient().getGuid(), 1, null);
             sb.append("JavaScript was successfully validated.");
         } catch (EvaluatorException e) {
             sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the current script.");

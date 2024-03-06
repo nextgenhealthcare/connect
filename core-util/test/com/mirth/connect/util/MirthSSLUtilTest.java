@@ -12,6 +12,8 @@ package com.mirth.connect.util;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.Test;
@@ -28,9 +30,11 @@ public class MirthSSLUtilTest {
 
         String[] enabledClientProtocols = MirthSSLUtil.getEnabledHttpsProtocols(defaultClientProtocols);
         String[] enabledServerProtocols = MirthSSLUtil.getEnabledHttpsProtocols(defaultServerProtocols);
+        
+        SSLContext tempContext = SSLContext.getDefault();
 
-        // TLSv1.3 supported in Java 11+
-        if (getJavaVersion() >= 11) {
+        // TLSv1.3 supported in newer Java updates
+        if (ArrayUtils.contains(tempContext.getSupportedSSLParameters().getProtocols(), "TLSv1.3")) {
             assertTrue(ArrayUtils.contains(enabledClientProtocols, "TLSv1.3"));
             assertTrue(ArrayUtils.contains(enabledServerProtocols, "TLSv1.3"));
         } else {
@@ -46,39 +50,14 @@ public class MirthSSLUtilTest {
         assertTrue(ArrayUtils.contains(defaultClientCipherSuites, "TLS_AES_256_GCM_SHA384"));
 
         String[] enabledClientCipherSuites = MirthSSLUtil.getEnabledHttpsCipherSuites(defaultClientCipherSuites);
+        
+        SSLContext tempContext = SSLContext.getDefault();
 
-        // TLS_AES_256_GCM_SHA384 supported in Java 11+
-        if (getJavaVersion() >= 11) {
+        // TLS_AES_256_GCM_SHA384 supported in newer Java updates
+        if (ArrayUtils.contains(tempContext.getSupportedSSLParameters().getCipherSuites(), "TLS_AES_256_GCM_SHA384")) {
             assertTrue(ArrayUtils.contains(enabledClientCipherSuites, "TLS_AES_256_GCM_SHA384"));
         } else {
             assertFalse(ArrayUtils.contains(enabledClientCipherSuites, "TLS_AES_256_GCM_SHA384"));
         }
-    }
-
-    private int getJavaVersion() {
-        String version = System.getProperty("java.version");
-
-        int index = version.indexOf('-');
-        if (index > 0) {
-            version = version.substring(0, index);
-        }
-
-        index = version.indexOf('.');
-        if (index > 0) {
-            String tempVersion = version.substring(0, index);
-
-            if (NumberUtils.toInt(tempVersion) == 1) {
-                int index2 = version.indexOf('.', index + 1);
-                if (index2 > 0) {
-                    version = version.substring(index + 1, index2);
-                } else {
-                    version = tempVersion;
-                }
-            } else {
-                version = tempVersion;
-            }
-        }
-
-        return NumberUtils.toInt(version);
     }
 }

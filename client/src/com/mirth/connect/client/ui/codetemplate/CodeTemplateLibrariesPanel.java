@@ -81,13 +81,13 @@ public class CodeTemplateLibrariesPanel extends JPanel {
     }
 
     public void initialize() {
-        PlatformUI.MIRTH_FRAME.codeTemplatePanel.doRefreshCodeTemplates(new ActionListener() {
+        ((CodeTemplatePanel) PlatformUI.MIRTH_FRAME.getCodeTemplatePanel()).doRefreshCodeTemplates(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+                for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().values()) {
                     libraryMap.put(library.getId(), new CodeTemplateLibrary(library));
                 }
-                Map<String, CodeTemplate> codeTemplateMap = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplates();
+                Map<String, CodeTemplate> codeTemplateMap = PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplates();
 
                 DefaultMutableTreeTableNode rootNode = new DefaultMutableTreeTableNode();
 
@@ -271,7 +271,7 @@ public class CodeTemplateLibrariesPanel extends JPanel {
                             if (selectedPath.getPathCount() == 2) {
                                 description = libraryMap.get(triple.getLeft()).getDescription();
                             } else if (selectedPath.getPathCount() == 3) {
-                                description = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplates().get(triple.getLeft()).getDescription();
+                                description = PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplates().get(triple.getLeft()).getDescription();
                             }
 
                             if (StringUtils.isBlank(description) || StringUtils.equals(description, CodeTemplateUtil.getDocumentation(CodeTemplate.DEFAULT_CODE).getDescription())) {

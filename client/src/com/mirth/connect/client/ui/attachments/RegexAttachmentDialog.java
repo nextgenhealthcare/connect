@@ -29,12 +29,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -43,9 +41,11 @@ import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 
+import net.miginfocom.swing.MigLayout;
+
 public class RegexAttachmentDialog extends MirthDialog {
 
-    private Frame parent;
+    private FrameBase parent;
     private AttachmentHandlerProperties attachmentHandlerProperties;
 
     public static final int DATA_TYPE_COLUMN_NUMBER = 1;

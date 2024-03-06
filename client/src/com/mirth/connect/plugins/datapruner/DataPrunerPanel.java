@@ -29,14 +29,13 @@ import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.AbstractSettingsPanel;
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
@@ -50,6 +49,8 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.SettingsPanelPlugin;
 import com.mirth.connect.util.messagewriter.MessageWriterOptions;
 
+import net.miginfocom.swing.MigLayout;
+
 public class DataPrunerPanel extends AbstractSettingsPanel {
     private static final int MIN_PRUNING_BLOCK_SIZE = 50;
     private static final int MAX_PRUNING_BLOCK_SIZE = 10000;
@@ -60,7 +61,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
     private SettingsPanelPlugin plugin = null;
     private ObjectXMLSerializer serializer = ObjectXMLSerializer.getInstance();
     private AtomicBoolean refreshing = new AtomicBoolean(false);
-    private Frame parent;
+    private FrameBase parent;
     private int startIndex;
     private int stopIndex;
 
@@ -239,7 +240,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
                 }
 
                 try {
-                    parent.mirthClient.getServlet(DataPrunerServletInterface.class).start();
+                    parent.getClient().getServlet(DataPrunerServletInterface.class).start();
                 } catch (Exception e) {
                     parent.alertThrowable(parent, e, "An error occurred while attempting to start the data pruner.");
                     return null;
@@ -270,7 +271,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
             @Override
             protected Void doInBackground() {
                 try {
-                    parent.mirthClient.getServlet(DataPrunerServletInterface.class).stop();
+                    parent.getClient().getServlet(DataPrunerServletInterface.class).stop();
                 } catch (Exception e) {
                     parent.alertThrowable(parent, e, "An error occurred while attempting to stop the data pruner.");
                     return null;
@@ -390,7 +391,7 @@ public class DataPrunerPanel extends AbstractSettingsPanel {
             @Override
             protected Void doInBackground() {
                 try {
-                    Map<String, String> status = parent.mirthClient.getServlet(DataPrunerServletInterface.class).getStatusMap();
+                    Map<String, String> status = parent.getClient().getServlet(DataPrunerServletInterface.class).getStatusMap();
                     currentStateTextLabel.setText(status.get("currentState"));
                     currentProcessTextLabel.setText(status.get("currentProcess"));
                     lastProcessTextLabel.setText(status.get("lastProcess"));

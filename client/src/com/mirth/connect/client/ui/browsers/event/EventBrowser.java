@@ -99,7 +99,7 @@ public class EventBrowser extends javax.swing.JPanel {
      * Constructs the new event browser and sets up its default information/layout.
      */
     public EventBrowser() {
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         initComponents();
         initComponentsManual();
         makeEventTable();
@@ -178,7 +178,7 @@ public class EventBrowser extends javax.swing.JPanel {
             public void ancestorRemoved(AncestorEvent event) {
                 // Stop waiting for event browser requests when the event browser 
                 // is no longer being displayed
-                parent.mirthClient.getServerConnection().abort(getAbortOperations());
+                parent.getClient().getServerConnection().abort(getAbortOperations());
                 // Clear the event cache when leaving the event browser.
                 parent.eventBrowser.clearCache();
             }
@@ -312,7 +312,7 @@ public class EventBrowser extends javax.swing.JPanel {
         }
 
         try {
-            Integer maxEventId = parent.mirthClient.getMaxEventId();
+            Integer maxEventId = parent.getClient().getMaxEventId();
             eventFilter.setMaxEventId(maxEventId);
         } catch (ClientException e) {
             parent.alertThrowable(parent, e);
@@ -326,7 +326,7 @@ public class EventBrowser extends javax.swing.JPanel {
         if (generateEventFilter()) {
             updateFilterButtonFont(Font.PLAIN);
             events = new PaginatedEventList();
-            events.setClient(parent.mirthClient);
+            events.setClient(parent.getClient());
             events.setEventFilter(eventFilter);
 
             try {
@@ -424,7 +424,7 @@ public class EventBrowser extends javax.swing.JPanel {
         final String workingId = parent.startWorking("Loading page...");
 
         if (worker != null && !worker.isDone()) {
-            parent.mirthClient.getServerConnection().abort(getAbortOperations());
+            parent.getClient().getServerConnection().abort(getAbortOperations());
             worker.cancel(true);
         }
 
@@ -555,7 +555,7 @@ public class EventBrowser extends javax.swing.JPanel {
         userMapById.clear();
         userMapById.put(-1, UIConstants.ALL_OPTION);
         userMapById.put(0, "System");
-        for (User user : parent.users) {
+        for (User user : parent.getCachedUsers()) {
             userMapById.put(user.getId(), user.getUsername());
         }
     }
@@ -1242,7 +1242,7 @@ public class EventBrowser extends javax.swing.JPanel {
 
             public Void doInBackground() {
                 try {
-                    events.setItemCount(parent.mirthClient.getEventCount(eventFilter));
+                    events.setItemCount(parent.getClient().getEventCount(eventFilter));
                 } catch (ClientException e) {
                     if (e instanceof RequestAbortedException) {
                         // The client is no longer waiting for the count request

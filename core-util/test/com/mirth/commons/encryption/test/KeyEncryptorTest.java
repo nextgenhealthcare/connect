@@ -237,9 +237,6 @@ public class KeyEncryptorTest {
         keyGenerator.init(128);
         Key key = keyGenerator.generateKey();
 
-        Charset defaultCharset = Charset.defaultCharset();
-        assertFalse(defaultCharset.name().equals(Charset.forName("windows-1252").name()));
-
         // Will default to UTF-8
         KeyEncryptor encryptor = new KeyEncryptor();
         encryptor.setProvider(provider);

@@ -18,7 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthButton;
@@ -35,7 +35,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class DICOMSender extends ConnectorSettingsPanel {
 
-    private Frame parent;
+    private FrameBase parent;
     private boolean tlsComponentsEnabled = true;
 
     public DICOMSender() {

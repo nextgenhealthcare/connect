@@ -24,7 +24,7 @@ public class DeleteStatisticsDialog extends MirthDialog {
 
     public DeleteStatisticsDialog(List<DashboardStatus> statusToClear) {
         super(PlatformUI.MIRTH_FRAME);
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         this.statusToClear = statusToClear;
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);

@@ -22,19 +22,19 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.StringUtils;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProperties;
 
+import net.miginfocom.swing.MigLayout;
+
 public class IdentityAttachmentDialog extends MirthDialog {
 
-    private Frame parent;
+    private FrameBase parent;
     private AttachmentHandlerProperties attachmentHandlerProperties;
 
     public IdentityAttachmentDialog(AttachmentHandlerProperties attachmentHandlerProperties) {

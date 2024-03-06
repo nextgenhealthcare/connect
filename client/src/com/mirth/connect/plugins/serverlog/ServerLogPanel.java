@@ -26,7 +26,7 @@ import javax.swing.JPopupMenu;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -46,7 +46,7 @@ public class ServerLogPanel extends javax.swing.JPanel {
     private int state = PAUSED; // initialized the state as PAUSED so that when the administrator first opens up and calls the adjustPauseResumeButton method, it'll be in the RESUMED state.
     private int currentServerLogSize;
     private Preferences userPreferences;
-    private Frame parent;
+    private FrameBase parent;
     private ServerLogClient serverLogClient;
 
     /** Creates new form ServerLogPanel */

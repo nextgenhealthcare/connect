@@ -177,7 +177,7 @@ public class AttachmentExportDialog extends MirthDialog {
             fileField.setBackground(Color.white);
         }
 
-        if (PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedMimeType().equalsIgnoreCase("dicom")) {
+        if (PlatformUI.MIRTH_FRAME.getMessageBrowser().getSelectedMimeType().equalsIgnoreCase("dicom")) {
             PlatformUI.MIRTH_FRAME.alertError(this, "Cannot export DICOM attachments.");
             return;
         }
@@ -200,7 +200,7 @@ public class AttachmentExportDialog extends MirthDialog {
                     if (localButton.isSelected()) {
                         AttachmentUtil.writeToFile(fileField.getText(), getSelectedAttachment(), binary);
                     } else {
-                        PlatformUI.MIRTH_FRAME.mirthClient.exportAttachmentServer(PlatformUI.MIRTH_FRAME.messageBrowser.getChannelId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedMessageId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedAttachmentId(), fileField.getText(), binary);
+                        PlatformUI.MIRTH_FRAME.getClient().exportAttachmentServer(PlatformUI.MIRTH_FRAME.getMessageBrowser().getChannelId(), PlatformUI.MIRTH_FRAME.getMessageBrowser().getSelectedMessageId(), PlatformUI.MIRTH_FRAME.getMessageBrowser().getSelectedAttachmentId(), fileField.getText(), binary);
                     }
                 } catch (Exception e) {
                     errorMessage = e.getMessage();
@@ -219,7 +219,7 @@ public class AttachmentExportDialog extends MirthDialog {
     }
 
     public Attachment getSelectedAttachment() throws ClientException {
-        return PlatformUI.MIRTH_FRAME.mirthClient.getAttachment(PlatformUI.MIRTH_FRAME.messageBrowser.getChannelId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedMessageId(), PlatformUI.MIRTH_FRAME.messageBrowser.getSelectedAttachmentId());
+        return PlatformUI.MIRTH_FRAME.getClient().getAttachment(PlatformUI.MIRTH_FRAME.getMessageBrowser().getChannelId(), PlatformUI.MIRTH_FRAME.getMessageBrowser().getSelectedMessageId(), PlatformUI.MIRTH_FRAME.getMessageBrowser().getSelectedAttachmentId());
     }
 
     private JRadioButton textButton;

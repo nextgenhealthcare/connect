@@ -117,7 +117,7 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
                     break;
                 }
             }
-            currentStates = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(DashboardConnectorStatusServletInterface.class).getConnectorStateMap(serverId);
+            currentStates = PlatformUI.MIRTH_FRAME.getClient().getServlet(DashboardConnectorStatusServletInterface.class).getConnectorStateMap(serverId);
         } catch (ClientException e) {
             // we can safely ignore this
             currentStates = null;

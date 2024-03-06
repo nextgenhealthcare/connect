@@ -80,7 +80,7 @@ public class UserEditPanel extends javax.swing.JPanel {
 	
     private User user;
     private UserDialogInterface dialog;
-    private Frame parent;
+    private FrameBase parent;
     private final String DEFAULT_OPTION = "--Select an option--";
     Map<String, String> countryMap = new HashMap<String, String>(); 
     private List<String> countryNames;
@@ -230,8 +230,8 @@ public class UserEditPanel extends javax.swing.JPanel {
 
         // if it's a new user or the username was changed, make sure the username isn't already used.
         if (user.getId() == null || !user.getUsername().equals(username.getText())) {
-            for (int i = 0; i < parent.users.size(); i++) {
-                if (parent.users.get(i).getUsername().equals(username.getText())) {
+            for (int i = 0; i < parent.getCachedUsers().size(); i++) {
+                if (parent.getCachedUsers().get(i).getUsername().equals(username.getText())) {
                     return "This username already exists. Please choose another one.";
                 }
             }

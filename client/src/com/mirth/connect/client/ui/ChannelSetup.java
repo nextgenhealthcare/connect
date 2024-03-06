@@ -160,7 +160,7 @@ public class ChannelSetup extends ChannelSetupBase {
     public TransformerPane transformerPane = new TransformerPane();
     public FilterPane filterPane = new FilterPane();
 
-    private FrameBase parent;
+    private Frame parent;
     private String saveGroupId;
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
@@ -170,7 +170,7 @@ public class ChannelSetup extends ChannelSetupBase {
     private int previousTab = -1;
 
     public ChannelSetup() {
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         initComponents();
         initToolTips();
         initLayout();
@@ -185,10 +185,25 @@ public class ChannelSetup extends ChannelSetupBase {
     public Channel getCurrentChannel() {
         return currentChannel;
     }
+    
+    @Override
+    public Map<Integer, Map<String, String>> getResourceIds() {
+        return resourceIds;
+    }
+    
+    @Override
+    public int getLastModelIndex() {
+        return lastModelIndex;
+    }
 
     @Override
     public TransformerPane getTransformerPane() {
         return transformerPane;
+    }
+    
+    @Override
+    public VariableList getDestinationVariableList() {
+        return destinationVariableList;
     }
 
     public void closePopupWindow() {
@@ -877,8 +892,8 @@ public class ChannelSetup extends ChannelSetupBase {
             String decompiledDefaultScript = "";
 
             try {
-                decompiledSavedScript = context.decompileScript(context.compileString("function doScript() {" + savedScript + "}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null), 1);
-                decompiledDefaultScript = context.decompileScript(context.compileString("function doScript() {" + defualtScript + "}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null), 1);
+                decompiledSavedScript = context.decompileScript(context.compileString("function doScript() {" + savedScript + "}", PlatformUI.MIRTH_FRAME.getClient().getGuid(), 1, null), 1);
+                decompiledDefaultScript = context.decompileScript(context.compileString("function doScript() {" + defualtScript + "}", PlatformUI.MIRTH_FRAME.getClient().getGuid(), 1, null), 1);
             } catch (Exception e) {
                 //If any script fails to compile for any reason, we can just assume they aren't equal.
                 return false;
@@ -3058,6 +3073,7 @@ public class ChannelSetup extends ChannelSetupBase {
     }
 
     /** Sets the destination variable list from the transformer steps */
+    @Override
     public void setDestinationVariableList() {
         int destination = destinationTable.getSelectedModelIndex();
         Set<String> concatenatedRuleVariables = getMultipleDestinationRules(currentChannel.getDestinationConnectors().get(destination));
@@ -3111,6 +3127,7 @@ public class ChannelSetup extends ChannelSetupBase {
     /**
      * Returns the required source data type of this channel.
      */
+    @Override
     public String getRequiredInboundDataType() {
         return sourceConnectorPanel.getRequiredInboundDataType();
     }
@@ -3118,6 +3135,7 @@ public class ChannelSetup extends ChannelSetupBase {
     /**
      * Returns the required source data type of this channel.
      */
+    @Override
     public String getRequiredOutboundDataType() {
         return sourceConnectorPanel.getRequiredOutboundDataType();
     }
@@ -3125,6 +3143,7 @@ public class ChannelSetup extends ChannelSetupBase {
     /**
      * Returns the initial, or default, source inbound data type of this channel.
      */
+    @Override
     public String getInitialInboundDataType() {
         return sourceConnectorPanel.getInitialInboundDataType();
     }
@@ -3139,6 +3158,7 @@ public class ChannelSetup extends ChannelSetupBase {
     /*
      * Set Data Types for source inbound and outbound which also means destination inbound
      */
+    @Override
     public void checkAndSetSourceDataType() {
         // Inbound
         String requiredInboundDataType = getRequiredInboundDataType();
@@ -3171,6 +3191,7 @@ public class ChannelSetup extends ChannelSetupBase {
     /**
      * Returns the required data type for the selected destination of this channel.
      */
+    @Override
     public String getRequiredOutboundDestinationDataType() {
         return destinationConnectorPanel.getRequiredOutboundDataType();
     }
@@ -3187,6 +3208,7 @@ public class ChannelSetup extends ChannelSetupBase {
      * Returns the initial, or default, inbound data type for the selected destination response of
      * this channel.
      */
+    @Override
     public String getInitialInboundResponseDataType() {
         return destinationConnectorPanel.getInitialInboundResponseDataType();
     }
@@ -3195,6 +3217,7 @@ public class ChannelSetup extends ChannelSetupBase {
      * Returns the initial, or default, outbound data type for the selected destination response of
      * this channel.
      */
+    @Override
     public String getInitialOutboundResponseDataType() {
         return destinationConnectorPanel.getInitialOutboundResponseDataType();
     }
@@ -3202,6 +3225,7 @@ public class ChannelSetup extends ChannelSetupBase {
     /**
      * Set Data types specified by selected destination for destination and response
      */
+    @Override
     public void checkAndSetDestinationAndResponseDataType() {
         // Destination inbound set by source outbound
 

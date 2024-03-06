@@ -29,6 +29,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.CellData;
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.ImageCellRenderer;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -59,7 +60,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     private Map<String, List<Integer>> selectedConnectors;
     private DashboardConnectorStatusClient dcsc;
     private Preferences userPreferences;
-    private Frame parent;
+    private FrameBase parent;
     private int currentDashboardLogSize;
 
     /** Creates new form DashboardConnectorStatusPanel */

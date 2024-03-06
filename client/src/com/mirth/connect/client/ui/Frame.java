@@ -86,7 +86,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.fife.rsta.ac.LanguageSupportFactory;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
@@ -117,8 +116,10 @@ import com.mirth.connect.client.ui.alert.DefaultAlertEditPanel;
 import com.mirth.connect.client.ui.alert.DefaultAlertPanel;
 import com.mirth.connect.client.ui.browsers.event.EventBrowser;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
+import com.mirth.connect.client.ui.browsers.message.MessageBrowserBase;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowserChannelModel;
 import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanel;
+import com.mirth.connect.client.ui.codetemplate.CodeTemplatePanelBase;
 import com.mirth.connect.client.ui.components.rsta.ac.js.MirthJavaScriptLanguageSupport;
 import com.mirth.connect.client.ui.dependencies.ChannelDependenciesWarningDialog;
 import com.mirth.connect.client.ui.extensionmanager.ExtensionManagerPanel;
@@ -165,7 +166,6 @@ import com.mirth.connect.util.DirectedAcyclicGraphNode;
 import com.mirth.connect.util.HttpUtil;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.MigrationUtil;
-import com.sun.xml.internal.ws.util.MetadataUtil;
 
 import javafx.application.Platform;
 
@@ -175,7 +175,6 @@ import javafx.application.Platform;
 public class Frame extends FrameBase {
 
     private Logger logger = LogManager.getLogger(this.getClass());
-    public Client mirthClient;
     public DashboardPanel dashboardPanel = null;
     public ChannelPanel channelPanel = null;
     public SettingsPane settingsPane = null;
@@ -338,8 +337,56 @@ public class Frame extends FrameBase {
     }
 
     @Override
+    public ChannelPanel getChannelPanel() {
+        return channelPanel;
+    }
+    
+    @Override
+    public MessageBrowserBase getMessageBrowser() {
+        return messageBrowser;
+    }
+    
+    @Override
+    public CodeTemplatePanelBase getCodeTemplatePanel() {
+        return codeTemplatePanel;
+    }
+    
+    @Override
+    public DashboardPanel getDashboardPanel() {
+        return dashboardPanel;
+    }
+    
+    @Override
+    public JXTaskPaneContainer getTaskPaneContainer() {
+        return taskPaneContainer;
+    }
+
+    @Override
     public Component getCurrentContentPage() {
         return currentContentPage;
+    }
+
+    @Override
+    public boolean isMultiChannelMessageBrowsingEnabled() {
+        return multiChannelMessageBrowsingEnabled;
+    }
+    
+    @Override
+    public Map<String, String> getDataTypeToDisplayNameMap() {
+        return dataTypeToDisplayName;
+    }
+    
+    @Override
+    public Map<String, String> getDisplayNameToDataTypeMap() {
+        return displayNameToDataType;
+    }
+    
+    public List<DashboardStatus> getCachedDashboardStatuses() {
+        return status;
+    }
+    
+    public List<User> getCachedUsers() {
+        return users;
     }
 
     /**
@@ -363,6 +410,7 @@ public class Frame extends FrameBase {
         }
     }
 
+    @Override
     public void setupCharsetEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox) {
         setupCharsetEncodingForConnector(charsetEncodingCombobox, false);
     }
@@ -372,6 +420,7 @@ public class Frame extends FrameBase {
      * 
      * This method is called from each connector.
      */
+    @Override
     public void setupCharsetEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox, boolean allowNone) {
         if (this.availableCharsetEncodings == null) {
             this.setCharsetEncodings();
@@ -391,6 +440,7 @@ public class Frame extends FrameBase {
         }
     }
 
+    @Override
     public void setPreviousSelectedEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox, String selectedCharset) {
         setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, selectedCharset, false);
     }
@@ -399,6 +449,7 @@ public class Frame extends FrameBase {
      * Sets the combobox for the string previously selected. If the server can't support the
      * encoding, the default one is selected. This method is called from each connector.
      */
+    @Override
     public void setPreviousSelectedEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox, String selectedCharset, boolean allowNone) {
         if (this.availableCharsetEncodings == null) {
             this.setCharsetEncodings();
@@ -432,6 +483,7 @@ public class Frame extends FrameBase {
      * 
      * This method is called from each connector.
      */
+    @Override
     public String getSelectedEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox) {
         try {
             return ((CharsetEncodingInformation) charsetEncodingCombobox.getSelectedItem()).getCanonicalName();
@@ -558,6 +610,7 @@ public class Frame extends FrameBase {
     /**
      * Called to set up this main window frame.
      */
+    @Override
     public void setupFrame(Client mirthClient) throws ClientException {
 
         LoginPanel login = LoginPanel.getInstance();
@@ -822,6 +875,7 @@ public class Frame extends FrameBase {
     /**
      * Set the main content panel title to a String
      */
+    @Override
     public void setPanelName(String name) {
         rightContainer.setTitle(name);
         statusBar.setStatusText("");
@@ -931,6 +985,7 @@ public class Frame extends FrameBase {
     /**
      * Sets the current content page to the passed in page.
      */
+    @Override
     public void setCurrentContentPage(Component contentPageObject) {
         if (contentPageObject == currentContentPage) {
             return;
@@ -1287,6 +1342,11 @@ public class Frame extends FrameBase {
         taskPaneContainer.add(otherPane);
         otherPane.setVisible(true);
     }
+    
+    @Override
+    public JXTaskPane getViewPane() {
+        return viewPane;
+    }
 
     @Override
     public JXTaskPane getOtherPane() {
@@ -1628,6 +1688,7 @@ public class Frame extends FrameBase {
     /**
      * Sets the 'index' in 'pane' to be bold
      */
+    @Override
     public void setBold(JXTaskPane pane, int index) {
         for (int i = 0; i < pane.getContentPane().getComponentCount(); i++) {
             pane.getContentPane().getComponent(i).setFont(UIConstants.TEXTFIELD_PLAIN_FONT);
@@ -1641,6 +1702,7 @@ public class Frame extends FrameBase {
     /**
      * Sets the visible task pane to the specified 'pane'
      */
+    @Override
     public void setFocus(JXTaskPane pane) {
         setFocus(new JXTaskPane[] { pane }, true, true);
     }
@@ -1649,6 +1711,7 @@ public class Frame extends FrameBase {
      * Sets the visible task panes to the specified 'panes'. Also allows setting the 'Mirth' and
      * 'Other' panes.
      */
+    @Override
     public void setFocus(JXTaskPane[] panes, boolean mirthPane, boolean otherPane) {
         taskPaneContainer.getComponent(0).setVisible(mirthPane);
 
@@ -1671,6 +1734,7 @@ public class Frame extends FrameBase {
     /**
      * Sets all components in pane to be non-focusable.
      */
+    @Override
     public void setNonFocusable(JXTaskPane pane) {
         for (int i = 0; i < pane.getContentPane().getComponentCount(); i++) {
             pane.getContentPane().getComponent(i).setFocusable(false);
@@ -1707,6 +1771,7 @@ public class Frame extends FrameBase {
     /**
      * A prompt to ask the user if he would like to save the changes made before leaving the page.
      */
+    @Override
     public boolean confirmLeave() {
         if (dashboardPanel != null) {
             dashboardPanel.closePopupWindow();
@@ -1940,6 +2005,7 @@ public class Frame extends FrameBase {
         return true;
     }
 
+    @Override
     public boolean checkOrUpdateUserPassword(Component parentComponent, final User currentUser, String newPassword) {
         try {
             List<String> responses;
@@ -1965,10 +2031,12 @@ public class Frame extends FrameBase {
         return true;
     }
 
+    @Override
     public User getCurrentUser(Component parentComponent) {
         return getCurrentUser(parentComponent, true);
     }
-    
+
+    @Override
     public User getCurrentUser(Component parentComponent, boolean alertOnFailure) {
         User currentUser = null;
 
@@ -2253,10 +2321,12 @@ public class Frame extends FrameBase {
         logout(false);
     }
 
+    @Override
     public boolean logout(boolean quit) {
         return logout(quit, true);
     }
-    
+   
+    @Override
     public boolean logout(boolean quit, boolean confirmFirst) {
         if (confirmFirst && !confirmLeave()) {
             return false;
@@ -3514,6 +3584,7 @@ public class Frame extends FrameBase {
         doShowEvents(null);
     }
 
+    @Override
     public void doShowEvents(String eventNameFilter) {
         if (!confirmLeave()) {
             return;
@@ -3727,6 +3798,7 @@ public class Frame extends FrameBase {
      * @param fileExtension
      * @return
      */
+    @Override
     public File createFileForExport(String defaultFileName, String fileExtension) {
         JFileChooser exportFileChooser = new JFileChooser();
 
@@ -3771,10 +3843,12 @@ public class Frame extends FrameBase {
      * @param fileName
      * @return
      */
+    @Override
     public boolean exportFile(String fileContents, String defaultFileName, String fileExtension, String name) {
         return exportFile(fileContents, createFileForExport(defaultFileName, fileExtension), name);
     }
 
+    @Override
     public boolean exportFile(String fileContents, File exportFile, String name) {
         if (exportFile != null) {
             try {
@@ -4981,6 +5055,7 @@ public class Frame extends FrameBase {
         return true;
     }
 
+    @Override
     public SettingsPanelTags getTagsPanel() {
         if (settingsPane != null) {
             return (SettingsPanelTags) settingsPane.getSettingsPanel(SettingsPanelTags.TAB_NAME);
@@ -4988,6 +5063,7 @@ public class Frame extends FrameBase {
         return null;
     }
 
+    @Override
     public Set<ChannelTag> getCachedChannelTags() {
         SettingsPanelTags tagsPanel = getTagsPanel();
         if (tagsPanel != null) {

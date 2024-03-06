@@ -26,12 +26,9 @@ donkey/donkey-test
 /client/junit-reports
 
 # /client/lib/
-/client/lib/mirth-client-core.jar
-/client/lib/mirth-crypto.jar
 /client/lib/*-shared.jar
 /client/lib/nblibraries-private.properties
 /client/lib/mirth-vocab.jar
-/client/lib/donkey-model.jar
 
 # /client/src/
 
@@ -155,9 +152,6 @@ donkey/donkey-test
 # /command/conf/
 
 # /command/lib/
-/command/lib/mirth-client-core.jar
-/command/lib/mirth-crypto.jar
-/command/lib/donkey-model.jar
 
 # /command/src/
 
@@ -314,10 +308,6 @@ donkey/donkey-test
 /manager/nbproject
 
 # /manager/lib/
-/manager/lib/donkey-model.jar
-/manager/lib/mirth-client-core.jar
-/manager/lib/mirth-crypto.jar
-/manager/lib/not-yet-commons-ssl-0.3.11.jar
 
 # /manager/src/
 
@@ -334,6 +324,7 @@ donkey/donkey-test
 # /manager/src/com/mirth/connect/manager/images/
 
 # /server/
+/server/core-lib
 /server/mirthdb
 /server/logs
 /server/classes

@@ -25,7 +25,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
@@ -39,7 +39,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
 
     private String connectorName;
     private int connectorType;
-    private Frame parent;
+    private FrameBase parent;
     private JmsTemplateListModel listModel;
 
     public JmsConnectorPanel() {
@@ -229,7 +229,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         Object result = null;
 
         try {
-            result = parent.mirthClient.getServlet(JmsConnectorServletInterface.class).getTemplates();
+            result = parent.getClient().getServlet(JmsConnectorServletInterface.class).getTemplates();
         } catch (Exception e) {
             parent.alertThrowable(parent, e);
         }
@@ -683,7 +683,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         template.setConnectionProperties(connectionPropertiesTable.getProperties());
 
         try {
-            parent.mirthClient.getServlet(JmsConnectorServletInterface.class).saveTemplate(templateName, template);
+            parent.getClient().getServlet(JmsConnectorServletInterface.class).saveTemplate(templateName, template);
         } catch (Exception e) {
             parent.alertThrowable(parent, e);
             return;
@@ -701,7 +701,7 @@ public class JmsConnectorPanel extends ConnectorSettingsPanel {
         }
 
         try {
-            parent.mirthClient.getServlet(JmsConnectorServletInterface.class).deleteTemplate(templateName);
+            parent.getClient().getServlet(JmsConnectorServletInterface.class).deleteTemplate(templateName);
         } catch (Exception e) {
             parent.alertThrowable(parent, e);
             return;

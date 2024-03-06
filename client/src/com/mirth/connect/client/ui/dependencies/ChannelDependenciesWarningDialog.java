@@ -124,8 +124,8 @@ public class ChannelDependenciesWarningDialog extends MirthDialog {
         Map<String, DashboardStatus> statusMap = null;
         if (task != ChannelTask.DEPLOY) {
             statusMap = new HashMap<String, DashboardStatus>();
-            if (PlatformUI.MIRTH_FRAME.status != null) {
-                for (DashboardStatus dashboardStatus : PlatformUI.MIRTH_FRAME.status) {
+            if (PlatformUI.MIRTH_FRAME.getCachedDashboardStatuses() != null) {
+                for (DashboardStatus dashboardStatus : PlatformUI.MIRTH_FRAME.getCachedDashboardStatuses()) {
                     statusMap.put(dashboardStatus.getChannelId(), dashboardStatus);
                 }
             }
@@ -147,7 +147,7 @@ public class ChannelDependenciesWarningDialog extends MirthDialog {
                         channelName = dashboardStatus.getName();
                     }
                 } else {
-                    channelName = PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelIdsAndNames().get(channelId);
+                    channelName = PlatformUI.MIRTH_FRAME.getChannelPanel().getCachedChannelIdsAndNames().get(channelId);
                 }
 
                 if (channelName != null) {
@@ -185,7 +185,7 @@ public class ChannelDependenciesWarningDialog extends MirthDialog {
                         channelName = dashboardStatus.getName();
                     }
                 } else {
-                    channelName = PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelIdsAndNames().get(channelId);
+                    channelName = PlatformUI.MIRTH_FRAME.getChannelPanel().getCachedChannelIdsAndNames().get(channelId);
                 }
 
                 if (channelName != null) {

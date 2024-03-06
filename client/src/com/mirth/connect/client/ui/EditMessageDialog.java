@@ -67,7 +67,7 @@ public class EditMessageDialog extends MirthDialog implements DropTargetListener
 
     public EditMessageDialog() {
         super(PlatformUI.MIRTH_FRAME);
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModalityType(ModalityType.DOCUMENT_MODAL);

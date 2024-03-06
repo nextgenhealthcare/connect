@@ -15,7 +15,7 @@ import java.awt.Point;
 
 public class ViewContentDialog extends MirthDialog {
 
-    private Frame parent;
+    private FrameBase parent;
 
     public ViewContentDialog(String text) {
         super(PlatformUI.MIRTH_FRAME);

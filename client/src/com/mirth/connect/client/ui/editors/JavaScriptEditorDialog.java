@@ -31,7 +31,7 @@ import org.apache.commons.io.FileUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
@@ -40,7 +40,7 @@ import com.mirth.connect.util.JavaScriptSharedUtil;
 
 public class JavaScriptEditorDialog extends MirthDialog implements DropTargetListener {
 
-    private Frame parent;
+    private FrameBase parent;
     private String savedScript;
 
     public JavaScriptEditorDialog(String script) {
@@ -265,7 +265,7 @@ public class JavaScriptEditorDialog extends MirthDialog implements DropTargetLis
         StringBuilder sb = new StringBuilder();
         Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
         try {
-            context.compileString("function rhinoWrapper() {" + scriptContent.getText() + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
+            context.compileString("function rhinoWrapper() {" + scriptContent.getText() + "\n}", PlatformUI.MIRTH_FRAME.getClient().getGuid(), 1, null);
             sb.append("JavaScript was successfully validated.");
         } catch (EvaluatorException e) {
             sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the current script.");

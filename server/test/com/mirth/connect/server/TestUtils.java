@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.mirth.connect.client.core.Client;
 import com.mirth.connect.connectors.vm.VmDispatcherProperties;
 import com.mirth.connect.connectors.vm.VmReceiverProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
@@ -73,19 +72,6 @@ public class TestUtils {
         channel.addDestination(destinationConnector);
 
         return channel;
-    }
-
-    public static DashboardStatus getDashboardStatus(Client client, String channelId) throws Exception {
-        List<DashboardStatus> statuses = client.getAllChannelStatuses();
-        DashboardStatus channelStatus = null;
-
-        for (DashboardStatus status : statuses) {
-            if (status.getChannelId() == channelId) {
-                channelStatus = status;
-            }
-        }
-
-        return channelStatus;
     }
 
     public static Message createTestProcessedMessage() {

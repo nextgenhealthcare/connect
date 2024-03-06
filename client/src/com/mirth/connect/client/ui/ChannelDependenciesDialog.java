@@ -32,6 +32,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.codetemplates.CodeTemplate;
 import com.mirth.connect.model.codetemplates.CodeTemplateLibrary;
+import com.mirth.connect.model.codetemplates.CodeTemplateLibrarySaveResult;
 
 public class ChannelDependenciesDialog extends MirthDialog {
 
@@ -178,12 +179,12 @@ public class ChannelDependenciesDialog extends MirthDialog {
         final boolean resourcesChangedFinal = resourcesChanged;
 
         Map<String, CodeTemplateLibrary> libraryMap = codeTemplateLibrariesPanel.getLibraryMap();
-        if (codeTemplateLibrariesPanel.wasChanged() && !PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().equals(libraryMap)) {
+        if (codeTemplateLibrariesPanel.wasChanged() && !PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().equals(libraryMap)) {
             if (!PlatformUI.MIRTH_FRAME.alertOption(this, "You've made changes to code template libraries, which will be saved now. Are you sure you wish to continue?")) {
                 return;
             }
 
-            UpdateSwingWorker worker = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getSwingWorker(libraryMap, new HashMap<String, CodeTemplateLibrary>(), new HashMap<String, CodeTemplate>(), new HashMap<String, CodeTemplate>(), false);
+            ExtendedSwingWorker<CodeTemplateLibrarySaveResult, Void> worker = PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getSwingWorker(libraryMap, new HashMap<String, CodeTemplateLibrary>(), new HashMap<String, CodeTemplate>(), new HashMap<String, CodeTemplate>(), false);
             worker.setActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent evt) {

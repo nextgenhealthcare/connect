@@ -17,7 +17,7 @@ import com.mirth.connect.client.core.ClientException;
 
 public class GlobalScriptsPanel extends javax.swing.JPanel {
 
-    Frame parent;
+    FrameBase parent;
 
     /**
      * Creates new form GlobalScriptsPanel
@@ -29,7 +29,7 @@ public class GlobalScriptsPanel extends javax.swing.JPanel {
 
     public void edit() {
         try {
-            scriptPanel.setScripts(parent.mirthClient.getGlobalScripts());
+            scriptPanel.setScripts(parent.getClient().getGlobalScripts());
         } catch (ClientException e) {
             parent.alertThrowable(this, e);
         }
@@ -72,7 +72,7 @@ public class GlobalScriptsPanel extends javax.swing.JPanel {
 
     public void save() {
         try {
-            parent.mirthClient.setGlobalScripts(scriptPanel.getScripts());
+            parent.getClient().setGlobalScripts(scriptPanel.getScripts());
         } catch (ClientException e) {
             parent.alertThrowable(this, e);
         }

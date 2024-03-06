@@ -41,7 +41,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
     /** Creates new form UserDialog */
     public FirstLoginDialog(User currentUser) {
         super(PlatformUI.MIRTH_FRAME);
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         initComponents();
         DisplayUtil.setResizable(this, false);
         finishButton.setEnabled(false);
@@ -279,7 +279,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
             try {
                 User currentUser = parent.getCurrentUser(parent);
-                parent.mirthClient.setUserPreference(currentUser.getId(), "firstlogin", "false");
+                parent.getClient().setUserPreference(currentUser.getId(), "firstlogin", "false");
                 // if the above doesn't error and this is user 1, create string to put in OS preferences
                 if (Integer.valueOf(currentUser.getId()) == 1) {
                 	String userInfo = currentUser.getUsername() + "," +

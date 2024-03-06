@@ -137,9 +137,9 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
             multiChannelSearchWarningNoRadio.setSelected(true);
         }
         
-        multiChannelSearchWarningLabel.setVisible(PlatformUI.MIRTH_FRAME.multiChannelMessageBrowsingEnabled);
-        multiChannelSearchWarningYesRadio.setVisible(PlatformUI.MIRTH_FRAME.multiChannelMessageBrowsingEnabled);
-        multiChannelSearchWarningNoRadio.setVisible(PlatformUI.MIRTH_FRAME.multiChannelMessageBrowsingEnabled);
+        multiChannelSearchWarningLabel.setVisible(PlatformUI.MIRTH_FRAME.isMultiChannelMessageBrowsingEnabled());
+        multiChannelSearchWarningYesRadio.setVisible(PlatformUI.MIRTH_FRAME.isMultiChannelMessageBrowsingEnabled());
+        multiChannelSearchWarningNoRadio.setVisible(PlatformUI.MIRTH_FRAME.isMultiChannelMessageBrowsingEnabled());
 
         if (userPreferences.getBoolean("filterTransformerShowIteratorDialog", true)) {
             filterTransformerShowIteratorYesRadio.setSelected(true);
@@ -186,13 +186,13 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
 
             public Void doInBackground() {
                 try {
-                    checkForNotifications = getFrame().mirthClient.getUserPreference(currentUser.getId(), "checkForNotifications");
+                    checkForNotifications = getFrame().getClient().getUserPreference(currentUser.getId(), "checkForNotifications");
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
 
                 try {
-                    String backgroundColorStr = getFrame().mirthClient.getUserPreference(currentUser.getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR);
+                    String backgroundColorStr = getFrame().getClient().getUserPreference(currentUser.getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR);
                     if (StringUtils.isNotBlank(backgroundColorStr)) {
                         backgroundColor = ObjectXMLSerializer.getInstance().deserialize(backgroundColorStr, Color.class);
                     }
@@ -297,9 +297,9 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         }
 
         if (backgroundColor != null) {
-            getFrame().setupBackgroundPainters(backgroundColor);
+            ((Frame) getFrame()).setupBackgroundPainters(backgroundColor);
         } else {
-            getFrame().setupBackgroundPainters(PlatformUI.DEFAULT_BACKGROUND_COLOR);
+            ((Frame) getFrame()).setupBackgroundPainters(PlatformUI.DEFAULT_BACKGROUND_COLOR);
         }
 
         final String workingId = getFrame().startWorking("Saving " + getTabName() + " settings...");
@@ -307,13 +307,13 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             public Void doInBackground() {
                 try {
-                    getFrame().mirthClient.setUserPreference(currentUser.getId(), "checkForNotifications", Boolean.toString(checkForNotificationsYesRadio.isSelected()));
+                    getFrame().getClient().setUserPreference(currentUser.getId(), "checkForNotifications", Boolean.toString(checkForNotificationsYesRadio.isSelected()));
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
 
                 try {
-                    getFrame().mirthClient.setUserPreference(currentUser.getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR, ObjectXMLSerializer.getInstance().serialize(backgroundColor));
+                    getFrame().getClient().setUserPreference(currentUser.getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR, ObjectXMLSerializer.getInstance().serialize(backgroundColor));
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
@@ -375,13 +375,13 @@ public class SettingsPanelAdministrator extends AbstractSettingsPanel {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             public Void doInBackground() {
                 try {
-                    getFrame().mirthClient.setUserPreference(currentUser.getId(), "checkForNotifications", Boolean.toString(true));
+                    getFrame().getClient().setUserPreference(currentUser.getId(), "checkForNotifications", Boolean.toString(true));
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
 
                 try {
-                    getFrame().mirthClient.setUserPreference(currentUser.getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR, ObjectXMLSerializer.getInstance().serialize(null));
+                    getFrame().getClient().setUserPreference(currentUser.getId(), UIConstants.USER_PREF_KEY_BACKGROUND_COLOR, ObjectXMLSerializer.getInstance().serialize(null));
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }

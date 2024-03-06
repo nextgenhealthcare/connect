@@ -5,3 +5,4 @@
 /classes
 /dist
 /build
+*.version.properties

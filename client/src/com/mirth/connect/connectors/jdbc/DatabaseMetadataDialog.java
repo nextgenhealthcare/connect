@@ -35,7 +35,7 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -52,7 +52,7 @@ public class DatabaseMetadataDialog extends MirthDialog {
      */
     private final static int MAX_ALIAS_LENGTH = 30;
 
-    private Frame parent;
+    private FrameBase parent;
     private ConnectorSettingsPanel parentConnector;
     private STATEMENT_TYPE type;
     private DatabaseConnectionInfo databaseConnectionInfo = null;
@@ -564,7 +564,7 @@ public class DatabaseMetadataDialog extends MirthDialog {
         Set<String> tableNamePatterns = new HashSet<String>(Arrays.asList(databaseConnectionInfo.getTableNamePatternExpression().trim().split("[, ]+")));
         try {
             metaDataWorkerId = UUID.randomUUID().toString();
-            parentConnector.getServlet(DatabaseConnectorServletInterface.class, "Retrieving tables...", "Could not retrieve database metadata.  Please ensure that your driver, URL, username, and password are correct.\n\n", handler, metaDataWorkerId).getTables(parent.channelEditPanel.currentChannel.getId(), parent.channelEditPanel.currentChannel.getName(), databaseConnectionInfo.getDriver(), databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword(), tableNamePatterns, databaseConnectionInfo.getSelectLimit(), databaseConnectionInfo.getResourceIds());
+            parentConnector.getServlet(DatabaseConnectorServletInterface.class, "Retrieving tables...", "Could not retrieve database metadata.  Please ensure that your driver, URL, username, and password are correct.\n\n", handler, metaDataWorkerId).getTables(parent.getChannelSetup().getCurrentChannel().getId(), parent.getChannelSetup().getCurrentChannel().getName(), databaseConnectionInfo.getDriver(), databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword(), tableNamePatterns, databaseConnectionInfo.getSelectLimit(), databaseConnectionInfo.getResourceIds());
         } catch (ClientException e) {
             // Should not happen
         }

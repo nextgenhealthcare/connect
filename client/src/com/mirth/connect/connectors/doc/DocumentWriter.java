@@ -26,15 +26,13 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthComboBox;
@@ -48,9 +46,11 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.ConnectionTestResponse;
 
+import net.miginfocom.swing.MigLayout;
+
 public class DocumentWriter extends ConnectorSettingsPanel {
 
-    private Frame parent;
+    private FrameBase parent;
     private boolean pageSizeUpdating;
 
     public DocumentWriter() {

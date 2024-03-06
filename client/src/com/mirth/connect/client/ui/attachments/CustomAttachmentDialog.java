@@ -23,7 +23,7 @@ import javax.swing.table.DefaultTableModel;
 
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -32,7 +32,7 @@ import com.mirth.connect.donkey.model.message.attachment.AttachmentHandlerProper
 
 public class CustomAttachmentDialog extends MirthDialog {
 
-    private Frame parent;
+    private FrameBase parent;
     private boolean initialFocus = true;
     private final String PROPERTY_NAME_COLUMN_NAME = "Name";
     private final String PROPERTY_VALUE_COLUMN_NAME = "Value";

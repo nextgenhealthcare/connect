@@ -398,7 +398,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                                 if (node instanceof ImportUnassignedLibraryTreeTableNode) {
                                     String libraryName = (String) node.getValueAt(IMPORT_NAME_COLUMN);
                                     String libraryId = null;
-                                    for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+                                    for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().values()) {
                                         if (library.getName().equals(libraryName)) {
                                             libraryId = library.getId();
                                             break;
@@ -809,7 +809,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
             comboBox = new JComboBox<String>();
             List<String> libraryNames = new ArrayList<String>();
-            for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+            for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().values()) {
                 libraryNames.add(library.getName());
             }
             comboBox.setModel(new DefaultComboBoxModel<String>(libraryNames.toArray(new String[libraryNames.size()])));
@@ -852,7 +852,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                     String name = (String) node.getValueAt(IMPORT_NAME_COLUMN);
 
                     List<String> libraryNames = new ArrayList<String>();
-                    for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+                    for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().values()) {
                         libraryNames.add(library.getName());
                     }
                     if (!libraryNames.contains(name)) {
@@ -896,7 +896,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
             comboBox = new JComboBox<String>();
             List<String> libraryNames = new ArrayList<String>();
-            for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+            for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().values()) {
                 libraryNames.add(library.getName());
             }
             comboBox.setModel(new DefaultComboBoxModel<String>(libraryNames.toArray(new String[libraryNames.size()])));
@@ -940,7 +940,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 String name = (String) value;
 
                 List<String> libraryNames = new ArrayList<String>();
-                for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+                for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().values()) {
                     libraryNames.add(library.getName());
                 }
                 if (!libraryNames.contains(name)) {
@@ -1240,12 +1240,12 @@ public class CodeTemplateImportDialog extends MirthDialog {
         Map<String, String> newLibraryNames = new HashMap<String, String>();
         Map<String, Map<String, String>> newCodeTemplateNames = new HashMap<String, Map<String, String>>();
 
-        for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+        for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().values()) {
             libraryNameMap.put(library.getId(), library.getName().toLowerCase());
 
             Map<String, String> codeTemplateMap = new HashMap<String, String>();
             for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
-                codeTemplate = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplates().get(codeTemplate.getId());
+                codeTemplate = PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplates().get(codeTemplate.getId());
                 codeTemplateMap.put(codeTemplate.getId(), codeTemplate.getName().toLowerCase());
             }
             codeTemplateNameMap.put(library.getId(), codeTemplateMap);
@@ -1259,7 +1259,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
             Boolean libraryOverwrite = (Boolean) libraryNode.getValueAt(IMPORT_OVERWRITE_COLUMN);
 
             if (libraryNode instanceof ImportLibraryTreeTableNode && librarySelected) {
-                CodeTemplateLibrary matchingLibrary = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().get(libraryId);
+                CodeTemplateLibrary matchingLibrary = PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().get(libraryId);
 
                 if (matchingLibrary != null && libraryOverwrite != null && libraryOverwrite) {
                     libraryNameMap.put(libraryId, libraryName.toLowerCase());
@@ -1277,7 +1277,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 Boolean codeTemplateOverwrite = (Boolean) codeTemplateNode.getValueAt(IMPORT_OVERWRITE_COLUMN);
 
                 if (codeTemplateSelected) {
-                    CodeTemplate matchingCodeTemplate = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplates().get(codeTemplateId);
+                    CodeTemplate matchingCodeTemplate = PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplates().get(codeTemplateId);
 
                     if (matchingCodeTemplate != null && codeTemplateOverwrite != null && codeTemplateOverwrite) {
                         Map<String, String> codeTemplateMap = codeTemplateNameMap.get(libraryId);
@@ -1309,7 +1309,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
         boolean overwrite = libraryOverwrite != null && libraryOverwrite;
 
         // Determine if it conflicts by ID
-        CodeTemplateLibrary matchingLibrary = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().get(libraryId);
+        CodeTemplateLibrary matchingLibrary = PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().get(libraryId);
         conflicts.setMatchingLibrary(matchingLibrary);
 
         // Determine if it conflicts by name
@@ -1343,7 +1343,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
         boolean overwrite = codeTemplateOverwrite != null && codeTemplateOverwrite;
 
         // Determine if it conflicts by ID
-        CodeTemplate matchingCodeTemplate = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplates().get(codeTemplateId);
+        CodeTemplate matchingCodeTemplate = PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplates().get(codeTemplateId);
         conflicts.setMatchingCodeTemplate(matchingCodeTemplate);
 
         ImportTreeTableNode libraryNode = (ImportTreeTableNode) codeTemplateNode.getParent();
@@ -1376,7 +1376,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
         // Find the cached library that should contain this code template, if applicable
         CodeTemplateLibrary matchingLibrary = null;
-        for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+        for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().values()) {
             for (CodeTemplate codeTemplate : library.getCodeTemplates()) {
                 if (codeTemplate.getId().equals(codeTemplateId)) {
                     matchingLibrary = library;
@@ -1390,7 +1390,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
         }
 
         if (matchingLibrary == null) {
-            matchingLibrary = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().get(libraryId);
+            matchingLibrary = PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().get(libraryId);
         }
 
         conflicts.setMatchingLibrary(matchingLibrary);
@@ -1640,7 +1640,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
         updatedLibraries = new HashMap<String, CodeTemplateLibrary>();
         updatedCodeTemplates = new HashMap<String, CodeTemplate>();
 
-        for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().values()) {
+        for (CodeTemplateLibrary library : PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().values()) {
             updatedLibraries.put(library.getId(), new CodeTemplateLibrary(library));
         }
 
@@ -1666,7 +1666,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                 library = new CodeTemplateLibrary(importLibraryMap.get(libraryId));
                 library.setName(libraryName);
 
-                CodeTemplateLibrary matchingLibrary = PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplateLibraries().get(libraryId);
+                CodeTemplateLibrary matchingLibrary = PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplateLibraries().get(libraryId);
 
                 if (matchingLibrary != null) {
                     if (libraryOverwrite) {
@@ -1676,7 +1676,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
                         library.getDisabledChannelIds().removeAll(library.getEnabledChannelIds());
                     } else {
                         // Reset the ID and revision since it's a new library
-                        library.setId(PlatformUI.MIRTH_FRAME.mirthClient.getGuid());
+                        library.setId(PlatformUI.MIRTH_FRAME.getClient().getGuid());
                         library.setRevision(0);
                     }
                 }
@@ -1698,7 +1698,7 @@ public class CodeTemplateImportDialog extends MirthDialog {
 
                     if (codeTemplateNode.getConflicts().getMatchingCodeTemplate() != null && !codeTemplateOverwrite) {
                         // Reset the ID and revision since it's a new code template
-                        codeTemplate.setId(PlatformUI.MIRTH_FRAME.mirthClient.getGuid());
+                        codeTemplate.setId(PlatformUI.MIRTH_FRAME.getClient().getGuid());
                         codeTemplate.setRevision(0);
                     }
 

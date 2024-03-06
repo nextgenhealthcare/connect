@@ -76,7 +76,7 @@ public class AlertActionPane extends JPanel {
         initComponents();
 
         try {
-            updateProtocols(PlatformUI.MIRTH_FRAME.mirthClient.getAlertProtocolOptions());
+            updateProtocols(PlatformUI.MIRTH_FRAME.getClient().getAlertProtocolOptions());
         } catch (ClientException e) {
             updateProtocols(new HashMap<String, Map<String, String>>());
             PlatformUI.MIRTH_FRAME.alertThrowable(PlatformUI.MIRTH_FRAME, e, "An error occurred while attempting to initialize the alert editor.", false);

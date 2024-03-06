@@ -11,6 +11,8 @@
 			<fileset dir="${lib}" includes="**/*.jar" />
 			<!-- include the extensions libs in case they have jars required for the client -->
 			<fileset dir="${server}/lib/extensions" includes="**/*.jar" />
+			<fileset dir="${core.lib}/shared" includes="**/*.jar" />
+			<fileset dir="${core.lib}/ui" includes="**/*.jar" />
 		</path>
 
 		<mkdir dir="${logs}" />

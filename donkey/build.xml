@@ -5,6 +5,14 @@
 		
 		<path id="classpath">
 			<fileset dir="${lib}" includes="**/*.jar" />
+			<fileset dir="${core.models}/lib" includes="**/*.jar" />
+			<fileset dir="${core.models}/dist" includes="**/*.jar" />
+			<fileset dir="${core.util}/lib" includes="**/*.jar" />
+			<fileset dir="${core.util}/dist" includes="**/*.jar" />
+			<fileset dir="${core.client.base}/lib" includes="**/*.jar" />
+			<fileset dir="${core.client.base}/dist" includes="**/*.jar" />
+			<fileset dir="${core.server.plugins}/lib" includes="**/*.jar" />
+			<fileset dir="${core.server.plugins}/dist" includes="**/*.jar" />
 		</path>
 	</target>
 	
@@ -43,14 +51,7 @@
 		</copy>
 	</target>
 	
-	<target name="build-model" depends="compile">
-		<jar destfile="${setup}/${model.jar}" basedir="${classes}">
-			<include name="com/mirth/connect/donkey/model/**" />
-			<include name="com/mirth/connect/donkey/util/**" />
-		</jar>
-	</target>
-	
-	<target name="build" depends="build-model, build-server, create-setup" />
+	<target name="build" depends="build-server, create-setup" />
 	
 	<target name="test-init" depends="init">
 		<delete dir="${test_classes}" />

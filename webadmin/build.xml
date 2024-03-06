@@ -3,6 +3,7 @@
 	<property name="server" value="../server" />
 	<property name="server.setup" value="../server/setup" />
 	<property name="donkey.setup" value="../donkey/setup" />
+	<property name="core.lib" value="${server}/core-lib" />
 	
 	<property name="javax.home" value="${server}/lib/javax" />
 	<property name="jetty.home" value="${server}/lib/jetty" />
@@ -25,13 +26,7 @@
 		<fileset dir="${build.web}/WEB-INF/lib">
 			<include name="*.jar" />
 		</fileset>
-		<fileset dir="${server.setup}/client-lib">
-			<include name="mirth-client-core.jar" />
-			<include name="xstream-1.4.20.jar" />
-		</fileset>
-		<fileset dir="${donkey.setup}">
-			<include name="donkey-model.jar" />
-		</fileset>
+		<fileset dir="${core.lib}/shared" includes="**/*.jar" />
 		<path refid="compile.jspc" />
 	</path>
 

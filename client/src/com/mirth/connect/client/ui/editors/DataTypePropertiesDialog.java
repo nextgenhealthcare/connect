@@ -45,7 +45,7 @@ public class DataTypePropertiesDialog extends MirthDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                String dataType = PlatformUI.MIRTH_FRAME.displayNameToDataType.get(displayName);
+                String dataType = PlatformUI.MIRTH_FRAME.getDisplayNameToDataTypeMap().get(displayName);
 
                 DataTypeProperties defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(dataType).getDefaultProperties();
 

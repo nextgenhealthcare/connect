@@ -29,7 +29,7 @@ public class ChannelWizard extends MirthDialog {
     /** Creates new form ChannelWizard */
     public ChannelWizard() {
         super(PlatformUI.MIRTH_FRAME);
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         initComponents();
 
         if (LoadedExtensions.getInstance().getChannelWizardPlugins().size() == 0) {

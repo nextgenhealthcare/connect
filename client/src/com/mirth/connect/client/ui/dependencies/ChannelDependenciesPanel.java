@@ -87,24 +87,24 @@ public class ChannelDependenciesPanel extends JPanel {
 
         updateAddButton();
 
-        channelNameMap = new HashMap<String, String>(PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelIdsAndNames());
+        channelNameMap = new HashMap<String, String>(PlatformUI.MIRTH_FRAME.getChannelPanel().getCachedChannelIdsAndNames());
         channelNameMap.put(channel.getId(), channel.getName());
 
-        PlatformUI.MIRTH_FRAME.channelPanel.retrieveDependencies();
-        dependencies = new HashSet<ChannelDependency>(PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelDependencies());
+        PlatformUI.MIRTH_FRAME.getChannelPanel().retrieveDependencies();
+        dependencies = new HashSet<ChannelDependency>(PlatformUI.MIRTH_FRAME.getChannelPanel().getCachedChannelDependencies());
 
         updateTreeTable(true, dependencies);
         updateTreeTable(false, dependencies);
     }
 
     public boolean saveChanges() {
-        if (!PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelDependencies().equals(dependencies)) {
+        if (!PlatformUI.MIRTH_FRAME.getChannelPanel().getCachedChannelDependencies().equals(dependencies)) {
             if (!PlatformUI.MIRTH_FRAME.alertOption(this, "You've made changes to deploy/start dependencies, which will be saved now. Are you sure you wish to continue?")) {
                 return false;
             }
 
             try {
-                PlatformUI.MIRTH_FRAME.mirthClient.setChannelDependencies(dependencies);
+                PlatformUI.MIRTH_FRAME.getClient().setChannelDependencies(dependencies);
             } catch (ClientException e) {
                 PlatformUI.MIRTH_FRAME.alertThrowable(this, e);
                 return false;
@@ -184,7 +184,7 @@ public class ChannelDependenciesPanel extends JPanel {
             ChannelDependencyGraph dependencyGraph = ChannelDependencyUtil.getDependencyGraph(dependencies);
             DirectedAcyclicGraphNode<String> node = dependencyGraph.getNode(channel.getId());
 
-            Map<String, String> channelIdsAndNames = PlatformUI.MIRTH_FRAME.channelPanel.getCachedChannelIdsAndNames();
+            Map<String, String> channelIdsAndNames = PlatformUI.MIRTH_FRAME.getChannelPanel().getCachedChannelIdsAndNames();
 
             for (Entry<String, String> entry : channelIdsAndNames.entrySet()) {
                 String channelId = entry.getKey();

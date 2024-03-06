@@ -9,11 +9,12 @@
 
 package com.mirth.connect.plugins.serverlog;
 
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.MirthDialog;
 
 public class ViewServerLogContentDialog extends MirthDialog {
 
-    public ViewServerLogContentDialog(com.mirth.connect.client.ui.Frame parent, String text) {
+    public ViewServerLogContentDialog(FrameBase parent, String text) {
         super(parent);
         initComponents();
         serverLogTextPane1.setText(text.replaceAll("\\t", "\n\t"));

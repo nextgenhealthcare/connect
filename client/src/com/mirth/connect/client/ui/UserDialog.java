@@ -26,7 +26,7 @@ public class UserDialog extends MirthDialog implements UserDialogInterface {
     /** Creates new form UserDialog */
     public UserDialog(User currentUser) {
         super(PlatformUI.MIRTH_FRAME);
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         initComponents();
         DisplayUtil.setResizable(this, false);
         finishButton.setEnabled(false);

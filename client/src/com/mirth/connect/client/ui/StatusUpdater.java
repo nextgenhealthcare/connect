@@ -23,7 +23,7 @@ public class StatusUpdater implements Runnable {
     int refreshRate;
 
     public StatusUpdater() {
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
     }
 
@@ -38,10 +38,10 @@ public class StatusUpdater implements Runnable {
             }
 
             // Stop this thread if the current content page is neither dashboard nor alert panel
-            if (parent.currentContentPage != null) {
-                if (parent.currentContentPage == parent.dashboardPanel) {
+            if (parent.getCurrentContentPage() != null) {
+                if (parent.getCurrentContentPage() == parent.getDashboardPanel()) {
                     parent.doRefreshStatuses(false);
-                } else if (parent.currentContentPage == parent.alertPanel) {
+                } else if (parent.getCurrentContentPage() == parent.alertPanel) {
                     parent.doRefreshAlerts(false);
                 } else {
                     return;

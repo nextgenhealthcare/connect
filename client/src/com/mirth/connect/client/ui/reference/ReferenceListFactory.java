@@ -131,7 +131,7 @@ public class ReferenceListFactory extends ReferenceListFactoryBase {
         List<CodeTemplate> codeList = new ArrayList<CodeTemplate>();
         List<Reference> references = new ArrayList<Reference>();
 
-        for (CodeTemplate template : PlatformUI.MIRTH_FRAME.codeTemplatePanel.getCachedCodeTemplates().values()) {
+        for (CodeTemplate template : PlatformUI.MIRTH_FRAME.getCodeTemplatePanel().getCachedCodeTemplates().values()) {
             Category category = null;
 
             if (template.getType() == CodeTemplateType.FUNCTION) {

@@ -54,7 +54,7 @@ public class ImageViewer extends AttachmentViewer {
 
         try {
 
-            Attachment attachment = parent.mirthClient.getAttachment(channelId, messageId, attachmentId);
+            Attachment attachment = parent.getClient().getAttachment(channelId, messageId, attachmentId);
             byte[] rawData = attachment.getContent();
             ByteArrayInputStream bis = new ByteArrayInputStream(rawData);
 

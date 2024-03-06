@@ -53,7 +53,7 @@ public class ReprocessMessagesDialog extends MirthDialog {
 
     public ReprocessMessagesDialog(String channelId, MessageFilter filter, Long messageId, Map<Integer, String> destinationsConnectors, Integer selectedMetaDataId, boolean showWarning) {
         super(PlatformUI.MIRTH_FRAME);
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         this.showWarning = showWarning;
         initComponents();
         initLayout();

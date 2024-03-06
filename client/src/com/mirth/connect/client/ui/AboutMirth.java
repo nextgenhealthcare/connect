@@ -18,7 +18,7 @@ import com.mirth.connect.client.ui.util.DisplayUtil;
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class AboutMirth extends MirthDialog {
 
-    private Frame parent;
+    private FrameBase parent;
 
     /** Creates new form AboutMirth */
     public AboutMirth() {

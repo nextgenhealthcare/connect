@@ -33,8 +33,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -44,6 +42,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
@@ -64,10 +63,12 @@ import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 
+import net.miginfocom.swing.MigLayout;
+
 public class DatabaseReader extends ConnectorSettingsPanel {
 
     private List<DriverInfo> drivers;
-    private Frame parent;
+    private FrameBase parent;
     private Timer timer;
     private AtomicBoolean driverAdjusting = new AtomicBoolean(false);
 
@@ -380,10 +381,10 @@ public class DatabaseReader extends ConnectorSettingsPanel {
             String xml = docSerializer.toXML(document);
 
 //            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));  // Not required with current text area
-            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml);
+            parent.getChannelSetup().getCurrentChannel().getSourceConnector().getTransformer().setInboundTemplate(xml);
 
-            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundDataType().equals(UIConstants.DATATYPE_XML) && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0) {
-                List<Connector> list = parent.channelEditPanel.currentChannel.getDestinationConnectors();
+            if (parent.getChannelSetup().getCurrentChannel().getSourceConnector().getTransformer().getOutboundDataType().equals(UIConstants.DATATYPE_XML) && parent.getChannelSetup().getCurrentChannel().getSourceConnector().getTransformer().getOutboundTemplate() != null && parent.getChannelSetup().getCurrentChannel().getSourceConnector().getTransformer().getOutboundTemplate().length() == 0) {
+                List<Connector> list = parent.getChannelSetup().getCurrentChannel().getDestinationConnectors();
                 for (Connector c : list) {
 //                    c.getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));  // Not required with current text area
                     c.getTransformer().setInboundTemplate(xml);
@@ -698,7 +699,7 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         SwingWorker<List<DriverInfo>, Void> worker = new SwingWorker<List<DriverInfo>, Void>() {
             @Override
             protected List<DriverInfo> doInBackground() throws Exception {
-                return parent.mirthClient.getDatabaseDrivers();
+                return parent.getClient().getDatabaseDrivers();
             }
 
             @Override
@@ -929,8 +930,8 @@ public class DatabaseReader extends ConnectorSettingsPanel {
         if (properties.getUrl().length() == 0 || properties.getDriver().equals(DatabaseReceiverProperties.DRIVER_DEFAULT)) {
             parent.alertError(parent, "A valid Driver and URL are required to perform this operation.");
         } else {
-            Connector sourceConnector = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getSourceConnector();
-            Set<String> resourceIds = PlatformUI.MIRTH_FRAME.channelEditPanel.resourceIds.get(sourceConnector.getMetaDataId()).keySet();
+            Connector sourceConnector = PlatformUI.MIRTH_FRAME.getChannelSetup().getCurrentChannel().getSourceConnector();
+            Set<String> resourceIds = PlatformUI.MIRTH_FRAME.getChannelSetup().getResourceIds().get(sourceConnector.getMetaDataId()).keySet();
             new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", getSelectedDriver().getSelectLimit(), resourceIds));
         }
     }

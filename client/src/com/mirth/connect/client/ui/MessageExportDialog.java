@@ -40,7 +40,7 @@ import com.mirth.connect.util.messagewriter.MessageWriterOptions;
  * Dialog containing MessageExportPanel that is used in the message browser to export messages
  */
 public class MessageExportDialog extends MirthDialog {
-    protected Frame parent;
+    protected FrameBase parent;
     private String channelId;
     protected List<String> channelIds;
     protected MessageFilter messageFilter;
@@ -159,7 +159,7 @@ public class MessageExportDialog extends MirthDialog {
                         attachmentSource = new AttachmentSource() {
                             @Override
                             public List<Attachment> getMessageAttachments(Message message) throws ClientException {
-                                return PlatformUI.MIRTH_FRAME.mirthClient.getAttachmentsByMessageId(message.getChannelId(), message.getMessageId());
+                                return PlatformUI.MIRTH_FRAME.getClient().getAttachmentsByMessageId(message.getChannelId(), message.getMessageId());
                             }
                         };
                     }
@@ -195,7 +195,7 @@ public class MessageExportDialog extends MirthDialog {
     protected int exportToServer(MessageWriterOptions writerOptions) throws ClientException {
         // Single channel server export
         writerOptions.setIncludeAttachments(messageExportPanel.isIncludeAttachments());
-        return parent.mirthClient.exportMessagesServer(channelId, messageFilter, pageSize, writerOptions);
+        return parent.getClient().exportMessagesServer(channelId, messageFilter, pageSize, writerOptions);
     }
 
     protected MessageExportPanel messageExportPanel;

@@ -4,6 +4,7 @@
 
 		<path id="classpath">
 			<fileset dir="${lib}" includes="*.jar" />
+			<fileset dir="${core.lib}/shared" includes="**/*.jar" />
 		</path>
 	</target>
 
@@ -48,7 +49,7 @@
 
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.cli.launcher.CommandLineLauncher" />
-				<attribute name="Class-Path" value="cli-lib/log4j-api-2.17.2.jar cli-lib/log4j-core-2.17.2.jar cli-lib/commons-io-2.13.0.jar conf/" />
+				<attribute name="Class-Path" value="core-lib/shared/log4j/log4j-api-2.17.2.jar core-lib/shared/log4j/log4j-core-2.17.2.jar core-lib/shared/commons/commons-io-2.13.0.jar conf/" />
 			</manifest>
 		</jar>
 	</target>

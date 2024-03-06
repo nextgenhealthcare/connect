@@ -75,7 +75,7 @@ public class TreeTransferable extends TreeTransferableBase {
                  * This allows CTRL + Drag to be used to mapp into msg where we don't want to append
                  * a ".toString()".
                  */
-                return editorPane.replaceIteratorVariables(MirthTree.constructPath(data.getParent(), prefix, (PlatformUI.MIRTH_FRAME.isAcceleratorKeyPressed() ? "" : suffix)).toString());
+                return editorPane.replaceIteratorVariables(MirthTree.constructPath(data.getParent(), prefix, (((Frame) PlatformUI.MIRTH_FRAME).isAcceleratorKeyPressed() ? "" : suffix)).toString());
             }
             if (df == flavors[1]) {
                 if (prefix.equals(MessageTreePanel.MAPPER_PREFIX)) {

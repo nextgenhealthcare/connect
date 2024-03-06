@@ -41,7 +41,7 @@ import com.mirth.connect.util.messagewriter.MessageWriterException;
 
 public class MessageImportDialog extends MirthDialog {
     private String channelId;
-    private Frame parent;
+    private FrameBase parent;
     private Preferences userPreferences;
 
     public MessageImportDialog() {
@@ -195,7 +195,7 @@ public class MessageImportDialog extends MirthDialog {
                     @Override
                     public boolean write(Message message) throws MessageWriterException {
                         try {
-                            parent.mirthClient.importMessage(channelId, message);
+                            parent.getClient().importMessage(channelId, message);
                         } catch (ClientException e) {
                             throw new MessageWriterException(e);
                         }
@@ -219,7 +219,7 @@ public class MessageImportDialog extends MirthDialog {
                     return;
                 }
             } else {
-                result = parent.mirthClient.importMessagesServer(channelId, fileTextField.getText(), subfoldersCheckbox.isSelected());
+                result = parent.getClient().importMessagesServer(channelId, fileTextField.getText(), subfoldersCheckbox.isSelected());
             }
 
             setVisible(false);

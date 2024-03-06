@@ -37,8 +37,8 @@ public class DICOMViewer extends AttachmentViewer {
     public void viewAttachments(String channelId, Long messageId, String attachmentId) {
         // do viewing code
         try {
-            ConnectorMessage message = parent.messageBrowser.getSelectedConnectorMessage();
-            byte[] rawImage = StringUtils.getBytesUsAscii(parent.mirthClient.getDICOMMessage(message));
+            ConnectorMessage message = parent.getMessageBrowser().getSelectedConnectorMessage();
+            byte[] rawImage = StringUtils.getBytesUsAscii(parent.getClient().getDICOMMessage(message));
             BufferedInputStream bis = new BufferedInputStream(new Base64InputStream(new ByteArrayInputStream(rawImage)));
 
             /*

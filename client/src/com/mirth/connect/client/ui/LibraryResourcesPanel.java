@@ -107,7 +107,7 @@ public class LibraryResourcesPanel extends JPanel implements ListSelectionListen
 
             @Override
             public List<LibraryProperties> doInBackground() throws ClientException {
-                List<ResourceProperties> resourceProperties = PlatformUI.MIRTH_FRAME.mirthClient.getResources();
+                List<ResourceProperties> resourceProperties = PlatformUI.MIRTH_FRAME.getClient().getResources();
                 List<LibraryProperties> libraryProperties = new ArrayList<LibraryProperties>();
                 for (ResourceProperties resource : resourceProperties) {
                     if (resource instanceof LibraryProperties) {

@@ -24,7 +24,7 @@ import com.mirth.connect.model.User;
 
 public class ChangePasswordDialog extends MirthDialog {
 
-    private Frame parent;
+    private FrameBase parent;
     private User currentUser;
 
     public ChangePasswordDialog(User currentUser, String message) {

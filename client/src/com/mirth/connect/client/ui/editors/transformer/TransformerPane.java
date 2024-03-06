@@ -23,6 +23,8 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.mirth.connect.client.ui.ChannelSetup;
+import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.MapperDropData;
 import com.mirth.connect.client.ui.MessageBuilderDropData;
@@ -130,7 +132,7 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
             if (connector.getMetaDataId() == 0) {
                 String sourceDataType = properties.getOutboundDataType();
 
-                for (Connector destinationConnector : PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getDestinationConnectors()) {
+                for (Connector destinationConnector : PlatformUI.MIRTH_FRAME.getChannelSetup().getCurrentChannel().getDestinationConnectors()) {
                     String destinationDataType = destinationConnector.getTransformer().getInboundDataType();
 
                     if (!StringUtils.equals(sourceDataType, destinationDataType)) {
@@ -167,7 +169,7 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
         templatePanel.setTransformerView();
 
         if (connector.getMetaDataId() == 0) {
-            PlatformUI.MIRTH_FRAME.channelEditPanel.updateAttachmentHandler(properties.getInboundDataType());
+            ((ChannelSetup) PlatformUI.MIRTH_FRAME.getChannelSetup()).updateAttachmentHandler(properties.getInboundDataType());
         }
     }
 
@@ -203,11 +205,11 @@ public class TransformerPane extends BaseEditorPane<Transformer, Step> {
             Object mapperTransferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
             Object messageBuilderTransferData = tr.getTransferData(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
 
-            if (mapperTransferData != null && !PlatformUI.MIRTH_FRAME.isAcceleratorKeyPressed()) {
+            if (mapperTransferData != null && !((Frame) PlatformUI.MIRTH_FRAME).isAcceleratorKeyPressed()) {
                 Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
                 MapperDropData data = (MapperDropData) transferData;
                 addNewElement(data.getVariable(), data.getVariable(), data.getMapping(), MAPPER, true);
-            } else if (mapperTransferData != null && PlatformUI.MIRTH_FRAME.isAcceleratorKeyPressed()) {
+            } else if (mapperTransferData != null && ((Frame) PlatformUI.MIRTH_FRAME).isAcceleratorKeyPressed()) {
                 Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
                 MapperDropData data2 = (MapperDropData) transferData;
                 MessageBuilderDropData data = new MessageBuilderDropData(data2.getNode(), MirthTree.constructPath(data2.getNode().getParent(), "msg", "").toString(), "");

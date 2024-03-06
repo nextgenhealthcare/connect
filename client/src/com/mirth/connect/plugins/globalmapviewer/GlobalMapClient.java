@@ -75,7 +75,7 @@ public class GlobalMapClient extends DashboardTabPlugin {
 
                 @Override
                 public void run() {
-                    Set<DashboardStatus> channelStatuses = PlatformUI.MIRTH_FRAME.dashboardPanel.getSelectedChannelStatuses();
+                    Set<DashboardStatus> channelStatuses = PlatformUI.MIRTH_FRAME.getDashboardPanel().getSelectedChannelStatuses();
                     if (channelStatuses != null) {
                         for (DashboardStatus channelStatus : channelStatuses) {
                             channelIds.add(channelStatus.getChannelId());
@@ -107,7 +107,7 @@ public class GlobalMapClient extends DashboardTabPlugin {
             String currentlySelectedMap = globalMapPanel.getSelectedMap();
             String currentlySelectedVar = globalMapPanel.getSelectedVar();
             try {
-                globalMaps = (Map<String, Map<String, Map<String, String>>>) PlatformUI.MIRTH_FRAME.mirthClient.getServlet(GlobalMapServletInterface.class).getAllMapsPost(channelIds, true);
+                globalMaps = (Map<String, Map<String, Map<String, String>>>) PlatformUI.MIRTH_FRAME.getClient().getServlet(GlobalMapServletInterface.class).getAllMapsPost(channelIds, true);
             } catch (ClientException e) {
                 if (e instanceof ForbiddenException) {
                     // Don't error. Let an empty map be processed

@@ -25,7 +25,6 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -85,12 +84,9 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.text.WordUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.jdesktop.swingx.JXTaskPane;
@@ -103,6 +99,7 @@ import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
+import com.mirth.connect.client.ui.ChannelSetup;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -126,6 +123,8 @@ import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.plugins.FilterTransformerTypePlugin;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.ScriptBuilderException;
+
+import net.miginfocom.swing.MigLayout;
 
 @SuppressWarnings("serial")
 public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends FilterTransformerElement> extends BaseEditorPaneBase<T, C> {
@@ -260,14 +259,14 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         doAccept(connector, properties, response);
 
         if (returning) {
-            PlatformUI.MIRTH_FRAME.channelEditPanel.setDestinationVariableList();
-            PlatformUI.MIRTH_FRAME.setCurrentContentPage(PlatformUI.MIRTH_FRAME.channelEditPanel);
-            PlatformUI.MIRTH_FRAME.setFocus(PlatformUI.MIRTH_FRAME.channelEditTasks);
-            PlatformUI.MIRTH_FRAME.setPanelName("Edit Channel - " + PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getName());
+            PlatformUI.MIRTH_FRAME.getChannelSetup().setDestinationVariableList();
+            PlatformUI.MIRTH_FRAME.setCurrentContentPage(PlatformUI.MIRTH_FRAME.getChannelSetup());
+            PlatformUI.MIRTH_FRAME.setFocus(((Frame) PlatformUI.MIRTH_FRAME).channelEditTasks);
+            PlatformUI.MIRTH_FRAME.setPanelName("Edit Channel - " + PlatformUI.MIRTH_FRAME.getChannelSetup().getCurrentChannel().getName());
             if (isModified(properties)) {
                 saveEnabled = true;
             }
-            PlatformUI.MIRTH_FRAME.channelEditPanel.updateComponentShown();
+            ((ChannelSetup) PlatformUI.MIRTH_FRAME.getChannelSetup()).updateComponentShown();
             PlatformUI.MIRTH_FRAME.setSaveEnabled(saveEnabled);
         }
     }
@@ -383,19 +382,19 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     public String getInboundDataType() {
-        return PlatformUI.MIRTH_FRAME.displayNameToDataType.get(templatePanel.getIncomingDataType());
+        return PlatformUI.MIRTH_FRAME.getDisplayNameToDataTypeMap().get(templatePanel.getIncomingDataType());
     }
 
     public void setInboundDataType(String inboundDataType) {
-        templatePanel.setIncomingDataType(PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(inboundDataType));
+        templatePanel.setIncomingDataType(PlatformUI.MIRTH_FRAME.getDataTypeToDisplayNameMap().get(inboundDataType));
     }
 
     public String getOutboundDataType() {
-        return PlatformUI.MIRTH_FRAME.displayNameToDataType.get(templatePanel.getOutgoingDataType());
+        return PlatformUI.MIRTH_FRAME.getDisplayNameToDataTypeMap().get(templatePanel.getOutgoingDataType());
     }
 
     public void setOutboundDataType(String outboundDataType) {
-        templatePanel.setOutgoingDataType(PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(outboundDataType));
+        templatePanel.setOutgoingDataType(PlatformUI.MIRTH_FRAME.getDataTypeToDisplayNameMap().get(outboundDataType));
     }
 
     public DataTypeProperties getInboundDataTypeProperties() {
@@ -971,8 +970,8 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     public void resizePanes() {
-        verticalSplitPane.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 2 - PlatformUI.MIRTH_FRAME.currentContentPage.getHeight() / 3.5));
-        horizontalSplitPane.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.currentContentPage.getWidth() / 2 + PlatformUI.MIRTH_FRAME.currentContentPage.getWidth() / 6.7));
+        verticalSplitPane.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.getCurrentContentPage().getHeight() / 2 - PlatformUI.MIRTH_FRAME.getCurrentContentPage().getHeight() / 3.5));
+        horizontalSplitPane.setDividerLocation((int) (PlatformUI.MIRTH_FRAME.getCurrentContentPage().getWidth() / 2 + PlatformUI.MIRTH_FRAME.getCurrentContentPage().getWidth() / 6.7));
         templatePanel.resizePanes();
     }
 
@@ -1247,7 +1246,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         viewTasks.add(initActionCallback("accept", "Return back to channel.", ActionFactory.createBoundAction("accept", "Back to Channel", "B"), new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
         PlatformUI.MIRTH_FRAME.setNonFocusable(viewTasks);
         viewTasks.setVisible(false);
-        PlatformUI.MIRTH_FRAME.taskPaneContainer.add(viewTasks, PlatformUI.MIRTH_FRAME.taskPaneContainer.getComponentCount() - 1);
+        PlatformUI.MIRTH_FRAME.getTaskPaneContainer().add(viewTasks, PlatformUI.MIRTH_FRAME.getTaskPaneContainer().getComponentCount() - 1);
 
         String containerName = getContainerName().toLowerCase();
         String containerNameCap = WordUtils.capitalize(containerName);
@@ -1372,7 +1371,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
         // add the tasks to the taskpane, and the taskpane to the mirth client
         PlatformUI.MIRTH_FRAME.setNonFocusable(editorTasks);
         editorTasks.setVisible(false);
-        PlatformUI.MIRTH_FRAME.taskPaneContainer.add(editorTasks, PlatformUI.MIRTH_FRAME.taskPaneContainer.getComponentCount() - 1);
+        PlatformUI.MIRTH_FRAME.getTaskPaneContainer().add(editorTasks, PlatformUI.MIRTH_FRAME.getTaskPaneContainer().getComponentCount() - 1);
 
         dropTarget = new DropTarget(this, this);
         treeTable.setDropTarget(dropTarget);
@@ -1500,7 +1499,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
             templatePanel.updateVariables(concatenatedRules, concatenatedSteps);
         } else {
             templatePanel.updateVariables(getRuleVariables(), getStepVariables(viewRow));
-            templatePanel.populateConnectors(PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getDestinationConnectors());
+            templatePanel.populateConnectors(PlatformUI.MIRTH_FRAME.getChannelSetup().getCurrentChannel().getDestinationConnectors());
         }
     }
 
@@ -1509,7 +1508,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     protected abstract void getStepVariables(Connector connector, Set<String> concatenatedSteps, boolean includeLocalVars, int viewRow);
 
     private Set<String> getRuleVariables() {
-        Channel channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
+        Channel channel = PlatformUI.MIRTH_FRAME.getChannelSetup().getCurrentChannel();
         Set<String> concatenatedRules = new LinkedHashSet<String>();
         VariableListUtil.getRuleVariables(concatenatedRules, channel.getSourceConnector().getFilter(), false);
 
@@ -1530,7 +1529,7 @@ public abstract class BaseEditorPane<T extends FilterTransformer<C>, C extends F
     }
 
     private Set<String> getStepVariables(int viewRow) {
-        Channel channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
+        Channel channel = PlatformUI.MIRTH_FRAME.getChannelSetup().getCurrentChannel();
         Set<String> concatenatedSteps = new LinkedHashSet<String>();
         VariableListUtil.getStepVariables(concatenatedSteps, channel.getSourceConnector().getTransformer(), false);
 

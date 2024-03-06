@@ -249,7 +249,7 @@ public class DataTypePropertiesPanel extends javax.swing.JPanel {
         // Gets the default properties for a data type 
         DataTypeProperties defaultProperties = null;
         if (displayName != null) {
-            defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(PlatformUI.MIRTH_FRAME.displayNameToDataType.get(displayName)).getDefaultProperties();
+            defaultProperties = LoadedExtensions.getInstance().getDataTypePlugins().get(PlatformUI.MIRTH_FRAME.getDisplayNameToDataTypeMap().get(displayName)).getDefaultProperties();
         }
 
         // Remove all nodes from the tree table

@@ -4,14 +4,67 @@
 		<property name="donkey.setup" value="${donkey}/setup" />
 		<property name="server.setup" value="${server}/setup" />
 		<property name="server.build" value="${server}/build" />
+		<property name="server.core.lib" value="${server}/core-lib" />
+	</target>
+	
+	<!-- Core Libraries -->
+	<target name="build-core" depends="init">
+		<delete dir="${server.core.lib}" />
+		
+		<ant antfile="${core.models}/build.xml" dir="${core.models}" target="dist">
+			<property name="mirthversion" value="${version}" />
+		</ant>
+		<ant antfile="${core.util}/build.xml" dir="${core.util}" target="dist">
+			<property name="mirthversion" value="${version}" />
+		</ant>
+		<ant antfile="${core.client.base}/build.xml" dir="${core.client.base}" target="dist">
+			<property name="mirthversion" value="${version}" />
+		</ant>
+		<ant antfile="${core.client.api}/build.xml" dir="${core.client.api}" target="dist">
+			<property name="mirthversion" value="${version}" />
+		</ant>
+		<ant antfile="${core.client}/build.xml" dir="${core.client}" target="dist">
+			<property name="mirthversion" value="${version}" />
+		</ant>
+		<ant antfile="${core.server.plugins}/build.xml" dir="${core.server.plugins}" target="dist">
+			<property name="mirthversion" value="${version}" />
+		</ant>
+		<ant antfile="${core.ui}/build.xml" dir="${core.ui}" target="dist">
+			<property name="mirthversion" value="${version}" />
+		</ant>
+		<ant antfile="${core.client.plugins}/build.xml" dir="${core.client.plugins}" target="dist">
+			<property name="mirthversion" value="${version}" />
+		</ant>
+
+		<copy todir="${server.core.lib}/shared">
+			<fileset dir="${core.models}/lib" includes="**/*.jar" />
+			<fileset dir="${core.models}/dist" includes="**/*.jar" />
+			<fileset dir="${core.util}/lib" includes="**/*.jar" />
+			<fileset dir="${core.util}/dist" includes="**/*.jar" />
+			<fileset dir="${core.client.base}/lib" includes="**/*.jar" />
+			<fileset dir="${core.client.base}/dist" includes="**/*.jar" />
+			<fileset dir="${core.client.api}/lib" includes="**/*.jar" />
+			<fileset dir="${core.client.api}/dist" includes="**/*.jar" />
+			<fileset dir="${core.client}/lib" includes="**/*.jar" />
+			<fileset dir="${core.client}/dist" includes="**/*.jar" />
+		</copy>
+		<copy todir="${server.core.lib}/server">
+			<fileset dir="${core.server.plugins}/lib" includes="**/*.jar" />
+			<fileset dir="${core.server.plugins}/dist" includes="**/*.jar" />
+		</copy>
+		<copy todir="${server.core.lib}/ui">
+			<fileset dir="${core.ui}/lib" includes="**/*.jar" />
+			<fileset dir="${core.ui}/dist" includes="**/*.jar" />
+			<fileset dir="${core.client.plugins}/lib" includes="**/*.jar" />
+			<fileset dir="${core.client.plugins}/dist" includes="**/*.jar" />
+		</copy>
 	</target>
 	
 	<!-- Donkey -->
-	<target name="build-donkey" depends="init">
+	<target name="build-donkey" depends="init, build-core">
 		<ant antfile="${donkey}/build.xml" dir="${donkey}" target="build" />
 		
 		<delete dir="${server}/lib/donkey" />
-		<copy file="${donkey.setup}/donkey-model.jar" todir="${server}/lib/donkey" />
 		<copy file="${donkey.setup}/donkey-server.jar" todir="${server}/lib/donkey" />
 		<copy todir="${server}/lib/donkey">
 			<fileset dir="${donkey}/lib">
@@ -26,7 +79,7 @@
 	</target>
 	
 	<!-- WebAdmin -->
-	<target name="build-webadmin" depends="init">
+	<target name="build-webadmin" depends="init, build-core">
 		<ant antfile="${webadmin}/build.xml" dir="${webadmin}" target="dist"/>
 		<copy file="${webadmin}/dist/webadmin.war" todir="${server.build}/webapps" />
 		<copy file="${webadmin}/dist/webadmin.war" todir="${server.setup}/webapps" />
@@ -46,9 +99,6 @@
 
 	<!-- Client -->
 	<target name="build-client" depends="build-server-extensions">
-		<copy file="${donkey.setup}/donkey-model.jar" todir="${client}/lib" />
-		<copy file="${server.setup}/server-lib/mirth-client-core.jar" todir="${client}/lib" />
-		<copy file="${server.setup}/server-lib/mirth-crypto.jar" todir="${client}/lib" />
 		<copy file="${server}/lib/mirth-vocab.jar" todir="${client}/lib" />
 
 		<ant antfile="${client}/ant-build.xml" dir="${client}" target="build" />
@@ -69,27 +119,17 @@
 
 	<!-- Manager -->
 	<target name="build-manager" depends="build-client">
-		<copy file="${donkey.setup}/donkey-model.jar" todir="${manager}/lib" />
-		<copy file="${server.setup}/server-lib/mirth-client-core.jar" todir="${manager}/lib" />
-		<copy file="${server.setup}/server-lib/mirth-crypto.jar" todir="${manager}/lib" />
-
 		<ant antfile="${manager}/ant-build.xml" dir="${manager}" target="build" />
 
 		<copy file="${manager}/dist/mirth-manager-launcher.jar" todir="${server.setup}" />
 
 		<copy todir="${server.setup}/manager-lib">
-			<fileset dir="${manager}/lib">
-				<exclude name="mirth-client.jar" />
-			</fileset>
+			<fileset dir="${manager}/lib" />
 		</copy>
 	</target>
 
 	<!-- CLI -->
 	<target name="build-cli" depends="build-client">
-		<copy file="${donkey.setup}/donkey-model.jar" todir="${cli}/lib" />
-		<copy file="${server.setup}/server-lib/mirth-client-core.jar" todir="${cli}/lib" />
-		<copy file="${server.setup}/server-lib/mirth-crypto.jar" todir="${cli}/lib" />
-
 		<ant antfile="${cli}/build.xml" dir="${cli}" target="build">
 			<property name="version" value="${version}" />
 		</ant>
@@ -107,9 +147,7 @@
 		</copy>
 
 		<copy todir="${server.setup}/cli-lib">
-			<fileset dir="${cli}/lib">
-				<exclude name="mirth-client.jar" />
-			</fileset>
+			<fileset dir="${cli}/lib" />
 		</copy>
 
 		<copy todir="${server.setup}/conf">
@@ -181,6 +219,7 @@
 	</target>
 
 	<target name="test-run" depends="init">
+		<ant antfile="${core.util}/build.xml" dir="${core.util}" target="test-run"/>
 		<ant antfile="${donkey}/build.xml" dir="${donkey}" target="test-run"/>
 		<ant antfile="${server}/build.xml" dir="${server}" target="test-run"/>
 		<ant antfile="${client}/ant-build.xml" dir="${client}" target="test-run"/>

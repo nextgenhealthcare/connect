@@ -51,7 +51,7 @@ public class UserPanel extends javax.swing.JPanel {
     private int lastRow;
 
     public UserPanel() {
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         lastRow = -1;
         initComponents();
         makeUsersTable();
@@ -158,11 +158,11 @@ public class UserPanel extends javax.swing.JPanel {
     public void updateUserTable() {
         Object[][] tableData = null;
 
-        if (parent.users != null) {
-            tableData = new Object[parent.users.size()][12];
+        if (parent.getCachedUsers() != null) {
+            tableData = new Object[parent.getCachedUsers().size()][12];
 
-            for (int i = 0; i < parent.users.size(); i++) {
-                User temp = parent.users.get(i);
+            for (int i = 0; i < parent.getCachedUsers().size(); i++) {
+                User temp = parent.getCachedUsers().get(i);
 
                 tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/user.png")), temp.getUsername());
                 tableData[i][1] = temp.getFirstName();
@@ -259,7 +259,7 @@ public class UserPanel extends javax.swing.JPanel {
      */
     public boolean setSelectedUser(String userName) {
         int columnNumber = usersTable.getColumnViewIndex(USERNAME_COLUMN_NAME);
-        for (int i = 0; i < parent.users.size(); i++) {
+        for (int i = 0; i < parent.getCachedUsers().size(); i++) {
             if (userName.equals(((CellData) usersTable.getValueAt(i, columnNumber)).getText())) {
                 usersTable.setRowSelectionInterval(i, i);
                 return true;
@@ -277,8 +277,8 @@ public class UserPanel extends javax.swing.JPanel {
         if (usersTable.getSelectedRow() != -1) {
             String userName = ((CellData) usersTable.getValueAt(getSelectedRow(), columnNumber)).getText();
 
-            for (int i = 0; i < parent.users.size(); i++) {
-                if (parent.users.get(i).getUsername().equals(userName)) {
+            for (int i = 0; i < parent.getCachedUsers().size(); i++) {
+                if (parent.getCachedUsers().get(i).getUsername().equals(userName)) {
                     return i;
                 }
             }

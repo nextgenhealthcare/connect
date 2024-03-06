@@ -16,7 +16,7 @@ import com.mirth.connect.model.Connector;
 public class DestinationTableCellEditor extends TextFieldCellEditor {
 
     protected boolean valueChanged(String value) {
-        List<Connector> destinationConnectors = getParent().channelEditPanel.currentChannel.getDestinationConnectors();
+        List<Connector> destinationConnectors = ((Frame) getParent()).channelEditPanel.currentChannel.getDestinationConnectors();
 
         // make sure a change was actually made
         if (value.equals(getOriginalValue())) {

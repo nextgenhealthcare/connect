@@ -111,7 +111,7 @@ public class ChannelTableNode extends AbstractChannelTableNode {
         } else {
             row[i++] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
         }
-        row[i++] = PlatformUI.MIRTH_FRAME.dataTypeToDisplayName.get(channel.getSourceConnector().getTransformer().getInboundDataType());
+        row[i++] = PlatformUI.MIRTH_FRAME.getDataTypeToDisplayNameMap().get(channel.getSourceConnector().getTransformer().getInboundDataType());
         row[i++] = new ChannelTableNameEntry(channel.getName());
         row[i++] = channel.getId();
         row[i++] = channelStatus.getLocalChannelId();

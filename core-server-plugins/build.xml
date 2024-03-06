@@ -1,4 +1,4 @@
-<project name="connect-core-server-plugins" basedir="." default="dist">
+<project name="mirth-core-server-plugins" basedir="." default="dist">
 	<target name="help">
 		<echo>Mirth Connect Core - Server Plugins</echo>
 	</target>
@@ -8,9 +8,11 @@
 
 		<path id="classpath">
 			<fileset dir="${lib}" includes="**/*.jar" />
+			<fileset dir="${core.models}/lib" includes="**/*.jar" />
 			<fileset dir="${core.models}/dist" includes="**/*.jar" />
+			<fileset dir="${core.util}/lib" includes="**/*.jar" />
 			<fileset dir="${core.util}/dist" includes="**/*.jar" />
-			<fileset dir="${core.version}/dist" includes="**/*.jar" />
+			<fileset dir="${core.client.base}/lib" includes="**/*.jar" />
 			<fileset dir="${core.client.base}/dist" includes="**/*.jar" />
 		</path>
 	</target>
@@ -26,6 +28,18 @@
 		<javac srcdir="${src}" destdir="${classes}" debug="on" includeAntRuntime="false">
 			<classpath refid="classpath" />
 		</javac>
+		
+		<!-- create version.properties file -->
+		<propertyfile file="${name}.version.properties">
+			<entry key="mirth.version" value="${mirthversion}" />
+			<entry key="library.version" value="${version}" />
+			<entry key="library.date" type="date" value="today" pattern="MMMM d, yyyy" />
+		</propertyfile>
+
+		<!-- copy resource files to be placed in jars -->
+		<copy todir="${classes}">
+			<fileset file="${name}.version.properties" />
+		</copy>
 	</target>
 
 	<target name="dist" depends="compile">

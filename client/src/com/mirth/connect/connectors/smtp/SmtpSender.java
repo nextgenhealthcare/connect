@@ -28,8 +28,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -37,7 +35,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.CharsetEncodingInformation;
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
@@ -55,6 +53,8 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.util.ConnectionTestResponse;
 
+import net.miginfocom.swing.MigLayout;
+
 public class SmtpSender extends ConnectorSettingsPanel {
 
     private final int HEADERS_NAME_COLUMN = 0;
@@ -71,7 +71,7 @@ public class SmtpSender extends ConnectorSettingsPanel {
     private int attachmentsLastIndex = -1;
     private String errors;
 
-    private Frame parent;
+    private FrameBase parent;
 
     public SmtpSender() {
         this.parent = PlatformUI.MIRTH_FRAME;

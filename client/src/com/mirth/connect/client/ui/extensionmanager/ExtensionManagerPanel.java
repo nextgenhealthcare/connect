@@ -55,7 +55,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
     private Frame parent;
 
     public ExtensionManagerPanel() {
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         initComponents();
         setRestartRequired(false);
         makeLoadedConnectorsTable();
@@ -219,7 +219,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             for (ConnectorMetaData metaData : connectorData.values()) {
                 boolean enabled = false;
                 try {
-                    enabled = parent.mirthClient.isExtensionEnabled(metaData.getName());
+                    enabled = parent.getClient().isExtensionEnabled(metaData.getName());
                 } catch (ClientException e) {
                     // Show a plugin as disabled if the status cannot be retrieved
                 }
@@ -388,7 +388,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             for (PluginMetaData metaData : pluginData.values()) {
                 boolean enabled = false;
                 try {
-                    enabled = parent.mirthClient.isExtensionEnabled(metaData.getName());
+                    enabled = parent.getClient().isExtensionEnabled(metaData.getName());
                 } catch (ClientException e) {
                     // Show a plugin as disabled if the status cannot be retrieved
                 }

@@ -65,8 +65,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -86,8 +84,8 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.core.TaskConstants;
-import com.mirth.connect.client.ui.AbstractFramePanel;
 import com.mirth.connect.client.ui.AbstractSortableTreeTableNode;
+import com.mirth.connect.client.ui.ExtendedSwingWorker;
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.Mirth;
@@ -118,6 +116,8 @@ import com.mirth.connect.model.codetemplates.CodeTemplateSummary;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.CodeTemplateTypePlugin;
+
+import net.miginfocom.swing.MigLayout;
 
 public class CodeTemplatePanel extends CodeTemplatePanelBase {
 
@@ -327,10 +327,12 @@ public class CodeTemplatePanel extends CodeTemplatePanelBase {
         return taskComponent;
     }
 
+    @Override
     public Map<String, CodeTemplateLibrary> getCachedCodeTemplateLibraries() {
         return codeTemplateLibraries;
     }
 
+    @Override
     public Map<String, CodeTemplate> getCachedCodeTemplates() {
         return codeTemplates;
     }
@@ -849,11 +851,11 @@ public class CodeTemplatePanel extends CodeTemplatePanelBase {
         }
     }
 
-    public UpdateSwingWorker getSwingWorker(Map<String, CodeTemplateLibrary> libraries, Map<String, CodeTemplateLibrary> removedLibraries, Map<String, CodeTemplate> updatedCodeTemplates, Map<String, CodeTemplate> removedCodeTemplates, boolean override) {
+    public ExtendedSwingWorker<CodeTemplateLibrarySaveResult, Void> getSwingWorker(Map<String, CodeTemplateLibrary> libraries, Map<String, CodeTemplateLibrary> removedLibraries, Map<String, CodeTemplate> updatedCodeTemplates, Map<String, CodeTemplate> removedCodeTemplates, boolean override) {
         return new UpdateSwingWorker(libraries, removedLibraries, updatedCodeTemplates, removedCodeTemplates, override, null, null);
     }
 
-    public class UpdateSwingWorker extends SwingWorker<CodeTemplateLibrarySaveResult, Void> {
+    public class UpdateSwingWorker extends ExtendedSwingWorker<CodeTemplateLibrarySaveResult, Void> {
 
         private Map<String, CodeTemplateLibrary> libraries;
         private Map<String, CodeTemplateLibrary> removedLibraries;
@@ -863,7 +865,6 @@ public class CodeTemplatePanel extends CodeTemplatePanelBase {
         private TreeTableNode selectedNode;
         private Set<String> expandedLibraryIds;
         private String workingId;
-        private ActionListener actionListener;
 
         public UpdateSwingWorker(Map<String, CodeTemplateLibrary> libraries, Map<String, CodeTemplateLibrary> removedLibraries, Map<String, CodeTemplate> updatedCodeTemplates, Map<String, CodeTemplate> removedCodeTemplates, boolean override, TreeTableNode selectedNode, Set<String> expandedLibraryIds) {
             this.libraries = libraries;
@@ -874,10 +875,6 @@ public class CodeTemplatePanel extends CodeTemplatePanelBase {
             this.selectedNode = selectedNode;
             this.expandedLibraryIds = expandedLibraryIds;
             workingId = parent.startWorking("Saving code templates and libraries...");
-        }
-
-        public void setActionListener(ActionListener actionListener) {
-            this.actionListener = actionListener;
         }
 
         @Override

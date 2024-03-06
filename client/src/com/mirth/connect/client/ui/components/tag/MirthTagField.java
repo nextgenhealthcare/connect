@@ -21,11 +21,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
@@ -33,8 +28,6 @@ import javax.swing.InputMap;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-
-import net.miginfocom.swing.MigLayout;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -44,18 +37,24 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.IconButton;
 import com.mirth.connect.model.ChannelTag;
 import com.mirth.connect.util.ColorUtil;
 
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import net.miginfocom.swing.MigLayout;
+
 public class MirthTagField extends JPanel {
     private static String TAG_TYPE = "tag";
     private static char DELIM = ':';
 
-    private Frame parent;
+    private FrameBase parent;
     private Logger logger = LogManager.getLogger(this.getClass());
 
     private JFXPanel jfxPanel;
@@ -72,7 +71,7 @@ public class MirthTagField extends JPanel {
 
         if (StringUtils.isNotBlank(preferencePrefix)) {
             try {
-                Properties userPreferences = parent.mirthClient.getUserPreferences(parent.getCurrentUser(parent).getId(), Collections.singleton("initialTags" + preferencePrefix));
+                Properties userPreferences = parent.getClient().getUserPreferences(parent.getCurrentUser(parent).getId(), Collections.singleton("initialTags" + preferencePrefix));
                 cachedUserPreferenceTags = getUserPreferenceTags(userPreferences.getProperty("initialTags" + preferencePrefix));
             } catch (ClientException e) {
                 logger.error("Error restoring tag preferences.", e);

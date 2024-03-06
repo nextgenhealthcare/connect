@@ -17,6 +17,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-base"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-version"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

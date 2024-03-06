@@ -59,7 +59,7 @@ public class JavaScriptPanel extends EditorPanel<Step> {
         JavaScriptStep props = (JavaScriptStep) properties;
         try {
             Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
-            context.compileString("function rhinoWrapper() {" + props.getScript() + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
+            context.compileString("function rhinoWrapper() {" + props.getScript() + "\n}", PlatformUI.MIRTH_FRAME.getClient().getGuid(), 1, null);
         } catch (EvaluatorException e) {
             return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
         } catch (Exception e) {

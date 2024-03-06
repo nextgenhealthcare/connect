@@ -9,7 +9,7 @@
 
 package com.mirth.connect.client.ui.editors;
 
-import com.mirth.connect.client.ui.editors.BaseEditorPane.OperatorNamePair;
+import com.mirth.connect.client.ui.editors.BaseEditorPaneBase.OperatorNamePair;
 import com.mirth.connect.model.Filter;
 import com.mirth.connect.model.Rule;
 
@@ -21,7 +21,7 @@ public class FilterTreeTableNode extends FilterTransformerTreeTableNode<Filter, 
 
     @Override
     public Object getValueAt(int column) {
-        if (column == editorPane.nameColumn) {
+        if (column == editorPane.getNameColumn()) {
             return new OperatorNamePair(element.getOperator(), element.getName());
         }
         return super.getValueAt(column);
@@ -29,7 +29,7 @@ public class FilterTreeTableNode extends FilterTransformerTreeTableNode<Filter, 
 
     @Override
     public void setValueAt(Object value, int column) {
-        if (column == editorPane.nameColumn) {
+        if (column == editorPane.getNameColumn()) {
             element.setOperator(((OperatorNamePair) value).getOperator());
         }
         super.setValueAt(value, column);

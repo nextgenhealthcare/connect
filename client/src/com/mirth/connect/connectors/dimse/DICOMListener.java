@@ -9,14 +9,14 @@
 
 package com.mirth.connect.connectors.dimse;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
 public class DICOMListener extends ConnectorSettingsPanel {
 
-    private Frame parent;
+    private FrameBase parent;
     private boolean tlsComponentsEnabled = true;
 
     public DICOMListener() {

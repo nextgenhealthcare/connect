@@ -68,7 +68,7 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
 
             @Override
             public Map<String, DatabaseTask> doInBackground() throws ClientException {
-                return getFrame().mirthClient.getDatabaseTasks();
+                return getFrame().getClient().getDatabaseTasks();
             }
 
             @Override
@@ -129,7 +129,7 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
 
             @Override
             public String doInBackground() throws ClientException {
-                return getFrame().mirthClient.runDatabaseTask(taskId);
+                return getFrame().getClient().runDatabaseTask(taskId);
             }
 
             @Override
@@ -174,7 +174,7 @@ public class SettingsPanelDatabaseTasks extends AbstractSettingsPanel implements
 
             @Override
             public Void doInBackground() throws ClientException {
-                getFrame().mirthClient.cancelDatabaseTask(taskId);
+                getFrame().getClient().cancelDatabaseTask(taskId);
                 return null;
             }
 

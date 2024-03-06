@@ -73,7 +73,7 @@ public class ServerLogClient extends DashboardTabPlugin {
             List<ServerLogItem> serverLogReceived = new ArrayList<ServerLogItem>();
             //get logs from server
             try {
-                serverLogReceived = PlatformUI.MIRTH_FRAME.mirthClient.getServlet(ServerLogServletInterface.class).getServerLogs(currentServerLogSize, lastLogId);
+                serverLogReceived = PlatformUI.MIRTH_FRAME.getClient().getServlet(ServerLogServletInterface.class).getServerLogs(currentServerLogSize, lastLogId);
             } catch (ClientException e) {
                 if (e instanceof ForbiddenException) {
                     LinkedList<ServerLogItem> unauthorizedLogs = new LinkedList<ServerLogItem>();

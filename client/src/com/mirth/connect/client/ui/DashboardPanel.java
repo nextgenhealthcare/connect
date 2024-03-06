@@ -84,7 +84,7 @@ import com.mirth.connect.plugins.DashboardPanelPlugin;
 import com.mirth.connect.plugins.DashboardTabPlugin;
 import com.mirth.connect.plugins.DashboardTablePlugin;
 
-public class DashboardPanel extends JPanel {
+public class DashboardPanel extends DashboardPanelBase {
 
     private static final String STATUS_COLUMN_NAME = "Status";
     private static final String NAME_COLUMN_NAME = "Name";
@@ -112,7 +112,7 @@ public class DashboardPanel extends JPanel {
     private ListSelectionListener listSelectionListener;
 
     public DashboardPanel() {
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
 
         haltableStates.add(DeployedState.DEPLOYING);
@@ -827,6 +827,7 @@ public class DashboardPanel extends JPanel {
         return selectedStatuses;
     }
 
+    @Override
     public synchronized Set<DashboardStatus> getSelectedChannelStatuses() {
         Set<DashboardStatus> selectedStatuses = new HashSet<DashboardStatus>();
         List<AbstractDashboardTableNode> selectedNodes = dashboardTable.getSelectedNodes();

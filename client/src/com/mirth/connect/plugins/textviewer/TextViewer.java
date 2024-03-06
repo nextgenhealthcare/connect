@@ -49,7 +49,7 @@ public class TextViewer extends AttachmentViewer {
         frame.setBackground(UIConstants.BACKGROUND_COLOR);
 
         try {
-            final Attachment attachment = parent.mirthClient.getAttachment(channelId, messageId, attachmentId);
+            final Attachment attachment = parent.getClient().getAttachment(channelId, messageId, attachmentId);
 
             boolean isRTF = attachment.getType().toLowerCase().contains("rtf");
             final JEditorPane jEditorPane = new JEditorPane(isRTF ? "text/rtf" : "text/plain", org.apache.commons.codec.binary.StringUtils.newStringUtf8(Base64.decodeBase64(attachment.getContent())));

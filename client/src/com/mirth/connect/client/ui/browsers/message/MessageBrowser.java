@@ -117,7 +117,7 @@ import com.mirth.connect.util.StringUtil;
 /**
  * The message browser panel.
  */
-public class MessageBrowser extends javax.swing.JPanel {
+public class MessageBrowser extends MessageBrowserBase {
     protected static final int ID_COLUMN = 0;
     protected static final int CONNECTOR_COLUMN = 1;
     protected static final int STATUS_COLUMN = 2;
@@ -177,7 +177,7 @@ public class MessageBrowser extends javax.swing.JPanel {
      */
     @SuppressWarnings("serial")
     public MessageBrowser() {
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
 
         messageCache = Collections.synchronizedMap(new LinkedHashMap<Object, Message>() {
             @Override
@@ -287,7 +287,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             public void ancestorRemoved(AncestorEvent event) {
                 // Stop waiting for message browser requests when the message browser 
                 // is no longer being displayed
-                parent.mirthClient.getServerConnection().abort(getAbortOperations());
+                parent.getClient().getServerConnection().abort(getAbortOperations());
                 // Clear the message cache when leaving the message browser.
                 parent.messageBrowser.clearCache();
                 // Clear the table selection to prevent the selection listener from triggering multiple times while the model is being cleared
@@ -392,11 +392,13 @@ public class MessageBrowser extends javax.swing.JPanel {
         runSearch();
         isChannelMessagesPanelFirstLoadSearch = false;
     }
-    
+
+    @Override
     protected void initMetaDataColumns(MessageBrowserChannelModel channelModel) {
     	this.metaDataColumns = channelModel.getMetaDataColumns();
     }
-    
+
+    @Override
     protected Set<String> createCustomMetaDataColumns() {
         // Add custom columns
         Set<String> metaDataColumnNames = new LinkedHashSet<String>();
@@ -408,6 +410,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         return metaDataColumnNames;
     }
     
+    @Override
     protected void taskPaneWhenLoadingChannels() {
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 1, 1, isChannelDeployed);
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 8, isChannelDeployed);
@@ -449,40 +452,48 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
     }
 
+    @Override
     public String getChannelId() {
         return channelId;
     }
-    
+
+    @Override
     public List<String> getChannelIds() {
         return channelIds;
     }
-    
+
+    @Override
     public boolean getIsChannelMessagesPanelFirstLoadSearch() {
         return isChannelMessagesPanelFirstLoadSearch;
     }
 
+    @Override
     public Map<Integer, String> getConnectors() {
         return connectors;
     }
 
+    @Override
     public List<MetaDataColumn> getMetaDataColumns() {
         return metaDataColumns;
     }
-    
+
+    @Override
     public PaginatedMessageList getMessages() {
         return messages;
     }
 
+    @Override
     public MessageFilter getMessageFilter() {
         return messageFilter;
     }
 
+    @Override
     public String getPatientId(Long messageId, Integer metaDataId, List<Integer> selectedMetaDataIds) {
         String patientId = null;
         Message message = getMessageFromCache(channelId, messageId);
         try {
             if (message == null) {
-                message = parent.mirthClient.getMessageContent(channelId, messageId, selectedMetaDataIds);
+                message = parent.getClient().getMessageContent(channelId, messageId, selectedMetaDataIds);
             }
             ConnectorMessage connectorMessage = message.getConnectorMessages().get(metaDataId);
             if (connectorMessage.getMetaDataMap().get("PATIENT_ID") != null) {
@@ -494,6 +505,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         return patientId;
     }
 
+    @Override
     public int getPageSize() {
         return NumberUtils.toInt(pageSizeField.getText());
     }
@@ -653,7 +665,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         if (messageFilter.getMaxMessageId() == null) {
             try {
-                Long maxMessageId = parent.mirthClient.getMaxMessageId(channelId);
+                Long maxMessageId = parent.getClient().getMaxMessageId(channelId);
                 messageFilter.setMaxMessageId(maxMessageId);
             } catch (ClientException e) {
                 parent.alertThrowable(parent, e);
@@ -688,7 +700,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     
     protected void configurePaginatedMessageList() throws Exception {
     	messages = new PaginatedMessageList();
-        messages.setClient(parent.mirthClient);
+        messages.setClient(parent.getClient());
         messages.setChannelId(channelId);
         messages.setMessageFilter(messageFilter);
         messages.setPageSize(Integer.parseInt(pageSizeField.getText()));
@@ -713,7 +725,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                         }
                     }
                 }
-                parent.mirthClient.auditQueriedPHIMessage(auditMessageAttributesMap);
+                parent.getClient().auditQueriedPHIMessage(auditMessageAttributesMap);
             } catch (ClientException e) {
                 logger.error("Unable to audit the CURES queried PHI event.", e);
             }
@@ -907,7 +919,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         final String workingId = parent.startWorking("Loading page...");
 
         if (worker != null && !worker.isDone()) {
-            parent.mirthClient.getServerConnection().abort(getAbortOperations());
+            parent.getClient().getServerConnection().abort(getAbortOperations());
             worker.cancel(true);
         }
 
@@ -1671,12 +1683,14 @@ public class MessageBrowser extends javax.swing.JPanel {
         descriptionTabbedPane.remove(attachmentsPane);
         formatMessageCheckBox.setEnabled(false);
     }
-    
+
+    @Override
     protected void taskPaneWhenClearingDescription() {
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, isChannelDeployed);
     }
 
+    @Override
     public Message getSelectedMessage() {
     	String channelId = getSelectedMessageChannelId();
         Long messageId = getSelectedMessageId();
@@ -1688,6 +1702,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         return null;
     }
 
+    @Override
     public ConnectorMessage getSelectedConnectorMessage() {
         Message message = getSelectedMessage();
         Integer metaDataId = getSelectedMetaDataId();
@@ -1698,7 +1713,8 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         return null;
     }
-    
+
+    @Override
     public String getSelectedMessageChannelId() {
         int row = getSelectedMessageIndex();
 
@@ -1710,6 +1726,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         return null;    	
     }
 
+    @Override
     public Long getSelectedMessageId() {
         int row = getSelectedMessageIndex();
 
@@ -1721,6 +1738,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         return null;
     }
 
+    @Override
     public Integer getSelectedMetaDataId() {
         int row = getSelectedMessageIndex();
 
@@ -1732,14 +1750,17 @@ public class MessageBrowser extends javax.swing.JPanel {
         return null;
     }
 
+    @Override
     public String getSelectedAttachmentId() {
         return (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 2);
     }
 
+    @Override
     public String getSelectedMimeType() {
         return (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 1);
     }
 
+    @Override
     public boolean canReprocessMessage(Long messageId) {
         Message message = getMessageFromCache(channelId, messageId);
 
@@ -1869,7 +1890,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                                 return;
                             }
 
-                            attachments = parent.mirthClient.getAttachmentsByMessageId(channelId, messageId, false);
+                            attachments = parent.getClient().getAttachmentsByMessageId(channelId, messageId, false);
                         } catch (Throwable t) {
                             if (t.getMessage().contains("Java heap space")) {
                                 parent.alertError(parent, "There was an out of memory error when trying to retrieve message content.\nIncrease your heap size and try again.");
@@ -1912,7 +1933,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                                 auditMessageAttributesMap.put("patientId", connectorMessage.getMetaDataMap() != null && connectorMessage.getMetaDataMap().get("PATIENT_ID") != null ? connectorMessage.getMetaDataMap().get("PATIENT_ID").toString() : "");
                                 auditMessageAttributesMap.put("channel", "Channel[id=" + channelId + ",name=" + channelName + "]");
                                 auditMessageAttributesMap.put("messageId", String.valueOf(connectorMessage.getMessageId()));
-                                parent.mirthClient.auditAccessedPHIMessage(auditMessageAttributesMap);
+                                parent.getClient().auditAccessedPHIMessage(auditMessageAttributesMap);
                             } catch (ClientException e) {
                                 logger.error("Unable to audit the CURES accessed PHI event.", e);
                             }
@@ -1928,7 +1949,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
     
     protected Message getMessageContent(String channelId, Long messageId) throws ClientException {
-    	return parent.mirthClient.getMessageContent(channelId, messageId, selectedMetaDataIds);
+    	return parent.getClient().getMessageContent(channelId, messageId, selectedMetaDataIds);
     }
     
     protected void taskPaneWhenSelectingMessages() {
@@ -3147,7 +3168,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     }//GEN-LAST:event_countButtonActionPerformed
     
     protected Long getMessageCount() throws ClientException {
-    	return parent.mirthClient.getMessageCount(channelId, messageFilter);
+    	return parent.getClient().getMessageCount(channelId, messageFilter);
     }
 
     private void formatMessageCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatMessageCheckBoxActionPerformed

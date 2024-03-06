@@ -77,7 +77,7 @@ public class DatabaseDriversDialog extends MirthDialog {
         SwingWorker<List<DriverInfo>, Void> worker = new SwingWorker<List<DriverInfo>, Void>() {
             @Override
             protected List<DriverInfo> doInBackground() throws Exception {
-                return PlatformUI.MIRTH_FRAME.mirthClient.getDatabaseDrivers();
+                return PlatformUI.MIRTH_FRAME.getClient().getDatabaseDrivers();
             }
 
             @Override
@@ -291,7 +291,7 @@ public class DatabaseDriversDialog extends MirthDialog {
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                 @Override
                 protected Void doInBackground() throws Exception {
-                    PlatformUI.MIRTH_FRAME.mirthClient.setDatabaseDrivers(drivers);
+                    PlatformUI.MIRTH_FRAME.getClient().setDatabaseDrivers(drivers);
                     return null;
                 }
 

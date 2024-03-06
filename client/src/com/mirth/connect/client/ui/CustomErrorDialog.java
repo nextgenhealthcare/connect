@@ -18,7 +18,7 @@ import javax.swing.UIManager;
 /** Creates the error dialog. */
 public class CustomErrorDialog extends MirthDialog {
 
-    private Frame parent;
+    private FrameBase parent;
     public static final String ERROR_SAVING_CHANNEL = "There was an error in the validation of your channel.  It has been DISABLED and saved.  Before you can deploy you must fix the following error(s):";
     public static final String ERROR_VALIDATING_CONNECTOR = "There was an error in the validation of your connector.  Please fix the following error(s):";
     public static final String ERROR_ENABLING_CHANNEL = "The channel was not configured properly.  Please fix the following problem(s) in the channel before trying to enable it again:";

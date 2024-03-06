@@ -30,8 +30,6 @@ import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -39,6 +37,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.VariableListHandler.TransferMode;
@@ -55,10 +54,12 @@ import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.codetemplates.ContextType;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 
+import net.miginfocom.swing.MigLayout;
+
 public class DatabaseWriter extends ConnectorSettingsPanel {
 
     private List<DriverInfo> drivers;
-    private Frame parent;
+    private FrameBase parent;
     private AtomicBoolean driverAdjusting = new AtomicBoolean(false);
 
     public DatabaseWriter() {
@@ -382,7 +383,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         SwingWorker<List<DriverInfo>, Void> worker = new SwingWorker<List<DriverInfo>, Void>() {
             @Override
             protected List<DriverInfo> doInBackground() throws Exception {
-                return parent.mirthClient.getDatabaseDrivers();
+                return parent.getClient().getDatabaseDrivers();
             }
 
             @Override
@@ -506,8 +507,8 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         if (properties.getUrl().length() == 0 || properties.getDriver().equals(DatabaseReceiverProperties.DRIVER_DEFAULT)) {
             parent.alertError(parent, "A valid Driver and URL are required to perform this operation.");
         } else {
-            Connector destinationConnector = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getDestinationConnectors().get(PlatformUI.MIRTH_FRAME.channelEditPanel.lastModelIndex);
-            Set<String> resourceIds = PlatformUI.MIRTH_FRAME.channelEditPanel.resourceIds.get(destinationConnector.getMetaDataId()).keySet();
+            Connector destinationConnector = PlatformUI.MIRTH_FRAME.getChannelSetup().getCurrentChannel().getDestinationConnectors().get(PlatformUI.MIRTH_FRAME.getChannelSetup().getLastModelIndex());
+            Set<String> resourceIds = PlatformUI.MIRTH_FRAME.getChannelSetup().getResourceIds().get(destinationConnector.getMetaDataId()).keySet();
             new DatabaseMetadataDialog(this, type, new DatabaseConnectionInfo(properties.getDriver(), properties.getUrl(), properties.getUsername(), properties.getPassword(), "", getSelectedDriver().getSelectLimit(), resourceIds));
         }
     }
@@ -553,7 +554,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         sqlTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
         sqlTextPane.setText(generateConnectionString());
         generateConnectionButton.setEnabled(true);
-        parent.channelEditPanel.destinationVariableList.setTransferMode(TransferMode.JAVASCRIPT);
+        parent.getChannelSetup().getDestinationVariableList().setTransferMode(TransferMode.JAVASCRIPT);
     }
 
     private void useJavaScriptNoActionPerformed() {
@@ -561,7 +562,7 @@ public class DatabaseWriter extends ConnectorSettingsPanel {
         sqlTextPane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
         sqlTextPane.setText("");
         generateConnectionButton.setEnabled(false);
-        parent.channelEditPanel.destinationVariableList.setTransferMode(TransferMode.VELOCITY);
+        parent.getChannelSetup().getDestinationVariableList().setTransferMode(TransferMode.VELOCITY);
     }
 
     private JLabel driverLabel;

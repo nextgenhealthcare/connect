@@ -49,8 +49,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
@@ -58,7 +56,7 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -78,6 +76,8 @@ import com.mirth.connect.client.ui.panels.connectors.ConnectorSettingsPanel;
 import com.mirth.connect.client.ui.panels.connectors.ListenerSettingsPanel;
 import com.mirth.connect.connectors.http.HttpStaticResource.ResourceType;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
+
+import net.miginfocom.swing.MigLayout;
 
 public class HttpListener extends ConnectorSettingsPanel {
 
@@ -119,7 +119,7 @@ public class HttpListener extends ConnectorSettingsPanel {
         }
     }
 
-    private Frame parent;
+    private FrameBase parent;
 
     public HttpListener() {
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -1103,7 +1103,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     }
 
     private void messageContentPlainBodyRadioActionPerformed(ActionEvent evt) {
-        parent.channelEditPanel.checkAndSetSourceDataType();
+        parent.getChannelSetup().checkAndSetSourceDataType();
         parseMultipartLabel.setEnabled(false);
         parseMultipartYesRadio.setEnabled(false);
         parseMultipartNoRadio.setEnabled(false);
@@ -1142,7 +1142,7 @@ public class HttpListener extends ConnectorSettingsPanel {
     }
 
     private void messageContentXmlBodyRadioActionPerformed(ActionEvent evt) {
-        parent.channelEditPanel.checkAndSetSourceDataType();
+        parent.getChannelSetup().checkAndSetSourceDataType();
         parseMultipartLabel.setEnabled(true);
         parseMultipartYesRadio.setEnabled(true);
         parseMultipartNoRadio.setEnabled(true);

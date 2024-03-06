@@ -22,14 +22,12 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.ui.AbstractConnectorPropertiesPanel;
 import com.mirth.connect.client.ui.CharsetEncodingInformation;
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
@@ -48,11 +46,13 @@ import com.mirth.connect.plugins.ConnectorPropertiesPlugin;
 import com.mirth.connect.plugins.TransmissionModeClientProvider;
 import com.mirth.connect.plugins.TransmissionModePlugin;
 
+import net.miginfocom.swing.MigLayout;
+
 public class TcpListener extends ConnectorSettingsPanel implements ActionListener {
 
     public static final String NEW_CONNECTION_PLUGIN_PROPS = "tcpListenerNewConnectionPluginProperties";
 
-    private Frame parent;
+    private FrameBase parent;
     private TransmissionModeClientProvider defaultProvider;
     private TransmissionModeClientProvider transmissionModeProvider;
     private String selectedMode;

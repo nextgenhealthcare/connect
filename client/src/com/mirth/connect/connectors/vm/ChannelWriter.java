@@ -37,7 +37,7 @@ import javax.swing.table.DefaultTableModel;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.TextFieldCellEditor;
 import com.mirth.connect.client.ui.UIConstants;
@@ -46,7 +46,7 @@ import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 
 public class ChannelWriter extends ConnectorSettingsPanel {
 
-    private Frame parent;
+    private FrameBase parent;
     private Map<String, String> channelList;
     private ArrayList<String> channelNameArray;
     private Boolean channelIdModified = false;
@@ -221,7 +221,7 @@ public class ChannelWriter extends ConnectorSettingsPanel {
 
         String selectedChannelName = "None";
 
-        for (Entry<String, String> entry : parent.channelPanel.getCachedChannelIdsAndNames().entrySet()) {
+        for (Entry<String, String> entry : parent.getChannelPanel().getCachedChannelIdsAndNames().entrySet()) {
             String channnelId = entry.getKey();
             String channelName = entry.getValue();
 

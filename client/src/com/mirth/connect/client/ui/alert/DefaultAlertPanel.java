@@ -29,8 +29,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
@@ -47,6 +45,8 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.components.MirthTableTransferHandler;
 import com.mirth.connect.model.alert.AlertStatus;
 
+import net.miginfocom.swing.MigLayout;
+
 public class DefaultAlertPanel extends AlertPanel {
 
     private Frame parent;
@@ -59,7 +59,7 @@ public class DefaultAlertPanel extends AlertPanel {
     private static final int ID_COLUMN_NUMBER = 2;
 
     public DefaultAlertPanel() {
-        this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = (Frame) PlatformUI.MIRTH_FRAME;
         initComponents();
 
         makeAlertTable();

@@ -9,6 +9,8 @@
 
 		<path id="classpath">
 			<fileset dir="${lib}" includes="*.jar" />
+			<fileset dir="${antlib}" includes="*.jar" />
+			<fileset dir="${core.lib}/shared" includes="**/*.jar" />
 		</path>
 
 		<mkdir dir="${logs}" />
@@ -38,12 +40,22 @@
 
 	<target name="build" depends="compile">
 		<mkdir dir="${dist}" />
+		
+		<!-- Add all shared core-lib and manager-lib JARs to launcher manifest -->
+		<taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="classpath" />
+		<fileset id="manager.core.lib.files" dir="${core.lib}/shared" includes="**/*.jar" />
+		<propertyregex property="manager.tempreplace1" input="${toString:manager.core.lib.files}" regexp="\\" replace="/" global="true" defaultValue="${toString:manager.core.lib.files}" />
+		<propertyregex property="manager.tempreplace2" input="${manager.tempreplace1}" regexp="(.+?)(;|:|$)" replace="core-lib/shared/\1 " global="true" defaultValue="${manager.tempreplace1}" />
+		<fileset id="manager.lib.files" dir="${lib}" includes="**/*.jar" />
+		<propertyregex property="manager.tempreplace3" input="${toString:manager.lib.files}" regexp="\\" replace="/" global="true" defaultValue="${toString:manager.lib.files}" />
+		<propertyregex property="manager.tempreplace4" input="${manager.tempreplace3}" regexp="(.+?)(;|:|$)" replace="manager-lib/\1 " global="true" defaultValue="${manager.tempreplace3}" />
+		<property name="manager.launcher.classpath" value="${manager.tempreplace2}${manager.tempreplace4}" />
 
 		<jar destfile="${dist}/${manager.jar}" basedir="${classes}">
 			<manifest>
 				<attribute name="Manifest-Version" value="1.0" />
 				<attribute name="Main-Class" value="com.mirth.connect.manager.Manager" />
-				<attribute name="Class-Path" value="manager-lib/miglayout-core-4.2.jar manager-lib/miglayout-swing-4.2.jar manager-lib/swingx-core-1.6.2.jar manager-lib/looks-2.3.1.jar manager-lib/commons-beanutils-1.9.4.jar manager-lib/commons-codec-1.16.0.jar manager-lib/commons-collections4-4.4.jar manager-lib/commons-configuration2-2.8.0.jar manager-lib/httpclient-4.5.13.jar manager-lib/httpcore-4.4.13.jar manager-lib/httpmime-4.5.13.jar manager-lib/commons-lang3-3.13.0.jar manager-lib/commons-logging-1.2.jar manager-lib/commons-io-2.13.0.jar manager-lib/commons-text-1.10.0.jar manager-lib/log4j-1.2-api-2.17.2.jar manager-lib/log4j-api-2.17.2.jar manager-lib/log4j-core-2.17.2.jar manager-lib/xpp3-1.1.4c.jar manager-lib/xstream-1.4.20.jar manager-lib/mirth-client-core.jar manager-lib/mirth-crypto.jar manager-lib/donkey-model.jar manager-lib/javassist-3.29.2-GA.jar manager-lib/guava-28.2-jre.jar manager-lib/jakarta.annotation-api-1.3.5.jar manager-lib/jakarta.inject-2.6.1.jar manager-lib/jakarta.ws.rs-api-2.1.6.jar manager-lib/jersey-client-2.35.jar manager-lib/jersey-common-2.35.jar manager-lib/jersey-hk2-2.35.jar manager-lib/jersey-media-multipart-2.35.jar manager-lib/jersey-proxy-client-2.35.jar manager-lib/hk2-api-2.6.1.jar manager-lib/hk2-locator-2.6.1.jar manager-lib/hk2-utils-2.6.1.jar manager-lib/mimepull-1.9.15.jar manager-lib/swagger-annotations-2.0.10.jar manager-lib/reflections-0.9.10.jar manager-lib/rhino-1.7.13.jar" />
+				<attribute name="Class-Path" value="${manager.launcher.classpath}" />
 			</manifest>
 		</jar>
 	</target>

@@ -87,7 +87,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
 
             public Void doInBackground() {
                 try {
-                    configurationMap = getFrame().mirthClient.getConfigurationMap();
+                    configurationMap = getFrame().getClient().getConfigurationMap();
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
@@ -124,7 +124,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
 
             public Void doInBackground() {
                 try {
-                    getFrame().mirthClient.setConfigurationMap(configurationMap);
+                    getFrame().getClient().setConfigurationMap(configurationMap);
                 } catch (ClientException e) {
                     getFrame().alertThrowable(getFrame(), e);
                 }
@@ -228,7 +228,7 @@ public class SettingsPanelMap extends AbstractSettingsPanel {
                         properties.clear();
                         PropertiesConfigurationLayout layout = properties.getLayout();
 
-                        configurationMap = getFrame().mirthClient.getConfigurationMap();
+                        configurationMap = getFrame().getClient().getConfigurationMap();
                         Map<String, ConfigurationProperty> sortedMap = new TreeMap<String, ConfigurationProperty>(String.CASE_INSENSITIVE_ORDER);
                         sortedMap.putAll(configurationMap);
 

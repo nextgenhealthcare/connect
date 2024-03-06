@@ -18,7 +18,7 @@ import javax.swing.UIManager;
 /** Creates the error dialog. */
 public class ErrorDialog extends MirthDialog {
 
-    private Frame parent;
+    private FrameBase parent;
 
     public ErrorDialog(java.awt.Frame owner, String message) {
         super(owner);

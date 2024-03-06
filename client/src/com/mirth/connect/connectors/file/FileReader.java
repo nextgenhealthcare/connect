@@ -25,14 +25,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.ConnectorTypeDecoration;
 import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.PlatformUI;
 import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.client.ui.components.MirthCheckBox;
@@ -47,10 +46,12 @@ import com.mirth.connect.client.ui.panels.connectors.ResponseHandler;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.util.ConnectionTestResponse;
 
+import net.miginfocom.swing.MigLayout;
+
 public class FileReader extends ConnectorSettingsPanel {
 
     private Logger logger = LogManager.getLogger(this.getClass());
-    private Frame parent;
+    private FrameBase parent;
 
     private FileScheme selectedScheme;
     private SchemeProperties advancedProperties;

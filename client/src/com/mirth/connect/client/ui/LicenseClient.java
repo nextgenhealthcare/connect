@@ -51,7 +51,7 @@ public class LicenseClient {
 
     private static void check() {
         try {
-            LicenseInfo licenseInfo = PlatformUI.MIRTH_FRAME.mirthClient.getLicenseInfo();
+            LicenseInfo licenseInfo = PlatformUI.MIRTH_FRAME.getClient().getLicenseInfo();
             final ZonedDateTime now = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
             StringBuilder builder = new StringBuilder("<html> ");
             boolean invalidLicense = false;

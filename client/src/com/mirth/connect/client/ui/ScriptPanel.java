@@ -74,7 +74,7 @@ public class ScriptPanel extends JPanel {
         StringBuilder sb = new StringBuilder();
         Context context = JavaScriptSharedUtil.getGlobalContextForValidation();
         try {
-            context.compileString("function rhinoWrapper() {" + getScriptTextArea().getText() + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
+            context.compileString("function rhinoWrapper() {" + getScriptTextArea().getText() + "\n}", PlatformUI.MIRTH_FRAME.getClient().getGuid(), 1, null);
             sb.append("JavaScript was successfully validated.");
         } catch (EvaluatorException e) {
             sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the current script.");

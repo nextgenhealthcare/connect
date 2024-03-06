@@ -31,7 +31,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class DeployInDebugModeDialog extends MirthDialog {
 
-    private Frame parent;
+    private FrameBase parent;
     private DebugOptions debugOptions;
     private boolean isDebugChannel = false;
 

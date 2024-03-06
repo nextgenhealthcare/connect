@@ -21,7 +21,7 @@ import com.mirth.connect.plugins.SettingsPanelPlugin;
 
 public class SettingsPane extends javax.swing.JPanel {
 
-    private Frame parent;
+    private FrameBase parent;
     private AbstractSettingsPanel currentSettingsPanel = null;
     private Map<String, AbstractSettingsPanel> settingsPanelMap = new HashMap<String, AbstractSettingsPanel>();
 
@@ -62,7 +62,7 @@ public class SettingsPane extends javax.swing.JPanel {
             // add task pane before the "other" pane
             parent.setNonFocusable(settingsPanel.getTaskPane());
             settingsPanel.getTaskPane().setVisible(false);
-            parent.taskPaneContainer.add(settingsPanel.getTaskPane(), parent.taskPaneContainer.getComponentCount() - 1);
+            parent.getTaskPaneContainer().add(settingsPanel.getTaskPane(), parent.getTaskPaneContainer().getComponentCount() - 1);
 
             // Add the tab
             tabbedPane.addTab(settingsPanel.getTabName(), settingsPanel);

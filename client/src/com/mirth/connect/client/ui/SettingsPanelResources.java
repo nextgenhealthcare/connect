@@ -115,7 +115,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
 
             @Override
             public List<ResourceProperties> doInBackground() throws ClientException {
-                return getFrame().mirthClient.getResources();
+                return getFrame().getClient().getResources();
             }
 
             @Override
@@ -138,7 +138,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
 
     public void refresh() {
         try {
-            updateResourcesTable(getFrame().mirthClient.getResources(), resourceTable.getSelectedRow(), false);
+            updateResourcesTable(getFrame().getClient().getResources(), resourceTable.getSelectedRow(), false);
         } catch (Throwable t) {
             getFrame().alertThrowable(getFrame(), t, "Error loading resources: " + t.toString(), false);
         }
@@ -233,7 +233,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
 
             @Override
             public Void doInBackground() throws ClientException {
-                getFrame().mirthClient.setResources(resources);
+                getFrame().getClient().setResources(resources);
                 return null;
             }
 
@@ -341,7 +341,7 @@ public class SettingsPanelResources extends AbstractSettingsPanel implements Lis
 
                 @Override
                 public Void doInBackground() throws ClientException {
-                    getFrame().mirthClient.reloadResource(resourceId);
+                    getFrame().getClient().reloadResource(resourceId);
                     return null;
                 }
 

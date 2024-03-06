@@ -113,7 +113,7 @@ public class DestinationSetFilterPanel extends EditorPanel<Step> {
     }
 
     private void resetDestinationTable() {
-        List<Connector> destinations = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel.getDestinationConnectors();
+        List<Connector> destinations = PlatformUI.MIRTH_FRAME.getChannelSetup().getCurrentChannel().getDestinationConnectors();
         Object[][] data = new Object[destinations.size()][3];
 
         int i = 0;

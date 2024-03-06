@@ -74,7 +74,7 @@ public class AutoCompletionPopupWindow extends JTextField {
         doCall("insertTag", tagName, tagType);
         currentlyEnteredText = "";
         hidePopup();
-        PlatformUI.MIRTH_FRAME.setSaveEnabled(PlatformUI.MIRTH_FRAME.currentContentPage == PlatformUI.MIRTH_FRAME.channelEditPanel);
+        PlatformUI.MIRTH_FRAME.setSaveEnabled(PlatformUI.MIRTH_FRAME.getCurrentContentPage() == PlatformUI.MIRTH_FRAME.getChannelSetup());
     }
 
     public void setWebEngine(WebEngine engineCtrl) {
