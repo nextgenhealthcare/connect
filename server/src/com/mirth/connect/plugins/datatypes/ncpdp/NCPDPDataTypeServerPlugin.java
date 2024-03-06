@@ -9,7 +9,7 @@
 
 package com.mirth.connect.plugins.datatypes.ncpdp;
 
-import com.mirth.connect.donkey.server.channel.ISourceConnector;
+import com.mirth.connect.donkey.model.channel.ISourceConnector;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.message.batch.BatchAdaptorFactory;
 import com.mirth.connect.model.datatype.DataTypeDelegate;

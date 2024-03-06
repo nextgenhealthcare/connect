@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.server.message.batch;
+package com.mirth.connect.donkey.model.message.batch;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

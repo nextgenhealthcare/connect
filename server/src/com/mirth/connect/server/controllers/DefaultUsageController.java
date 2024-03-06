@@ -17,7 +17,6 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.client.core.ControllerException;
 import com.mirth.connect.donkey.util.purge.Purgable;
 import com.mirth.connect.donkey.util.purge.PurgeUtil;
@@ -34,6 +33,7 @@ import com.mirth.connect.model.purged.PurgedDocument;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.server.ExtensionLoader;
 import com.mirth.connect.server.util.ServerPurgeHelper;
+import com.mirth.connect.util.ConnectServiceUtil;
 
 public class DefaultUsageController extends UsageController {
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();

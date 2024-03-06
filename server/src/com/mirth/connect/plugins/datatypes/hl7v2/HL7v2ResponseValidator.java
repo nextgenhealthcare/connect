@@ -21,8 +21,8 @@ import org.xml.sax.InputSource;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.model.message.ResponseValidator;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.message.ResponseValidator;
 import com.mirth.connect.model.datatype.ResponseValidationProperties;
 import com.mirth.connect.model.datatype.SerializationProperties;
 import com.mirth.connect.plugins.datatypes.hl7v2.HL7v2ResponseValidationProperties.OriginalMessageControlId;

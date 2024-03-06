@@ -7,10 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.server.message;
-
-import com.mirth.connect.donkey.model.message.MessageSerializer;
-import com.mirth.connect.donkey.model.message.SerializationType;
+package com.mirth.connect.donkey.model.message;
 
 public class DataType {
 

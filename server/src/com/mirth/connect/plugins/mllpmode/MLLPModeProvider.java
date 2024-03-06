@@ -12,8 +12,8 @@ package com.mirth.connect.plugins.mllpmode;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.mirth.connect.donkey.server.message.StreamHandler;
-import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
+import com.mirth.connect.donkey.model.message.StreamHandler;
+import com.mirth.connect.donkey.model.message.batch.BatchStreamReader;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.model.transmission.framemode.FrameStreamHandler;
 import com.mirth.connect.plugins.TransmissionModeProvider;

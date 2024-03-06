@@ -28,7 +28,7 @@ import com.mirth.connect.server.channel.ErrorTaskHandler;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EngineController;
-import com.mirth.connect.server.util.DebuggerUtil;
+import com.mirth.connect.util.DebuggerUtil;
 
 public class EngineServlet extends MirthServlet implements EngineServletInterface {
 

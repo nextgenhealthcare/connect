@@ -94,7 +94,6 @@ import com.mirth.commons.encryption.Encryptor;
 import com.mirth.commons.encryption.KeyEncryptor;
 import com.mirth.commons.encryption.Output;
 import com.mirth.connect.client.core.ControllerException;
-import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.donkey.model.DatabaseConstants;
 import com.mirth.connect.donkey.server.data.DonkeyStatisticsUpdater;
 import com.mirth.connect.donkey.util.DonkeyElement;
@@ -131,6 +130,7 @@ import com.mirth.connect.util.ConnectionTestResponse;
 import com.mirth.connect.util.JavaScriptSharedUtil;
 import com.mirth.connect.util.MigrationUtil;
 import com.mirth.connect.util.MirthSSLUtil;
+import com.mirth.connect.util.PropertiesConfigurationUtil;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.

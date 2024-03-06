@@ -22,9 +22,9 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.donkey.model.DatabaseConstants;
 import com.mirth.connect.donkey.util.Serializer;
+import com.mirth.connect.util.PropertiesConfigurationUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("databaseSettings")

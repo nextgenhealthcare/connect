@@ -27,6 +27,8 @@ import org.apache.commons.configuration2.reloading.PeriodicReloadingTrigger;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
+import com.mirth.connect.util.PropertiesConfigurationUtil;
+
 public class PropertiesConfigurationUtilTest {
 
     @Test

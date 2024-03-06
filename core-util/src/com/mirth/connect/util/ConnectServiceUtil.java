@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.client.core;
+package com.mirth.connect.util;
 
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -42,10 +42,10 @@ import org.apache.http.message.BasicNameValuePair;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.model.User;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.notification.Notification;
-import com.mirth.connect.util.MirthSSLUtil;
 
 public class ConnectServiceUtil {
     private final static String URL_CONNECT_SERVER = "https://connect.mirthcorp.com";

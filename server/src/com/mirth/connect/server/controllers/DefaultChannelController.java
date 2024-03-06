@@ -337,6 +337,11 @@ public class DefaultChannelController extends ChannelController {
             throw firstCause;
         }
     }
+    
+    @Override
+    public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException {
+        return updateChannel(channel, context, override, null);
+    }
 
     @Override
     public synchronized boolean updateChannel(Channel channel, ServerEventContext context, boolean override, Calendar dateStartEdit) throws ControllerException {

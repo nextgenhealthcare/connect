@@ -54,10 +54,10 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.notification.Notification;
+import com.mirth.connect.util.ConnectServiceUtil;
 
 public class NotificationDialog extends MirthDialog {
 

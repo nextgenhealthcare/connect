@@ -42,7 +42,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.model.ExtensionLibrary;
 import com.mirth.connect.model.MetaData;
 import com.mirth.connect.model.converters.DocumentSerializer;
@@ -52,6 +51,7 @@ import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.util.MirthSSLUtil;
+import com.mirth.connect.util.PropertiesConfigurationUtil;
 
 public class WebStartServlet extends HttpServlet {
     private Logger logger = LogManager.getLogger(this.getClass());

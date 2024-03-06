@@ -7,7 +7,7 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.client.core;
+package com.mirth.connect.util;
 
 import java.io.File;
 import java.io.IOException;

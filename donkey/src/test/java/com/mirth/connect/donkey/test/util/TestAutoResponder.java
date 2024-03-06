@@ -11,10 +11,10 @@ package com.mirth.connect.donkey.test.util;
 
 import java.util.Map;
 
+import com.mirth.connect.donkey.model.message.AutoResponder;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.message.AutoResponder;
 
 public class TestAutoResponder implements AutoResponder {
 

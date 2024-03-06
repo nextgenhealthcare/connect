@@ -20,6 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mirth.connect.donkey.model.channel.DeployedState;
+import com.mirth.connect.donkey.model.channel.ISourceConnector;
 import com.mirth.connect.donkey.model.event.ConnectionStatusEventType;
 import com.mirth.connect.donkey.model.event.DeployedStateEventType;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;

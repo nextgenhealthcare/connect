@@ -9,6 +9,8 @@
 
 package com.mirth.connect.donkey.server.message.batch;
 
+import com.mirth.connect.donkey.model.message.batch.BatchMessageSource;
+
 public interface BatchMessageReceiver extends BatchMessageSource {
 
     public boolean canRead();

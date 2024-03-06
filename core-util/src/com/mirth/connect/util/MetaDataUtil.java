@@ -1,10 +1,11 @@
-package com.mirth.connect.client.core;
+package com.mirth.connect.util;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import com.mirth.connect.client.core.Version;
 import com.mirth.connect.model.ApiProvider;
 import com.mirth.connect.model.MetaData;
 

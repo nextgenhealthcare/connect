@@ -1,4 +1,4 @@
-package com.mirth.connect.server.util;
+package com.mirth.connect.util;
 
 import com.mirth.connect.donkey.model.channel.DebugOptions;
 

@@ -16,6 +16,7 @@ import java.util.Set;
 import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.Message;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
@@ -32,7 +33,6 @@ import com.mirth.connect.donkey.server.channel.FilterTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.ResponseTransformerExecutor;
 import com.mirth.connect.donkey.server.channel.SourceConnector;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
-import com.mirth.connect.donkey.server.message.DataType;
 
 public class DummyChannel extends Channel {
     private List<Long> queuedMessageIds = new ArrayList<Long>();

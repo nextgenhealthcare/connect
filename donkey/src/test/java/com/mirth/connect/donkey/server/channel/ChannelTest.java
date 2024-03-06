@@ -36,13 +36,13 @@ import com.google.inject.Injector;
 import com.mirth.connect.donkey.model.channel.ConnectorProperties;
 import com.mirth.connect.donkey.model.channel.SourceConnectorProperties;
 import com.mirth.connect.donkey.model.channel.SourceConnectorPropertiesInterface;
+import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.RawMessage;
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
 import com.mirth.connect.donkey.server.data.DonkeyDaoFactory;
 import com.mirth.connect.donkey.server.event.EventDispatcher;
-import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.server.queue.SourceQueue;
 import com.mirth.connect.donkey.util.SerializerProvider;
 

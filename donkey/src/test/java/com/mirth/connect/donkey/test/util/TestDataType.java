@@ -9,7 +9,7 @@
 
 package com.mirth.connect.donkey.test.util;
 
-import com.mirth.connect.donkey.server.message.DataType;
+import com.mirth.connect.donkey.model.message.DataType;
 
 public class TestDataType extends DataType {
     public TestDataType() {

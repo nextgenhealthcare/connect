@@ -24,8 +24,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.mirth.connect.donkey.server.message.StreamHandler;
-import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
+import com.mirth.connect.donkey.model.message.StreamHandler;
+import com.mirth.connect.donkey.model.message.batch.BatchStreamReader;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.model.transmission.batch.DefaultBatchStreamReader;
 import com.mirth.connect.model.transmission.batch.DelimiterBatchStreamReader;

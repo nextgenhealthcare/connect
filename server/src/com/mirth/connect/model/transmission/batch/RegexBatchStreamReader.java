@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
+import com.mirth.connect.donkey.model.message.batch.BatchStreamReader;
 
 public class RegexBatchStreamReader extends BatchStreamReader {
 

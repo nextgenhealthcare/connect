@@ -7,14 +7,14 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.server.message;
+package com.mirth.connect.model.message;
 
 import java.util.Map;
 
+import com.mirth.connect.donkey.model.message.AutoResponder;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.Status;
-import com.mirth.connect.donkey.server.message.AutoResponder;
 
 public class DefaultAutoResponder implements AutoResponder {
 

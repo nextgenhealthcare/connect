@@ -34,8 +34,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
-import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.donkey.util.ResourceUtil;
+import com.mirth.connect.util.PropertiesConfigurationUtil;
 
 public class ManagerController {
 

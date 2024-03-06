@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
+import com.mirth.connect.donkey.model.message.batch.BatchStreamReader;
 
 public class DefaultBatchStreamReader extends BatchStreamReader {
 

@@ -14,12 +14,12 @@ import org.apache.commons.lang3.StringUtils;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.Response;
 import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.donkey.server.channel.components.ResponseTransformer;
 import com.mirth.connect.donkey.server.data.DonkeyDao;
-import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.util.Serializer;
 import com.mirth.connect.donkey.util.ThreadUtils;
 

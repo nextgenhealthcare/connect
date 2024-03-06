@@ -56,6 +56,8 @@ public abstract class ChannelController extends Controller {
 
     public abstract void setChannelInitialState(Set<String> channelIds, ServerEventContext context, DeployedState initialState) throws ControllerException;
 
+    public abstract boolean updateChannel(Channel channel, ServerEventContext context, boolean override) throws ControllerException;
+    
     public abstract boolean updateChannel(Channel channel, ServerEventContext context, boolean override, Calendar dateStartEdit) throws ControllerException;
 
     public abstract void removeChannel(Channel channel, ServerEventContext context) throws ControllerException;

@@ -7,8 +7,9 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.server.message.batch;
+package com.mirth.connect.donkey.model.message;
 
-public interface BatchMessageSource {
+public interface ResponseValidator {
 
+    public Response validate(Response response, ConnectorMessage connectorMessage);
 }

@@ -7,12 +7,16 @@
  * been included with this distribution in the LICENSE.txt file.
  */
 
-package com.mirth.connect.donkey.server.message;
+package com.mirth.connect.model.message;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
+import com.mirth.connect.donkey.model.message.ResponseValidator;
 
-public interface ResponseValidator {
+public class DefaultResponseValidator implements ResponseValidator {
 
-    public Response validate(Response response, ConnectorMessage connectorMessage);
+    @Override
+    public Response validate(Response response, ConnectorMessage connectorMessage) {
+        return response;
+    }
 }

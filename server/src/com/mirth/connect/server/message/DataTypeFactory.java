@@ -9,12 +9,13 @@
 
 package com.mirth.connect.server.message;
 
+import com.mirth.connect.donkey.model.message.AutoResponder;
+import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.MessageSerializer;
 import com.mirth.connect.donkey.model.message.SerializationType;
-import com.mirth.connect.donkey.server.message.AutoResponder;
-import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.model.datatype.DataTypeProperties;
 import com.mirth.connect.model.datatype.SerializerProperties;
+import com.mirth.connect.model.message.DefaultAutoResponder;
 import com.mirth.connect.plugins.DataTypeServerPlugin;
 import com.mirth.connect.server.controllers.ExtensionController;
 

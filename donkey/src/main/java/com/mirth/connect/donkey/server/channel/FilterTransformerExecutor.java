@@ -12,11 +12,11 @@ package com.mirth.connect.donkey.server.channel;
 import com.mirth.connect.donkey.model.DonkeyException;
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.ContentType;
+import com.mirth.connect.donkey.model.message.DataType;
 import com.mirth.connect.donkey.model.message.MessageContent;
 import com.mirth.connect.donkey.model.message.SerializationType;
 import com.mirth.connect.donkey.model.message.Status;
 import com.mirth.connect.donkey.server.channel.components.FilterTransformer;
-import com.mirth.connect.donkey.server.message.DataType;
 import com.mirth.connect.donkey.util.ThreadUtils;
 
 public class FilterTransformerExecutor {

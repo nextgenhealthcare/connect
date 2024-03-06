@@ -9,8 +9,8 @@
 
 package com.mirth.connect.donkey.server.message.batch;
 
+import com.mirth.connect.donkey.model.channel.ISourceConnector;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
-import com.mirth.connect.donkey.server.channel.ISourceConnector;
 
 public abstract class BatchAdaptor {
     private BatchAdaptorFactory factory;

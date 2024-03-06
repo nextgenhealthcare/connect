@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.mirth.connect.donkey.model.message.attachment.Attachment;
-import com.mirth.connect.donkey.server.message.batch.BatchMessageSource;
+import com.mirth.connect.donkey.model.message.batch.BatchMessageSource;
 
 public class BatchRawMessage {
     private BatchMessageSource batchMessageSource;

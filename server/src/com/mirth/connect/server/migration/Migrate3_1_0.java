@@ -27,10 +27,10 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 
-import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.model.util.MigrationException;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.util.PropertiesConfigurationUtil;
 
 public class Migrate3_1_0 extends Migrator implements ConfigurationMigrator {
     private Logger logger = LogManager.getLogger(getClass());

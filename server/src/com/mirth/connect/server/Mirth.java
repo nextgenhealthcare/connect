@@ -36,9 +36,7 @@ import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.filter.Filterable;
 import org.apache.velocity.runtime.RuntimeConstants;
 
-import com.mirth.connect.client.core.ConnectServiceUtil;
 import com.mirth.connect.client.core.ControllerException;
-import com.mirth.connect.client.core.PropertiesConfigurationUtil;
 import com.mirth.connect.donkey.server.Donkey;
 import com.mirth.connect.donkey.server.DonkeyConnectionPools;
 import com.mirth.connect.model.LibraryProperties;
@@ -66,6 +64,8 @@ import com.mirth.connect.server.util.NetworkUtil;
 import com.mirth.connect.server.util.ResourceUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.javascript.MirthContextFactory;
+import com.mirth.connect.util.ConnectServiceUtil;
+import com.mirth.connect.util.PropertiesConfigurationUtil;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.

@@ -96,7 +96,6 @@ import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
-import com.mirth.connect.client.core.MetaDataUtil;
 import com.mirth.connect.client.core.Version;
 import com.mirth.connect.client.core.api.BaseServletInterface;
 import com.mirth.connect.client.core.api.Replaces;
@@ -116,6 +115,7 @@ import com.mirth.connect.server.servlets.WebStartServlet;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.PackagePredicate;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.MetaDataUtil;
 import com.mirth.connect.util.MirthSSLUtil;
 
 import io.swagger.v3.jaxrs2.integration.resources.AcceptHeaderOpenApiResource;

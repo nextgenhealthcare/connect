@@ -18,7 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.util.Arrays;
 
-import com.mirth.connect.donkey.server.message.batch.BatchStreamReader;
+import com.mirth.connect.donkey.model.message.batch.BatchStreamReader;
 import com.mirth.connect.model.transmission.TransmissionModeProperties;
 import com.mirth.connect.model.transmission.framemode.FrameStreamHandler;
 import com.mirth.connect.util.TcpUtil;

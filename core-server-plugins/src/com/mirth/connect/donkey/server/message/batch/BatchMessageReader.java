@@ -12,6 +12,8 @@ package com.mirth.connect.donkey.server.message.batch;
 import java.io.Reader;
 import java.io.StringReader;
 
+import com.mirth.connect.donkey.model.message.batch.BatchMessageSource;
+
 public class BatchMessageReader implements BatchMessageSource {
 
     private Reader reader;

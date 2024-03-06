@@ -11,7 +11,7 @@ package com.mirth.connect.donkey.test.util;
 
 import com.mirth.connect.donkey.model.message.ConnectorMessage;
 import com.mirth.connect.donkey.model.message.Response;
-import com.mirth.connect.donkey.server.message.ResponseValidator;
+import com.mirth.connect.donkey.model.message.ResponseValidator;
 
 public class TestResponseValidator implements ResponseValidator {
 

@@ -12,11 +12,11 @@ package com.mirth.connect.donkey.server.message.batch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.mirth.connect.donkey.model.channel.ISourceConnector;
 import com.mirth.connect.donkey.model.message.BatchRawMessage;
 import com.mirth.connect.donkey.server.ConnectorTaskException;
 import com.mirth.connect.donkey.server.DeployException;
 import com.mirth.connect.donkey.server.UndeployException;
-import com.mirth.connect.donkey.server.channel.ISourceConnector;
 
 public abstract class BatchAdaptorFactory {
     protected ISourceConnector sourceConnector;
