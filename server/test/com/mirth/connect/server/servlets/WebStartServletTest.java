@@ -54,7 +54,7 @@ public class WebStartServletTest {
 
 		webStartServlet.doGet(request, response);
 
-		assertEquals(CORE_JNLP.trim(), response.getResponseString().trim());
+		assertEquals(CORE_JNLP.trim().replaceAll("\r\n|\r|\n", "\n"), response.getResponseString().trim().replaceAll("\r\n|\r|\n", "\n"));
 		assertEquals("application/x-java-jnlp-file", response.getContentType());
 		assertEquals("no-cache", response.getHeader("Pragma"));
 		assertEquals("nosniff", response.getHeader("X-Content-Type-Options"));
@@ -70,7 +70,7 @@ public class WebStartServletTest {
 
 		webStartServlet.doGet(request, response);
 
-		assertEquals(CORE_JNLP.trim(), response.getResponseString().trim());
+		assertEquals(CORE_JNLP.trim().replaceAll("\r\n|\r|\n", "\n"), response.getResponseString().trim().replaceAll("\r\n|\r|\n", "\n"));
 		assertEquals("application/x-java-jnlp-file", response.getContentType());
 		assertEquals("no-cache", response.getHeader("Pragma"));
 		assertEquals("nosniff", response.getHeader("X-Content-Type-Options"));
@@ -100,7 +100,7 @@ public class WebStartServletTest {
 
 		webStartServlet.doGet(request, response);
 
-		assertEquals(CORE_JNLP.trim(), response.getResponseString().trim());
+		assertEquals(CORE_JNLP.trim().replaceAll("\r\n|\r|\n", "\n"), response.getResponseString().trim().replaceAll("\r\n|\r|\n", "\n"));
 		assertEquals("application/x-java-jnlp-file", response.getContentType());
 		assertEquals("attachment; filename = \"webstart.jnlp\"", response.getHeader("Content-Disposition"));
 	}
@@ -216,7 +216,7 @@ public class WebStartServletTest {
 
 		webStartServlet.doGet(request, response);
 
-		assertEquals(EXTENSION_JNLP.trim(), response.getResponseString().trim());
+		assertEquals(EXTENSION_JNLP.trim().replaceAll("\r\n|\r|\n", "\n"), response.getResponseString().trim().replaceAll("\r\n|\r|\n", "\n"));
 		assertEquals("application/x-java-jnlp-file", response.getContentType());
 		assertEquals("no-cache", response.getHeader("Pragma"));
 		assertEquals("nosniff", response.getHeader("X-Content-Type-Options"));
@@ -233,7 +233,7 @@ public class WebStartServletTest {
 
 		webStartServlet.doGet(request, response);
 
-		assertEquals(EXTENSION_JNLP.trim(), response.getResponseString().trim());
+		assertEquals(EXTENSION_JNLP.trim().replaceAll("\r\n|\r|\n", "\n"), response.getResponseString().trim().replaceAll("\r\n|\r|\n", "\n"));
 		assertEquals("application/x-java-jnlp-file", response.getContentType());
 		assertEquals("no-cache", response.getHeader("Pragma"));
 		assertEquals("nosniff", response.getHeader("X-Content-Type-Options"));

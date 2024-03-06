@@ -51,7 +51,7 @@ public class MirthLauncher {
     private static LoggerWrapper logger;
 
     public static void main(String[] args) {
-        JarFile mirthClientCoreJarFile = null;
+        JarFile mirthServerJarFile = null;
         try {
             List<URL> classpathUrls = new ArrayList<>();
             // Always add log4j
@@ -86,13 +86,14 @@ public class MirthLauncher {
             }
 
             ManifestFile mirthServerJar = new ManifestFile("server-lib/mirth-server.jar");
-            ManifestFile mirthClientCoreJar = new ManifestFile("server-lib/mirth-client-core.jar");
+            ManifestDirectory coreLibServerDir = new ManifestDirectory("core-lib/server");
+            ManifestDirectory coreLibSharedDir = new ManifestDirectory("core-lib/shared");
             ManifestDirectory serverLibDir = new ManifestDirectory("server-lib");
-            serverLibDir.setExcludes(new String[] { "mirth-client-core.jar" });
 
             List<ManifestEntry> manifestList = new ArrayList<ManifestEntry>();
             manifestList.add(mirthServerJar);
-            manifestList.add(mirthClientCoreJar);
+            manifestList.add(coreLibServerDir);
+            manifestList.add(coreLibSharedDir);
             manifestList.add(serverLibDir);
 
             // We want to include custom-lib if the property isn't found, or if it equals "true"
@@ -103,9 +104,9 @@ public class MirthLauncher {
             ManifestEntry[] manifest = manifestList.toArray(new ManifestEntry[manifestList.size()]);
 
             // Get the current server version
-            mirthClientCoreJarFile = new JarFile(mirthClientCoreJar.getName());
+            mirthServerJarFile = new JarFile(mirthServerJar.getName());
             Properties versionProperties = new Properties();
-            versionProperties.load(mirthClientCoreJarFile.getInputStream(mirthClientCoreJarFile.getJarEntry("version.properties")));
+            versionProperties.load(mirthServerJarFile.getInputStream(mirthServerJarFile.getJarEntry("version.properties")));
             String currentVersion = versionProperties.getProperty("mirth.version");
 
             addManifestToClasspath(manifest, classpathUrls);
@@ -119,11 +120,11 @@ public class MirthLauncher {
             e.printStackTrace();
         } finally {
             try {
-                if (mirthClientCoreJarFile != null) {
-                    mirthClientCoreJarFile.close();
+                if (mirthServerJarFile != null) {
+                    mirthServerJarFile.close();
                 }
             } catch (IOException e) {
-                logger.error("Error closing mirthClientCoreJarFile.", e);
+                logger.error("Error closing mirthServerJarFile.", e);
             }
         }
     }
