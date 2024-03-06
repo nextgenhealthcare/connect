@@ -1,1 +1,0 @@
-The exported file formats are described here: https://www.nextgen.com/sldkjljieo0935jljsrnfkl

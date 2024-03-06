@@ -1,10 +1,10 @@
 
 # /
 /.settings
-/bin
 /classes
 /test_classes
 /dist
 /build
 *.version.properties
 version.properties
+/bin/

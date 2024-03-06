@@ -1,8 +1,8 @@
 
 # /
 /.settings
-/bin
 /classes
 /dist
 /build
 *.version.properties
+/bin/
