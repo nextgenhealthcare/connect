@@ -48,12 +48,12 @@ public class CommandLineLauncher {
 
         try {
             ManifestFile mirthCliJar = new ManifestFile("cli-lib/mirth-cli.jar");
-            ManifestFile mirthClientCoreJar = new ManifestFile("cli-lib/mirth-client-core.jar");
+            ManifestDirectory coreLibServerDir = new ManifestDirectory("core-lib/server");
+            ManifestDirectory coreLibSharedDir = new ManifestDirectory("core-lib/shared");
             ManifestDirectory cliLibDir = new ManifestDirectory("cli-lib");
-            cliLibDir.setExcludes(new String[] { "mirth-client-core.jar" });
 
-            ManifestEntry[] manifest = new ManifestEntry[] { mirthCliJar, mirthClientCoreJar,
-                    cliLibDir };
+            ManifestEntry[] manifest = new ManifestEntry[] { mirthCliJar, coreLibServerDir,
+                    coreLibSharedDir, cliLibDir };
 
             List<URL> classpathUrls = new ArrayList<URL>();
             addManifestToClasspath(manifest, classpathUrls);

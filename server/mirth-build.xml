@@ -104,6 +104,11 @@
 		<ant antfile="${client}/ant-build.xml" dir="${client}" target="build" />
 
 		<copy file="${client}/dist/mirth-client.jar" todir="${server.setup}/client-lib/" />
+		
+		<copy todir="${server.setup}/client-lib">
+			<fileset dir="${server.core.lib}/shared" />
+			<fileset dir="${server.core.lib}/ui" />
+		</copy>
 
 		<copy todir="${server.setup}/client-lib">
 			<fileset dir="${client}/lib">

@@ -12,7 +12,6 @@ package com.mirth.connect.client.ui.panels.connectors;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mirth.connect.client.ui.AbstractConnectorPropertiesPanel;
 import com.mirth.connect.client.ui.ChannelSetupBase;
+import com.mirth.connect.client.ui.FrameBase;
 import com.mirth.connect.client.ui.LoadedExtensions;
 import com.mirth.connect.client.ui.MirthDialog;
 import com.mirth.connect.client.ui.PlatformUI;
@@ -268,7 +268,7 @@ public class DestinationSettingsPanel extends JPanel {
 
         advancedQueueSettingsLabel = new JLabel("Advanced Queue Settings:");
 
-        advancedQueueSettingsButton = new JButton(new ImageIcon(Frame.class.getResource("images/wrench.png")));
+        advancedQueueSettingsButton = new JButton(new ImageIcon(FrameBase.class.getResource("images/wrench.png")));
         advancedQueueSettingsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {

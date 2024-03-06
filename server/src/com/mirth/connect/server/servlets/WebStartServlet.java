@@ -32,6 +32,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FalseFileFilter;
+import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
@@ -217,8 +220,9 @@ public class WebStartServlet extends HttpServlet {
 
         List<String> defaultClientLibs = new ArrayList<String>();
         defaultClientLibs.add("mirth-client.jar");
-        defaultClientLibs.add("mirth-client-core.jar");
-        defaultClientLibs.add("mirth-crypto.jar");
+        for (File coreJarFile : FileUtils.listFiles(new File("client-lib"), new PrefixFileFilter("mirth-core-"), FalseFileFilter.FALSE)) {
+            defaultClientLibs.add(coreJarFile.getName());
+        }
         defaultClientLibs.add("mirth-vocab.jar");
 
         File clientLibDirectory = new File(getClientLibPath());
