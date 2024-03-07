@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-base"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-ui"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-plugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
@@ -115,13 +122,6 @@
 	<classpathentry kind="lib" path="lib/libphonenumber-8.12.50.jar"/>
 	<classpathentry kind="lib" path="lib/commons-pool2-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-1.4.01.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-base"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-ui"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-client"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-plugins"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Server">
 		<accessrules>
 			<accessrule kind="accessible" pattern="com/mirth/connect/connectors/**"/>

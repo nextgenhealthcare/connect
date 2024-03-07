@@ -43,13 +43,16 @@
 		
 		<!-- Add all shared core-lib and manager-lib JARs to launcher manifest -->
 		<taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="classpath" />
-		<fileset id="manager.core.lib.files" dir="${core.lib}/shared" includes="**/*.jar" />
-		<propertyregex property="manager.tempreplace1" input="${toString:manager.core.lib.files}" regexp="\\" replace="/" global="true" defaultValue="${toString:manager.core.lib.files}" />
+		<fileset id="manager.core.lib.mirth.files" dir="${core.lib}/shared" includes="**/mirth-core-*.jar" />
+		<propertyregex property="manager.tempreplace1" input="${toString:manager.core.lib.mirth.files}" regexp="\\" replace="/" global="true" defaultValue="${toString:manager.core.lib.mirth.files}" />
 		<propertyregex property="manager.tempreplace2" input="${manager.tempreplace1}" regexp="(.+?)(;|:|$)" replace="core-lib/shared/\1 " global="true" defaultValue="${manager.tempreplace1}" />
+		<fileset id="manager.core.lib.files" dir="${core.lib}/shared" includes="**/*.jar" excludes="**/mirth-core-*.jar" />
+		<propertyregex property="manager.tempreplace3" input="${toString:manager.core.lib.files}" regexp="\\" replace="/" global="true" defaultValue="${toString:manager.core.lib.files}" />
+		<propertyregex property="manager.tempreplace4" input="${manager.tempreplace3}" regexp="(.+?)(;|:|$)" replace="core-lib/shared/\1 " global="true" defaultValue="${manager.tempreplace3}" />
 		<fileset id="manager.lib.files" dir="${lib}" includes="**/*.jar" />
-		<propertyregex property="manager.tempreplace3" input="${toString:manager.lib.files}" regexp="\\" replace="/" global="true" defaultValue="${toString:manager.lib.files}" />
-		<propertyregex property="manager.tempreplace4" input="${manager.tempreplace3}" regexp="(.+?)(;|:|$)" replace="manager-lib/\1 " global="true" defaultValue="${manager.tempreplace3}" />
-		<property name="manager.launcher.classpath" value="${manager.tempreplace2}${manager.tempreplace4}" />
+		<propertyregex property="manager.tempreplace5" input="${toString:manager.lib.files}" regexp="\\" replace="/" global="true" defaultValue="${toString:manager.lib.files}" />
+		<propertyregex property="manager.tempreplace6" input="${manager.tempreplace5}" regexp="(.+?)(;|:|$)" replace="manager-lib/\1 " global="true" defaultValue="${manager.tempreplace5}" />
+		<property name="manager.launcher.classpath" value="${manager.tempreplace2}${manager.tempreplace4}${manager.tempreplace6}" />
 
 		<jar destfile="${dist}/${manager.jar}" basedir="${classes}">
 			<manifest>

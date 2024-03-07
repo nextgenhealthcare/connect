@@ -5,6 +5,11 @@
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="dbconf"/>
 	<classpathentry kind="src" path="build"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-base"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-server-plugins"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/jai_imageio.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/flying-saucer-core-9.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/flying-saucer-pdf-9.0.1.jar"/>
@@ -267,10 +272,5 @@
 	<classpathentry kind="lib" path="lib/xstream-1.4.20.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.12.2.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-1.4.01.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-base"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-client-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-server-plugins"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
