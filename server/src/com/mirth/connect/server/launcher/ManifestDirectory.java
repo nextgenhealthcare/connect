@@ -11,6 +11,8 @@ package com.mirth.connect.server.launcher;
 
 public class ManifestDirectory implements ManifestEntry {
     private String dir;
+    private String includePrefix;
+    private String excludePrefix;
     private String[] excludes = new String[0];
 
     public ManifestDirectory(String dir) {
@@ -19,6 +21,22 @@ public class ManifestDirectory implements ManifestEntry {
 
     public String getName() {
         return dir;
+    }
+
+    public String getIncludePrefix() {
+        return includePrefix;
+    }
+
+    public void setIncludePrefix(String includePrefix) {
+        this.includePrefix = includePrefix;
+    }
+
+    public String getExcludePrefix() {
+        return excludePrefix;
+    }
+
+    public void setExcludePrefix(String excludePrefix) {
+        this.excludePrefix = excludePrefix;
     }
 
     public String[] getExcludes() {

@@ -28,6 +28,7 @@ import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -86,12 +87,20 @@ public class MirthLauncher {
             }
 
             ManifestFile mirthServerJar = new ManifestFile("server-lib/mirth-server.jar");
+            ManifestDirectory coreLibServerDirMirthLibs = new ManifestDirectory("core-lib/server");
+            coreLibServerDirMirthLibs.setIncludePrefix("mirth-core-");
+            ManifestDirectory coreLibSharedDirMirthLibs = new ManifestDirectory("core-lib/shared");
+            coreLibSharedDirMirthLibs.setIncludePrefix("mirth-core-");
             ManifestDirectory coreLibServerDir = new ManifestDirectory("core-lib/server");
+            coreLibServerDir.setExcludePrefix("mirth-core-");
             ManifestDirectory coreLibSharedDir = new ManifestDirectory("core-lib/shared");
+            coreLibSharedDir.setExcludePrefix("mirth-core-");
             ManifestDirectory serverLibDir = new ManifestDirectory("server-lib");
 
             List<ManifestEntry> manifestList = new ArrayList<ManifestEntry>();
             manifestList.add(mirthServerJar);
+            manifestList.add(coreLibServerDirMirthLibs);
+            manifestList.add(coreLibSharedDirMirthLibs);
             manifestList.add(coreLibServerDir);
             manifestList.add(coreLibSharedDir);
             manifestList.add(serverLibDir);
@@ -207,12 +216,16 @@ public class MirthLauncher {
             if (manifestEntryFile.exists()) {
                 if (manifestEntryFile.isDirectory()) {
                     ManifestDirectory manifestDir = (ManifestDirectory) manifestEntry;
-                    IOFileFilter fileFilter = null;
+                    IOFileFilter fileFilter = FileFilterUtils.fileFileFilter();
 
+                    if (manifestDir.getIncludePrefix() != null) {
+                        fileFilter = FileFilterUtils.and(fileFilter, new PrefixFileFilter(manifestDir.getIncludePrefix()));
+                    }
+                    if (manifestDir.getExcludePrefix() != null) {
+                        fileFilter = FileFilterUtils.and(fileFilter, FileFilterUtils.notFileFilter(new PrefixFileFilter(manifestDir.getExcludePrefix())));
+                    }
                     if (manifestDir.getExcludes().length > 0) {
-                        fileFilter = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.notFileFilter(new NameFileFilter(manifestDir.getExcludes())));
-                    } else {
-                        fileFilter = FileFilterUtils.fileFileFilter();
+                        fileFilter = FileFilterUtils.and(fileFilter, FileFilterUtils.notFileFilter(new NameFileFilter(manifestDir.getExcludes())));
                     }
 
                     Collection<File> pathFiles = FileUtils.listFiles(manifestEntryFile, fileFilter, FileFilterUtils.trueFileFilter());
