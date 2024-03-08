@@ -69,7 +69,8 @@
 	<classpathentry kind="lib" path="/Core-client-base/lib/jersey/jersey-common-2.35.jar"/>
 	<classpathentry kind="lib" path="/Core-client-base/lib/jersey/jersey-hk2-2.35.jar"/>
 	<classpathentry kind="lib" path="/Core-client-base/lib/mimepull-1.9.15.jar"/>
-	<classpathentry kind="lib" path="/Core-client-base/lib/staxon-1.3.jar"/>
+	<classpathentry kind="lib" path="/Core-client-base/lib/slf4j-api-1.7.30.jar"/>
+	<classpathentry kind="lib" path="/Core-client-base/lib/slf4j-log4j12-1.7.30.jar"/>
 	<classpathentry kind="lib" path="/Core-client-base/lib/swagger/ext/reflections-0.9.10.jar"/>
 	<classpathentry kind="lib" path="/Core-client-base/lib/velocity-engine-core-2.3.jar"/>
 	<classpathentry kind="lib" path="/Core-client-base/lib/velocity-tools-generic-3.1.jar"/>
@@ -83,6 +84,10 @@
 	<classpathentry kind="lib" path="/Core-ui/lib/looks-2.3.1.jar"/>
 	<classpathentry kind="lib" path="/Core-ui/lib/miglayout-core-4.2.jar"/>
 	<classpathentry kind="lib" path="/Core-ui/lib/miglayout-swing-4.2.jar"/>
-	<classpathentry kind="lib" path="/Core-ui/lib/swingx-core-1.6.2.jar"/>	
+	<classpathentry kind="lib" path="/Core-ui/lib/swingx-core-1.6.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.jarvana.com/jarvana/view/org/swinglabs/swingx-core/1.6.2-2/swingx-core-1.6.2-2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
