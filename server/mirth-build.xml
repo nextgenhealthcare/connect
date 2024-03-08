@@ -68,10 +68,6 @@
 		<copy file="${donkey.setup}/donkey-server.jar" todir="${server}/lib/donkey" />
 		<copy todir="${server}/lib/donkey">
 			<fileset dir="${donkey}/lib">
-				<exclude name="log4j-1.2.16.jar" />
-				<exclude name="HikariCP-java6-2.0.1.jar" />
-				<exclude name="javassist-3.19.0-GA.jar" />
-				<exclude name="xstream/**" />
 				<exclude name="commons/**" />
 				<exclude name="database/**" />
 			</fileset>
@@ -105,9 +101,9 @@
 
 		<copy file="${client}/dist/mirth-client.jar" todir="${server.setup}/client-lib/" />
 		
-		<copy todir="${server.setup}/client-lib">
-			<fileset dir="${server.core.lib}/shared" />
-			<fileset dir="${server.core.lib}/ui" />
+		<copy todir="${server.setup}/client-lib" flatten="true">
+			<fileset dir="${server.core.lib}/shared" includes="**/*.jar" />
+			<fileset dir="${server.core.lib}/ui" includes="**/*.jar" />
 		</copy>
 
 		<copy todir="${server.setup}/client-lib">

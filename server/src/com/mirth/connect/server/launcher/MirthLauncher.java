@@ -43,9 +43,9 @@ public class MirthLauncher {
     private static final String MIRTH_PROPERTIES_FILE = "./conf/mirth.properties";
     private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
     private static final String PROPERTY_INCLUDE_CUSTOM_LIB = "server.includecustomlib";
-    private static final String[] LOG4J_JAR_FILES = { "./server-lib/log4j/log4j-core-2.17.2.jar",
-            "./server-lib/log4j/log4j-api-2.17.2.jar",
-            "./server-lib/log4j/log4j-1.2-api-2.17.2.jar" };
+    private static final String[] LOG4J_JAR_FILES = { "./core-lib/shared/log4j/log4j-core-2.17.2.jar",
+            "./core-lib/shared/log4j/log4j-api-2.17.2.jar",
+            "./core-lib/shared/log4j/log4j-1.2-api-2.17.2.jar" };
 
     private static String appDataDir = null;
 
