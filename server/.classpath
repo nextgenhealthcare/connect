@@ -253,7 +253,7 @@
 	<classpathentry kind="lib" path="lib/joda-time-2.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.2.13.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-vocab.jar"/>
-	<classpathentry kind="lib" path="lib/mybatis-3.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/mybatis-3.5.15.jar"/>
 	<classpathentry kind="lib" path="lib/not-going-to-be-commons-ssl-0.3.18.jar"/>
 	<classpathentry kind="lib" path="lib/oshi-core-3.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/swagger/swagger-jaxrs2-2.0.10.jar"/>

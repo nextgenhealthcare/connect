@@ -154,7 +154,7 @@
 		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'PERSON', 0)}
 	</select>
 
-	<select id='selectPreferencesForUser' parameterType='java.lang.String' resultType='KeyValuePair'>
+	<select id='selectPreferencesForUser' parameterType='java.lang.Integer' resultType='KeyValuePair'>
 		SELECT NAME AS "key", VALUE AS "value"
 		FROM PERSON_PREFERENCE
 		WHERE PERSON_ID = #{value}
