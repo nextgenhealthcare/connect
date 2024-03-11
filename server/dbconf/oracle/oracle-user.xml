@@ -146,7 +146,7 @@
 		SET LOGGED_IN = 0
 	</update>
 	
-	<select id='selectPreferencesForUser' parameterType='java.lang.String' resultType='KeyValuePair'>
+	<select id='selectPreferencesForUser' parameterType='java.lang.Integer' resultType='KeyValuePair'>
 		SELECT NAME "key", VALUE "value"
 		FROM PERSON_PREFERENCE
 		WHERE PERSON_ID = #{value}
