@@ -123,6 +123,7 @@ public class HttpDispatcher extends DestinationConnector {
     protected TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     private Map<Long, CloseableHttpClient> clients = new ConcurrentHashMap<Long, CloseableHttpClient>();
+    private Map<Long, Object> userTokens = new ConcurrentHashMap<Long, Object>();
     private HttpConfiguration configuration;
     private RegistryBuilder<ConnectionSocketFactory> socketFactoryRegistry;
     private Map<String, String[]> binaryMimeTypesArrayMap;
@@ -169,6 +170,7 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         clients.clear();
+        userTokens.clear();
     }
 
     @Override
@@ -178,6 +180,7 @@ public class HttpDispatcher extends DestinationConnector {
         }
 
         clients.clear();
+        userTokens.clear();
     }
 
     @Override
@@ -316,12 +319,22 @@ public class HttpDispatcher extends DestinationConnector {
                 context.setAttribute(PROXY_CONTEXT_KEY, new HttpHost(httpDispatcherProperties.getProxyAddress(), Integer.parseInt(httpDispatcherProperties.getProxyPort())));
             }
 
+            Object userToken = userTokens.get(dispatcherId);
+            logger.debug("cached user token: " + userToken);
+            if (userToken != null) {
+                context.setUserToken(userToken);
+            }
+
             // execute the method
             logger.debug("executing method: type=" + httpMethod.getMethod() + ", uri=" + httpMethod.getURI().toString());
             httpResponse = client.execute(target, httpMethod, context);
             StatusLine statusLine = httpResponse.getStatusLine();
             int statusCode = statusLine.getStatusCode();
             logger.debug("received status code: " + statusCode);
+
+            userToken = context.getUserToken();
+            logger.debug("updating user token to: " + userToken);
+            userTokens.put(dispatcherId, userToken);
 
             Map<String, List<String>> headers = new HashMap<String, List<String>>();
             for (Header header : httpResponse.getAllHeaders()) {
@@ -407,6 +420,7 @@ public class HttpDispatcher extends DestinationConnector {
                 HttpUtil.closeVeryQuietly(httpResponse);
                 HttpClientUtils.closeQuietly(client);
                 clients.remove(dispatcherId);
+                userTokens.remove(dispatcherId);
             }
         } finally {
             try {
