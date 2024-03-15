@@ -135,9 +135,8 @@ the Common Development and Distribution License version 1.1 (see CDDL-1.1.txt):
 	JavaBeans Activation Framework API 1.2.0 (source code can be downloaded
 	from: https://github.com/javaee/activation/tree/JAF-1_2_0)
 	
-	JavaMail API 1.5.0 (source code can be downloaded from:
-	http://search.maven.org/remotecontent?filepath=com/sun/mail/javax.mail/1.5.0
-	/javax.mail-1.5.0-sources.jar)
+	JavaMail API 1.5.6 (source code can be downloaded from:
+	https://mvnrepository.com/artifact/com.sun.mail/javax.mail)
 	
 	JAXB TXW Runtime 2.4.0-b180725.0427 (source code can be downloaded from:
 	https://github.com/javaee/jaxb-v2/tree/master/jaxb-ri/txw)
