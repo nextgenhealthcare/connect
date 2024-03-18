@@ -221,6 +221,7 @@
 
 	<target name="test-run" depends="init">
 		<ant antfile="${core.client.base}/build.xml" dir="${core.client.base}" target="test-run"/>
+		<ant antfile="${core.server.plugins}/build.xml" dir="${core.server.plugins}" target="test-run"/>
 		<ant antfile="${core.util}/build.xml" dir="${core.util}" target="test-run"/>
 		<ant antfile="${donkey}/build.xml" dir="${donkey}" target="test-run"/>
 		<ant antfile="${server}/build.xml" dir="${server}" target="test-run"/>
