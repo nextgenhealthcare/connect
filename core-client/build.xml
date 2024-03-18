@@ -51,4 +51,72 @@
 			<fileset dir="${classes}" />
 		</jar>
 	</target>
+	
+	<target name="test-init" depends="init">
+		<delete dir="${test_classes}" />
+		
+		<path id="testclasspath">
+			<fileset dir="testlib" includes="**/*.jar" />
+			<dirset dir="${classes}"/>
+			<path refid="classpath" />
+		</path>
+	</target>
+	
+	<target name="test-compile" depends="test-init">
+		<!-- compile the source -->
+		<mkdir dir="${test_classes}" />
+		
+		<javac srcdir="${test}" destdir="${test_classes}" debug="on" includeAntRuntime="false">
+			<classpath refid="testclasspath" />
+			<!-- Uncomment the following and add additional dashes in front of the arguments to allow Java 9+
+				<compilerarg value="-add-modules" />
+				<compilerarg value="java.sql.rowset,java.xml.ws" />
+				<compilerarg value="-add-exports" />
+				<compilerarg value="java.sql.rowset/com.sun.rowset=ALL-UNNAMED" />
+			-->
+		</javac>
+		
+		<copy todir="${test_classes}">
+			<fileset dir="${test}">
+				<include name="**/*.xml" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+		<classpath path="antlib/jacocoant.jar"/>
+	</taskdef>
+	
+	<target name="test-run" depends="test-compile">
+		<property name="junit-reports" value="junit-reports" />
+		<property name="code-coverage-reports" value="code-coverage-reports" />
+		<mkdir dir="${junit-reports}" />
+		<mkdir dir="${code-coverage-reports}" />
+		
+		<jacoco:coverage destfile="${code-coverage-reports}/jacoco.exec" xmlns:jacoco="antlib:org.jacoco.ant" exclclassloader="sun.reflect.DelegatingClassLoader:javassist.Loader" >
+			<junit haltonfailure="false" fork="true" forkmode="once">
+				<jvmarg value="-Xms128m" />
+				<jvmarg value="-Xmx1024m" />
+				<!-- Uncomment the following and add additional dashes in front of the arguments to allow Java 9+
+					<jvmarg value="-add-opens=java.base/java.util=ALL-UNNAMED" />
+					<jvmarg value="-add-opens=java.base/java.lang=ALL-UNNAMED" />
+					<jvmarg value="-add-opens=java.base/java.lang.reflect=ALL-UNNAMED" />
+					<jvmarg value="-add-opens=java.base/java.text=ALL-UNNAMED" />
+					<jvmarg value="-add-opens=java.desktop/java.awt=ALL-UNNAMED" />
+					<jvmarg value="-add-opens=java.desktop/java.awt.font=ALL-UNNAMED" />
+					<jvmarg value="-add-opens=java.xml/com.sun.org.apache.xalan.internal.xsltc.trax=ALL-UNNAMED" />
+				-->
+				<classpath>
+					<path refid="testclasspath" />
+					<dirset dir="${test_classes}"/>
+				</classpath>
+				<formatter type="xml" />
+				<batchtest todir="${junit-reports}">
+					<fileset dir="${test_classes}">
+						<include name="**/*Test.class" />
+					</fileset>
+				</batchtest>
+			</junit>
+		</jacoco:coverage>
+	</target>
 </project>

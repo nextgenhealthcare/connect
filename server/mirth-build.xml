@@ -220,9 +220,14 @@
 	</target>
 
 	<target name="test-run" depends="init">
-		<ant antfile="${core.client.base}/build.xml" dir="${core.client.base}" target="test-run"/>
-		<ant antfile="${core.server.plugins}/build.xml" dir="${core.server.plugins}" target="test-run"/>
+		<ant antfile="${core.models}/build.xml" dir="${core.models}" target="test-run"/>
 		<ant antfile="${core.util}/build.xml" dir="${core.util}" target="test-run"/>
+		<ant antfile="${core.client.base}/build.xml" dir="${core.client.base}" target="test-run"/>
+		<ant antfile="${core.client.api}/build.xml" dir="${core.client.api}" target="test-run"/>
+		<ant antfile="${core.client}/build.xml" dir="${core.client}" target="test-run"/>
+		<ant antfile="${core.server.plugins}/build.xml" dir="${core.server.plugins}" target="test-run"/>
+		<ant antfile="${core.ui}/build.xml" dir="${core.ui}" target="test-run"/>
+		<ant antfile="${core.client.plugins}/build.xml" dir="${core.client.plugins}" target="test-run"/>
 		<ant antfile="${donkey}/build.xml" dir="${donkey}" target="test-run"/>
 		<ant antfile="${server}/build.xml" dir="${server}" target="test-run"/>
 		<ant antfile="${client}/ant-build.xml" dir="${client}" target="test-run"/>
