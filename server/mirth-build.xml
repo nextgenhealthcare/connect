@@ -223,6 +223,7 @@
 		<ant antfile="${core.models}/build.xml" dir="${core.models}" target="test-run"/>
 		<ant antfile="${core.util}/build.xml" dir="${core.util}" target="test-run"/>
 		<ant antfile="${core.client.base}/build.xml" dir="${core.client.base}" target="test-run"/>
+		<!-- as core libs get unit tests added, uncomment the one that was added -->
 <!--		<ant antfile="${core.client.api}/build.xml" dir="${core.client.api}" target="test-run"/> -->
 <!--		<ant antfile="${core.client}/build.xml" dir="${core.client}" target="test-run"/> -->
 		<ant antfile="${core.server.plugins}/build.xml" dir="${core.server.plugins}" target="test-run"/>
