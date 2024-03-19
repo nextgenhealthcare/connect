@@ -334,7 +334,11 @@ public class HttpDispatcher extends DestinationConnector {
 
             userToken = context.getUserToken();
             logger.debug("updating user token to: " + userToken);
-            userTokens.put(dispatcherId, userToken);
+            if (userToken != null) {
+                userTokens.put(dispatcherId, userToken);
+            } else {
+                userTokens.remove(dispatcherId);
+            }
 
             Map<String, List<String>> headers = new HashMap<String, List<String>>();
             for (Header header : httpResponse.getAllHeaders()) {
