@@ -26,7 +26,7 @@ public class FilterTransformerElementTest {
      */
     @Test
     public void testMigrate3_6_0FilterTransformerElement3_7_0() throws Exception {
-        String oldFilterStr = FileUtils.readFileToString(new File("tests/RuleBuilderRule3_6_0.xml"));
+        String oldFilterStr = FileUtils.readFileToString(new File("tests/RuleBuilderRule3_6_0.xml"), "UTF-8");
         DonkeyElement filterDonkey = new DonkeyElement(oldFilterStr);
         FilterTransformerElement ftElement = new FilterTransformerElement() {
 
