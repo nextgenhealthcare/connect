@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Core-models"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
 	<classpathentry kind="lib" path="/Core-models/lib/commons/commons-beanutils-1.9.4.jar"/>
 	<classpathentry kind="lib" path="/Core-models/lib/commons/commons-codec-1.16.0.jar"/>
 	<classpathentry kind="lib" path="/Core-models/lib/commons/commons-collections4-4.4.jar"/>
@@ -33,7 +34,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="/Core-models/lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="/Core-models/lib/xstream-1.4.20.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Core-util"/>
 	<classpathentry kind="lib" path="/Core-util/lib/bcpkix-jdk18on-171.jar"/>
 	<classpathentry kind="lib" path="/Core-util/lib/bcprov-ext-jdk18on-171.jar"/>
 	<classpathentry kind="lib" path="/Core-util/lib/bcprov-jdk18on-171.jar"/>
