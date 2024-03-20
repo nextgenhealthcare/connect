@@ -8,18 +8,18 @@
 
 		<path id="classpath">
 			<fileset dir="${lib}" includes="**/*.jar" />
-			<fileset dir="${core.models}/lib" includes="**/*.jar" />
 			<fileset dir="${core.models}/dist" includes="**/*.jar" />
-			<fileset dir="${core.util}/lib" includes="**/*.jar" />
+			<fileset dir="${core.models}/lib" includes="**/*.jar" />
 			<fileset dir="${core.util}/dist" includes="**/*.jar" />
-			<fileset dir="${core.client.base}/lib" includes="**/*.jar" />
+			<fileset dir="${core.util}/lib" includes="**/*.jar" />
 			<fileset dir="${core.client.base}/dist" includes="**/*.jar" />
-			<fileset dir="${core.client.api}/lib" includes="**/*.jar" />
+			<fileset dir="${core.client.base}/lib" includes="**/*.jar" />
 			<fileset dir="${core.client.api}/dist" includes="**/*.jar" />
-			<fileset dir="${core.client}/lib" includes="**/*.jar" />
+			<fileset dir="${core.client.api}/lib" includes="**/*.jar" />
 			<fileset dir="${core.client}/dist" includes="**/*.jar" />
-			<fileset dir="${core.ui}/lib" includes="**/*.jar" />
+			<fileset dir="${core.client}/lib" includes="**/*.jar" />
 			<fileset dir="${core.ui}/dist" includes="**/*.jar" />
+			<fileset dir="${core.ui}/lib" includes="**/*.jar" />
 		</path>
 	</target>
 

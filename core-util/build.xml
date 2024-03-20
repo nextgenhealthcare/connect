@@ -8,8 +8,8 @@
 
 		<path id="classpath">
 			<fileset dir="${lib}" includes="**/*.jar" />
-			<fileset dir="${core.models}/lib" includes="**/*.jar" />
 			<fileset dir="${core.models}/dist" includes="**/*.jar" />
+			<fileset dir="${core.models}/lib" includes="**/*.jar" />
 		</path>
 	</target>
 
