@@ -73,7 +73,10 @@
 	<classpathentry kind="lib" path="lib/swagger/ext/reflections-0.9.10.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-engine-core-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-generic-3.1.jar"/>
+	<classpathentry kind="lib" path="testlib/byte-buddy-1.8.8.jar"/>
+	<classpathentry kind="lib" path="testlib/byte-buddy-agent-1.8.8.jar"/>
 	<classpathentry kind="lib" path="testlib/junit-4.8.1.jar"/>
 	<classpathentry kind="lib" path="testlib/mockito-core-2.7.9.jar"/>
+	<classpathentry kind="lib" path="testlib/objenesis-2.5.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
