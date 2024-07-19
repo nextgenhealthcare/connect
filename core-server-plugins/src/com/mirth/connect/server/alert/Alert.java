@@ -9,19 +9,27 @@
 
 package com.mirth.connect.server.alert;
 
+import static java.util.Map.entry;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.velocity.tools.generic.DateTool;
 
+import com.mirth.connect.client.core.ControllerException;
+import com.mirth.connect.model.ServerSettings;
 import com.mirth.connect.model.alert.AlertModel;
 import com.mirth.connect.server.controllers.ConfigurationController;
 
 public class Alert {
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     public static Class<?> USER_PROTOCOL_CLASS;
-    
+
     private AlertModel model;
     private Long enabledDateTime;
     private Long enabledNanoTime;
@@ -58,9 +66,24 @@ public class Alert {
         context.put("alertId", model.getId());
         context.put("alertName", model.getName());
         context.put("serverId", ConfigurationController.getInstance().getServerId());
+        context.putAll(getServerSettings());
         context.put("date", new DateTool());
 
         return context;
+    }
+
+    private Map<String, Object> getServerSettings() {
+        try {
+            ServerSettings settings = ConfigurationController.getInstance().getServerSettings();
+            // ensure an empty string as Velocity won't replace when given a null value
+            return Map.ofEntries(
+                entry("serverName", StringUtils.defaultString(settings.getServerName())),
+                entry("environmentName", StringUtils.defaultString(settings.getEnvironmentName())));
+        } catch (ControllerException e) {
+            logger.warn("Failed to retrieve server settings", e);
+        }
+
+        return Map.of();
     }
 
     public int getAlertedCount() {
