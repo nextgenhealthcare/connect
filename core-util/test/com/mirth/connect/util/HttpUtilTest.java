@@ -9,10 +9,13 @@
 
 package com.mirth.connect.util;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.security.KeyStore;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.net.ssl.SSLContext;
@@ -21,6 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.ssl.SSLContexts;
 import org.junit.Test;
+
+import com.mirth.connect.donkey.model.message.ConnectorMessage;
+import com.mirth.connect.donkey.util.MessageMaps;
 
 public class HttpUtilTest {
 
@@ -39,5 +45,21 @@ public class HttpUtilTest {
             fail("Exception should have been thrown");
         } catch (Exception e) {
         }
+    }
+
+    @Test
+    public void testMapOrderPreserved() {
+        final String MAP_KEY = "MyMap";
+
+        Map<String, Object> initial = new LinkedHashMap<>();
+        initial.put("First", 1);
+        initial.put("Second", 2);
+        initial.put("Third", 3);
+
+        ConnectorMessage cm = new ConnectorMessage();
+        cm.getSourceMap().put(MAP_KEY, initial);
+
+        Map<?, ?> copied = HttpUtil.getTableMap(MAP_KEY, new MessageMaps(), cm);
+        assertArrayEquals("Failed to preserve key order", initial.keySet().toArray(), copied.keySet().toArray());
     }
 }
