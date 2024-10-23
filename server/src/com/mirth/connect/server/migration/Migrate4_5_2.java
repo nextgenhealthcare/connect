@@ -36,7 +36,11 @@ public class Migrate4_5_2 extends Migrator implements ConfigurationMigrator {
 
             builder.save();
             
-            // Update log4j2-cli.properties
+            // Update log4j2-cli.properties the file exists
+            if(!new File(ClassPathResource.getResourceURI("log4j2-cli.properties")).exists()) {
+		return;
+	    })
+
             builder = PropertiesConfigurationUtil.createBuilder(new File(ClassPathResource.getResourceURI("log4j2-cli.properties")));
             log4jproperties = builder.getConfiguration();
 
