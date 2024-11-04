@@ -7,4 +7,5 @@ public interface IWebServiceReceiver extends ISourceConnector {
 
 	public void setServer(HttpServer server);
 	
+	public Map<String, List<String>> getHttpHeaders();
 }

@@ -56,6 +56,7 @@ public class WebServiceListener extends ConnectorSettingsPanel {
         properties.setClassName(classNameField.getText());
         properties.setServiceName(serviceNameField.getText());
         properties.setSoapBinding(Binding.fromDisplayName((String) versionComboBox.getSelectedItem()));
+        properties.setHttpHeaders(httpHeadersField.getText());
 
         return properties;
     }
@@ -71,6 +72,7 @@ public class WebServiceListener extends ConnectorSettingsPanel {
         updateClassNameRadio();
 
         serviceNameField.setText(props.getServiceName());
+        httpHeadersField.setText(props.getHttpHeaders());
 
         updateWSDL();
     }
@@ -149,6 +151,7 @@ public class WebServiceListener extends ConnectorSettingsPanel {
         methodLabel = new JLabel("Method:");
         webServiceLabel = new JLabel("Web Service:");
         classNameLabel = new JLabel("Service Class Name:");
+        httpHeadersLabel = new JLabel("HTTP Headers:");
 
         serviceNameField = new MirthTextField();
         serviceNameField.setToolTipText("The name to give to the web service.");
@@ -205,6 +208,9 @@ public class WebServiceListener extends ConnectorSettingsPanel {
 
         classNameField = new MirthTextField();
         classNameField.setToolTipText("<html>The fully qualified class name of the web service that should be hosted.<br>If this is a custom class, it should be added in a custom jar so it is loaded with Mirth Connect.</html>");
+
+        httpHeadersField = new MirthTextField();
+        httpHeadersField.setToolTipText("Displays the HTTP Headers of incoming calls.");
     }
 
     private void initLayout() {
@@ -230,6 +236,9 @@ public class WebServiceListener extends ConnectorSettingsPanel {
 
         add(methodLabel);
         add(methodField, "w 250!, wrap");
+
+        add(httpHeadersLabel);
+        add(httpHeadersField, "w 250!, wrap");
     }
 
     private void serviceNameFieldKeyReleased(KeyEvent evt) {
@@ -269,4 +278,7 @@ public class WebServiceListener extends ConnectorSettingsPanel {
 
     private JLabel methodLabel;
     private JTextField methodField;
+
+    private JLabel httpHeadersLabel;
+    private MirthTextField httpHeadersField;
 }

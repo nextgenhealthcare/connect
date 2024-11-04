@@ -87,6 +87,7 @@ public class WebServiceReceiver extends SourceConnector implements IWebServiceRe
     private WebServiceReceiverProperties connectorProperties;
     private HttpAuthConnectorPluginProperties authProps;
     private AuthenticatorProvider authenticatorProvider;
+    private Map<String, List<String>> httpHeaders;
 
     @Override
     public void onDeploy() throws ConnectorTaskException {
@@ -344,6 +345,11 @@ public class WebServiceReceiver extends SourceConnector implements IWebServiceRe
         this.server = server;
     }
 
+    @Override
+    public Map<String, List<String>> getHttpHeaders() {
+        return httpHeaders;
+    }
+
     private com.sun.net.httpserver.Authenticator createAuthenticator() throws ConnectorTaskException {
         final Authenticator authenticator;
         try {
@@ -363,6 +369,7 @@ public class WebServiceReceiver extends SourceConnector implements IWebServiceRe
                 String method = StringUtils.trimToEmpty(exch.getRequestMethod());
                 String requestURI = StringUtils.trimToEmpty(exch.getRequestURI().toString());
                 Map<String, List<String>> headers = exch.getRequestHeaders();
+                httpHeaders = headers;
 
                 Map<String, List<String>> queryParameters = new LinkedHashMap<String, List<String>>();
                 for (NameValuePair nvp : URLEncodedUtils.parse(exch.getRequestURI(), "UTF-8")) {
