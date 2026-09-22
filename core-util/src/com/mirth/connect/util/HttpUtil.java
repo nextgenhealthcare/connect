@@ -11,7 +11,7 @@ package com.mirth.connect.util;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -104,7 +104,7 @@ public class HttpUtil {
     }
 
     public static Map<String, List<String>> getTableMap(String mapVariable, MessageMaps messageMaps, ConnectorMessage connectorMessage) {
-        Map<String, List<String>> map = new HashMap<String, List<String>>();
+        Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
 
         try {
             Map<?, ?> source = (Map<?, ?>) messageMaps.get(mapVariable, connectorMessage);
