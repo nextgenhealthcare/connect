@@ -23,4 +23,6 @@ public interface WebServiceConfiguration {
     public void configureReceiver(IWebServiceReceiver connector) throws Exception;
 
     public void configureDispatcher(IWebServiceDispatcher connector, ConnectorProperties connectorProperties, Map<String, Object> requestContext) throws Exception;
+
+    public void configureHttpHeaders(IWebServiceReceiver connector) throws Exception;
 }
